@@ -14,10 +14,6 @@ const THEMES = {
         name: 'Light',
         className: 'theme-light'
     },
-    'brutalist': {
-        name: 'Brutalist',
-        className: 'theme-brutalist'
-    },
     'retro': {
         name: 'Retro Terminal',
         className: 'theme-retro-terminal'

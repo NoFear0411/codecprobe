@@ -35,9 +35,9 @@ function renderDeviceInfo(info) {
 
     if (!header || !grid) return;
 
-    // Header summary
-    let headerText = `${info.browser} ${info.browserVersion} • ${info.os} ${info.osVersion}`;
-    if (info.deviceModel) {
+    // Header summary with engine info
+    let headerText = `${info.browser} ${info.browserVersion} • ${info.engine} • ${info.os} ${info.osVersion}`;
+    if (info.deviceModel && info.deviceModel !== 'Unknown') {
         headerText += ` • ${info.deviceModel}`;
     }
     headerText += ` • ${info.screenWidth}×${info.screenHeight}`;
@@ -55,6 +55,18 @@ function renderDeviceInfo(info) {
         <div class="device-info-item">
             <div class="device-info-label">OS</div>
             <div class="device-info-value">${info.os} ${info.osVersion}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">Rendering Engine</div>
+            <div class="device-info-value">${info.engine} ${info.engineVersion}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">Device Type</div>
+            <div class="device-info-value">${info.deviceType}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">CPU Architecture</div>
+            <div class="device-info-value">${info.cpuArchitecture}</div>
         </div>
         <div class="device-info-item">
             <div class="device-info-label">Screen</div>
@@ -141,75 +153,235 @@ function renderDeviceInfo(info) {
  * @returns {string} HTML string
  */
 function formatApiResults(codec) {
-    let html = '<div class="api-results"><strong>Raw API Detection Results:</strong>';
+    let html = '<div class="api-results">';
+    html += '<div class="api-section-title">API Test Results</div>';
 
-    // canPlayType
-    if (codec.apis.canPlayType) {
-        const valueClass = codec.apis.canPlayType === 'probably' ? '' :
-                          codec.apis.canPlayType === 'maybe' ? 'partial' : 'fail';
-        html += `
-            <div class="api-result-line">
-                <span class="api-label">HTMLMediaElement.canPlayType():</span>
-                <span class="api-value ${valueClass}">${codec.apis.canPlayType}</span>
+    // API 1: canPlayType
+    html += `
+        <div class="api-test-block">
+            <div class="api-test-header">
+                <span class="api-number ${getApiBadgeClass('canPlayType', codec.apis.canPlayType)}">1</span>
+                <span class="api-name">HTMLMediaElement.canPlayType()</span>
             </div>
-        `;
-    }
+            <div class="api-test-content">
+                <div class="api-request">
+                    <strong>Request:</strong>
+                    <code>${codec.codec}</code>
+                </div>
+                <div class="api-response">
+                    <strong>Response:</strong>
+                    <span class="response-value ${getResponseClass(codec.apis.canPlayType)}">${codec.apis.canPlayType || '""'}</span>
+                </div>
+                <div class="api-explanation">
+                    Tests basic container format compatibility. Returns "probably", "maybe", or "" (empty string).
+                </div>
+            </div>
+        </div>
+    `;
 
-    // isTypeSupported
-    if (codec.apis.isTypeSupported) {
-        const valueClass = codec.apis.isTypeSupported === 'probably' ? '' : 'fail';
-        html += `
-            <div class="api-result-line">
-                <span class="api-label">MediaSource.isTypeSupported():</span>
-                <span class="api-value ${valueClass}">${codec.apis.isTypeSupported}</span>
+    // API 2: isTypeSupported
+    html += `
+        <div class="api-test-block">
+            <div class="api-test-header">
+                <span class="api-number ${getApiBadgeClass('isTypeSupported', codec.apis.isTypeSupported)}">2</span>
+                <span class="api-name">MediaSource.isTypeSupported()</span>
             </div>
-        `;
-    }
-    
-    // mediaCapabilities
+            <div class="api-test-content">
+                <div class="api-request">
+                    <strong>Request:</strong>
+                    <code>${codec.codec}</code>
+                </div>
+                <div class="api-response">
+                    <strong>Response:</strong>
+                    <span class="response-value ${codec.apis.isTypeSupported === 'probably' ? 'success' : 'fail'}">${codec.apis.isTypeSupported}</span>
+                </div>
+                <div class="api-explanation">
+                    Tests Media Source Extensions (MSE) support for adaptive streaming. Returns "probably" or "unsupported".
+                </div>
+            </div>
+        </div>
+    `;
+
+    // API 3: mediaCapabilities
     if (codec.apis.mediaCapabilities) {
-        if (codec.apis.mediaCapabilities.error) {
-            html += `
-                <div class="api-result-line">
-                    <span class="api-label">mediaCapabilities:</span>
-                    <span class="api-value fail">error</span>
+        const mc = codec.apis.mediaCapabilities;
+
+        html += `
+            <div class="api-test-block">
+                <div class="api-test-header">
+                    <span class="api-number ${getApiBadgeClass('mediaCapabilities', codec.apis.mediaCapabilities)}">3</span>
+                    <span class="api-name">navigator.mediaCapabilities.decodingInfo()</span>
                 </div>
-            `;
-        } else {
-            const supported = codec.apis.mediaCapabilities.supported ? 'YES' : 'NO';
-            const valueClass = codec.apis.mediaCapabilities.supported ? '' : 'fail';
-            html += `
-                <div class="api-result-line">
-                    <span class="api-label">mediaCapabilities:</span>
-                    <span class="api-value ${valueClass}">${supported} (smooth: ${codec.apis.mediaCapabilities.smooth}, efficient: ${codec.apis.mediaCapabilities.powerEfficient})</span>
+                <div class="api-test-content">
+                    <div class="api-request">
+                        <strong>Request:</strong>
+                        <pre class="config-json">${buildMediaConfigDisplay(codec)}</pre>
+                    </div>
+                    <div class="api-response">
+                        <strong>Response:</strong>
+                        ${mc.error ? `<span class="response-value fail">Error: ${mc.error}</span>` : `
+                        <div class="capability-grid">
+                            <div class="capability-item">
+                                <span class="capability-label">Supported:</span>
+                                <span class="response-value ${mc.supported ? 'success' : 'fail'}">${mc.supported ? 'Yes' : 'No'}</span>
+                            </div>
+                            <div class="capability-item">
+                                <span class="capability-label">Smooth Playback:</span>
+                                <span class="response-value ${mc.smooth ? 'success' : 'partial'}">${mc.smooth ? 'Yes' : 'No'}</span>
+                            </div>
+                            <div class="capability-item">
+                                <span class="capability-label">Power Efficient:</span>
+                                <span class="response-value ${mc.powerEfficient ? 'success' : 'partial'}">${mc.powerEfficient ? 'Yes' : 'No'}</span>
+                            </div>
+                        </div>
+                        `}
+                    </div>
+                    <div class="api-explanation">
+                        Tests actual hardware decoding capabilities including performance and power efficiency.
+                    </div>
                 </div>
-            `;
-        }
+            </div>
+        `;
     }
-    
-    // mediaCapabilities with spatialRendering (audio only)
+
+    // Spatial rendering for audio
     if (codec.apis.mediaCapabilitiesSpatial) {
-        if (codec.apis.mediaCapabilitiesSpatial.error) {
-            html += `
-                <div class="api-result-line">
-                    <span class="api-label">spatialRendering:</span>
-                    <span class="api-value fail">error</span>
+        const mcs = codec.apis.mediaCapabilitiesSpatial;
+
+        html += `
+            <div class="api-test-block">
+                <div class="api-test-header">
+                    <span class="api-number ${getApiBadgeClass('mediaCapabilitiesSpatial', codec.apis.mediaCapabilitiesSpatial)}">3b</span>
+                    <span class="api-name">Spatial Audio Rendering Test</span>
                 </div>
-            `;
-        } else {
-            const supported = codec.apis.mediaCapabilitiesSpatial.supported ? 'YES' : 'NO';
-            const valueClass = codec.apis.mediaCapabilitiesSpatial.supported ? '' : 'fail';
-            html += `
-                <div class="api-result-line">
-                    <span class="api-label">spatialRendering:</span>
-                    <span class="api-value ${valueClass}">${supported} (smooth: ${codec.apis.mediaCapabilitiesSpatial.smooth}, efficient: ${codec.apis.mediaCapabilitiesSpatial.powerEfficient})</span>
+                <div class="api-test-content">
+                    <div class="api-request">
+                        <strong>Request:</strong>
+                        <code>spatialRendering: true</code>
+                    </div>
+                    <div class="api-response">
+                        <strong>Response:</strong>
+                        ${mcs.error ? `<span class="response-value fail">Error: ${mcs.error}</span>` : `
+                        <div class="capability-grid">
+                            <div class="capability-item">
+                                <span class="capability-label">Supported:</span>
+                                <span class="response-value ${mcs.supported ? 'success' : 'fail'}">${mcs.supported ? 'Yes' : 'No'}</span>
+                            </div>
+                            <div class="capability-item">
+                                <span class="capability-label">Smooth:</span>
+                                <span class="response-value ${mcs.smooth ? 'success' : 'partial'}">${mcs.smooth ? 'Yes' : 'No'}</span>
+                            </div>
+                            <div class="capability-item">
+                                <span class="capability-label">Efficient:</span>
+                                <span class="response-value ${mcs.powerEfficient ? 'success' : 'partial'}">${mcs.powerEfficient ? 'Yes' : 'No'}</span>
+                            </div>
+                        </div>
+                        `}
+                    </div>
+                    <div class="api-explanation">
+                        Tests multi-channel spatial audio rendering (surround sound, Atmos, etc).
+                    </div>
                 </div>
-            `;
-        }
+            </div>
+        `;
     }
-    
+
     html += '</div>';
     return html;
+}
+
+function getResponseClass(value) {
+    if (value === 'probably') return 'success';
+    if (value === 'maybe') return 'partial';
+    return 'fail';
+}
+
+/**
+ * Determine CSS class for API badge based on result
+ * @param {string} apiName - Name of the API
+ * @param {*} apiData - API result data
+ * @returns {string} CSS class name ('success', 'partial', or 'fail')
+ */
+function getApiBadgeClass(apiName, apiData) {
+    if (!apiData || apiData === 'error') return 'fail';
+
+    switch(apiName) {
+        case 'canPlayType':
+            if (apiData === 'probably') return 'success';
+            if (apiData === 'maybe') return 'partial';
+            return 'fail';
+
+        case 'isTypeSupported':
+            return apiData === 'probably' ? 'success' : 'fail';
+
+        case 'mediaCapabilities':
+        case 'mediaCapabilitiesSpatial':
+            if (apiData.error) return 'fail';
+            if (apiData.supported) return 'success';
+            if (apiData.smooth || apiData.powerEfficient) return 'partial';
+            return 'fail';
+
+        default:
+            return 'fail';
+    }
+}
+
+function buildMediaConfigDisplay(codec) {
+    if (!codec.mediaConfig) {
+        return JSON.stringify({ type: 'file', [codec.type]: { contentType: codec.codec } }, null, 2);
+    }
+
+    return JSON.stringify(codec.mediaConfig, null, 2);
+}
+
+function buildTechnicalSpecs(codec) {
+    if (!codec.mediaConfig) return '';
+
+    const specs = [];
+    const config = codec.mediaConfig.video || codec.mediaConfig.audio;
+
+    if (!config) return '';
+
+    // Resolution
+    if (config.width && config.height) {
+        specs.push(`${config.width}×${config.height}`);
+    }
+
+    // Framerate
+    if (config.framerate) {
+        specs.push(`${config.framerate}fps`);
+    }
+
+    // Bitrate
+    if (config.bitrate) {
+        const mbps = (config.bitrate / 1000000).toFixed(1);
+        specs.push(`${mbps}Mbps`);
+    }
+
+    // HDR metadata
+    if (config.transferFunction === 'pq') {
+        specs.push('HDR10/PQ');
+    } else if (config.transferFunction === 'hlg') {
+        specs.push('HLG');
+    }
+
+    if (config.colorGamut === 'rec2020') {
+        specs.push('BT.2020');
+    }
+
+    // Audio-specific
+    if (config.channels) {
+        specs.push(`${config.channels}ch`);
+    }
+
+    if (config.samplerate) {
+        const khz = (config.samplerate / 1000).toFixed(1);
+        specs.push(`${khz}kHz`);
+    }
+
+    if (specs.length === 0) return '';
+
+    return `<div class="technical-specs">${specs.join(' • ')}</div>`;
 }
 
 /**
@@ -226,7 +398,7 @@ function renderResults(results) {
         // Apply filter and search
         const filteredCodecs = group.codecs.filter(codec => {
             // Filter type
-            if (state.currentFilter === 'supported' && codec.support !== 'probably' && codec.support !== 'maybe') return false;
+            if (state.currentFilter === 'supported' && codec.support !== 'supported' && codec.support !== 'probably' && codec.support !== 'maybe') return false;
             if (state.currentFilter === 'video' && codec.type !== 'video') return false;
             if (state.currentFilter === 'audio' && codec.type !== 'audio') return false;
 
@@ -243,7 +415,7 @@ function renderResults(results) {
         if (filteredCodecs.length === 0) continue;
 
         // Count support levels
-        const supportedCount = filteredCodecs.filter(c => c.support === 'probably').length;
+        const supportedCount = filteredCodecs.filter(c => c.support === 'supported' || c.support === 'probably').length;
         const maybeCount = filteredCodecs.filter(c => c.support === 'maybe').length;
 
         // Create section
@@ -273,6 +445,7 @@ function renderResults(results) {
                             <span class="platform-badge">${codec.container}</span>
                         </span>
                         <div class="codec-summary">${codec.info}</div>
+                        ${buildTechnicalSpecs(codec)}
                     </div>
                     <svg class="codec-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -289,9 +462,6 @@ function renderResults(results) {
                         </button>
                     </div>
                     ${formatApiResults(codec)}
-                    <button class="copy-result-btn" data-copy-json='${JSON.stringify(codec).replace(/'/g, "&apos;")}' aria-label="Copy full result">
-                        Copy Full Result (JSON)
-                    </button>
                 </div>
             `;
 
@@ -313,20 +483,19 @@ function renderResults(results) {
             item.addEventListener('click', handleToggle);
             item.addEventListener('keydown', handleToggle);
 
-            // Setup copy buttons (prevent card toggle on button click)
-            item.querySelectorAll('.copy-btn, .copy-result-btn').forEach(copyBtn => {
+            // Setup copy button (prevent card toggle on button click)
+            const copyBtn = item.querySelector('.copy-btn');
+            if (copyBtn) {
                 copyBtn.addEventListener('click', async (e) => {
                     e.stopPropagation();
-                    const dataToCopy = copyBtn.dataset.copy || copyBtn.dataset.copyJson;
+                    const dataToCopy = copyBtn.dataset.copy;
 
                     try {
                         await navigator.clipboard.writeText(dataToCopy);
 
                         // Visual feedback
                         const originalHTML = copyBtn.innerHTML;
-                        copyBtn.innerHTML = copyBtn.classList.contains('copy-btn') ?
-                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' :
-                            '✓ Copied!';
+                        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
                         copyBtn.classList.add('copied');
 
                         setTimeout(() => {
@@ -335,13 +504,14 @@ function renderResults(results) {
                         }, 2000);
                     } catch (err) {
                         console.error('[UI] Copy failed:', err);
+                        const originalHTML = copyBtn.innerHTML;
                         copyBtn.textContent = 'Failed';
                         setTimeout(() => {
                             copyBtn.innerHTML = originalHTML;
                         }, 2000);
                     }
                 });
-            });
+            }
 
             section.appendChild(item);
         });

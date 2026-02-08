@@ -1,18 +1,25 @@
 /**
- * Codec Test Database
+ * Comprehensive Codec Test Database
  *
- * Covers all major video and audio codecs with proper mediaCapabilities configurations
- * Based on ISO/IEC, Dolby, DTS, Apple HLS, and DASH specifications
+ * Covers all major video and audio codecs across all container formats:
+ * - ISO BMFF (MP4, fMP4, CMAF)
+ * - Apple (HLS, MOV, QuickTime)
+ * - Matroska (MKV, WebM)
+ * - MPEG-DASH streaming
+ * - webOS/LG TV specific variants
+ *
+ * Based on ISO/IEC 14496, ITU-T standards, Dolby, DTS, Apple, and MPEG specifications
  */
 
 const codecDatabase = {
     // ==================== VIDEO CODECS ====================
-    
+
     video_hevc: {
         category: "HEVC/H.265",
         tests: [
+            // SDR variants
             {
-                name: "HEVC Main (SDR 1080p)",
+                name: "HEVC Main (SDR 1080p MP4)",
                 codec: 'video/mp4; codecs="hvc1.1.6.L93.B0"',
                 container: "MP4",
                 info: "8-bit SDR",
@@ -28,7 +35,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "HEVC Main (SDR 1080p)",
+                name: "HEVC Main (SDR 1080p MKV)",
                 codec: 'video/x-matroska; codecs="hvc1.1.6.L93.B0"',
                 container: "MKV",
                 info: "8-bit SDR",
@@ -43,8 +50,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // HDR10 variants
             {
-                name: "HEVC Main 10 (HDR10 4K)",
+                name: "HEVC Main 10 (HDR10 4K MP4)",
                 codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
                 container: "MP4",
                 info: "10-bit HDR10",
@@ -62,7 +70,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "HEVC Main 10 (HDR10 4K)",
+                name: "HEVC Main 10 (HDR10 4K MKV)",
                 codec: 'video/x-matroska; codecs="hvc1.2.4.L153.B0"',
                 container: "MKV",
                 info: "10-bit HDR10",
@@ -83,7 +91,7 @@ const codecDatabase = {
                 name: "HEVC Main 10 (hev1 tag)",
                 codec: 'video/mp4; codecs="hev1.2.4.L153.B0"',
                 container: "MP4",
-                info: "Alternative tag",
+                info: "Alternative HEVC tag",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -97,6 +105,7 @@ const codecDatabase = {
                     }
                 }
             },
+            // HLG variants
             {
                 name: "HEVC Main 10 (HLG HDR)",
                 codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
@@ -115,8 +124,28 @@ const codecDatabase = {
                     }
                 }
             },
+            // High frame rate
             {
-                name: "HEVC Main 10 8K (Level 6.1)",
+                name: "HEVC Main 10 (4K 60fps)",
+                codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
+                container: "MP4",
+                info: "Level 5.1 High Tier",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 40000000,
+                        framerate: 60,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
+            },
+            // 8K variants
+            {
+                name: "HEVC Main 10 (8K Level 6.1)",
                 codec: 'video/mp4; codecs="hvc1.2.4.L183.B0"',
                 container: "MP4",
                 info: "8K @ 60fps",
@@ -132,6 +161,25 @@ const codecDatabase = {
                         colorGamut: 'rec2020'
                     }
                 }
+            },
+            // QuickTime/MOV container (Apple)
+            {
+                name: "HEVC Main 10 (QuickTime/MOV)",
+                codec: 'video/quicktime; codecs="hvc1.2.4.L153.B0"',
+                container: "MOV",
+                info: "Apple QuickTime",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/quicktime; codecs="hvc1.2.4.L153.B0"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 25000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
             }
         ]
     },
@@ -139,8 +187,9 @@ const codecDatabase = {
     video_dolby_vision: {
         category: "Dolby Vision",
         tests: [
+            // Profile 5 (IPT single layer)
             {
-                name: "DV Profile 5 (dvh1)",
+                name: "DV Profile 5 (dvh1 MP4)",
                 codec: 'video/mp4; codecs="dvh1.05.06"',
                 container: "MP4",
                 info: "IPT-PQ Single Layer",
@@ -158,7 +207,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "DV Profile 5 (dvhe)",
+                name: "DV Profile 5 (dvhe MP4)",
                 codec: 'video/mp4; codecs="dvhe.05.06"',
                 container: "MP4",
                 info: "IPT-PQ Single Layer",
@@ -176,10 +225,10 @@ const codecDatabase = {
                 }
             },
             {
-                name: "DV Profile 5 (MKV)",
+                name: "DV Profile 5 (MKV webOS 25+)",
                 codec: 'video/x-matroska; codecs="dvh1.05.06"',
                 container: "MKV",
-                info: "webOS 25+ only",
+                info: "LG webOS 25+ support",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -193,8 +242,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // Profile 7 (Blu-ray dual layer)
             {
-                name: "DV Profile 7 (Blu-ray MEL)",
+                name: "DV Profile 7 (MEL MP4)",
                 codec: 'video/mp4; codecs="dvhe.07.06"',
                 container: "MP4",
                 info: "Full Enhancement Layer",
@@ -212,7 +262,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "DV Profile 7 (MKV)",
+                name: "DV Profile 7 (MEL MKV)",
                 codec: 'video/x-matroska; codecs="dvhe.07.06"',
                 container: "MKV",
                 info: "Blu-ray remux",
@@ -229,11 +279,12 @@ const codecDatabase = {
                     }
                 }
             },
+            // Profile 8.1 (HDR10 compatible)
             {
-                name: "DV Profile 8.1 (Cross-Compatible)",
+                name: "DV Profile 8.1 (HDR10 base)",
                 codec: 'video/mp4; codecs="dvh1.08.06"',
                 container: "MP4",
-                info: "HDR10 base + DV",
+                info: "Cross-compatible HDR10+DV",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -251,7 +302,7 @@ const codecDatabase = {
                 name: "DV Profile 8.1 (MKV)",
                 codec: 'video/x-matroska; codecs="dvh1.08.06"',
                 container: "MKV",
-                info: "HDR10 base + DV",
+                info: "Cross-compatible",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -265,6 +316,7 @@ const codecDatabase = {
                     }
                 }
             },
+            // Profile 8.4 (HLG compatible)
             {
                 name: "DV Profile 8.4 (HLG base)",
                 codec: 'video/mp4; codecs="dvhe.08.09"',
@@ -283,11 +335,12 @@ const codecDatabase = {
                     }
                 }
             },
+            // Multi-codec declaration
             {
-                name: "DV P5 + HEVC base (Multi-codec)",
+                name: "DV P5 + HEVC (Multi-codec)",
                 codec: 'video/mp4; codecs="hvc1.2.4.L153.B0, dvh1.05.07"',
                 container: "MP4",
-                info: "Dual codec declaration",
+                info: "Dual codec string",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -300,6 +353,25 @@ const codecDatabase = {
                         colorGamut: 'rec2020'
                     }
                 }
+            },
+            // Profile 10 (AV1-based)
+            {
+                name: "DV Profile 10 (AV1 base)",
+                codec: 'video/mp4; codecs="dva1.10.01"',
+                container: "MP4",
+                info: "Dolby Vision on AV1",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="dva1.10.01"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 15000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
             }
         ]
     },
@@ -307,8 +379,9 @@ const codecDatabase = {
     video_av1: {
         category: "AV1",
         tests: [
+            // SDR variants
             {
-                name: "AV1 Main Profile (SDR 1080p)",
+                name: "AV1 Main (SDR 1080p MP4)",
                 codec: 'video/mp4; codecs="av01.0.05M.08"',
                 container: "MP4",
                 info: "8-bit SDR",
@@ -324,7 +397,24 @@ const codecDatabase = {
                 }
             },
             {
-                name: "AV1 Main Profile (HDR10 4K)",
+                name: "AV1 Main (SDR 1080p WebM)",
+                codec: 'video/webm; codecs="av01.0.05M.08"',
+                container: "WebM",
+                info: "8-bit SDR",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/webm; codecs="av01.0.05M.08"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 3000000,
+                        framerate: 24
+                    }
+                }
+            },
+            // HDR10 variants
+            {
+                name: "AV1 Main (HDR10 4K MP4)",
                 codec: 'video/mp4; codecs="av01.0.08M.10"',
                 container: "MP4",
                 info: "10-bit HDR10",
@@ -342,7 +432,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "AV1 Main Profile (HDR10 4K MKV)",
+                name: "AV1 Main (HDR10 4K MKV)",
                 codec: 'video/x-matroska; codecs="av01.0.08M.10"',
                 container: "MKV",
                 info: "10-bit HDR10",
@@ -360,7 +450,26 @@ const codecDatabase = {
                 }
             },
             {
-                name: "AV1 High Profile (4K 60fps)",
+                name: "AV1 Main (HDR10 4K WebM)",
+                codec: 'video/webm; codecs="av01.0.08M.10"',
+                container: "WebM",
+                info: "10-bit HDR10",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/webm; codecs="av01.0.08M.10"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 15000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
+            },
+            // High profile/tier
+            {
+                name: "AV1 High (4K 60fps)",
                 codec: 'video/mp4; codecs="av01.0.12M.10.0.110.09.16.09.0"',
                 container: "MP4",
                 info: "Level 5.1 High Tier",
@@ -377,11 +486,12 @@ const codecDatabase = {
                     }
                 }
             },
+            // Film grain synthesis
             {
                 name: "AV1 Film Grain (WebM)",
                 codec: 'video/webm; codecs="av01.0.08M.10.0.110.01.01.01.0"',
                 container: "WebM",
-                info: "With grain synthesis",
+                info: "Grain synthesis metadata",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -394,6 +504,25 @@ const codecDatabase = {
                         colorGamut: 'rec2020'
                     }
                 }
+            },
+            // 8K
+            {
+                name: "AV1 Main (8K Level 6.0)",
+                codec: 'video/mp4; codecs="av01.0.16M.10"',
+                container: "MP4",
+                info: "8K @ 30fps",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="av01.0.16M.10"',
+                        width: 7680,
+                        height: 4320,
+                        bitrate: 50000000,
+                        framerate: 30,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
             }
         ]
     },
@@ -401,11 +530,12 @@ const codecDatabase = {
     video_vp9: {
         category: "VP9",
         tests: [
+            // Profile 0 (8-bit)
             {
-                name: "VP9 Profile 0 (SDR)",
+                name: "VP9 Profile 0 (SDR WebM)",
                 codec: 'video/webm; codecs="vp9"',
                 container: "WebM",
-                info: "8-bit",
+                info: "8-bit SDR",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -418,7 +548,24 @@ const codecDatabase = {
                 }
             },
             {
-                name: "VP9 Profile 2 (HDR 4K)",
+                name: "VP9 Profile 0 (SDR MP4)",
+                codec: 'video/mp4; codecs="vp09.00.10.08"',
+                container: "MP4",
+                info: "8-bit in MP4",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="vp09.00.10.08"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 5000000,
+                        framerate: 30
+                    }
+                }
+            },
+            // Profile 2 (10-bit HDR)
+            {
+                name: "VP9 Profile 2 (HDR10 WebM)",
                 codec: 'video/webm; codecs="vp09.02.10.10.01.09.16.09.01"',
                 container: "WebM",
                 info: "10-bit HDR PQ",
@@ -436,10 +583,10 @@ const codecDatabase = {
                 }
             },
             {
-                name: "VP9 Profile 2 (MP4 - Non-standard)",
+                name: "VP9 Profile 2 (HDR10 MP4)",
                 codec: 'video/mp4; codecs="vp09.02.10.10"',
                 container: "MP4",
-                info: "Experimental",
+                info: "10-bit in MP4",
                 mediaConfig: {
                     type: 'file',
                     video: {
@@ -452,6 +599,43 @@ const codecDatabase = {
                         colorGamut: 'rec2020'
                     }
                 }
+            },
+            {
+                name: "VP9 Profile 2 (HDR10 MKV)",
+                codec: 'video/x-matroska; codecs="vp09.02.10.10"',
+                container: "MKV",
+                info: "10-bit HDR",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/x-matroska; codecs="vp09.02.10.10"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 20000000,
+                        framerate: 60,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
+            },
+            // HLG variant
+            {
+                name: "VP9 Profile 2 (HLG)",
+                codec: 'video/webm; codecs="vp09.02.10.10.01.09.18.09.01"',
+                container: "WebM",
+                info: "10-bit HLG",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/webm; codecs="vp09.02.10.10.01.09.18.09.01"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 20000000,
+                        framerate: 60,
+                        transferFunction: 'hlg',
+                        colorGamut: 'rec2020'
+                    }
+                }
             }
         ]
     },
@@ -459,8 +643,9 @@ const codecDatabase = {
     video_avc: {
         category: "AVC/H.264",
         tests: [
+            // High Profile
             {
-                name: "H.264 High Profile (1080p)",
+                name: "H.264 High (1080p MP4)",
                 codec: 'video/mp4; codecs="avc1.640033"',
                 container: "MP4",
                 info: "Level 5.1",
@@ -476,7 +661,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "H.264 High Profile (1080p MKV)",
+                name: "H.264 High (1080p MKV)",
                 codec: 'video/x-matroska; codecs="avc1.640033"',
                 container: "MKV",
                 info: "Level 5.1",
@@ -492,7 +677,24 @@ const codecDatabase = {
                 }
             },
             {
-                name: "H.264 Main Profile",
+                name: "H.264 High (1080p MOV)",
+                codec: 'video/quicktime; codecs="avc1.640033"',
+                container: "MOV",
+                info: "Apple QuickTime",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/quicktime; codecs="avc1.640033"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 8000000,
+                        framerate: 60
+                    }
+                }
+            },
+            // Main Profile
+            {
+                name: "H.264 Main (1080p)",
                 codec: 'video/mp4; codecs="avc1.4d4028"',
                 container: "MP4",
                 info: "Level 4.0",
@@ -507,8 +709,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // Baseline Profile
             {
-                name: "H.264 Baseline",
+                name: "H.264 Baseline (720p)",
                 codec: 'video/mp4; codecs="avc1.42E01E"',
                 container: "MP4",
                 info: "Level 3.0",
@@ -522,6 +725,181 @@ const codecDatabase = {
                         framerate: 30
                     }
                 }
+            },
+            // Constrained Baseline (HLS common)
+            {
+                name: "H.264 Constrained Baseline",
+                codec: 'video/mp4; codecs="avc1.42C01E"',
+                container: "MP4",
+                info: "HLS/DASH common",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="avc1.42C01E"',
+                        width: 1280,
+                        height: 720,
+                        bitrate: 2500000,
+                        framerate: 30
+                    }
+                }
+            },
+            // High 10 Profile (10-bit)
+            {
+                name: "H.264 High 10 (10-bit)",
+                codec: 'video/mp4; codecs="avc1.6e0033"',
+                container: "MP4",
+                info: "10-bit support",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="avc1.6e0033"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 10000000,
+                        framerate: 30
+                    }
+                }
+            }
+        ]
+    },
+
+    video_vvc: {
+        category: "VVC/H.266",
+        tests: [
+            {
+                name: "VVC Main 10 (4K HDR)",
+                codec: 'video/mp4; codecs="vvc1.1.L123.CQ31.S10.T1.B1.H8"',
+                container: "MP4",
+                info: "Next-gen codec",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="vvc1.1.L123.CQ31.S10.T1.B1.H8"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 12000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
+            },
+            {
+                name: "VVC Main 10 (SDR 1080p)",
+                codec: 'video/mp4; codecs="vvc1.1.L93.CQ31.S8.T1.B1.H8"',
+                container: "MP4",
+                info: "8-bit SDR",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="vvc1.1.L93.CQ31.S8.T1.B1.H8"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 2500000,
+                        framerate: 24
+                    }
+                }
+            }
+        ]
+    },
+
+    // ==================== STREAMING FORMATS ====================
+
+    streaming_hls: {
+        category: "HLS/DASH Streaming",
+        tests: [
+            // HLS fMP4 with HEVC
+            {
+                name: "HLS fMP4 HEVC (4K HDR)",
+                codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
+                container: "fMP4",
+                info: "Apple HLS fragmented",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 25000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
+            },
+            // HLS fMP4 with AVC
+            {
+                name: "HLS fMP4 H.264 (1080p)",
+                codec: 'video/mp4; codecs="avc1.640033"',
+                container: "fMP4",
+                info: "HLS baseline",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp4; codecs="avc1.640033"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 5000000,
+                        framerate: 30
+                    }
+                }
+            },
+            // CMAF (Common Media Application Format)
+            {
+                name: "CMAF HEVC (4K)",
+                codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
+                container: "CMAF",
+                info: "HLS/DASH unified",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 20000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
+            },
+            // DASH with AV1
+            {
+                name: "DASH AV1 (4K HDR)",
+                codec: 'video/mp4; codecs="av01.0.08M.10"',
+                container: "DASH",
+                info: "MPEG-DASH",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp4; codecs="av01.0.08M.10"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 15000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
+            },
+            // DASH with VP9
+            {
+                name: "DASH VP9 (4K HDR)",
+                codec: 'video/webm; codecs="vp09.02.10.10"',
+                container: "DASH",
+                info: "WebM DASH",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/webm; codecs="vp09.02.10.10"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 20000000,
+                        framerate: 60,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                }
             }
         ]
     },
@@ -531,8 +909,9 @@ const codecDatabase = {
     audio_dolby: {
         category: "Dolby Audio",
         tests: [
+            // AC-3 (Dolby Digital)
             {
-                name: "Dolby Digital (AC-3)",
+                name: "Dolby Digital (AC-3 MP4)",
                 codec: 'audio/mp4; codecs="ac-3"',
                 container: "MP4",
                 info: "5.1 surround",
@@ -561,8 +940,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // E-AC-3 (Dolby Digital Plus)
             {
-                name: "Dolby Digital Plus (E-AC-3)",
+                name: "Dolby Digital Plus (E-AC-3 MP4)",
                 codec: 'audio/mp4; codecs="ec-3"',
                 container: "MP4",
                 info: "7.1 + Atmos",
@@ -591,8 +971,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // TrueHD
             {
-                name: "Dolby TrueHD",
+                name: "Dolby TrueHD (MKV)",
                 codec: 'audio/x-matroska; codecs="trhd"',
                 container: "MKV",
                 info: "Lossless 7.1 + Atmos",
@@ -607,10 +988,10 @@ const codecDatabase = {
                 }
             },
             {
-                name: "Dolby TrueHD + Atmos (MLP)",
+                name: "Dolby TrueHD + Atmos (mlp)",
                 codec: 'audio/x-matroska; codecs="mlp"',
                 container: "MKV",
-                info: "MLP codec",
+                info: "MLP codec variant",
                 mediaConfig: {
                     type: 'file',
                     audio: {
@@ -621,6 +1002,7 @@ const codecDatabase = {
                     }
                 }
             },
+            // AC-4 (Next-gen)
             {
                 name: "Dolby AC-4",
                 codec: 'audio/mp4; codecs="ac-4"',
@@ -635,6 +1017,22 @@ const codecDatabase = {
                         samplerate: 48000
                     }
                 }
+            },
+            // Atmos in E-AC-3 Joint Object Coding
+            {
+                name: "Dolby Atmos (JOC in DD+)",
+                codec: 'audio/mp4; codecs="ec-3"',
+                container: "MP4",
+                info: "Joint Object Coding",
+                mediaConfig: {
+                    type: 'file',
+                    audio: {
+                        contentType: 'audio/mp4; codecs="ec-3"',
+                        channels: 16,
+                        bitrate: 768000,
+                        samplerate: 48000
+                    }
+                }
             }
         ]
     },
@@ -642,8 +1040,9 @@ const codecDatabase = {
     audio_dts: {
         category: "DTS Audio",
         tests: [
+            // Core
             {
-                name: "DTS Core",
+                name: "DTS Core (MP4)",
                 codec: 'audio/mp4; codecs="dts-"',
                 container: "MP4",
                 info: "5.1 core",
@@ -672,8 +1071,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // Express (LBR)
             {
-                name: "DTS Express (LBR)",
+                name: "DTS Express (LBR MP4)",
                 codec: 'audio/mp4; codecs="dtse"',
                 container: "MP4",
                 info: "Low bitrate",
@@ -702,6 +1102,7 @@ const codecDatabase = {
                     }
                 }
             },
+            // HD High Resolution
             {
                 name: "DTS-HD High Resolution",
                 codec: 'audio/x-matroska; codecs="dtsh"',
@@ -717,6 +1118,7 @@ const codecDatabase = {
                     }
                 }
             },
+            // HD Master Audio
             {
                 name: "DTS-HD Master Audio",
                 codec: 'audio/x-matroska; codecs="dtsh"',
@@ -732,11 +1134,12 @@ const codecDatabase = {
                     }
                 }
             },
+            // DTS:X
             {
-                name: "DTS:X",
+                name: "DTS:X (MKV)",
                 codec: 'audio/x-matroska; codecs="dtsx"',
                 container: "MKV",
-                info: "Object-based",
+                info: "Object-based audio",
                 mediaConfig: {
                     type: 'file',
                     audio: {
@@ -768,8 +1171,9 @@ const codecDatabase = {
     audio_lossless: {
         category: "Lossless Audio",
         tests: [
+            // FLAC
             {
-                name: "FLAC",
+                name: "FLAC (MKV)",
                 codec: 'audio/x-matroska; codecs="flac"',
                 container: "MKV",
                 info: "Open lossless",
@@ -784,7 +1188,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "FLAC (MP4 - Non-standard)",
+                name: "FLAC (MP4 non-standard)",
                 codec: 'audio/mp4; codecs="flac"',
                 container: "MP4",
                 info: "Experimental",
@@ -799,7 +1203,23 @@ const codecDatabase = {
                 }
             },
             {
-                name: "ALAC (Apple Lossless)",
+                name: "FLAC (Native .flac)",
+                codec: 'audio/flac',
+                container: "FLAC",
+                info: "Native container",
+                mediaConfig: {
+                    type: 'file',
+                    audio: {
+                        contentType: 'audio/flac',
+                        channels: 2,
+                        bitrate: 1411000,
+                        samplerate: 96000
+                    }
+                }
+            },
+            // ALAC
+            {
+                name: "ALAC (Apple Lossless MP4)",
                 codec: 'audio/mp4; codecs="alac"',
                 container: "MP4",
                 info: "Apple format",
@@ -813,6 +1233,22 @@ const codecDatabase = {
                     }
                 }
             },
+            {
+                name: "ALAC (MOV)",
+                codec: 'audio/quicktime; codecs="alac"',
+                container: "MOV",
+                info: "QuickTime variant",
+                mediaConfig: {
+                    type: 'file',
+                    audio: {
+                        contentType: 'audio/quicktime; codecs="alac"',
+                        channels: 2,
+                        bitrate: 1411000,
+                        samplerate: 96000
+                    }
+                }
+            },
+            // PCM
             {
                 name: "PCM (WAV)",
                 codec: 'audio/wav; codecs="1"',
@@ -828,8 +1264,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // Opus
             {
-                name: "Opus",
+                name: "Opus (WebM)",
                 codec: 'audio/webm; codecs="opus"',
                 container: "WebM",
                 info: "Low-latency",
@@ -857,6 +1294,21 @@ const codecDatabase = {
                         samplerate: 48000
                     }
                 }
+            },
+            {
+                name: "Opus (MP4)",
+                codec: 'audio/mp4; codecs="opus"',
+                container: "MP4",
+                info: "MP4 container",
+                mediaConfig: {
+                    type: 'file',
+                    audio: {
+                        contentType: 'audio/mp4; codecs="opus"',
+                        channels: 2,
+                        bitrate: 128000,
+                        samplerate: 48000
+                    }
+                }
             }
         ]
     },
@@ -864,8 +1316,9 @@ const codecDatabase = {
     audio_standard: {
         category: "Standard Audio",
         tests: [
+            // AAC variants
             {
-                name: "AAC-LC",
+                name: "AAC-LC (MP4)",
                 codec: 'audio/mp4; codecs="mp4a.40.2"',
                 container: "MP4",
                 info: "Standard AAC",
@@ -880,7 +1333,22 @@ const codecDatabase = {
                 }
             },
             {
-                name: "AAC-HE v1",
+                name: "AAC-LC (ADTS native)",
+                codec: 'audio/aac',
+                container: "AAC",
+                info: "Native AAC",
+                mediaConfig: {
+                    type: 'file',
+                    audio: {
+                        contentType: 'audio/aac',
+                        channels: 2,
+                        bitrate: 192000,
+                        samplerate: 48000
+                    }
+                }
+            },
+            {
+                name: "AAC-HE v1 (HE-AAC)",
                 codec: 'audio/mp4; codecs="mp4a.40.5"',
                 container: "MP4",
                 info: "High Efficiency",
@@ -895,7 +1363,7 @@ const codecDatabase = {
                 }
             },
             {
-                name: "AAC-HE v2",
+                name: "AAC-HE v2 (HE-AAC v2)",
                 codec: 'audio/mp4; codecs="mp4a.40.29"',
                 container: "MP4",
                 info: "Parametric Stereo",
@@ -909,6 +1377,22 @@ const codecDatabase = {
                     }
                 }
             },
+            {
+                name: "xHE-AAC (USAC)",
+                codec: 'audio/mp4; codecs="mp4a.40.42"',
+                container: "MP4",
+                info: "Extended HE-AAC",
+                mediaConfig: {
+                    type: 'file',
+                    audio: {
+                        contentType: 'audio/mp4; codecs="mp4a.40.42"',
+                        channels: 2,
+                        bitrate: 32000,
+                        samplerate: 48000
+                    }
+                }
+            },
+            // MP3
             {
                 name: "MP3",
                 codec: 'audio/mpeg',
@@ -924,8 +1408,9 @@ const codecDatabase = {
                     }
                 }
             },
+            // Vorbis
             {
-                name: "Vorbis",
+                name: "Vorbis (WebM)",
                 codec: 'audio/webm; codecs="vorbis"',
                 container: "WebM",
                 info: "Open format",
@@ -948,6 +1433,21 @@ const codecDatabase = {
                     type: 'file',
                     audio: {
                         contentType: 'audio/x-matroska; codecs="vorbis"',
+                        channels: 2,
+                        bitrate: 192000,
+                        samplerate: 48000
+                    }
+                }
+            },
+            {
+                name: "Vorbis (OGG)",
+                codec: 'audio/ogg; codecs="vorbis"',
+                container: "OGG",
+                info: "Native container",
+                mediaConfig: {
+                    type: 'file',
+                    audio: {
+                        contentType: 'audio/ogg; codecs="vorbis"',
                         channels: 2,
                         bitrate: 192000,
                         samplerate: 48000

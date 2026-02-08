@@ -22,9 +22,9 @@ async function initialize() {
         console.log('[Debug] URL state loaded:', urlState);
     }
 
-    // Step 1: Detect device information
+    // Step 1: Detect device information (now async with UAParser v2.x)
     console.log('Step 1: Detecting device information...');
-    const deviceInfo = detectDeviceInfo();
+    const deviceInfo = await detectDeviceInfo();
     console.log('[Debug] Initial device info:', deviceInfo);
     renderDeviceInfo(deviceInfo);
 
@@ -114,7 +114,7 @@ function logNotableFindings(results, deviceInfo) {
     
     // Check Dolby Vision support
     const dvCodecs = results.tests.video_dolby_vision?.codecs || [];
-    const dvSupported = dvCodecs.filter(c => c.support === 'probably');
+    const dvSupported = dvCodecs.filter(c => c.support === 'supported' || c.support === 'probably');
     if (dvSupported.length > 0) {
         console.log(`✓ Dolby Vision: ${dvSupported.length}/${dvCodecs.length} profiles supported`);
         dvSupported.forEach(c => console.log(`  - ${c.name} (${c.container})`));
@@ -124,7 +124,7 @@ function logNotableFindings(results, deviceInfo) {
     
     // Check DTS support
     const dtsCodecs = results.tests.audio_dts?.codecs || [];
-    const dtsSupported = dtsCodecs.filter(c => c.support === 'probably');
+    const dtsSupported = dtsCodecs.filter(c => c.support === 'supported' || c.support === 'probably');
     if (dtsSupported.length > 0) {
         console.log(`✓ DTS Audio: ${dtsSupported.length}/${dtsCodecs.length} variants supported`);
     } else {
@@ -133,7 +133,7 @@ function logNotableFindings(results, deviceInfo) {
     
     // Check AV1 support
     const av1Codecs = results.tests.video_av1?.codecs || [];
-    const av1Supported = av1Codecs.filter(c => c.support === 'probably');
+    const av1Supported = av1Codecs.filter(c => c.support === 'supported' || c.support === 'probably');
     if (av1Supported.length > 0) {
         console.log(`✓ AV1: ${av1Supported.length}/${av1Codecs.length} profiles supported`);
     } else {
