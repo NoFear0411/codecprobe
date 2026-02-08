@@ -735,6 +735,162 @@ h1 {
     line-height: 1.5;
 }
 
+// Educational content section
+.codec-education {
+    margin-top: $spacing-md;
+    border-top: 1px solid var(--border);
+    padding-top: $spacing-md;
+}
+
+.education-toggle {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: var(--card);
+        border-color: var(--accent);
+    }
+
+    .chevron-icon {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: var(--accent);
+        stroke-width: 2px;
+        transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+}
+
+.education-content {
+    margin-top: $spacing-md;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+.education-section {
+    margin-bottom: $spacing-lg;
+
+    h4 {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin-bottom: $spacing-sm;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    p {
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: $spacing-sm;
+    }
+}
+
+// Streaming examples
+.streaming-example {
+    margin-bottom: $spacing-md;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: $spacing-md;
+}
+
+.streaming-format-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    margin-bottom: $spacing-sm;
+
+    .format-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        background: var(--accent);
+        color: var(--bg);
+        border-radius: 3px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .file-extension {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+    }
+}
+
+.streaming-example pre {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: $spacing-md;
+    overflow-x: auto;
+    margin: $spacing-sm 0;
+
+    code {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--text);
+    }
+}
+
+.streaming-notes {
+    font-size: 0.85rem;
+    color: var(--yellow);
+    font-style: italic;
+    margin-top: $spacing-sm;
+}
+
+// Platform notes grid
+.platform-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: $spacing-md;
+}
+
+.platform-note {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: $spacing-md;
+
+    .platform-header {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        margin-bottom: $spacing-sm;
+
+        .platform-icon {
+            font-size: 1.2rem;
+        }
+
+        strong {
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+    }
+
+    p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin: 0;
+    }
+}
+
 // Support Level Colors
 .SUPPORTED,
 .PROBABLY {
@@ -784,6 +940,77 @@ h1 {
     .codec-summary {
         color: var(--text-dimmed);
     }
+}
+
+// PENDING state - Gray/neutral during testing
+.PENDING {
+    border-left-color: var(--border);
+    background: var(--card);
+    opacity: 0.6;
+    cursor: default;
+
+    &:hover {
+        background: var(--card-hover);
+        opacity: 0.8;
+    }
+
+    .status-badge {
+        background: var(--bg-secondary, #1a1a1a);
+        color: var(--text-secondary);
+        border: 1px solid var(--border);
+        position: relative;
+    }
+
+    .codec-name,
+    .codec-summary {
+        color: var(--text-dimmed);
+    }
+
+    // Loading spinner in badge
+    .status-badge::after {
+        content: "";
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        border: 2px solid var(--text-tertiary, #555);
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+}
+
+@keyframes spin {
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
+// Smooth transition when state changes from PENDING to final
+.codec-item {
+    &.state-transition {
+        animation: cardUpdate 0.5s ease-out;
+    }
+}
+
+@keyframes cardUpdate {
+    0% {
+        transform: scale(0.98);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+// Pending count in section header
+.support-count.pending-count {
+    color: var(--yellow);
+    font-style: italic;
 }
 
 // Loading State

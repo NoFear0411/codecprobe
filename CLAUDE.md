@@ -4,7 +4,7 @@
 
 CodecProbe is a browser-based codec testing tool for media server users. It tests codec support using three different browser APIs to reveal discrepancies between what browsers claim to support vs. actual hardware capabilities.
 
-**Key constraint**: Zero dependencies. Everything is vanilla JS/CSS/HTML.
+**Key constraint**: Zero runtime dependencies (UAParser.js v2.x bundled at build time).
 
 ## Architecture
 
@@ -12,15 +12,19 @@ CodecProbe is a browser-based codec testing tool for media server users. It test
 
 ```
 js/
-├── codec-database.js    - 80+ codec test definitions
-├── device-detection.js  - Browser/OS/hardware detection
+├── codec-database.js    - 110+ codec test definitions (all ISO/Apple/LG/HLS/DASH formats)
+├── device-detection.js  - UAParser.js v2.x integration (async)
 ├── drm-detection.js     - DRM/EME system testing
 ├── codec-tester.js      - Multi-API testing logic
-├── ui-renderer.js       - Results display & filtering
-└── main.js             - Initialization orchestrator
+├── ui-renderer.js       - Results display, filtering, dynamic API badges
+├── theme-manager.js     - Theme switching (3 themes)
+├── url-state.js         - URL state management
+├── main.js              - Initialization orchestrator (async)
+└── vendor/
+    └── ua-parser.min.js - Bundled UAParser.js v2.0.9 (35.3 KB)
 ```
 
-**Data flow**: main.js → detect device (with DRM) → run tests → render results
+**Data flow**: main.js → detect device (async UAParser) → detect DRM → run tests → render results
 
 ### State Management
 
@@ -33,7 +37,7 @@ const state = {
 };
 ```
 
-Test results follow this structure:
+Test results structure:
 ```javascript
 {
     supported: number,
@@ -56,6 +60,13 @@ Test results follow this structure:
 2. **MediaSource.isTypeSupported()** - For MSE/streaming. More strict than canPlayType.
 3. **mediaCapabilities.decodingInfo()** - Most accurate. Returns hardware capabilities.
 
+**Visual API Badges**: Each API result shown with color-coded badge (1, 2, 3):
+- Green = success/probably
+- Yellow = maybe/partial
+- Red = fail/unsupported
+
+This reveals API inconsistencies (e.g., Safari hiding DV in canPlayType).
+
 ### DRM/EME Testing
 
 Tests **requestMediaKeySystemAccess()** for encrypted content support:
@@ -72,6 +83,7 @@ Returns security level (L1/L3), robustness, persistent state support.
 - Deliberately hides Dolby Vision in canPlayType() (returns "")
 - iPad DV Profile 5 hardware exists but 500-nit displays can't do true PQ
 - Green screen = IPT-PQ decoded as BT.2020
+- Use mediaCapabilities for accurate HDR detection
 
 **webOS (LG TVs)**:
 - Race condition in Jellyfin app: getSupportedHdrProfiles() may return [] before Luna IPC completes
@@ -82,6 +94,11 @@ Returns security level (L1/L3), robustness, persistent state support.
 - Highly fragmented
 - Widevine L1 (hardware secure) or L3 (software) detected via EME API
 
+**Browser Engines**:
+- **Blink** (Chrome/Edge): Best overall codec support
+- **WebKit** (Safari): Best HEVC/DV support, limited DTS
+- **Gecko** (Firefox): Limited Dolby/DTS due to licensing
+
 ### Codec String Format
 
 HEVC example: `video/mp4; codecs="hvc1.2.4.L153.B0"`
@@ -90,6 +107,29 @@ HEVC example: `video/mp4; codecs="hvc1.2.4.L153.B0"`
 - 4 = Main 10 tier
 - L153 = Level 5.1 (4K)
 - B0 = constraint flags
+
+AV1 example: `video/mp4; codecs="av01.0.08M.10"`
+- av01 = AV1
+- 0 = Profile (Main)
+- 08M = Level 4.0 Main tier
+- 10 = 10-bit depth
+
+### Streaming Formats
+
+**HLS** (Apple HTTP Live Streaming):
+- Uses fMP4 (fragmented MP4) containers
+- `type: 'media-source'` for MSE testing
+- Common codecs: HEVC (4K HDR), H.264 (baseline)
+
+**DASH** (MPEG-DASH):
+- Adaptive bitrate streaming
+- Supports AV1, VP9, HEVC
+- WebM and MP4 containers
+
+**CMAF** (Common Media Application Format):
+- Unified format for HLS and DASH
+- ISO/IEC 23000-19 standard
+- Low-latency streaming
 
 ## Code Style
 
@@ -104,6 +144,7 @@ HEVC example: `video/mp4; codecs="hvc1.2.4.L153.B0"`
 - `const` for everything except actual mutations
 - Template literals for HTML generation
 - JSDoc only where it adds value (public APIs, complex logic)
+- Async/await for asynchronous operations
 
 ## Common Tasks
 
@@ -121,15 +162,15 @@ video_newcodec: {
             container: "MP4",
             info: "Brief description",
             mediaConfig: {
-                type: 'file',
+                type: 'file',  // or 'media-source' for streaming
                 video: {
                     contentType: 'video/mp4; codecs="codec-string"',
                     width: 3840,
                     height: 2160,
                     bitrate: 25000000,
                     framerate: 24,
-                    transferFunction: 'pq',  // optional: for HDR
-                    colorGamut: 'rec2020'     // optional: for HDR
+                    transferFunction: 'pq',  // optional: pq, hlg
+                    colorGamut: 'rec2020'     // optional: rec2020, p3
                 }
             }
         }
@@ -137,30 +178,58 @@ video_newcodec: {
 }
 ```
 
-For audio codecs, add `spatialRendering` tests (tested automatically in codec-tester.js).
+**For streaming formats**, use `type: 'media-source'` instead of `'file'`.
+**For audio codecs**, `spatialRendering` is tested automatically in codec-tester.js.
 
 ### Modifying UI Layout
 
-CSS lives in `css/styles.css`. Uses CSS custom properties for theming:
+CSS lives in `scss/styles.scss` (compiled to `css/styles.css`). Uses CSS custom properties for theming:
 
 ```css
 --bg: #0a0a0a       /* Background */
 --card: #141414     /* Card background */
---accent: #ff0080   /* Primary accent */
---green: #00ff88    /* Success states */
+--accent: #00ff88   /* Primary accent (green) */
+--blue: #00d4ff     /* Blue accent */
+--yellow: #ffd700   /* Yellow (partial support) */
+--red: #ff4444      /* Red (unsupported) */
 ```
 
-Grid layout is auto-fit with min 450px columns. Responsive breakpoints at 768px and 480px.
+Grid layout is auto-fit with min 500px columns. Responsive breakpoints at 768px and 480px.
 
 ### Testing Changes
 
+**With build step** (recommended for CSS changes):
+```bash
+npm run build        # Build CSS + bundle dependencies
+npm run dev          # Start server + SCSS watcher
+# Open http://localhost:8000
+```
+
+**Without build step** (JS changes only):
 ```bash
 python -m http.server 8000
 # Open http://localhost:8000
 # Check browser console for errors
 ```
 
-No build step. Changes are live on reload.
+**Build process**:
+- `npm run build:css` - Compile SCSS to CSS
+- `npm run build:js` - Minify JS + bundle UAParser
+- `npm run build` - Both
+
+## Dependencies
+
+**Runtime**: Zero external dependencies
+- UAParser.js v2.x is bundled in `/js/vendor/` (AGPL-3.0 license, ~35.3 KB minified)
+- Installed via npm, bundled at build time
+- Uses advanced features: `withFeatureCheck()` (iPad detection) + `withClientHints()` (Chrome accuracy)
+- No external network requests required
+
+**Development**: sass, terser, ua-parser-js (build tools only)
+
+## License Note
+
+CodecProbe uses UAParser.js v2.x (AGPL-3.0). Since CodecProbe is open-source (MIT), this is fully compliant. UAParser is bundled at build time and included in the repo.
 
 ## Security Notes
 
@@ -168,12 +237,14 @@ No build step. Changes are live on reload.
 - innerHTML usage is safe (internal data only)
 - Export function creates client-side JSON blob
 - No analytics, no external requests, no cookies
+- UAParser.js bundled locally (no CDN)
 
 ## Performance
 
-- 80+ codecs tested in ~2-5 seconds
+- 110+ codecs tested in ~2-5 seconds
 - mediaCapabilities tests are async (rate-limited by browser)
 - Results render once all tests complete (no progressive rendering)
+- UAParser.js detection is async (uses Client Hints API on Chromium)
 
 ## Known Issues
 
@@ -181,11 +252,24 @@ No build step. Changes are live on reload.
 - Safari DV hiding is intentional (privacy/DRM)
 - webOS race condition is in Jellyfin app, not our tool
 - Android fragmentation means results vary by device
+- Firefox limited Dolby/DTS support (licensing)
 
 **Intentional choices**:
 - No service worker yet (planned for offline support)
 - No result caching (tests are fast enough)
 - No Web Workers (tests don't block UI significantly)
+- DRM tests inline (non-blocking with timeout)
+
+## Themes
+
+**3 themes available**:
+1. **Dark OLED** (default): Pure blacks for OLED, battery-friendly
+2. **Light**: High contrast light mode for daylight viewing
+3. **Retro Terminal**: CRT aesthetics with scanlines and phosphor glow
+
+**Brutalist theme removed** in v2.0.0 (hard to maintain, poor contrast).
+
+Theme switching handled by `theme-manager.js` with localStorage persistence.
 
 ## Future Enhancements
 
@@ -193,9 +277,11 @@ Avoid over-engineering. Only add features if they solve real user problems:
 
 - ✅ Search/filter (done)
 - ✅ Keyboard shortcuts (done)
+- ✅ URL state management (done)
+- ✅ Dynamic API badges (done)
+- ✅ UAParser v2.x integration (done)
 - ⏳ PWA service worker for offline use
 - ⏳ Result caching in localStorage
-- ⏳ Shareable result URLs
 - ⏳ Progress indicator during testing
 
 ## Documentation Standards
@@ -204,5 +290,16 @@ Avoid over-engineering. Only add features if they solve real user problems:
 **SETUP.md**: Deployment guide
 **CLAUDE.md**: This file - for AI assistants working on the codebase
 **CONTRIBUTING.md**: Contributor guidelines
+**BUILD.md**: Build system documentation
+**CHANGELOG.md**: Version history
 
 Keep docs focused and practical. No generic "best practices" sections.
+
+## Tested Codecs Summary
+
+**Video**: HEVC, Dolby Vision (P5/7/8.1/8.4/10), AV1, VP9, H.264/AVC, VVC/H.266
+**Audio**: Dolby (AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS family, lossless (FLAC/ALAC/Opus), standard (AAC/MP3/Vorbis)
+**Containers**: MP4, MKV, WebM, MOV, fMP4, CMAF, native
+**Streaming**: HLS, DASH, CMAF
+
+**Total**: 110+ codec/container combinations validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.

@@ -106,9 +106,9 @@ function renderDeviceInfo(info) {
     if (info.drm) {
         if (info.drm.timedOut) {
             gridHTML += `
-                <div class="device-info-item full-width">
+                <div class="device-info-item">
                     <div class="device-info-label">DRM/EME Support</div>
-                    <div class="device-info-value" style="color: var(--orange);">Testing (may take a few seconds...)</div>
+                    <div class="device-info-value" style="color: var(--orange);">Testing...</div>
                 </div>
             `;
         } else if (info.drm.emeAvailable) {
@@ -121,24 +121,24 @@ function renderDeviceInfo(info) {
 
             if (supportedDRM.length > 0) {
                 gridHTML += `
-                    <div class="device-info-item full-width highlight">
+                    <div class="device-info-item highlight">
                         <div class="device-info-label">DRM/EME Support</div>
-                        <div class="device-info-value">${supportedDRM.join(' • ')}</div>
+                        <div class="device-info-value">${supportedDRM.join(', ')}</div>
                     </div>
                 `;
             } else {
                 gridHTML += `
-                    <div class="device-info-item full-width">
+                    <div class="device-info-item">
                         <div class="device-info-label">DRM/EME Support</div>
-                        <div class="device-info-value" style="color: var(--text-dimmed);">No DRM systems detected</div>
+                        <div class="device-info-value" style="color: var(--text-dimmed);">None</div>
                     </div>
                 `;
             }
         } else {
             gridHTML += `
-                <div class="device-info-item full-width">
+                <div class="device-info-item">
                     <div class="device-info-label">DRM/EME Support</div>
-                    <div class="device-info-value" style="color: var(--text-dimmed);">EME not available</div>
+                    <div class="device-info-value" style="color: var(--text-dimmed);">Not available</div>
                 </div>
             `;
         }
@@ -290,6 +290,143 @@ function formatApiResults(codec) {
     return html;
 }
 
+/**
+ * Escape HTML entities for safe rendering
+ * @param {string} text - Text to escape
+ * @returns {string} Escaped text
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Format educational content section
+ * @param {Object} education - Education object from codec definition
+ * @returns {string} HTML string
+ */
+function formatEducationContent(education) {
+    let html = '';
+
+    // Overview section
+    if (education.overview) {
+        html += `
+        <section class="education-section">
+            <h4>Overview</h4>
+            <p>${education.overview}</p>
+        </section>`;
+    }
+
+    // Streaming initialization
+    if (education.streaming) {
+        html += `
+        <section class="education-section">
+            <h4>HLS/DASH Initialization</h4>
+            ${formatStreamingExamples(education.streaming)}
+        </section>`;
+    }
+
+    // Platform notes
+    if (education.platforms) {
+        html += `
+        <section class="education-section">
+            <h4>Platform-Specific Notes</h4>
+            ${formatPlatformNotes(education.platforms)}
+        </section>`;
+    }
+
+    return html;
+}
+
+/**
+ * Format streaming initialization examples
+ * @param {Object} streaming - Streaming object with HLS/DASH examples
+ * @returns {string} HTML string
+ */
+function formatStreamingExamples(streaming) {
+    let html = '';
+
+    if (streaming.hls) {
+        html += `
+        <div class="streaming-example">
+            <div class="streaming-format-label">
+                <span class="format-badge">HLS</span>
+                <span class="file-extension">.m3u8 master playlist</span>
+            </div>
+            <pre><code>${escapeHtml(streaming.hls.m3u8)}</code></pre>
+            ${streaming.hls.notes ? `<p class="streaming-notes">${streaming.hls.notes}</p>` : ''}
+        </div>`;
+    }
+
+    if (streaming.dash) {
+        html += `
+        <div class="streaming-example">
+            <div class="streaming-format-label">
+                <span class="format-badge">DASH</span>
+                <span class="file-extension">.mpd manifest</span>
+            </div>
+            <pre><code>${escapeHtml(streaming.dash.mpd)}</code></pre>
+            ${streaming.dash.notes ? `<p class="streaming-notes">${streaming.dash.notes}</p>` : ''}
+        </div>`;
+    }
+
+    return html;
+}
+
+/**
+ * Format platform-specific implementation notes
+ * @param {Object} platforms - Platform notes object
+ * @returns {string} HTML string
+ */
+function formatPlatformNotes(platforms) {
+    const icons = { apple: '🍎', lg: '📺', android: '🤖', windows: '🪟', linux: '🐧' };
+    let html = '<div class="platform-notes-grid">';
+
+    for (const [platform, note] of Object.entries(platforms)) {
+        const icon = icons[platform] || '💻';
+        const name = platform.charAt(0).toUpperCase() + platform.slice(1);
+
+        html += `
+        <div class="platform-note">
+            <div class="platform-header">
+                <span class="platform-icon">${icon}</span>
+                <strong>${name}</strong>
+            </div>
+            <p>${note}</p>
+        </div>`;
+    }
+
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Setup event listeners for educational content toggles
+ */
+function setupEducationToggles() {
+    document.querySelectorAll('.education-toggle').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation(); // Don't trigger card collapse
+
+            const content = button.nextElementSibling;
+            const expanded = button.getAttribute('aria-expanded') === 'true';
+
+            button.setAttribute('aria-expanded', !expanded);
+            content.hidden = expanded;
+
+            // Rotate chevron
+            const chevron = button.querySelector('.chevron-icon');
+            if (chevron) {
+                chevron.style.transform = expanded ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+
+            // Announce to screen readers
+            announceToScreenReader(`Educational content ${!expanded ? 'expanded' : 'collapsed'}`);
+        });
+    });
+}
+
 function getResponseClass(value) {
     if (value === 'probably') return 'success';
     if (value === 'maybe') return 'partial';
@@ -385,6 +522,267 @@ function buildTechnicalSpecs(codec) {
 }
 
 /**
+ * Render all codec cards in PENDING state immediately
+ */
+function renderPendingCards() {
+    const grid = document.getElementById('codec-grid');
+    grid.innerHTML = '';
+    grid.style.display = 'grid';
+
+    document.getElementById('loading').style.display = 'none';
+
+    for (const [groupKey, group] of Object.entries(codecDatabase)) {
+        const section = document.createElement('div');
+        section.className = 'section';
+
+        const sectionHeader = document.createElement('div');
+        sectionHeader.className = 'section-header';
+        sectionHeader.textContent = group.category;
+
+        const countSpan = document.createElement('span');
+        countSpan.className = 'support-count pending-count';
+        countSpan.textContent = 'Testing...';
+        sectionHeader.appendChild(countSpan);
+
+        section.appendChild(sectionHeader);
+
+        const type = groupKey.startsWith('audio_') ? 'audio' : 'video';
+
+        group.tests.forEach(test => {
+            const item = createPendingCard(groupKey, test, type);
+            section.appendChild(item);
+        });
+
+        grid.appendChild(section);
+    }
+
+    console.log('[UI] Rendered all cards in PENDING state');
+}
+
+/**
+ * Create a single pending card
+ */
+function createPendingCard(groupKey, test, type) {
+    const item = document.createElement('div');
+    item.className = 'codec-item PENDING';
+    item.setAttribute('data-group', groupKey);
+    item.setAttribute('data-codec', test.codec);
+    item.setAttribute('data-name', test.name);
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('role', 'button');
+    item.setAttribute('aria-expanded', 'false');
+    item.setAttribute('aria-label', `${test.name} - Testing in progress`);
+
+    const header = document.createElement('div');
+    header.className = 'codec-card-header';
+
+    const headerContent = document.createElement('div');
+
+    const badge = document.createElement('span');
+    badge.className = 'status-badge';
+    badge.textContent = 'PENDING';
+
+    const name = document.createElement('span');
+    name.className = 'codec-name';
+    name.textContent = test.name;
+
+    const containerBadge = document.createElement('span');
+    containerBadge.className = 'platform-badge';
+    containerBadge.textContent = test.container;
+    name.appendChild(containerBadge);
+
+    const summary = document.createElement('div');
+    summary.className = 'codec-summary';
+    summary.textContent = test.info;
+
+    headerContent.appendChild(badge);
+    headerContent.appendChild(name);
+    headerContent.appendChild(summary);
+
+    const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    chevron.setAttribute('class', 'codec-chevron');
+    chevron.setAttribute('width', '20');
+    chevron.setAttribute('height', '20');
+    chevron.setAttribute('viewBox', '0 0 20 20');
+    chevron.setAttribute('fill', 'none');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M5 7.5L10 12.5L15 7.5');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    chevron.appendChild(path);
+
+    header.appendChild(headerContent);
+    header.appendChild(chevron);
+
+    const details = document.createElement('div');
+    details.className = 'codec-details';
+
+    const codecString = document.createElement('div');
+    codecString.className = 'codec-string';
+    const strong = document.createElement('strong');
+    strong.textContent = 'MIME Type: ';
+    codecString.appendChild(strong);
+    codecString.appendChild(document.createTextNode(test.codec));
+
+    const pendingMsg = document.createElement('p');
+    pendingMsg.style.color = 'var(--text-dimmed)';
+    pendingMsg.style.fontStyle = 'italic';
+    pendingMsg.textContent = 'Test in progress...';
+
+    details.appendChild(codecString);
+    details.appendChild(pendingMsg);
+
+    item.appendChild(header);
+    item.appendChild(details);
+
+    const handleToggle = (e) => {
+        if (item.classList.contains('PENDING')) return;
+        if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+            if (e.key === ' ') e.preventDefault();
+            item.classList.toggle('expanded');
+            const isExpanded = item.classList.contains('expanded');
+            item.setAttribute('aria-expanded', isExpanded.toString());
+        }
+    };
+
+    item.addEventListener('click', handleToggle);
+    item.addEventListener('keydown', handleToggle);
+
+    return item;
+}
+
+/**
+ * Update a specific card with test results
+ */
+function updateCardState(groupKey, codecResult) {
+    const grid = document.getElementById('codec-grid');
+    const escapedCodec = CSS.escape(codecResult.codec);
+    const card = grid.querySelector(`.codec-item[data-group="${groupKey}"][data-codec="${escapedCodec}"]`);
+
+    if (!card) {
+        console.warn('[UI] Card not found for update:', groupKey, codecResult.codec);
+        return;
+    }
+
+    card.classList.remove('PENDING');
+    card.classList.add(codecResult.support.toUpperCase());
+    card.classList.add('state-transition');
+    card.setAttribute('aria-label', `${codecResult.name} - ${codecResult.support}`);
+
+    const badge = card.querySelector('.status-badge');
+    if (badge) {
+        badge.textContent = codecResult.support.toUpperCase();
+    }
+
+    const detailsDiv = card.querySelector('.codec-details');
+    if (detailsDiv) {
+        detailsDiv.textContent = '';
+
+        const codecStringDiv = document.createElement('div');
+        codecStringDiv.className = 'codec-string';
+        const strong = document.createElement('strong');
+        strong.textContent = 'MIME Type: ';
+        codecStringDiv.appendChild(strong);
+        codecStringDiv.appendChild(document.createTextNode(codecResult.codec));
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.setAttribute('data-copy', codecResult.codec);
+        copyBtn.setAttribute('aria-label', 'Copy MIME type');
+        copyBtn.setAttribute('title', 'Copy to clipboard');
+        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>';
+
+        copyBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            try {
+                await navigator.clipboard.writeText(codecResult.codec);
+                const originalHTML = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHTML;
+                    copyBtn.classList.remove('copied');
+                }, 1500);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        });
+
+        codecStringDiv.appendChild(copyBtn);
+        detailsDiv.appendChild(codecStringDiv);
+
+        if (codecResult.education) {
+            const eduDiv = document.createElement('div');
+            eduDiv.className = 'codec-education';
+            eduDiv.innerHTML = `
+                <button class="education-toggle" aria-expanded="false" type="button">
+                    <svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16">
+                        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Learn More: Initialization & Platform Support
+                </button>
+                <div class="education-content" hidden>
+                    ${formatEducationContent(codecResult.education)}
+                </div>
+            `;
+            detailsDiv.appendChild(eduDiv);
+        }
+
+        const apiDiv = document.createElement('div');
+        apiDiv.innerHTML = formatApiResults(codecResult);
+        detailsDiv.appendChild(apiDiv);
+    }
+
+    updateSectionCounts(groupKey);
+
+    setTimeout(() => {
+        card.classList.remove('state-transition');
+    }, 500);
+
+    console.log('[UI] Updated card:', codecResult.name, '→', codecResult.support);
+}
+
+/**
+ * Update section header counts as tests complete
+ */
+function updateSectionCounts(groupKey) {
+    const grid = document.getElementById('codec-grid');
+    const section = Array.from(grid.querySelectorAll('.section')).find(s =>
+        s.querySelector(`[data-group="${groupKey}"]`)
+    );
+
+    if (!section) return;
+
+    const cards = section.querySelectorAll('.codec-item');
+    let supportedCount = 0;
+    let maybeCount = 0;
+    let pendingCount = 0;
+
+    cards.forEach(card => {
+        if (card.classList.contains('SUPPORTED') || card.classList.contains('PROBABLY')) {
+            supportedCount++;
+        } else if (card.classList.contains('MAYBE')) {
+            maybeCount++;
+        } else if (card.classList.contains('PENDING')) {
+            pendingCount++;
+        }
+    });
+
+    const countSpan = section.querySelector('.support-count');
+    if (countSpan) {
+        if (pendingCount > 0) {
+            countSpan.textContent = `${supportedCount} full / ${maybeCount} partial (${pendingCount} pending)`;
+            countSpan.classList.add('pending-count');
+        } else {
+            countSpan.textContent = `${supportedCount} full / ${maybeCount} partial`;
+            countSpan.classList.remove('pending-count');
+        }
+    }
+}
+
+/**
  * Render codec test results
  * @param {Object} results - Test results from runCodecTests()
  */
@@ -461,6 +859,19 @@ function renderResults(results) {
                             </svg>
                         </button>
                     </div>
+                    ${codec.education ? `
+                    <div class="codec-education">
+                        <button class="education-toggle" aria-expanded="false" type="button">
+                            <svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Learn More: Initialization & Platform Support
+                        </button>
+                        <div class="education-content" hidden>
+                            ${formatEducationContent(codec.education)}
+                        </div>
+                    </div>
+                    ` : ''}
                     ${formatApiResults(codec)}
                 </div>
             `;
@@ -521,6 +932,9 @@ function renderResults(results) {
 
     // Hide loading indicator
     document.getElementById('loading').style.display = 'none';
+
+    // Setup educational content toggles
+    setupEducationToggles();
 
     // Announce completion
     const totalCodecs = Object.values(results.tests).reduce((sum, group) =>

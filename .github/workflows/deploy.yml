@@ -45,10 +45,18 @@ jobs:
         if: steps.scss-check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: npm run build:css
 
+      - name: Build JS and generate version manifest
+        run: npm run build:js
+
+      - name: Inject version hashes into HTML
+        run: node inject-versions.js
+
       - name: Prepare deployment
         run: |
           mkdir -p deploy
-          cp -r css js icons manifest.json favicon.* index.html CNAME deploy/
+          cp -r css deploy/
+          cp -r build/js deploy/js
+          cp manifest.json favicon.* CNAME _headers deploy/
           cp .nojekyll deploy/
 
       - name: Report build sizes

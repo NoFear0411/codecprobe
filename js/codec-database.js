@@ -67,6 +67,34 @@ const codecDatabase = {
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    overview: 'HEVC Main 10 Profile with HDR10 uses 10-bit color depth to support wide color gamut (BT.2020) and high dynamic range via PQ (Perceptual Quantizer) transfer function. This is the baseline HDR format, using static metadata (MaxCLL, MaxFALL) to define content characteristics. Widely supported across all modern devices and streaming platforms.',
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:6
+#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+hdr10_4k.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080
+sdr_1080p.m3u8`,
+                            notes: 'VIDEO-RANGE=PQ signals HDR10 content to iOS/tvOS. Codec string hvc1.2.4.L153.B0 breaks down as: hvc1 (HEVC in MP4), 2 (Main 10 profile), 4 (Main tier), L153 (Level 5.1 for 4K), B0 (no constraint flags). Always provide SDR fallback.'
+                        },
+                        dash: {
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0">
+  <Representation bandwidth="25000000" width="3840" height="2160">
+    <SegmentTemplate media="hdr10_$Number$.m4s" initialization="hdr10_init.mp4"/>
+  </Representation>
+</AdaptationSet>`,
+                            notes: 'For HDR10, include SupplementalProperty with schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16" (PQ) and "urn:mpeg:mpegB:cicp:ColourPrimaries" value="9" (BT.2020) for explicit signaling.'
+                        }
+                    },
+                    platforms: {
+                        apple: 'HEVC hardware acceleration available on: iPhone 7+ (A10), iPad Pro 2017+ (A10X), Mac 2018+ (T2 or Apple Silicon). Safari requires VIDEO-RANGE attribute in HLS. Use hvc1 tag for better compatibility than hev1.',
+                        lg: 'Universal support on webOS 3.0+. Hardware decoding via LG SoC. HEVC licensing built-in, no browser-specific limitations. Supports both hvc1 and hev1 tags.',
+                        android: 'HEVC Main 10 support requires Android 7.0+ with MediaCodec hardware decoder. Check capabilities via MediaCodecList. Samsung Exynos, Qualcomm Snapdragon 820+, and HiSilicon Kirin support HEVC. Software fallback available on Android 5.0+ but not performant for 4K.'
+                    }
                 }
             },
             {
@@ -295,6 +323,35 @@ const codecDatabase = {
                         framerate: 24,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
+                    }
+                },
+                education: {
+                    overview: "Dolby Vision Profile 8.1 is a single-layer format where Dolby Vision metadata is embedded alongside an HDR10 base layer. This allows backwards compatibility: non-DV devices see HDR10, DV-capable devices upgrade to full Dolby Vision with dynamic metadata and enhanced tone mapping. Most common format for streaming services like Netflix, Disney+, and Apple TV+.",
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:6
+#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="dvh1.08.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+stream_dv81.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="hvc1.2.4.L153.B0,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+stream_hdr10.m3u8`,
+                            notes: 'VIDEO-RANGE=PQ is REQUIRED for Dolby Vision on iOS/tvOS. Use supplemental codec string "dvh1" (cross-compatible) or "dvhe" (BL+EL explicit). Always provide HDR10 fallback stream for non-DV devices.'
+                        },
+                        dash: {
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.06">
+  <SupplementalProperty schemeIdUri="urn:dvb:dash:dovi" value="08.06"/>
+  <Representation bandwidth="15000000" width="3840" height="2160">
+    <SegmentTemplate media="dv_$Number$.m4s" initialization="dv_init.mp4"/>
+  </Representation>
+</AdaptationSet>`,
+                            notes: 'SupplementalProperty with schemeIdUri="urn:dvb:dash:dovi" activates hardware decoders. Value must match codec profile (08.06 = Profile 8.1, Level 6).'
+                        }
+                    },
+                    platforms: {
+                        apple: 'Supported on iPhone 12+, iPad Pro M1+, Apple TV 4K (2021+). Requires VIDEO-RANGE=PQ in HLS master playlist. Safari deliberately hides DV support in canPlayType() but mediaCapabilities reveals it. Use "dvh1" codec string for maximum compatibility.',
+                        lg: 'webOS 5.0+ supports Profile 8.1 on OLED/QNED models. webOS 6.0+ required for MKV containers. May show race condition on first load (getSupportedHdrProfiles() returns empty array before Luna IPC completes). Refresh page if DV shows unsupported initially.',
+                        android: 'Highly fragmented. Requires: (1) Android 12+ for DASH support (2) Dolby Vision capable display (check DisplayManager.getDisplay().getHdrCapabilities()) (3) MediaCodec support (codec name "c2.dolby.dv.decoder" or "OMX.dolby.dv.decoder"). Pixel 6+, Samsung S21+, OnePlus 9+ confirmed working. Use Widevine L1 for DRM content.'
                     }
                 }
             },
@@ -824,6 +881,44 @@ const codecDatabase = {
                         framerate: 24,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
+                    }
+                },
+                education: {
+                    overview: 'HLS (HTTP Live Streaming) with fragmented MP4 (fMP4) containers enables adaptive bitrate streaming for HEVC content. Unlike traditional MP4, fMP4 splits video into small segments (typically 2-10 seconds) allowing real-time streaming and bitrate adaptation. This test uses type: "media-source" to verify MSE (Media Source Extensions) API support, which Jellyfin/Plex/Emby require for in-browser transcoding and direct play.',
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:6
+#EXT-X-TARGETDURATION:10
+#EXT-X-MEDIA-SEQUENCE:0
+
+#EXTINF:10.0,
+segment_0.m4s
+#EXTINF:10.0,
+segment_1.m4s
+#EXTINF:10.0,
+segment_2.m4s
+#EXT-X-ENDLIST`,
+                            notes: 'Media playlist (.m3u8) references .m4s segment files. Each segment is a self-contained fMP4 with moof+mdat boxes. Requires separate init segment (init.mp4) with moov box. EXT-X-VERSION:6 enables fMP4 support (v5 and below use MPEG-TS).'
+                        },
+                        dash: {
+                            mpd: `<Period>
+  <AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0" segmentAlignment="true">
+    <SegmentTemplate timescale="1000" initialization="init.mp4" media="segment_$Number$.m4s" startNumber="0">
+      <SegmentTimeline>
+        <S t="0" d="10000" r="2"/>
+      </SegmentTimeline>
+    </SegmentTemplate>
+    <Representation bandwidth="25000000" width="3840" height="2160"/>
+  </AdaptationSet>
+</Period>`,
+                            notes: 'DASH uses same fMP4 container as HLS (CMAF-compatible). SegmentTemplate with initialization specifies init segment, media template for numbered segments. timescale="1000" means milliseconds. DASH has better multi-codec support than HLS but less Apple ecosystem integration.'
+                        }
+                    },
+                    platforms: {
+                        apple: 'Safari/WebKit has native HLS support with fMP4 since iOS 10+/macOS 10.12+. MSE API support added in iOS 17.1+/macOS Sonoma for web apps. Native HLS playback (via video.src) bypasses MSE and uses system decoder, offering better battery efficiency. Web apps using MSE (like Jellyfin web) require iOS 17.1+.',
+                        lg: 'webOS supports MSE + HLS fMP4 since webOS 3.0. Native media pipeline handles segment concatenation. Jellyfin app uses webOS Luna API (getAppInfo, mediacodec) for direct hardware decoding. Race condition in early app launch may cause false negatives in codec detection.',
+                        android: 'Chrome on Android supports MSE + fMP4 since Android 7.0. ExoPlayer (used by many media apps) has excellent HLS support. Hardware HEVC decoding requires MediaCodec with HEVC profile support. Software decoding fallback available but not performant for 4K HDR. Widevine L1 required for protected content.'
                     }
                 }
             },

@@ -10,6 +10,7 @@
     "build:css": "sass scss:css --style compressed",
     "build:js": "node build.js",
     "build": "npm run build:css && npm run build:js",
+    "build:deploy": "npm run build && node inject-versions.js",
     "dev": "npm-run-all --parallel serve watch:css"
   },
   "dependencies": {

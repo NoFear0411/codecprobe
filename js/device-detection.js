@@ -13,15 +13,21 @@ async function detectDeviceInfo() {
     const parser = new UAParser();
     const ua = navigator.userAgent;
 
-    // Apply advanced detection methods for maximum accuracy
+    // Try advanced detection methods if available (UAParser v2.x)
     // withFeatureCheck() - detects iPad, Brave browser, and runtime capabilities
     // withClientHints() - uses Chrome Client Hints API for better device data
     let result;
     try {
-        result = await parser
-            .withFeatureCheck()      // Runtime feature detection (iPad fix!)
-            .withClientHints()       // Client Hints API (Chromium 85+)
-            .getResult();
+        // Check if advanced methods exist before calling them
+        if (typeof parser.withFeatureCheck === 'function' && typeof parser.withClientHints === 'function') {
+            result = await parser
+                .withFeatureCheck()      // Runtime feature detection (iPad fix!)
+                .withClientHints()       // Client Hints API (Chromium 85+)
+                .getResult();
+        } else {
+            // Use basic parsing if advanced features not available
+            result = parser.getResult();
+        }
     } catch (e) {
         // Fallback to basic parsing if advanced features fail
         console.warn('[Device Detection] Advanced features failed, using basic parsing:', e);

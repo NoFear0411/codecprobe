@@ -32,7 +32,11 @@
 npm install
 ```
 
-This installs the SCSS compiler and build tools.
+This installs:
+- SCSS compiler (sass)
+- JavaScript minifier (terser)
+- Browser detection library (ua-parser-js)
+- Build tools
 
 ### Development Mode
 ```bash
@@ -43,12 +47,22 @@ This starts:
 - Local server on `http://localhost:8000`
 - SCSS watcher (auto-compiles on changes)
 
+### Build Everything
+```bash
+npm run build
+```
+
+This runs:
+- CSS compilation (`scss/` → `css/styles.css`)
+- JavaScript minification (`js/` → `build/js/`)
+- UAParser.js bundling (`node_modules/` → `js/vendor/`)
+
 ### Build CSS Only
 ```bash
 npm run build:css
 ```
 
-Compiles `scss/styles.scss` → `css/styles.css` (compressed)
+Compiles `scss/styles.scss` + `scss/_themes.scss` → `css/styles.css` (compressed)
 
 ## Local Testing (Without Building)
 
@@ -77,14 +91,16 @@ http-server -p 8000
 ## GitHub Actions Build Process
 
 The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically:
-1. Installs Node.js dependencies
+1. Installs Node.js dependencies (including ua-parser-js)
 2. Compiles SCSS to CSS
-3. Deploys to GitHub Pages
+3. Bundles UAParser.js to vendor directory
+4. Deploys to GitHub Pages
 
 **This means:**
-- You don't need to commit compiled CSS files
-- CSS is built fresh on every push to `main`
-- Themes are automatically compiled from SCSS source
+- Compiled CSS and bundled vendor files are committed to git
+- GitHub Pages works without build step
+- CSS is built from SCSS source during development
+- UAParser.js is bundled at build time for offline capability
 
 ## File Structure Requirements
 
@@ -94,6 +110,8 @@ For GitHub Pages to work, you MUST have:
 - No server-side code (PHP, etc.)
 - `package.json` for npm dependencies
 - SCSS source files in `scss/` directory
+- Compiled CSS in `css/` directory (committed to git)
+- Bundled UAParser.js in `js/vendor/` directory (committed to git)
 
 ## Customization
 
@@ -164,10 +182,11 @@ Older browsers may work with reduced functionality.
 
 ## Performance
 
-- Initial load: < 500KB
-- Test duration: 2-5 seconds
+- Initial load: ~90 KB HTML/CSS/JS + 35 KB UAParser.js
+- Test duration: 2-5 seconds for 110+ codecs
 - Memory usage: < 50MB
 - No background processes
+- No external requests (UAParser bundled locally)
 
 ## Updates
 

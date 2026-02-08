@@ -100,7 +100,69 @@ function formatBytes(bytes) {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-buildFiles().catch(error => {
-    console.error('Build failed:', error);
-    process.exit(1);
-});
+/**
+ * Generate file hash for cache busting
+ */
+function generateFileHash(filePath) {
+    const crypto = require('crypto');
+    const content = fs.readFileSync(filePath, 'utf8');
+    return crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
+}
+
+/**
+ * Generate version manifest for cache busting
+ */
+function generateVersionManifest() {
+    const manifest = {
+        timestamp: Date.now(),
+        hashes: {}
+    };
+
+    console.log('\n📝 Generating version manifest...');
+
+    // Hash built JS files
+    const jsFiles = ['main.js', 'codec-tester.js', 'ui-renderer.js', 'codec-database.js',
+                     'device-detection.js', 'drm-detection.js', 'theme-manager.js', 'url-state.js'];
+
+    jsFiles.forEach(file => {
+        const filePath = path.join(__dirname, 'build', 'js', file);
+        if (fs.existsSync(filePath)) {
+            manifest.hashes[file] = generateFileHash(filePath);
+        }
+    });
+
+    // Hash CSS
+    const cssPath = path.join(__dirname, 'css', 'styles.css');
+    if (fs.existsSync(cssPath)) {
+        manifest.hashes['styles.css'] = generateFileHash(cssPath);
+    }
+
+    // Hash vendor files
+    const vendorPath = path.join(__dirname, 'js', 'vendor', 'ua-parser.min.js');
+    if (fs.existsSync(vendorPath)) {
+        manifest.hashes['ua-parser.min.js'] = generateFileHash(vendorPath);
+    }
+
+    // Ensure build directory exists
+    const buildDir = path.join(__dirname, 'build');
+    if (!fs.existsSync(buildDir)) {
+        fs.mkdirSync(buildDir, { recursive: true });
+    }
+
+    // Write manifest
+    const manifestPath = path.join(buildDir, 'version-manifest.json');
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+
+    console.log(`✓ Generated version manifest with hashes`);
+    console.log(`  Timestamp: ${manifest.timestamp}`);
+    console.log(`  Files hashed: ${Object.keys(manifest.hashes).length}`);
+
+    return manifest;
+}
+
+buildFiles()
+    .then(() => generateVersionManifest())
+    .catch(error => {
+        console.error('Build failed:', error);
+        process.exit(1);
+    });

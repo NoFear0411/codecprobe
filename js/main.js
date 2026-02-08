@@ -62,22 +62,26 @@ async function initialize() {
     console.log('Step 2: Setting up UI controls...');
     setupFilters();
     setupExport();
-    
-    // Step 3: Run codec tests
-    console.log('Step 3: Running codec tests across all APIs...');
+
+    // Step 3: Render pending cards immediately
+    console.log('Step 3: Rendering codec cards...');
+    renderPendingCards();
+
+    // Step 4: Run codec tests with progressive updates
+    console.log('Step 4: Running codec tests in batches...');
     console.log('This will test all codecs using 3 APIs:');
     console.log('  - HTMLMediaElement.canPlayType()');
     console.log('  - MediaSource.isTypeSupported()');
     console.log('  - navigator.mediaCapabilities.decodingInfo()');
     console.log('');
-    
+
     try {
-        const results = await runCodecTests();
-        
-        // Step 4: Render results
-        console.log('Step 4: Rendering results...');
-        renderResults(results);
-        
+        const results = await runCodecTests((groupKey, codecResult) => {
+            updateCardState(groupKey, codecResult);
+        });
+
+        setupEducationToggles();
+
         console.log('='.repeat(80));
         console.log('TESTING COMPLETE');
         console.log('='.repeat(80));
@@ -87,18 +91,38 @@ async function initialize() {
         console.log(`✗ Unsupported: ${results.unsupported}`);
         console.log(`⏱ Test duration: ${results.testDuration}ms`);
         console.log('='.repeat(80));
-        
-        // Log any notable findings
+
         logNotableFindings(results, deviceInfo);
-        
+
+        const totalCodecs = results.supported + results.maybe + results.unsupported;
+        announceToScreenReader(`Testing complete. ${totalCodecs} codecs tested. ${results.supported} fully supported.`);
     } catch (error) {
-        console.error('Error during codec testing:', error);
-        document.getElementById('loading').innerHTML = `
-            <div style="color: var(--red);">
-                <strong>Error during testing:</strong><br>
-                ${error.message}
-            </div>
-        `;
+        console.error('⚠ Codec testing failed:', error);
+        const loadingEl = document.getElementById('loading');
+        if (loadingEl) {
+            loadingEl.style.display = 'block';
+            loadingEl.textContent = '';
+
+            const errorDiv = document.createElement('div');
+            errorDiv.style.color = 'var(--red)';
+
+            const errorTitle = document.createElement('p');
+            errorTitle.textContent = '❌ Codec testing failed';
+
+            const errorMsg = document.createElement('p');
+            errorMsg.style.fontSize = '0.9rem';
+            errorMsg.textContent = error.message;
+
+            const retryBtn = document.createElement('button');
+            retryBtn.textContent = 'Retry';
+            retryBtn.style.cssText = 'margin-top: 10px; padding: 8px 16px; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; cursor: pointer;';
+            retryBtn.onclick = () => location.reload();
+
+            errorDiv.appendChild(errorTitle);
+            errorDiv.appendChild(errorMsg);
+            errorDiv.appendChild(retryBtn);
+            loadingEl.appendChild(errorDiv);
+        }
     }
 }
 

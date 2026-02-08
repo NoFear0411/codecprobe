@@ -6,25 +6,45 @@ Thanks for your interest! This project aims to help media server users understan
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/codecprobe.git`
-3. Create a branch: `git checkout -b your-feature`
-4. Test locally: `python -m http.server 8000`
-5. Make your changes
-6. Push and create a PR
+3. Install dependencies: `npm install`
+4. Create a branch: `git checkout -b your-feature`
+5. Start dev mode: `npm run dev` (or `python -m http.server 8000`)
+6. Make your changes
+7. Build if needed: `npm run build`
+8. Push and create a PR
 
 ## Code Standards
 
-### No Dependencies
+### Dependencies
 
-This project uses vanilla JavaScript - no npm packages, no build step. Keep it that way.
+**Runtime**: Zero external dependencies
+- UAParser.js v2.x bundled at build time (in `js/vendor/`)
+- Works fully offline
+
+**Development** (build tools only):
+- `sass` - SCSS compilation
+- `terser` - JavaScript minification
+- `ua-parser-js` - Browser detection (bundled)
+
+Keep runtime dependencies at zero - only add dev dependencies for build tools.
 
 ### File Structure
 
-- `js/codec-database.js` - Codec test definitions
-- `js/device-detection.js` - Browser/OS detection
-- `js/codec-tester.js` - API testing logic
-- `js/ui-renderer.js` - Results rendering
-- `js/main.js` - Initialization
-- `css/styles.css` - All styling
+**JavaScript**:
+- `js/codec-database.js` - 110+ codec test definitions
+- `js/device-detection.js` - UAParser.js v2.x integration (async)
+- `js/drm-detection.js` - DRM/EME testing
+- `js/codec-tester.js` - Multi-API testing logic
+- `js/ui-renderer.js` - Results rendering, dynamic API badges
+- `js/theme-manager.js` - Theme switching
+- `js/url-state.js` - URL state management
+- `js/main.js` - Initialization (async)
+- `js/vendor/ua-parser.min.js` - Bundled browser detection
+
+**Styles**:
+- `scss/styles.scss` - Main stylesheet (source)
+- `scss/_themes.scss` - Theme definitions
+- `css/styles.css` - Compiled CSS (committed to git)
 
 ### Style Guidelines
 
@@ -34,10 +54,17 @@ This project uses vanilla JavaScript - no npm packages, no build step. Keep it t
 - Template literals for strings
 - JSDoc for public functions only
 
-**CSS**:
-- Use CSS custom properties (see `:root` in styles.css)
+**SCSS/CSS**:
+- Edit `scss/styles.scss` or `scss/_themes.scss` (not compiled CSS directly)
+- Use CSS custom properties for theming
 - Mobile-first responsive design
-- Dark theme only (no light mode needed)
+- Build with `npm run build:css` before committing
+- Commit both SCSS source and compiled CSS
+
+**Themes**:
+- Dark OLED (default), Light, Retro Terminal
+- Each theme uses CSS custom properties
+- No inline styles - use theme variables
 
 **Naming**:
 - Functions: `camelCase` (renderResults, testCodec)
