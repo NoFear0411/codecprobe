@@ -6,7 +6,7 @@ Ever wonder why Dolby Vision doesn't work on your LG TV through Jellyfin? Or why
 
 Built after discovering race conditions in webOS Jellyfin apps and Safari's deliberately hidden Dolby Vision support.
 
-🔗 **[Live Demo](https://yourusername.github.io/codecprobe/)** (replace with your GitHub Pages URL)
+🔗 **[Live Demo](https://nofear0411.github.io/codecprobe/)** (replace with your GitHub Pages URL)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
@@ -220,7 +220,6 @@ See [adding new codecs](#adding-new-codecs) below.
 - 🐛 [Report issues](https://github.com/yourusername/codecprobe/issues)
 - 💡 [Request features](https://github.com/yourusername/codecprobe/issues)
 - 💬 [Discussions](https://github.com/yourusername/codecprobe/discussions)
-- 📧 Email: your.email@example.com
 
 **Found this useful?** Star the repo and share with your media server community!
 
@@ -299,7 +298,6 @@ Built by media server enthusiasts, for media server enthusiasts.
 
 - 🐛 [Report a bug](https://github.com/yourusername/codec-detector/issues)
 - 💡 [Request a feature](https://github.com/yourusername/codec-detector/issues)
-- 📧 [Contact](mailto:your.email@example.com)
 
 ---
 
