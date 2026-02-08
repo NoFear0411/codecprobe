@@ -88,6 +88,18 @@ body:not([class*="theme-"]) {
     }
 }
 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
 // Header
 .header {
     margin-bottom: $spacing-xl;
@@ -198,6 +210,42 @@ h1 {
     }
 }
 
+.expand-toggle-btn {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+    padding: $spacing-sm $spacing-md;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+
+    svg {
+        width: 16px;
+        height: 16px;
+        stroke-width: 2;
+    }
+
+    &:hover,
+    &:focus {
+        background: var(--card-hover);
+        color: var(--accent);
+        border-color: var(--accent);
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    &:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 3px;
+    }
+}
+
 .export-btn {
     background: var(--blue);
     color: var(--bg);
@@ -266,12 +314,19 @@ h1 {
     border-radius: 6px;
     margin-bottom: $spacing-xs;
     border-left: 3px solid $border-light;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    position: relative;
 
     &:hover {
         background: $card;
-        transform: translateX(4px);
+        transform: translateX(4px) translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+        .codec-chevron {
+            opacity: 1;
+            color: var(--accent);
+        }
     }
 
     &:last-child {
@@ -282,13 +337,51 @@ h1 {
         background: var(--card-hover);
         border-left-width: 4px;
         padding-bottom: $spacing-md;
+        transform: none;
 
         .codec-details {
             max-height: 1000px;
             opacity: 1;
             margin-top: $spacing-sm;
         }
+
+        .codec-chevron {
+            transform: rotate(180deg);
+            color: var(--accent);
+        }
     }
+
+    &:first-child::after {
+        content: 'Click to expand';
+        position: absolute;
+        top: -24px;
+        right: 0;
+        font-size: 0.7rem;
+        color: var(--text-dimmed);
+        opacity: 0;
+        animation: hint-fade 3s ease-in-out 1s 2;
+        pointer-events: none;
+    }
+}
+
+@keyframes hint-fade {
+    0%, 100% { opacity: 0; }
+    30%, 70% { opacity: 0.7; }
+}
+
+.codec-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $spacing-sm;
+}
+
+.codec-chevron {
+    flex-shrink: 0;
+    color: var(--text-dimmed);
+    opacity: 0.5;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 2px;
 }
 
 .codec-name {
@@ -316,12 +409,53 @@ h1 {
     font-size: 0.75rem;
     color: var(--text-dimmed);
     word-break: break-all;
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
     margin-top: $spacing-sm;
     line-height: 1.4;
     padding: $spacing-xs;
     background: var(--bg-secondary);
     border-radius: 4px;
+}
+
+.copy-btn,
+.copy-result-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    &:hover {
+        background: var(--card-hover);
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    &.copied {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+    }
+
+    svg {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+.copy-result-btn {
+    margin-top: $spacing-sm;
+    width: 100%;
+    justify-content: center;
+    font-weight: 600;
 }
 
 .status-badge {

@@ -27,14 +27,43 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24.13.0'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Check for SCSS changes
+        id: scss-check
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^scss/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build CSS
+        if: steps.scss-check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: npm run build:css
+
+      - name: Build JS (strip console.logs)
+        run: npm run build:js
+
+      - name: Prepare deployment
+        run: |
+          mkdir -p deploy
+          cp -r css icons manifest.json favicon.* index.html deploy/
+          cp -r build/js deploy/js
+          cp .nojekyll deploy/
+
+      - name: Report build sizes
+        run: |
+          echo "📦 Build Size Report"
+          echo "===================="
+          du -sh deploy/css deploy/js deploy/index.html
+          echo ""
+          echo "Total deployment size:"
+          du -sh deploy
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -42,7 +71,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: 'deploy'
 
       - name: Deploy to GitHub Pages
         id: deployment

@@ -1,5 +1,45 @@
 # Changelog
 
+## [1.2.0] - 2026-02-08
+
+### Added
+- **Production Build System**:
+  - Automated console.log stripping for production deploys
+  - Build size reporting in GitHub Actions
+  - Conditional SCSS compilation (only rebuilds if SCSS changed)
+  - .nojekyll file for faster GitHub Pages deployment
+  - Deployment status badge in README
+  - Node.js 24.13.0 (latest stable) in CI/CD
+- **Visual Affordance**:
+  - Chevron icons on codec cards (rotate on expand)
+  - Enhanced hover effects (lift + shadow)
+  - "Click for details" hint animation on first card
+  - Smooth cubic-bezier transitions
+- **URL State Management**:
+  - Hash-based routing (#filter=video&search=hevc)
+  - Shareable links to specific filter/search states
+  - Browser back/forward support
+  - URL updates automatically with state changes
+- **Copy & Share Features**:
+  - Copy button for MIME type strings
+  - Copy full codec result as JSON
+  - Visual feedback (checkmark animation)
+  - Clipboard API integration
+- **Bulk Actions**:
+  - Expand All / Collapse All toggle button
+  - Keyboard shortcut (Ctrl+E)
+  - Staggered animation support
+- **Accessibility Improvements**:
+  - ARIA live region for screen reader announcements
+  - Expansion state announcements
+  - Test completion announcements
+  - .sr-only utility class
+
+### Changed
+- Build process now deploys optimized JS (console.logs removed)
+- Card interactions more discoverable with visual cues
+- Better keyboard navigation with shortcuts documented
+
 ## [1.1.0] - 2026-02-08
 
 ### Added

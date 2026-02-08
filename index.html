@@ -51,6 +51,7 @@
     </script>
 
     <link rel="stylesheet" href="css/styles.css">
+    <script src="js/url-state.js"></script>
 </head>
 <body>
     <a href="#codec-grid" class="skip-link">Skip to results</a>
@@ -75,8 +76,18 @@
             <button class="filter-btn" data-filter="video" aria-pressed="false">Video Only</button>
             <button class="filter-btn" data-filter="audio" aria-pressed="false">Audio Only</button>
         </div>
+        <button class="expand-toggle-btn" id="expand-toggle-btn" aria-label="Expand all codec cards" title="Expand All (Ctrl+E)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="7 13 12 18 17 13"></polyline>
+                <polyline points="7 6 12 11 17 6"></polyline>
+            </svg>
+            <span>Expand All</span>
+        </button>
         <button class="export-btn" id="export-btn" aria-label="Export results as JSON">Export Results (JSON)</button>
     </div>
+
+    <!-- Accessibility: Status announcements -->
+    <div id="sr-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <div id="loading" class="loading" role="status" aria-live="polite">
         <div>Running codec tests...</div>

@@ -11,6 +11,7 @@ Built after discovering race conditions in webOS Jellyfin apps and Safari's deli
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
 ![No Dependencies](https://img.shields.io/badge/dependencies-none-green.svg)
+![Deploy Status](https://github.com/nofear0411/codecprobe/actions/workflows/deploy.yml/badge.svg)
 
 ---
 

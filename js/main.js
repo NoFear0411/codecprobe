@@ -15,6 +15,13 @@ async function initialize() {
         initThemeSystem();
     }
 
+    // Step 0b: Initialize URL state
+    console.log('Step 0b: Initializing URL state management...');
+    if (typeof initURLState === 'function') {
+        const urlState = initURLState();
+        console.log('[Debug] URL state loaded:', urlState);
+    }
+
     // Step 1: Detect device information
     console.log('Step 1: Detecting device information...');
     const deviceInfo = detectDeviceInfo();

@@ -11,6 +11,21 @@ const state = {
 };
 
 /**
+ * Announce message to screen readers
+ * @param {string} message - Message to announce
+ */
+function announceToScreenReader(message) {
+    const announcer = document.getElementById('sr-announcements');
+    if (announcer) {
+        announcer.textContent = message;
+        // Clear after announcement
+        setTimeout(() => {
+            announcer.textContent = '';
+        }, 1000);
+    }
+}
+
+/**
  * Render device information header
  * @param {Object} info - Device info object from detectDeviceInfo()
  */
@@ -179,14 +194,32 @@ function renderResults(results) {
             item.setAttribute('aria-label', `${codec.name} - Click to see details`);
 
             item.innerHTML = `
-                <span class="status-badge">${codec.support.toUpperCase()}</span>
-                <span class="codec-name">${codec.name}
-                    <span class="platform-badge">${codec.container}</span>
-                </span>
-                <div class="codec-summary">${codec.info}</div>
+                <div class="codec-card-header">
+                    <div>
+                        <span class="status-badge">${codec.support.toUpperCase()}</span>
+                        <span class="codec-name">${codec.name}
+                            <span class="platform-badge">${codec.container}</span>
+                        </span>
+                        <div class="codec-summary">${codec.info}</div>
+                    </div>
+                    <svg class="codec-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
                 <div class="codec-details">
-                    <div class="codec-string"><strong>MIME Type:</strong> ${codec.codec}</div>
+                    <div class="codec-string">
+                        <strong>MIME Type:</strong> ${codec.codec}
+                        <button class="copy-btn" data-copy="${codec.codec}" aria-label="Copy MIME type" title="Copy to clipboard">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
                     ${formatApiResults(codec)}
+                    <button class="copy-result-btn" data-copy-json='${JSON.stringify(codec).replace(/'/g, "&apos;")}' aria-label="Copy full result">
+                        Copy Full Result (JSON)
+                    </button>
                 </div>
             `;
 
@@ -197,12 +230,46 @@ function renderResults(results) {
                     item.classList.toggle('expanded');
                     const isExpanded = item.classList.contains('expanded');
                     item.setAttribute('aria-expanded', isExpanded.toString());
+
+                    // Announce to screen readers
+                    announceToScreenReader(`${codec.name} details ${isExpanded ? 'expanded' : 'collapsed'}`);
+
                     console.log('[UI] Codec card toggled:', codec.name, isExpanded);
                 }
             };
 
             item.addEventListener('click', handleToggle);
             item.addEventListener('keydown', handleToggle);
+
+            // Setup copy buttons (prevent card toggle on button click)
+            item.querySelectorAll('.copy-btn, .copy-result-btn').forEach(copyBtn => {
+                copyBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const dataToCopy = copyBtn.dataset.copy || copyBtn.dataset.copyJson;
+
+                    try {
+                        await navigator.clipboard.writeText(dataToCopy);
+
+                        // Visual feedback
+                        const originalHTML = copyBtn.innerHTML;
+                        copyBtn.innerHTML = copyBtn.classList.contains('copy-btn') ?
+                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>' :
+                            '✓ Copied!';
+                        copyBtn.classList.add('copied');
+
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                            copyBtn.classList.remove('copied');
+                        }, 2000);
+                    } catch (err) {
+                        console.error('[UI] Copy failed:', err);
+                        copyBtn.textContent = 'Failed';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalHTML;
+                        }, 2000);
+                    }
+                });
+            });
 
             section.appendChild(item);
         });
@@ -212,6 +279,47 @@ function renderResults(results) {
 
     // Hide loading indicator
     document.getElementById('loading').style.display = 'none';
+
+    // Announce completion
+    const totalCodecs = Object.values(results.tests).reduce((sum, group) =>
+        sum + group.codecs.length, 0);
+    announceToScreenReader(`Testing complete. ${totalCodecs} codecs tested. ${results.supported} fully supported.`);
+}
+
+/**
+ * Toggle all codec cards expanded/collapsed
+ */
+function toggleAllCards(expand) {
+    const cards = document.querySelectorAll('.codec-item');
+    const toggleBtn = document.getElementById('expand-toggle-btn');
+
+    cards.forEach(card => {
+        if (expand) {
+            card.classList.add('expanded');
+            card.setAttribute('aria-expanded', 'true');
+        } else {
+            card.classList.remove('expanded');
+            card.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // Update button state
+    if (toggleBtn) {
+        const icon = toggleBtn.querySelector('svg');
+        const text = toggleBtn.querySelector('span');
+
+        if (expand) {
+            toggleBtn.setAttribute('aria-label', 'Collapse all codec cards');
+            toggleBtn.setAttribute('title', 'Collapse All (Ctrl+E)');
+            text.textContent = 'Collapse All';
+            icon.innerHTML = '<polyline points="17 11 12 6 7 11"></polyline><polyline points="17 18 12 13 7 18"></polyline>';
+        } else {
+            toggleBtn.setAttribute('aria-label', 'Expand all codec cards');
+            toggleBtn.setAttribute('title', 'Expand All (Ctrl+E)');
+            text.textContent = 'Expand All';
+            icon.innerHTML = '<polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline>';
+        }
+    }
 }
 
 /**
@@ -219,6 +327,32 @@ function renderResults(results) {
  */
 function setupFilters() {
     console.log('[UI] Setting up filter buttons...');
+
+    // Setup expand/collapse toggle
+    const expandToggleBtn = document.getElementById('expand-toggle-btn');
+    if (expandToggleBtn) {
+        let allExpanded = false;
+
+        const handleToggle = (e) => {
+            if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+                if (e.key === ' ') e.preventDefault();
+                allExpanded = !allExpanded;
+                toggleAllCards(allExpanded);
+            }
+        };
+
+        expandToggleBtn.addEventListener('click', handleToggle);
+        expandToggleBtn.addEventListener('keydown', handleToggle);
+
+        // Keyboard shortcut: Ctrl+E
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                allExpanded = !allExpanded;
+                toggleAllCards(allExpanded);
+            }
+        });
+    }
     document.querySelectorAll('.filter-btn').forEach(btn => {
         // Make buttons keyboard/remote accessible
         btn.setAttribute('tabindex', '0');
@@ -238,6 +372,9 @@ function setupFilters() {
                 btn.setAttribute('aria-pressed', 'true');
                 state.currentFilter = btn.dataset.filter;
 
+                // Update URL
+                updateURLState(state.currentFilter, state.searchQuery);
+
                 if (state.testResults) {
                     renderResults(state.testResults);
                 }
@@ -252,6 +389,10 @@ function setupFilters() {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             state.searchQuery = e.target.value;
+
+            // Update URL
+            updateURLState(state.currentFilter, state.searchQuery);
+
             if (state.testResults) {
                 renderResults(state.testResults);
             }

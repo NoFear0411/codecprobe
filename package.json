@@ -8,6 +8,8 @@
     "serve:node": "npx http-server -p 8000 -c-1",
     "watch:css": "sass --watch scss:css --style compressed",
     "build:css": "sass scss:css --style compressed",
+    "build:js": "node build.js",
+    "build": "npm run build:css && npm run build:js",
     "dev": "npm-run-all --parallel serve watch:css"
   },
   "devDependencies": {
