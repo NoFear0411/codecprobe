@@ -59,8 +59,8 @@ scss/
 The SCSS includes specific optimizations for LG webOS TVs:
 - Larger text for TV viewing distance (18px base)
 - Larger tap targets (min 48px, 56px for TV)
-- Enhanced hover effects for remote control navigation
-- Smooth transitions optimized for TV hardware
+- Larger hover effects for remote control navigation
+- Smooth transitions for TV hardware
 
 ## Production Deployment
 

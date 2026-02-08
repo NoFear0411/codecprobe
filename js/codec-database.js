@@ -1,6 +1,6 @@
 /**
- * Comprehensive Codec Database
- * 
+ * Codec Test Database
+ *
  * Covers all major video and audio codecs with proper mediaCapabilities configurations
  * Based on ISO/IEC, Dolby, DTS, Apple HLS, and DASH specifications
  */

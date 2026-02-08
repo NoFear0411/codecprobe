@@ -1,18 +1,26 @@
 # Changelog
 
-## [Unreleased] - 2026-02-08
+## [1.1.0] - 2026-02-08
 
 ### Added
+- **Multi-Theme System** - 4 distinctive themes with instant switching
+  - Dark OLED: Pure blacks for OLED displays (default)
+  - Light: Professional light mode with high contrast
+  - Brutalist: Raw, utilitarian design with extreme contrast and bold typography
+  - Retro Terminal: Vintage computer aesthetic with CRT scanlines and phosphor glow
+  - Theme switcher UI with visual previews
+  - LocalStorage persistence for theme preference
+  - Smooth theme transitions
 - **SCSS Build System** - Modern SCSS with variables, mixins, and better organization
   - Responsive design with clamp() for fluid typography
-  - TV-optimized UI (larger touch targets 48px-56px, enhanced text size 18px)
+  - TV-optimized UI (larger touch targets 48px-56px, 18px base text for viewing distance)
   - Collapsible device info to reduce clutter
   - Better visual hierarchy and spacing system ($spacing-xs through $spacing-xl)
 - **TV Browser Support** - Improved compatibility with TV platforms (webOS, etc.)
   - DRM detection timeout handling (3s per system, 8s overall)
   - Non-blocking DRM tests (page loads even if DRM times out)
   - Keyboard/remote control navigation (Enter/Space key support)
-  - Enhanced focus indicators for TV navigation
+  - 3px focus outlines for TV remote navigation
 - **Platform-Agnostic Logging** - Clean debug output
   - `[Debug]` - General debugging
   - `[DRM]` - DRM detection events
@@ -64,7 +72,7 @@
 - Codec card overflow on TV browsers (cards now constrain to viewport width)
 - Button interaction with TV remote controls (added keyboard event handlers)
 - DRM detection showing incomplete results (added proper timeout handling and error logging)
-- Focus styles for TV navigation (enhanced outline visibility)
+- Focus styles for TV navigation (3px visible outlines)
 
 ## [1.0.0] - Initial Release
 

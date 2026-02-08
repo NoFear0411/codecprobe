@@ -9,6 +9,12 @@ async function initialize() {
     console.log('CodecProbe - Multi-API Codec Testing for Media Server Enthusiasts');
     console.log('='.repeat(80));
 
+    // Step 0: Initialize theme system
+    console.log('Step 0: Initializing theme system...');
+    if (typeof initThemeSystem === 'function') {
+        initThemeSystem();
+    }
+
     // Step 1: Detect device information
     console.log('Step 1: Detecting device information...');
     const deviceInfo = detectDeviceInfo();

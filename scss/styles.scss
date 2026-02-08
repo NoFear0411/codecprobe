@@ -1,20 +1,22 @@
-// Variables
-$bg: #0a0a0a;
-$card: #141414;
-$card-hover: #1a1a1a;
-$text: #e8e8e8;
-$text-muted: #888;
-$text-dimmed: #666;
+// Import theme system
+@use 'themes';
 
-$accent: #ff0080;
-$green: #00ff88;
-$blue: #00d4ff;
-$yellow: #ffd700;
-$red: #ff4444;
-$orange: #ff8800;
+// Fallback variables (will be overridden by theme CSS variables)
+$bg: var(--bg, #0a0a0a);
+$card: var(--card, #141414);
+$card-hover: var(--card-hover, #1a1a1a);
+$text: var(--text, #e8e8e8);
+$text-secondary: var(--text-secondary, #888);
+$text-dimmed: var(--text-dimmed, #666);
 
-$border: #222;
-$border-light: #333;
+$accent: var(--accent, #00ff88);
+$blue: var(--blue, #00d4ff);
+$yellow: var(--yellow, #ffd700);
+$red: var(--red, #ff4444);
+$orange: var(--orange, #ff8800);
+
+$border: var(--border, #222);
+$border-light: var(--border-light, #333);
 
 // Spacing
 $spacing-xs: 8px;
@@ -29,16 +31,16 @@ $font-mono: 'SF Mono', 'Monaco', 'Courier New', monospace;
 
 // Mixins
 @mixin card {
-    background: $card;
+    background: var(--card);
     border-radius: 8px;
-    border: 1px solid $border;
+    border: 1px solid var(--border);
     transition: all 0.2s ease;
 }
 
 @mixin card-hover {
     &:hover {
-        background: $card-hover;
-        border-color: $border-light;
+        background: var(--card-hover);
+        border-color: var(--border-light);
     }
 }
 
@@ -50,12 +52,13 @@ $font-mono: 'SF Mono', 'Monaco', 'Courier New', monospace;
 }
 
 body {
-    background: $bg;
-    color: $text;
+    background: var(--bg);
+    color: var(--text);
     font-family: $font-stack;
     padding: $spacing-lg;
     line-height: 1.6;
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
 
     // webOS optimization: larger text for TV viewing distance
     @media (max-width: 1920px) and (min-width: 1280px) {
@@ -63,13 +66,18 @@ body {
     }
 }
 
+// Default theme
+body:not([class*="theme-"]) {
+    @extend .theme-dark-oled;
+}
+
 // Accessibility
 .skip-link {
     position: absolute;
     top: -40px;
     left: 0;
-    background: $accent;
-    color: #fff;
+    background: var(--accent);
+    color: var(--bg);
     padding: $spacing-xs $spacing-md;
     text-decoration: none;
     border-radius: 0 0 4px 0;
@@ -95,7 +103,7 @@ h1 {
 }
 
 .subtitle {
-    color: $text-muted;
+    color: $text-secondary;
     font-size: clamp(0.875rem, 2vw, 1.125rem);
     margin-bottom: $spacing-lg;
 }
@@ -120,19 +128,19 @@ h1 {
 }
 
 .device-info-summary {
-    color: $text;
+    color: var(--text);
     font-size: 1rem;
     font-weight: 600;
 
     span {
-        color: $green;
+        color: var(--accent);
         margin-left: $spacing-sm;
         font-weight: 400;
     }
 }
 
 .device-info-arrow {
-    color: $text-dimmed;
+    color: var(--text-dimmed);
     font-size: 1.5rem;
     transition: transform 0.3s ease;
 
@@ -160,11 +168,11 @@ h1 {
 .device-info-item {
     @include card;
     padding: $spacing-md;
-    border-left: 3px solid $border-light;
+    border-left: 3px solid var(--border-light);
 
     &:hover {
-        border-left-color: $accent;
-        background: $card-hover;
+        border-left-color: var(--accent);
+        background: var(--card-hover);
     }
 
     &.full-width {
@@ -172,13 +180,13 @@ h1 {
     }
 
     &.highlight {
-        border-left-color: $blue;
-        background: rgba($blue, 0.05);
+        border-left-color: var(--blue);
+        background: var(--bg-tertiary);
     }
 }
 
 .device-info-label {
-    color: $text-muted;
+    color: var(--text-secondary);
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -187,7 +195,7 @@ h1 {
 }
 
 .device-info-value {
-    color: $green;
+    color: var(--accent);
     font-weight: 600;
     font-size: 0.95rem;
 }
@@ -206,9 +214,9 @@ h1 {
 .search-input {
     flex: 1;
     min-width: 250px;
-    background: $card-hover;
-    border: 1px solid $border-light;
-    color: $text;
+    background: var(--card-hover);
+    border: 1px solid var(--border-light);
+    color: var(--text);
     padding: $spacing-sm $spacing-md;
     border-radius: 6px;
     font-size: 1rem;
@@ -219,19 +227,19 @@ h1 {
     min-height: 48px;
 
     &:focus {
-        border-color: $accent;
-        background: $border;
+        border-color: var(--accent);
+        background: var(--bg-secondary);
     }
 
     &::placeholder {
-        color: $text-dimmed;
+        color: var(--text-dimmed);
     }
 }
 
 .filter-btn {
-    background: $border;
-    color: $text-muted;
-    border: 1px solid $border-light;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
     padding: $spacing-sm $spacing-md;
     border-radius: 6px;
     cursor: pointer;
@@ -245,28 +253,28 @@ h1 {
 
     &:hover,
     &:focus {
-        background: $card-hover;
-        border-color: $accent;
-        outline: 2px solid $accent;
+        background: var(--card-hover);
+        border-color: var(--accent);
+        outline: 2px solid var(--accent);
         outline-offset: 2px;
     }
 
     &.active {
-        background: $accent;
-        color: #fff;
-        border-color: $accent;
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
     }
 
     // webOS remote control focus
     &:focus-visible {
-        outline: 3px solid $accent;
+        outline: 3px solid var(--accent);
         outline-offset: 3px;
     }
 }
 
 .export-btn {
-    background: $blue;
-    color: #000;
+    background: var(--blue);
+    color: var(--bg);
     border: none;
     padding: $spacing-sm $spacing-lg;
     border-radius: 6px;
@@ -279,14 +287,14 @@ h1 {
 
     &:hover,
     &:focus {
-        background: $green;
+        background: var(--accent);
         transform: translateY(-2px);
-        outline: 3px solid $green;
+        outline: 3px solid var(--accent);
         outline-offset: 3px;
     }
 
     &:focus-visible {
-        outline: 3px solid $green;
+        outline: 3px solid var(--accent);
     }
 }
 
@@ -351,7 +359,7 @@ h1 {
 .codec-string {
     font-family: $font-mono;
     font-size: 0.75rem;
-    color: $text-dimmed;
+    color: var(--text-dimmed);
     word-break: break-all;
     display: block;
     margin-top: $spacing-xs;
@@ -370,7 +378,7 @@ h1 {
 
 .info-line {
     font-size: 0.8rem;
-    color: $text-muted;
+    color: var(--text-secondary);
     margin-top: $spacing-xs;
 }
 
@@ -380,8 +388,8 @@ h1 {
     padding: 3px 8px;
     border-radius: 3px;
     margin-left: $spacing-xs;
-    background: $border;
-    color: $text-muted;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
     font-weight: 600;
 }
 
@@ -403,51 +411,51 @@ h1 {
 }
 
 .api-label {
-    color: $text-muted;
+    color: var(--text-secondary);
     font-weight: 600;
 }
 
 .api-value {
-    color: $green;
+    color: var(--accent);
     text-align: right;
 
     &.fail {
-        color: $red;
+        color: var(--red);
     }
 
     &.partial {
-        color: $yellow;
+        color: var(--yellow);
     }
 }
 
 // Support Level Colors
 .PROBABLY {
-    border-left-color: $green;
-    background: rgba($green, 0.03);
+    border-left-color: var(--accent);
+    background: var(--bg-tertiary);
 
     .status-badge {
-        background: $green;
-        color: #000;
+        background: var(--accent);
+        color: var(--bg);
     }
 }
 
 .MAYBE {
-    border-left-color: $yellow;
-    background: rgba($yellow, 0.03);
+    border-left-color: var(--yellow);
+    background: var(--bg-tertiary);
 
     .status-badge {
-        background: $yellow;
-        color: #000;
+        background: var(--yellow);
+        color: var(--bg);
     }
 }
 
 .UNSUPPORTED {
-    border-left-color: $border-light;
+    border-left-color: var(--border-light);
     opacity: 0.5;
 
     .status-badge {
-        background: $border-light;
-        color: $text-dimmed;
+        background: var(--border-light);
+        color: var(--text-dimmed);
     }
 }
 
@@ -455,7 +463,7 @@ h1 {
 .loading {
     text-align: center;
     padding: 60px $spacing-lg;
-    color: $text-muted;
+    color: var(--text-secondary);
     font-size: 1.125rem;
 }
 
@@ -463,18 +471,18 @@ h1 {
 .footer {
     text-align: center;
     padding: $spacing-xl $spacing-lg;
-    border-top: 1px solid $border;
+    border-top: 1px solid var(--border);
     margin-top: $spacing-xl;
-    color: $text-muted;
+    color: var(--text-secondary);
     font-size: 0.875rem;
 
     a {
-        color: $blue;
+        color: var(--blue);
         text-decoration: none;
         transition: color 0.2s ease;
 
         &:hover {
-            color: $green;
+            color: var(--accent);
         }
     }
 }

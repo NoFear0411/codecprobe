@@ -81,7 +81,7 @@ Complete picture: decoder capability + DRM support for every platform.
 ### 🎨 Modern UI
 - Dark theme with high contrast mode support
 - Responsive design (mobile/tablet/desktop/TV)
-- **webOS TV optimized** - Larger touch targets, enhanced readability
+- **webOS TV optimized** - Larger touch targets, 18px base font for TV viewing distance
 - Collapsible device info to reduce clutter
 - Filter by support level, type, or search by name
 - Keyboard shortcuts (/ for search, Esc to clear)
@@ -159,7 +159,7 @@ codecprobe/
 - More strict than `canPlayType()`
 
 ### 3. navigator.mediaCapabilities.decodingInfo()
-- **Most comprehensive** API
+- **Most detailed** API
 - Returns detailed capability object:
   - `supported`: Can decode the media
   - `smooth`: Can play back smoothly

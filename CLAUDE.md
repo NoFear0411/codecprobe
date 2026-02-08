@@ -183,7 +183,7 @@ No build step. Changes are live on reload.
 - Android fragmentation means results vary by device
 
 **Intentional choices**:
-- No service worker yet (future enhancement)
+- No service worker yet (planned for offline support)
 - No result caching (tests are fast enough)
 - No Web Workers (tests don't block UI significantly)
 
