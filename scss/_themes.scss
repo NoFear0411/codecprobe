@@ -25,6 +25,7 @@
     --yellow: #ffd700;
     --red: #ff4444;
     --orange: #ff8800;
+    --purple: #9c27b0;
 
     --shadow: 0 4px 20px rgba(0, 255, 136, 0.15);
     --glow: 0 0 20px rgba(0, 255, 136, 0.3);
@@ -54,6 +55,7 @@
     --yellow: #b38600;
     --red: #d32f2f;
     --orange: #e65100;
+    --purple: #7b1fa2;
 
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     --glow: 0 0 0 rgba(0, 136, 90, 0.2);
@@ -83,6 +85,7 @@
     --yellow: #ffff00;
     --red: #ff0000;
     --orange: #ff9900;
+    --purple: #ff00ff;
 
     --shadow: 0 0 40px rgba(0, 255, 0, 0.4);
     --glow: 0 0 10px rgba(0, 255, 0, 0.8), 0 0 20px rgba(0, 255, 0, 0.4);
@@ -201,12 +204,38 @@
     border-radius: 8px;
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
+
+    @media (max-width: 768px) {
+        top: 10px;
+        right: 10px;
+        padding: 6px;
+        gap: 6px;
+        // REMOVED: transform: translateZ(0);
+        // REMOVED: will-change: transform;
+    }
+
+    @media (max-width: 480px) {
+        top: 5px;
+        right: 5px;
+        padding: 4px;
+        gap: 4px;
+    }
 }
 
 .theme-switcher-btn {
     width: 36px;
     height: 36px;
     border: 2px solid var(--border);
+
+    @media (max-width: 768px) {
+        width: 32px;
+        height: 32px;
+    }
+
+    @media (max-width: 480px) {
+        width: 28px;
+        height: 28px;
+    }
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;

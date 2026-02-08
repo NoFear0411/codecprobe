@@ -2,423 +2,322 @@
 
 **Multi-API codec testing for media server enthusiasts**
 
-Ever wonder why Dolby Vision doesn't work on your LG TV through Jellyfin? Or why your iPad shows a green screen when playing certain files? CodecProbe reveals exactly what your browser can actually decode using three different browser APIs.
+CodecProbe tests what your browser can actually decode by querying three different browser APIs and comparing their responses. It exposes the discrepancies between what browsers claim to support and what the hardware can handle — discrepancies that cause playback failures in Jellyfin, Plex, and Emby.
 
-Built after discovering race conditions in webOS Jellyfin apps and Safari's deliberately hidden Dolby Vision support.
-
-🔗 **[Live Demo](https://codecprobe.dev)**
+**[Live Demo](https://codecprobe.dev)**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
-![Dependencies](https://img.shields.io/badge/runtime-zero--deps-green.svg)
+![JavaScript](https://img.shields.io/badge/javascript-ES2020+-yellow.svg)
+![Dependencies](https://img.shields.io/badge/runtime_deps-zero-green.svg)
 ![Deploy Status](https://github.com/nofear0411/codecprobe/actions/workflows/deploy.yml/badge.svg)
 
 ---
 
 ## Why This Exists
 
-Browser codec detection is a mess:
-- `canPlayType()` returns "maybe" for everything
-- Safari deliberately hides Dolby Vision support
-- webOS apps have race conditions that break capability detection
-- `mediaCapabilities` exists but nobody uses it
+Browser codec detection is unreliable:
 
-CodecProbe tests **all three APIs** side-by-side so you can see what your device *actually* supports, not what browsers claim to support.
+- `canPlayType()` returns "maybe" for codecs the hardware can't decode
+- Safari hides Dolby Vision support from API responses entirely
+- webOS apps have async race conditions that break capability detection
+- `mediaCapabilities` is the most accurate API but rarely used
 
-## Real World Issues This Catches
+CodecProbe runs all three APIs side-by-side against 254 codec/container combinations so you can see what your device supports across every detection method.
 
-### webOS (LG TVs) - Race Condition Bug
-The Jellyfin webOS app has an async race condition where `getSupportedHdrProfiles()` returns an empty array because the Luna IPC call to `getHdrCapabilities` hasn't completed yet. This causes Dolby Vision to randomly work/fail.
+## Real-World Issues This Catches
 
-**CodecProbe shows**: `mediaCapabilities` accurately reflects hardware state while `canPlayType()` returns inconsistent results.
+### webOS (LG TVs) — Race Condition
 
-### iOS/Safari - Deliberately Hidden DV Support
-Safari's `canPlayType()` **always** returns `""` for Dolby Vision codecs, even on A11+ chips with DV hardware. This is intentional (privacy/DRM reasons).
+The Jellyfin webOS app calls `getSupportedHdrProfiles()` before the Luna IPC `getHdrCapabilities` call completes, returning an empty array. Dolby Vision randomly works or fails depending on timing.
 
-**CodecProbe shows**: `mediaCapabilities` with `transferFunction: 'pq'` reveals actual PQ/HDR support.
+CodecProbe shows `mediaCapabilities` accurately reflecting hardware state while `canPlayType()` returns inconsistent results.
 
-### iPad Green Screen Issue
-iPad A16 has DV Profile 5 hardware but a 500-nit display that can't do true PQ HDR. When servers send HEVC with DV RPU NALUs but no proper signaling, VideoToolbox decodes IPT-PQ colorspace as BT.2020 → green tint.
+### iOS/Safari — Hidden Dolby Vision
 
-**CodecProbe shows**: `transferFunction: 'pq'` returns `supported: false` on 500-nit displays, revealing why.
+Safari's `canPlayType()` returns `""` for all Dolby Vision codec strings, even on A11+ chips with DV hardware. This is intentional behavior (privacy/DRM).
 
-### DTS on webOS 25
-webOS changed DTS detection in v25. The `canPlayDts()` check stops at `< 23`, causing false negatives.
+CodecProbe shows `mediaCapabilities` with `transferFunction: 'pq'` revealing actual PQ/HDR support.
 
-**CodecProbe shows**: All three APIs + container variants for complete picture.
+### iPad — Green Screen on DV Content
+
+iPad A16 has DV Profile 5 hardware but a 500-nit display. When servers send HEVC with DV RPU NALUs without proper signaling, VideoToolbox decodes IPT-PQ as BT.2020, producing a green tint.
+
+CodecProbe shows `transferFunction: 'pq'` returning `supported: false` on 500-nit panels.
+
+### webOS 25 — DTS Detection Change
+
+webOS v25 changed the DTS detection path. The `canPlayDts()` check stops at `< 23`, causing false negatives on newer firmware.
+
+## What It Tests
+
+### Three Decoder APIs
+
+| API | What It Does | Reliability |
+|-----|-------------|-------------|
+| `canPlayType()` | Codec string parsing against browser's internal list | Low — returns "maybe" liberally |
+| `MediaSource.isTypeSupported()` | MSE/streaming codec support | Medium — stricter, but no hardware info |
+| `mediaCapabilities.decodingInfo()` | Hardware decode capability, smoothness, power efficiency | High — reflects actual hardware state |
+
+Each API result is shown with a color-coded badge (green/yellow/red) so you can spot inconsistencies at a glance.
+
+### DRM/EME Support
+
+- **Widevine** (Chrome/Android) — security level L1 (hardware) or L3 (software)
+- **PlayReady** (Edge/Xbox) — robustness levels
+- **FairPlay** (Safari/iOS) — streaming key system
+- **ClearKey** (W3C standard) — unencrypted key delivery
+
+Tests `requestMediaKeySystemAccess()` with persistent state and robustness detection.
+
+## Codec Coverage
+
+**254 test entries** across 14 codec groups and 17 container MIME types.
+
+### Video (142 tests)
+
+| Codec | Profiles/Variants Tested | Containers |
+|-------|-------------------------|------------|
+| HEVC/H.265 | Main, Main 10, Main Still Picture, High Tier, Levels 3.1–6.1, SDR/HDR10/HLG | MP4, MKV, MOV |
+| Dolby Vision | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), supplemental dual-codec strings | MP4, MKV, MOV |
+| AV1 | Main (P0), High (P1, 4:4:4), Professional (P2, 4:2:2), Film Grain, High Tier, Levels 3.1–6.0 | MP4, MKV, WebM, MOV |
+| VP9 | Profile 0 (8-bit), P1 (4:2:2), P2 (10-bit HDR10/HLG), P3 (4:4:4), bare vs full codec strings | MP4, MKV, WebM |
+| AVC/H.264 | Baseline, Main, High, High 10, High 4:2:2, Constrained, Extended, Levels 3.0–5.2 | MP4, MKV, WebM, MOV, 3GP |
+| VVC/H.266 | Main 10, Still Picture, vvc1/vvi1 tags, Levels 3.1–6.0 | MP4, MKV |
+| VP8 | SDR 720p/1080p/4K, MSE streaming | WebM, MKV |
+| Legacy | MPEG-4 Part 2 (Simple/Advanced Simple), H.263, Theora | MP4, MKV, 3GP, OGG |
+
+### Audio (87 tests)
+
+| Codec | Variants Tested | Containers |
+|-------|----------------|------------|
+| Dolby | AC-3 (stereo/5.1), E-AC-3 (5.1/7.1/Atmos JOC), TrueHD, AC-4, AC-4 IMS | MP4, MKV, MOV, fMP4 |
+| DTS | Core (dts-/dtsc), Express (dtse), HD High Resolution, HD Master Audio (dtsh), Lossless (dtsl), DTS:X (dtsx) | MP4, MKV, fMP4 |
+| Lossless | FLAC (stereo/5.1/Hi-Res), ALAC (stereo/Hi-Res), Opus (stereo/5.1), PCM | MP4, MKV, WebM, MOV, OGG, FLAC, WAV, AIFF |
+| Standard | AAC-LC, HE-AAC v1/v2, xHE-AAC (USAC), AAC-ELD, AAC-LD, MP3, Vorbis (stereo/5.1) | MP4, MKV, WebM, MOV, OGG, AAC, MP3 |
+| MPEG-H | 3D Audio LC (mhm1), 3D Audio (mhm2), Baseline | MP4, MKV |
+
+### Streaming (25 tests)
+
+| Format | Codecs Tested |
+|--------|--------------|
+| HLS (fMP4) | HEVC SDR/HDR, H.264, AV1, Dolby Vision P8.1, E-AC-3, AAC |
+| DASH | AV1 SDR/HDR, VP9 SDR/HDR, H.264, HEVC, DV P8.1 |
+| CMAF | AV1, HEVC, H.264, VP9, DV P8.1 |
+| MPEG-TS | H.264 (High/Baseline), HEVC 4K, AAC, AC-3 |
+
+All streaming tests use `type: 'media-source'` for proper MSE validation.
+
+### Container Matrix
+
+| Container | MIME Type | Video | Audio | Total |
+|-----------|-----------|-------|-------|-------|
+| MP4 | `video/mp4`, `audio/mp4` | 81 | 38 | 119 |
+| MKV | `video/x-matroska`, `audio/x-matroska` | 40 | 26 | 66 |
+| WebM | `video/webm`, `audio/webm` | 25 | 5 | 30 |
+| MOV | `video/quicktime`, `audio/quicktime` | 9 | 5 | 14 |
+| MPEG-TS | `video/mp2t` | 5 | — | 5 |
+| 3GP | `video/3gpp` | 3 | — | 3 |
+| OGG | `video/ogg`, `audio/ogg` | 2 | 4 | 6 |
+| Native | `audio/flac`, `audio/wav`, etc. | — | 11 | 11 |
 
 ## Features
 
-### 🎯 Multi-API Testing
-CodecProbe goes beyond basic codec detection:
+- **Progressive testing** — cards render immediately, results fill in as tests complete
+- **Batched execution** — 10 codecs tested in parallel per batch with retry logic
+- **Search and filter** — filter by support level (all/supported/video/audio), search by name
+- **JSON export** — full results with device fingerprint for bug reports
+- **Three themes** — Dark OLED (default), Light, Retro Terminal with localStorage persistence
+- **Keyboard shortcuts** — `/` to focus search, `Esc` to clear
+- **Accessibility** — ARIA labels, skip links, screen reader announcements, reduced motion support
+- **UAParser.js v2.x** — accurate device detection with Client Hints API and iPad detection
+- **Zero runtime dependencies** — UAParser.js bundled at build time, no CDN requests
+- **Responsive** — mobile, tablet, desktop, and TV layouts (webOS optimized)
 
-**Decoder Testing (3 APIs)**:
-- **canPlayType()** - What browsers claim to support
-- **isTypeSupported()** - What Media Source Extensions supports
-- **mediaCapabilities** - What hardware can *actually* decode smoothly
+## Understanding Results
 
-**Visual API State Indicators**:
-- **Color-coded badges** (1, 2, 3) - Green=success, Yellow=partial, Red=fail
-- Each API result shown separately to reveal inconsistencies
-- Instantly see which APIs report what for each codec
+### Support Levels
 
-**DRM/EME Testing**:
-- **Widevine** - Google DRM (Chrome/Android)
-- **PlayReady** - Microsoft DRM (Edge/Xbox)
-- **FairPlay** - Apple DRM (Safari/iOS)
-- **Security levels** - Hardware (L1) vs Software (L3)
-- **Persistent state** - Offline playback capability
+| Badge | Meaning |
+|-------|---------|
+| **SUPPORTED** (green) | All queried APIs confirm support |
+| **PROBABLY** (green) | Most APIs confirm, at least one disagrees |
+| **UNSUPPORTED** (gray) | No API reports support |
+| **FAILED** (purple) | Test failed after retries (timeout or API error) |
 
-Complete picture: decoder capability + DRM support for every platform.
+### API Badges
 
-### 📊 Comprehensive Codec Coverage
+Each codec card shows numbered badges (1, 2, 3) for the three APIs:
+- **Green** — API reports supported/probably
+- **Yellow** — API reports partial/maybe
+- **Red** — API reports unsupported or error
 
-**110+ codec/container combinations** tested across:
-- **Video codecs**: HEVC, Dolby Vision, AV1, VP9, H.264/AVC, VVC/H.266
-- **Audio codecs**: Dolby (AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS family, lossless, standard
-- **Containers**: MP4, MKV, WebM, MOV, fMP4, CMAF, native formats
-- **Streaming formats**: HLS, DASH, CMAF for adaptive streaming
-- **Transfer functions**: Separate tests for PQ, HLG (reveals HDR capability)
+Mismatched badges reveal detection inconsistencies (e.g., Safari showing red on badge 1 but green on badge 3 for Dolby Vision).
 
-### 🎬 Streaming Format Support
+### Why Containers Matter
 
-**NEW in v2.0**: Full HLS/DASH/CMAF testing
-- **HLS fMP4**: Apple HTTP Live Streaming with fragmented MP4
-- **DASH**: MPEG-DASH for adaptive bitrate streaming
-- **CMAF**: Common Media Application Format (unified HLS/DASH)
-- Tests `type: 'media-source'` for proper MSE compatibility
-- Critical for Jellyfin/Plex/Emby streaming workflows
+The same codec produces different results in different containers. HEVC in MP4 may show supported while HEVC in MKV shows unsupported — this directly maps to whether your media server needs to remux or transcode.
 
-### 🔍 Advanced Browser Detection
+- **MP4** — broadest browser support, required for streaming
+- **MKV** — remux format for high-quality archives, limited browser support
+- **WebM** — Google's open container, Chrome/Firefox preferred
+- **MOV** — Apple QuickTime, Safari/macOS optimized
+- **fMP4/CMAF** — fragmented formats used by HLS and DASH
 
-**UAParser.js v2.x integration** provides:
-- **Rendering engine** detection (Blink, WebKit, Gecko)
-- **Device type** classification (desktop, mobile, tablet)
-- **CPU architecture** detection (x86, ARM, etc.)
-- **Advanced features**: iPad detection fix, Chrome Client Hints API
-- Accurate Windows 10 vs 11 distinction
-- Consistent version formatting across all browsers
+## Platform Notes
 
-### 💾 Debug-Ready Export
-- Export complete results as JSON with device fingerprint
-- Perfect for Jellyfin/Plex/Emby bug reports
-- Share capability matrix across your device fleet
-- Includes user agent, OS version, hardware specs, rendering engine
+### webOS (LG TVs)
+- Dolby Vision Profile 8.1 hardware decode on webOS 6+
+- webOS 25+ added MKV Dolby Vision support
+- Native DTS-HD passthrough to audio receivers
+- DV detection may fail on first load due to async race condition
 
-### 🎨 Modern UI with Multi-Theme System
-- **3 distinctive themes** - Dark OLED (default), Light, Retro Terminal
-- Instant theme switching with localStorage persistence
-- Responsive design (mobile/tablet/desktop/TV)
-- **webOS TV optimized** - Larger touch targets, 18px base font for TV viewing distance
-- Filter by support level, type, or search by name
-- Keyboard shortcuts (/ for search, Ctrl+E for expand all, Esc to clear)
-- Full accessibility (ARIA labels, skip links, reduced motion)
-- Built with modern SCSS (compiles to vanilla CSS)
+### iOS / Safari
+- Dolby Vision Profile 5 hardware on A11+ (iPhone 8+)
+- `canPlayType()` never reports DV support — use `mediaCapabilities` instead
+- 500-nit displays tone-map HDR, `transferFunction: 'pq'` returns false
+- HLS requires `VIDEO-RANGE=PQ` attribute for HDR content
 
-### ⚡ Performance
+### Android
+- Codec support varies by manufacturer, SoC, and Android version
+- Widevine level reported: L1 (hardware-backed) or L3 (software)
+- HEVC Main 10 requires Android 7.0+ with MediaCodec hardware decoder
 
-**NEW in v2.0**: Fast loading and automatic cache invalidation
-
-**Progressive UI**:
-- Cards appear in <100ms (was 2-5 seconds)
-- PENDING state shows spinner while testing
-- Updates live as each test completes
-- Search/filter work during testing
-
-**Batched Execution**:
-- Tests run 10 codecs at a time in parallel
-- 110+ codecs tested in 2-4 seconds
-- Configurable batch size
-
-**Cache Busting**:
-- Content-hash versioning on all assets (`?v=abc123`)
-- No hard refresh needed after updates
-- Assets cached 1 year, HTML never cached
-- 95% cache hit rate
-
-## Tested Codecs
-
-### Video Codecs (50+ tests)
-- **HEVC/H.265**: Main, Main 10 (HDR10, HLG), 4K @ 60fps, 8K Level 6.1
-- **Dolby Vision**: Profiles 5, 7, 8.1, 8.4, 10 (AV1-based) - all major variants
-- **AV1**: Main Profile (SDR/HDR10), High Profile, Film Grain, 8K support
-- **VP9**: Profile 0 (SDR), Profile 2 (HDR10/HLG)
-- **AVC/H.264**: Baseline, Main, High, High 10, Constrained Baseline
-- **VVC/H.266**: Main 10 (next-gen codec)
-
-### Streaming Formats (5 tests)
-- **HLS**: fMP4 HEVC (4K HDR), fMP4 H.264 (1080p)
-- **CMAF**: Common Media Application Format with HEVC
-- **DASH**: AV1 (4K HDR), VP9 (4K HDR WebM)
-
-### Audio Codecs (55+ tests)
-- **Dolby**: AC-3, E-AC-3/Atmos, TrueHD, AC-4, Atmos JOC
-- **DTS**: Core, Express, HD High-Res, HD Master Audio, DTS:X (Profile 2)
-- **Lossless**: FLAC (MKV/MP4/native), ALAC (MP4/MOV), Opus (WebM/MKV/MP4), PCM
-- **Standard**: AAC-LC/HE/HEv2/xHE-AAC, MP3, Vorbis (WebM/MKV/OGG)
-
-### Container Coverage
-- **ISO BMFF**: MP4, fMP4, CMAF (Common Media Application Format)
-- **Matroska**: MKV, WebM
-- **Apple**: QuickTime/MOV (macOS/iOS optimized)
-- **Native**: FLAC, AAC, MP3, WAV, OGG
+### Desktop Browsers
+- **Chrome/Edge** (Blink) — widest codec support
+- **Safari** (WebKit) — best HEVC/DV support, hidden from some APIs
+- **Firefox** (Gecko) — limited Dolby/DTS due to licensing
 
 ## Usage
 
 ### Quick Start
-1. Open `index.html` in any modern browser
-2. Wait for automatic testing to complete (~2-5 seconds)
-3. View results organized by codec category
-4. Click any codec card to see detailed API results
-5. Use filters to narrow results
-6. Export to JSON for sharing
 
-### For GitHub Pages
-1. Fork this repository
-2. Enable GitHub Pages in repository settings
-3. Select `main` branch as source
-4. GitHub Actions will automatically build and deploy
-5. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
+Open [codecprobe.dev](https://codecprobe.dev) or serve locally:
 
-### Local Development
 ```bash
-git clone https://github.com/nofear0411/codecprobe.git
-cd codecprobe
-npm install          # Install SCSS compiler + dev tools
-npm run build        # Build CSS and bundle dependencies
-npm run dev          # Start dev server + SCSS watcher
+python -m http.server 8000  # Uses pre-compiled CSS
 # Open http://localhost:8000
 ```
 
-**Without building:**
+### Development
+
 ```bash
-python -m http.server 8000  # Uses pre-compiled CSS
+git clone https://github.com/nofear0411/codecprobe.git
+cd codecprobe
+npm install        # Install build tools
+npm run build      # Compile SCSS + minify JS + bundle deps
+npm run dev        # Dev server + SCSS file watcher
 ```
+
+### GitHub Pages Deployment
+
+1. Fork the repository
+2. Enable GitHub Pages → select `main` branch
+3. GitHub Actions builds and deploys automatically
+4. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
 
 ## Project Structure
 
 ```
 codecprobe/
-├── index.html                 # Main HTML file
+├── index.html                 # Single-page application
 ├── css/
-│   └── styles.css            # Compiled CSS (all themes)
+│   └── styles.css             # Compiled from SCSS (all themes)
 ├── scss/
-│   ├── styles.scss           # Main SCSS file
-│   └── _themes.scss          # Theme definitions
+│   ├── styles.scss            # Main stylesheet
+│   └── _themes.scss           # Theme definitions
 ├── js/
-│   ├── codec-database.js     # 110+ codec specifications
-│   ├── device-detection.js   # UAParser.js v2.x integration
-│   ├── drm-detection.js      # DRM/EME testing
-│   ├── codec-tester.js       # Multi-API testing logic
-│   ├── ui-renderer.js        # Results display
-│   ├── theme-manager.js      # Theme switching
-│   ├── url-state.js          # URL state management
-│   ├── main.js               # Initialization
+│   ├── codec-database.js      # 254 codec test definitions
+│   ├── codec-tester.js        # Three-API testing with retry logic
+│   ├── device-detection.js    # UAParser.js v2.x integration
+│   ├── drm-detection.js       # DRM/EME system testing
+│   ├── ui-renderer.js         # Card rendering, filters, search
+│   ├── theme-manager.js       # Theme switching
+│   ├── url-state.js           # URL state management
+│   ├── main.js                # Initialization orchestrator
 │   └── vendor/
-│       └── ua-parser.min.js  # Bundled UAParser.js v2.x
-├── docs/
-│   └── apple.md              # Apple-specific codec notes
-├── BUILD.md                   # Build instructions
+│       └── ua-parser.min.js   # Bundled UAParser.js v2.0.9
+├── BUILD.md                   # Build system documentation
 ├── CLAUDE.md                  # AI assistant context
-└── README.md                  # This file
+└── README.md
 ```
 
-## API Methods Explained
+## Adding Codecs
 
-### 1. HTMLMediaElement.canPlayType()
-- **Most widely supported** API
-- Returns: `"probably"`, `"maybe"`, or `""` (unsupported)
-- Based on codec string parsing
-- May not reflect actual hardware capabilities
-
-### 2. MediaSource.isTypeSupported()
-- Tests **Media Source Extensions** support
-- Returns: `true` or `false`
-- Used for adaptive streaming (HLS, DASH)
-- More strict than `canPlayType()`
-
-### 3. navigator.mediaCapabilities.decodingInfo()
-- **Most detailed** API
-- Returns detailed capability object:
-  - `supported`: Can decode the media
-  - `smooth`: Can play back smoothly
-  - `powerEfficient`: Hardware-accelerated
-- For audio: tested with and without `spatialRendering: true`
-
-## Understanding Results
-
-### Support Levels
-- **SUPPORTED** (Green): Full native support confirmed
-- **MAYBE** (Yellow): Partial support or uncertain
-- **UNSUPPORTED** (Gray): Not supported
-
-### API Badge Colors
-- **Green (1, 2, 3)**: API reports success/probably
-- **Yellow**: API reports partial/maybe support
-- **Red**: API reports failure/unsupported
-- **Each badge independent**: Reveals API inconsistencies
-
-### Container Significance
-Many codecs show different support across containers:
-- **MP4**: Broadest compatibility, streaming standard
-- **MKV**: High-quality remux, less browser support
-- **WebM**: Open format, Chrome/Firefox preferred
-- **MOV**: Apple QuickTime, Safari/macOS optimized
-- **fMP4/CMAF**: Streaming formats for HLS/DASH
-
-### Platform-Specific Notes
-
-#### webOS (LG TVs)
-- Excellent Dolby Vision Profile 8.1 support (webOS 6+)
-- **webOS 25+**: MKV Dolby Vision support added
-- Native DTS-HD passthrough
-- Race condition: DV may report incorrectly on first load
-
-#### iOS/Safari
-- Dolby Vision Profile 5 hardware on A11+ chips
-- `canPlayType()` **never reports** DV support (API limitation)
-- 500-nit displays tone-map HDR
-- Requires `VIDEO-RANGE=PQ` in HLS for DV
-- Use `mediaCapabilities` for accurate detection
-
-#### Android
-- Highly fragmented support
-- Dolby Vision varies by manufacturer
-- Shows Widevine L1 (hardware) or L3 (software) capability
-
-#### Desktop Browsers
-- **Chrome/Edge**: Blink engine, excellent codec support
-- **Firefox**: Gecko engine, limited Dolby/DTS (licensing)
-- **Safari**: WebKit engine, best HEVC/DV support
-
-## Use Cases
-
-### For Jellyfin/Plex/Emby Users
-1. **Debug playback issues**: "Why won't Dolby Vision work on my LG TV?"
-2. **Configure transcoding**: Know exactly what needs transcoding vs direct play
-3. **Client profiles**: Build accurate device profiles for your server
-4. **Validate setup**: Confirm your HDR/Atmos passthrough actually works
-
-### For Developers
-1. **Bug reports**: Attach JSON export showing exact codec support state
-2. **CI testing**: Automate codec capability detection across browsers
-3. **Feature detection**: Don't guess - know what users' devices support
-4. **Compatibility matrices**: Build device databases for QA
-
-### For Content Creators
-1. **Encode validation**: Verify target devices can play your encode settings
-2. **Format decisions**: See which codecs have widest support
-3. **ABR ladder**: Test which profiles browsers can smoothly decode
-
-## Contributing
-
-Pull requests welcome! Especially for:
-
-- **New codecs**: Add to `js/codec-database.js`
-- **Platform quirks**: Document in README
-- **Bug fixes**: Race conditions, edge cases
-- **UI improvements**: Make it better while keeping it fast
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-## Support & Community
-
-- 🐛 [Report issues](https://github.com/nofear0411/codecprobe/issues)
-- 💡 [Request features](https://github.com/nofear0411/codecprobe/issues)
-- 💬 [Discussions](https://github.com/nofear0411/codecprobe/discussions)
-
-**Found this useful?** Star the repo and share with your media server community!
-
----
-
-## Adding New Codecs
-
-Edit `js/codec-database.js`:
+Add entries to `js/codec-database.js`:
 
 ```javascript
-video_new_codec: {
-    category: "New Codec Family",
-    tests: [
-        {
-            name: "Codec Variant Name",
-            codec: 'video/mp4; codecs="codec-string"',
-            container: "MP4",
-            info: "Brief description",
-            mediaConfig: {
-                type: 'file',  // or 'media-source' for streaming
-                video: {
-                    contentType: 'video/mp4; codecs="codec-string"',
-                    width: 3840,
-                    height: 2160,
-                    bitrate: 25000000,
-                    framerate: 24,
-                    transferFunction: 'pq',  // optional: pq, hlg
-                    colorGamut: 'rec2020'    // optional: rec2020, p3
-                }
-            }
+{
+    name: "Codec Variant (Container)",        // Must be unique across all entries
+    codec: 'video/mp4; codecs="codec-string"',
+    container: "MP4",
+    info: "Short description",
+    mediaConfig: {
+        type: 'file',                         // 'file' or 'media-source'
+        video: {
+            contentType: 'video/mp4; codecs="codec-string"',
+            width: 3840,
+            height: 2160,
+            bitrate: 25000000,
+            framerate: 24,
+            transferFunction: 'pq',           // Optional: 'pq' or 'hlg'
+            colorGamut: 'rec2020'             // Optional: 'rec2020' or 'p3'
         }
-    ]
+    }
 }
 ```
 
-For streaming formats, use `type: 'media-source'` to test MSE compatibility.
+Use `type: 'media-source'` for streaming format tests (HLS/DASH/CMAF).
 
-## Known Issues
+The `name` field must be unique — it's used for card matching in the UI.
 
-### Browser Limitations
-- **Safari**: Deliberately hides DV support in `canPlayType()` for privacy
-- **Firefox**: Limited Dolby/DTS support due to licensing
-- **Chrome**: MSE codec support differs from `<video>` tag
+## Known Limitations
 
-### Platform Quirks
-- **webOS**: Async race condition can cause false negatives
-- **iOS**: Hardware capabilities don't match API responses
-- **Android**: Varies drastically by OEM and chipset
+**Browser-imposed:**
+- Safari hides DV support from `canPlayType()` intentionally
+- Firefox lacks Dolby and DTS codec support (licensing)
+- Chrome's MSE codec support differs from `<video>` element support
 
-## Technical References
+**Platform-specific:**
+- webOS async race condition can cause false negatives on first load
+- iOS hardware capabilities exceed what APIs report
+- Android support varies by OEM, SoC, and firmware version
 
-Codec specifications based on:
-- **ISO/IEC 14496** (MPEG-4 / MP4)
-- **ISO/IEC 23008** (HEVC/HDR)
-- **ISO/IEC 23090** (AV1)
-- **ISO/IEC 23094** (VVC/H.266)
-- Dolby Vision Bitstream Specification
-- DTS Technical Documentation
-- Apple HLS Authoring Specification
-- DASH-IF Implementation Guidelines
-- CMAF Specification (ISO/IEC 23000-19)
+**Scope:**
+- Tests API responses, not actual file playback
+- Supported codecs still require properly encoded source files
+- DRM tests check key system availability, not content license acquisition
 
 ## Dependencies
 
-**Runtime**: Zero external dependencies
-- UAParser.js v2.x bundled in `js/vendor/` (35.3 KB minified)
-- No CDN requests, works fully offline
+**Runtime:** None. UAParser.js v2.x is bundled in `js/vendor/` (35.3 KB minified).
 
-**Development**:
-- `sass` - SCSS compilation
-- `terser` - JavaScript minification
-- `ua-parser-js` - Browser detection (bundled at build time)
+**Build tools:** `sass`, `terser`, `ua-parser-js`
+
+## Technical References
+
+- ISO/IEC 14496 (MPEG-4 / MP4)
+- ISO/IEC 23008 (HEVC, HDR)
+- ISO/IEC 23091 (AV1)
+- ISO/IEC 23094 (VVC/H.266)
+- ISO/IEC 23000-19 (CMAF)
+- Dolby Vision Bitstreams Within the ISO Base Media File Format
+- ETSI TS 102 366 (DTS)
+- Apple HLS Authoring Specification
+- DASH-IF Implementation Guidelines
+- VP Codec ISO Media File Format Binding
+
+## Contributing
+
+Pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+Areas that benefit from contributions:
+- New codec entries with verified codec strings
+- Platform-specific quirk documentation
+- Bug fixes for edge cases
+- UI/UX improvements
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file
+MIT License — see [LICENSE](LICENSE).
 
-## Credits
-
-Built by media server enthusiasts, for media server enthusiasts.
-
-**Inspired by**:
-- Countless hours debugging Jellyfin Dolby Vision playback
-- The Jellyfin, Plex, and Emby communities
-- Discovering webOS race conditions the hard way
-- MDN Web Docs for being an amazing resource
-
-**Special thanks**:
-- Dolby, DTS, and codec standards organizations for specifications
-- Browser vendors for (eventually) implementing mediaCapabilities API
-- UAParser.js maintainers for excellent browser detection
-- Everyone who's filed a "why won't this play" bug report
-
----
-
-**Note**: This tool tests browser API responses, not actual file playback. Supported codecs still require properly encoded source files.
+UAParser.js v2.x is bundled under AGPL-3.0. CodecProbe's MIT license is compatible since it's open source.

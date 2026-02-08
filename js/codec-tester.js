@@ -22,6 +22,56 @@ const API_METHODS = {
 console.log('API Support Detection:', API_METHODS);
 
 /**
+ * Test codec with retry logic
+ * @param {Object} test - Codec test definition
+ * @param {string} type - 'audio' or 'video'
+ * @param {number} maxRetries - Maximum retry attempts (default 2)
+ * @param {number} timeout - Timeout per attempt in ms (default 1000)
+ * @returns {Promise<Object>} Test result or failed result
+ */
+async function testCodecWithRetry(test, type, maxRetries = 2, timeout = 1000) {
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Test timeout - codec API took too long')), timeout)
+            );
+
+            const testPromise = testCodec(test, type);
+            const result = await Promise.race([testPromise, timeoutPromise]);
+            return result;
+
+        } catch (error) {
+            lastError = error;
+            if (attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+        }
+    }
+
+    // All retries exhausted - return FAILED result
+    console.error(`[TEST] All ${maxRetries} attempts failed for ${test.name} - codec likely unsupported or browser API hung`);
+
+    return {
+        name: test.name,
+        codec: test.codec,
+        container: test.container,
+        info: test.info,
+        type,
+        support: 'failed',
+        apis: {
+            canPlayType: 'failed',
+            isTypeSupported: 'failed',
+            mediaCapabilities: {
+                error: lastError?.message || `Test failed after ${maxRetries} retries (timeout: ${timeout}ms each)`,
+                attempts: maxRetries
+            }
+        }
+    };
+}
+
+/**
  * Test a single codec using all available APIs
  * @param {Object} test - Codec test object from database
  * @param {string} type - 'audio' or 'video'
@@ -65,7 +115,14 @@ async function testCodec(test, type) {
     if (API_METHODS.mediaCapabilities && test.mediaConfig) {
         try {
             const config = JSON.parse(JSON.stringify(test.mediaConfig));
-            const capResult = await navigator.mediaCapabilities.decodingInfo(config);
+
+            // Wrap in timeout to prevent hanging
+            const capPromise = navigator.mediaCapabilities.decodingInfo(config);
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('mediaCapabilities timeout')), 800)
+            );
+
+            const capResult = await Promise.race([capPromise, timeoutPromise]);
             result.apis.mediaCapabilities = {
                 supported: capResult.supported,
                 smooth: capResult.smooth,
@@ -91,7 +148,13 @@ async function testCodec(test, type) {
             spatialConfig.audio.spatialRendering = true;
 
             try {
-                const spatialResult = await navigator.mediaCapabilities.decodingInfo(spatialConfig);
+                // Wrap in timeout to prevent hanging
+                const spatialPromise = navigator.mediaCapabilities.decodingInfo(spatialConfig);
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('spatial audio timeout')), 800)
+                );
+
+                const spatialResult = await Promise.race([spatialPromise, timeoutPromise]);
                 result.apis.mediaCapabilitiesSpatial = {
                     supported: spatialResult.supported,
                     smooth: spatialResult.smooth,
@@ -164,8 +227,8 @@ const BATCH_CONFIG = {
 async function runCodecTests(onProgress = null) {
     const results = {
         supported: 0,
-        maybe: 0,
         unsupported: 0,
+        failed: 0,
         tests: {}
     };
 
@@ -201,24 +264,25 @@ async function runCodecTests(onProgress = null) {
 
         console.log(`Processing batch ${batchNum}/${totalBatches} (${batch.length} codecs)...`);
 
-        // Test codecs in batch
         const batchPromises = batch.map(({ groupKey, test, type }) =>
-            testCodec(test, type).then(codecResult => {
+            testCodecWithRetry(test, type, 2, 1000).then(codecResult => {
                 // Update counts
-                if (codecResult.support === "supported" || codecResult.support === "probably") {
+                if (codecResult.support === 'supported' || codecResult.support === 'probably') {
                     results.supported++;
-                } else if (codecResult.support === "maybe") {
-                    results.maybe++;
+                } else if (codecResult.support === 'failed') {
+                    results.failed++;
                 } else {
                     results.unsupported++;
                 }
 
-                // Add to results
                 results.tests[groupKey].codecs.push(codecResult);
 
-                // Call progress callback for UI update
                 if (onProgress) {
-                    onProgress(groupKey, codecResult);
+                    try {
+                        onProgress(groupKey, codecResult);
+                    } catch (uiError) {
+                        console.error('[TEST] UI update failed:', uiError);
+                    }
                 }
 
                 return codecResult;
@@ -227,10 +291,10 @@ async function runCodecTests(onProgress = null) {
 
         // Wait for batch to complete
         if (BATCH_CONFIG.parallelWithinBatch) {
-            await Promise.all(batchPromises);
+            await Promise.allSettled(batchPromises);
         } else {
             for (const promise of batchPromises) {
-                await promise;
+                await promise.catch(() => {});
             }
         }
 
@@ -244,7 +308,7 @@ async function runCodecTests(onProgress = null) {
     results.testDuration = Math.round(endTime - startTime);
 
     console.log(`All tests completed in ${results.testDuration}ms`);
-    console.log(`Summary: ${results.supported} supported, ${results.maybe} partial, ${results.unsupported} unsupported`);
+    console.log(`Summary: ${results.supported} supported, ${results.unsupported} unsupported, ${results.failed} failed`);
 
     return results;
 }

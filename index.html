@@ -55,64 +55,101 @@
     <script src="js/url-state.js"></script>
 </head>
 <body>
-    <a href="#codec-grid" class="skip-link">Skip to results</a>
+    <a href="#main-content" class="skip-link">Skip to results</a>
 
-    <!-- Theme Switcher -->
+    <!-- Theme Switcher - stays in same position -->
     <div class="theme-switcher" id="theme-switcher" role="toolbar" aria-label="Theme selector"></div>
 
-    <div class="header">
-        <h1>CodecProbe</h1>
-        <div class="subtitle">Multi-API codec testing for media server enthusiasts</div>
+    <!-- NEW: Canvas Container -->
+    <div class="canvas-container">
 
-        <div class="device-info-section">
-            <div class="device-info-header" id="device-info-summary">
-                Loading device info...
+        <!-- Section 1: Device Information Header -->
+        <header class="device-header" id="device-header">
+            <div class="device-header-top">
+                <h1>CodecProbe</h1>
+                <div class="subtitle">Multi-API codec testing for media server enthusiasts</div>
             </div>
+
+            <div class="device-info-summary" id="device-info-summary">Loading device info...</div>
+            <div class="api-availability" id="api-availability"></div>
             <div class="device-info-grid" id="device-info-grid"></div>
+        </header>
+
+        <!-- Section 2: Controls & Filters -->
+        <div class="controls-section" role="toolbar" aria-label="Codec controls">
+            <div class="search-container">
+                <input type="search" id="search-input" class="search-input"
+                       placeholder="Search codecs... (Press / to focus)"
+                       aria-label="Search codecs">
+            </div>
+
+            <div class="filter-group" role="group" aria-label="Codec filters">
+                <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+                <button class="filter-btn" data-filter="supported" aria-pressed="false">Supported</button>
+                <button class="filter-btn" data-filter="video" aria-pressed="false">Video</button>
+                <button class="filter-btn" data-filter="audio" aria-pressed="false">Audio</button>
+            </div>
+
+            <div class="action-group" role="group" aria-label="Actions">
+                <button class="action-btn" id="expand-toggle-btn" aria-label="Expand all codec cards" data-expanded="false">
+                    <span class="btn-icon">⊕</span> <span class="btn-text">Expand All</span>
+                </button>
+                <button class="action-btn export-btn" id="export-btn" aria-label="Export results as JSON">
+                    <span class="btn-icon">↓</span> Export JSON
+                </button>
+            </div>
         </div>
-    </div>
 
-    <div class="filter-bar" role="toolbar" aria-label="Filter and export controls">
-        <input type="search" id="search-input" class="search-input" placeholder="Search codecs... (Press / to focus)" aria-label="Search codecs">
-        <div role="group" aria-label="Codec filters">
-            <button class="filter-btn active" data-filter="all" aria-pressed="true">All Codecs</button>
-            <button class="filter-btn" data-filter="supported" aria-pressed="false">Supported Only</button>
-            <button class="filter-btn" data-filter="video" aria-pressed="false">Video Only</button>
-            <button class="filter-btn" data-filter="audio" aria-pressed="false">Audio Only</button>
-        </div>
-        <button class="expand-toggle-btn" id="expand-toggle-btn" aria-label="Expand all codec cards" title="Expand All (Ctrl+E)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="7 13 12 18 17 13"></polyline>
-                <polyline points="7 6 12 11 17 6"></polyline>
-            </svg>
-            <span>Expand All</span>
-        </button>
-        <button class="export-btn" id="export-btn" aria-label="Export results as JSON">Export Results (JSON)</button>
-    </div>
+        <!-- Section 3: Results Grid (Main Content) -->
+        <main id="main-content">
+            <!-- Accessibility: Status announcements -->
+            <div id="sr-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <!-- Accessibility: Status announcements -->
-    <div id="sr-announcements" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Detecting device capabilities...</p>
+            </div>
 
-    <div id="loading" class="loading" role="status" aria-live="polite">
-        <div>Running codec tests...</div>
-        <div style="margin-top: 10px; color: #666;">Testing all APIs across all codecs</div>
-    </div>
+            <div id="codec-grid" class="grid" style="display: none;"></div>
+        </main>
 
-    <main id="codec-grid" class="grid" style="display: none;" role="main" aria-label="Codec test results"></main>
+        <!-- Section 4: Footer -->
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About</h3>
+                    <p>Tests what codecs your browser can actually play by comparing three different detection APIs. Built for Jellyfin/Plex/Emby users who need to know if their device supports HEVC, Dolby Vision, DTS, etc.</p>
+                </div>
 
-    <footer class="footer">
-        <p>
-            <strong>CodecProbe</strong> •
-            <a href="https://github.com/nofear0411/codecprobe" target="_blank">GitHub</a> •
-            Testing: HEVC, Dolby Vision, AV1, VP9, H.264, Dolby Audio, DTS, and more
-        </p>
-        <p style="margin-top: 10px; font-size: 0.75rem; color: #666;">
-            Decoder APIs: canPlayType() • isTypeSupported() • mediaCapabilities.decodingInfo()
-            <br>
-            DRM/EME: Widevine • PlayReady • FairPlay
-        </p>
-    </footer>
+                <div class="footer-section">
+                    <h3>Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/nofear0411/codecprobe" target="_blank" rel="noopener">GitHub</a></li>
+                        <li><a href="https://github.com/nofear0411/codecprobe/issues" target="_blank" rel="noopener">Issues</a></li>
+                        <li><a href="https://github.com/nofear0411/codecprobe/blob/main/README.md" target="_blank" rel="noopener">Docs</a></li>
+                    </ul>
+                </div>
 
+                <div class="footer-section">
+                    <h3>Requirements</h3>
+                    <p><strong>APIs Tested:</strong></p>
+                    <ul class="footer-links">
+                        <li>HTMLMediaElement.canPlayType() - All browsers</li>
+                        <li>MediaSource.isTypeSupported() - Chrome 23+, Safari 8+, Firefox 42+, Edge 12+</li>
+                        <li>navigator.mediaCapabilities.decodingInfo() - Chrome 66+, Safari 12.1+, Firefox 63+, Edge 79+</li>
+                    </ul>
+                    <p><strong>DRM/EME Testing:</strong> Widevine, PlayReady, FairPlay, ClearKey</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 CodecProbe • MIT License • UAParser.js (AGPL-3.0)</p>
+            </div>
+        </footer>
+
+    </div> <!-- End canvas-container -->
+
+    <!-- Scripts remain at bottom -->
     <script src="js/theme-manager.js"></script>
     <script src="js/codec-database.js"></script>
     <script src="js/device-detection.js"></script>

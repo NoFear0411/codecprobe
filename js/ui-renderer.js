@@ -44,9 +44,29 @@ function renderDeviceInfo(info) {
     if (info.screenHDR) {
         headerText += ` • <span>HDR Display</span>`;
     }
+    // Note: header content is from internal device detection, not user input - safe for innerHTML
     header.innerHTML = headerText;
 
-    // Detailed grid
+    // API availability indicators (data from internal API detection, not user input)
+    const apiBox = document.getElementById('api-availability');
+    if (apiBox) {
+        apiBox.innerHTML = `
+            <div class="api-status-item ${info.apiSupport.canPlayType ? 'supported' : 'unavailable'}">
+                <span class="api-status-indicator"></span>
+                <span class="api-status-label">canPlayType()</span>
+            </div>
+            <div class="api-status-item ${info.apiSupport.isTypeSupported ? 'supported' : 'unavailable'}">
+                <span class="api-status-indicator"></span>
+                <span class="api-status-label">isTypeSupported()</span>
+            </div>
+            <div class="api-status-item ${info.apiSupport.mediaCapabilities ? 'supported' : 'unavailable'}">
+                <span class="api-status-indicator"></span>
+                <span class="api-status-label">mediaCapabilities()</span>
+            </div>
+        `;
+    }
+
+    // Detailed grid (all values from internal device detection)
     let gridHTML = `
         <div class="device-info-item">
             <div class="device-info-label">Browser</div>
@@ -87,18 +107,6 @@ function renderDeviceInfo(info) {
         <div class="device-info-item">
             <div class="device-info-label">RAM</div>
             <div class="device-info-value">${info.deviceMemory}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">canPlayType</div>
-            <div class="device-info-value">${info.apiSupport.canPlayType ? 'YES' : 'NO'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">isTypeSupported</div>
-            <div class="device-info-value">${info.apiSupport.isTypeSupported ? 'YES' : 'NO'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">mediaCapabilities</div>
-            <div class="device-info-value">${info.apiSupport.mediaCapabilities ? 'YES' : 'NO'}</div>
         </div>
     `;
 
@@ -227,11 +235,11 @@ function formatApiResults(codec) {
                             </div>
                             <div class="capability-item">
                                 <span class="capability-label">Smooth Playback:</span>
-                                <span class="response-value ${mc.smooth ? 'success' : 'partial'}">${mc.smooth ? 'Yes' : 'No'}</span>
+                                <span class="response-value ${mc.smooth ? 'success' : 'fail'}">${mc.smooth ? 'Yes' : 'No'}</span>
                             </div>
                             <div class="capability-item">
                                 <span class="capability-label">Power Efficient:</span>
-                                <span class="response-value ${mc.powerEfficient ? 'success' : 'partial'}">${mc.powerEfficient ? 'Yes' : 'No'}</span>
+                                <span class="response-value ${mc.powerEfficient ? 'success' : 'fail'}">${mc.powerEfficient ? 'Yes' : 'No'}</span>
                             </div>
                         </div>
                         `}
@@ -269,11 +277,11 @@ function formatApiResults(codec) {
                             </div>
                             <div class="capability-item">
                                 <span class="capability-label">Smooth:</span>
-                                <span class="response-value ${mcs.smooth ? 'success' : 'partial'}">${mcs.smooth ? 'Yes' : 'No'}</span>
+                                <span class="response-value ${mcs.smooth ? 'success' : 'fail'}">${mcs.smooth ? 'Yes' : 'No'}</span>
                             </div>
                             <div class="capability-item">
                                 <span class="capability-label">Efficient:</span>
-                                <span class="response-value ${mcs.powerEfficient ? 'success' : 'partial'}">${mcs.powerEfficient ? 'Yes' : 'No'}</span>
+                                <span class="response-value ${mcs.powerEfficient ? 'success' : 'fail'}">${mcs.powerEfficient ? 'Yes' : 'No'}</span>
                             </div>
                         </div>
                         `}
@@ -402,28 +410,37 @@ function formatPlatformNotes(platforms) {
 }
 
 /**
- * Setup event listeners for educational content toggles
+ * Setup event listener for a single education toggle
+ */
+function setupEducationToggle(button) {
+    if (button.hasAttribute('data-initialized')) return;
+
+    button.setAttribute('data-initialized', 'true');
+
+    button.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        const content = button.nextElementSibling;
+        const expanded = button.getAttribute('aria-expanded') === 'true';
+
+        button.setAttribute('aria-expanded', !expanded);
+        content.hidden = expanded;
+
+        const chevron = button.querySelector('.chevron-icon');
+        if (chevron) {
+            chevron.style.transform = expanded ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        announceToScreenReader(`Educational content ${!expanded ? 'expanded' : 'collapsed'}`);
+    });
+}
+
+/**
+ * Setup event listeners for all educational content toggles
  */
 function setupEducationToggles() {
     document.querySelectorAll('.education-toggle').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.stopPropagation(); // Don't trigger card collapse
-
-            const content = button.nextElementSibling;
-            const expanded = button.getAttribute('aria-expanded') === 'true';
-
-            button.setAttribute('aria-expanded', !expanded);
-            content.hidden = expanded;
-
-            // Rotate chevron
-            const chevron = button.querySelector('.chevron-icon');
-            if (chevron) {
-                chevron.style.transform = expanded ? 'rotate(0deg)' : 'rotate(180deg)';
-            }
-
-            // Announce to screen readers
-            announceToScreenReader(`Educational content ${!expanded ? 'expanded' : 'collapsed'}`);
-        });
+        setupEducationToggle(button);
     });
 }
 
@@ -638,7 +655,7 @@ function createPendingCard(groupKey, test, type) {
     item.appendChild(details);
 
     const handleToggle = (e) => {
-        if (item.classList.contains('PENDING')) return;
+        // Allow expanding even when PENDING to see what's happening
         if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
             if (e.key === ' ') e.preventDefault();
             item.classList.toggle('expanded');
@@ -658,16 +675,28 @@ function createPendingCard(groupKey, test, type) {
  */
 function updateCardState(groupKey, codecResult) {
     const grid = document.getElementById('codec-grid');
-    const escapedCodec = CSS.escape(codecResult.codec);
-    const card = grid.querySelector(`.codec-item[data-group="${groupKey}"][data-codec="${escapedCodec}"]`);
+
+    // Find card by data-name (unique) within the group
+    const allCards = grid.querySelectorAll(`.codec-item[data-group="${groupKey}"]`);
+    const card = Array.from(allCards).find(c => c.dataset.name === codecResult.name);
 
     if (!card) {
-        console.warn('[UI] Card not found for update:', groupKey, codecResult.codec);
+        console.error('[UI] Card not found for update:', {
+            groupKey,
+            name: codecResult.name,
+            availableCards: allCards.length
+        });
         return;
     }
 
     card.classList.remove('PENDING');
-    card.classList.add(codecResult.support.toUpperCase());
+
+    if (codecResult.support === 'failed') {
+        card.classList.add('FAILED');
+    } else {
+        card.classList.add(codecResult.support.toUpperCase());
+    }
+
     card.classList.add('state-transition');
     card.setAttribute('aria-label', `${codecResult.name} - ${codecResult.support}`);
 
@@ -737,11 +766,51 @@ function updateCardState(groupKey, codecResult) {
 
     updateSectionCounts(groupKey);
 
+    // Setup education toggle for this card
+    const eduToggle = card.querySelector('.education-toggle');
+    if (eduToggle) {
+        setupEducationToggle(eduToggle);
+    }
+
     setTimeout(() => {
         card.classList.remove('state-transition');
     }, 500);
+}
 
-    console.log('[UI] Updated card:', codecResult.name, '→', codecResult.support);
+/**
+ * Update counter for a single section element
+ */
+function updateSectionCount(section) {
+    const cards = section.querySelectorAll('.codec-item');
+    const total = cards.length;
+    let supportedCount = 0;
+    let pendingCount = 0;
+    let failedCount = 0;
+
+    cards.forEach(card => {
+        if (card.classList.contains('SUPPORTED') || card.classList.contains('PROBABLY')) {
+            supportedCount++;
+        } else if (card.classList.contains('PENDING')) {
+            pendingCount++;
+        } else if (card.classList.contains('FAILED')) {
+            failedCount++;
+        }
+    });
+
+    const countSpan = section.querySelector('.support-count');
+    if (!countSpan) return;
+
+    if (pendingCount > 0) {
+        countSpan.textContent = `${supportedCount} supported (${pendingCount} testing...)`;
+        countSpan.classList.add('pending-count');
+    } else {
+        let text = `${supportedCount} / ${total} supported`;
+        if (failedCount > 0) {
+            text += ` (${failedCount} failed)`;
+        }
+        countSpan.textContent = text;
+        countSpan.classList.remove('pending-count');
+    }
 }
 
 /**
@@ -752,35 +821,19 @@ function updateSectionCounts(groupKey) {
     const section = Array.from(grid.querySelectorAll('.section')).find(s =>
         s.querySelector(`[data-group="${groupKey}"]`)
     );
-
-    if (!section) return;
-
-    const cards = section.querySelectorAll('.codec-item');
-    let supportedCount = 0;
-    let maybeCount = 0;
-    let pendingCount = 0;
-
-    cards.forEach(card => {
-        if (card.classList.contains('SUPPORTED') || card.classList.contains('PROBABLY')) {
-            supportedCount++;
-        } else if (card.classList.contains('MAYBE')) {
-            maybeCount++;
-        } else if (card.classList.contains('PENDING')) {
-            pendingCount++;
-        }
-    });
-
-    const countSpan = section.querySelector('.support-count');
-    if (countSpan) {
-        if (pendingCount > 0) {
-            countSpan.textContent = `${supportedCount} full / ${maybeCount} partial (${pendingCount} pending)`;
-            countSpan.classList.add('pending-count');
-        } else {
-            countSpan.textContent = `${supportedCount} full / ${maybeCount} partial`;
-            countSpan.classList.remove('pending-count');
-        }
-    }
+    if (section) updateSectionCount(section);
 }
+
+/**
+ * Update ALL section counts (called after force cleanup or bulk updates)
+ */
+function updateAllSectionCounts() {
+    const grid = document.getElementById('codec-grid');
+    grid.querySelectorAll('.section').forEach(updateSectionCount);
+}
+
+// Export for use in main.js
+window.updateAllSectionCounts = updateAllSectionCounts;
 
 /**
  * Render codec test results
@@ -796,7 +849,7 @@ function renderResults(results) {
         // Apply filter and search
         const filteredCodecs = group.codecs.filter(codec => {
             // Filter type
-            if (state.currentFilter === 'supported' && codec.support !== 'supported' && codec.support !== 'probably' && codec.support !== 'maybe') return false;
+            if (state.currentFilter === 'supported' && codec.support !== 'supported' && codec.support !== 'probably') return false;
             if (state.currentFilter === 'video' && codec.type !== 'video') return false;
             if (state.currentFilter === 'audio' && codec.type !== 'audio') return false;
 
@@ -814,15 +867,19 @@ function renderResults(results) {
 
         // Count support levels
         const supportedCount = filteredCodecs.filter(c => c.support === 'supported' || c.support === 'probably').length;
-        const maybeCount = filteredCodecs.filter(c => c.support === 'maybe').length;
+        const failedCount = filteredCodecs.filter(c => c.support === 'failed').length;
+        const totalCount = filteredCodecs.length;
 
-        // Create section
+        let countText = `${supportedCount} / ${totalCount} supported`;
+        if (failedCount > 0) countText += ` (${failedCount} failed)`;
+
+        // Create section (all data from internal codec database, not user input)
         const section = document.createElement('div');
         section.className = 'section';
         section.innerHTML = `
             <div class="section-header">
                 ${group.category}
-                <span class="support-count">${supportedCount} full / ${maybeCount} partial</span>
+                <span class="support-count">${countText}</span>
             </div>
         `;
 
@@ -1087,8 +1144,8 @@ function exportResults() {
         device: deviceInfo,
         summary: {
             supported: state.testResults.supported,
-            maybe: state.testResults.maybe,
             unsupported: state.testResults.unsupported,
+            failed: state.testResults.failed,
             testDuration: state.testResults.testDuration
         },
         codecs: state.testResults.tests
@@ -1121,3 +1178,46 @@ function setupExport() {
     exportBtn.addEventListener('click', handleExport);
     exportBtn.addEventListener('keydown', handleExport);
 }
+
+// Track expand/collapse state
+const expandCollapseState = {
+    expandedCards: new Set()
+};
+
+/**
+ * Expand all codec cards
+ */
+function expandAllCards() {
+    const cards = document.querySelectorAll('.codec-item');
+    cards.forEach(card => {
+        if (!card.classList.contains('expanded')) {
+            card.classList.add('expanded');
+            card.setAttribute('aria-expanded', 'true');
+
+            expandCollapseState.expandedCards.add(card.dataset.codec);
+        }
+    });
+
+    console.log('[UI] Expanded all cards');
+}
+
+/**
+ * Collapse all codec cards
+ */
+function collapseAllCards() {
+    const cards = document.querySelectorAll('.codec-item');
+    cards.forEach(card => {
+        if (card.classList.contains('expanded')) {
+            card.classList.remove('expanded');
+            card.setAttribute('aria-expanded', 'false');
+
+            expandCollapseState.expandedCards.delete(card.dataset.codec);
+        }
+    });
+
+    console.log('[UI] Collapsed all cards');
+}
+
+// Export functions
+window.expandAllCards = expandAllCards;
+window.collapseAllCards = collapseAllCards;

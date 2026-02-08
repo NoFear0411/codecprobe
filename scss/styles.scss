@@ -14,6 +14,7 @@ $blue: var(--blue, #00d4ff);
 $yellow: var(--yellow, #ffd700);
 $red: var(--red, #ff4444);
 $orange: var(--orange, #ff8800);
+$purple: var(--purple, #9c27b0);
 
 $border: var(--border, #222);
 $border-light: var(--border-light, #333);
@@ -138,7 +139,7 @@ h1 {
     color: var(--text);
     font-size: 0.95rem;
     font-weight: 500;
-    border-left: 3px solid var(--accent);
+    border-left: 3px solid var(--border-light);
 
     span {
         color: var(--accent);
@@ -160,7 +161,7 @@ h1 {
     transition: all 0.2s ease;
 
     &:hover {
-        border-left-color: var(--accent);
+        border-left-color: var(--border);
         background: var(--card-hover);
     }
 
@@ -184,7 +185,7 @@ h1 {
 }
 
 .device-info-value {
-    color: var(--accent);
+    color: var(--text);
     font-weight: 600;
     font-size: 0.875rem;
 }
@@ -203,11 +204,11 @@ h1 {
 .search-input {
     flex: 1;
     min-width: 250px;
-    background: var(--card-hover);
-    border: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
     color: var(--text);
     padding: $spacing-sm $spacing-md;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 1rem;
     outline: none;
     transition: all 0.2s ease;
@@ -216,8 +217,9 @@ h1 {
     min-height: 48px;
 
     &:focus {
-        border-color: var(--accent);
-        background: var(--bg-secondary);
+        border-color: var(--border-light);
+        background: var(--card);
+        box-shadow: 0 0 0 3px var(--bg-secondary);
     }
 
     &::placeholder {
@@ -228,36 +230,33 @@ h1 {
 .filter-btn {
     background: var(--bg-secondary);
     color: var(--text-secondary);
-    border: 1px solid var(--border-light);
-    padding: $spacing-sm $spacing-md;
+    border: 1px solid var(--border);
+    padding: $spacing-xs $spacing-md;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 500;
     transition: all 0.2s ease;
-
-    // webOS: larger buttons for remote control
-    min-height: 48px;
-    min-width: 100px;
+    min-height: 40px;
+    min-width: 90px;
 
     &:hover,
     &:focus {
-        background: var(--card-hover);
-        border-color: var(--accent);
-        outline: 2px solid var(--accent);
-        outline-offset: 2px;
+        background: var(--card);
+        border-color: var(--border-light);
+        color: var(--text);
     }
 
     &.active {
-        background: var(--accent);
-        color: var(--bg);
-        border-color: var(--accent);
+        background: var(--card);
+        color: var(--text);
+        border-color: var(--text-dimmed);
+        font-weight: 600;
     }
 
-    // webOS remote control focus
     &:focus-visible {
-        outline: 3px solid var(--accent);
-        outline-offset: 3px;
+        outline: 2px solid var(--text-dimmed);
+        outline-offset: 2px;
     }
 }
 
@@ -298,16 +297,8 @@ h1 {
 }
 
 .export-btn {
-    background: var(--blue);
-    color: var(--bg);
-    border: none;
-    padding: $spacing-sm $spacing-lg;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.95rem;
+    // Inherits from .action-btn - no special styling needed
     margin-left: auto;
-    min-height: 48px;
     transition: all 0.2s ease;
 
     &:hover,
@@ -323,6 +314,216 @@ h1 {
     }
 }
 
+// Canvas Container - Unified Layout
+.canvas-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: $spacing-md;
+    gap: $spacing-xl;
+}
+
+// Device Header Section
+.device-header {
+    background: var(--card);
+    border-radius: 12px;
+    padding: $spacing-lg;
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.device-header-top {
+    margin-bottom: $spacing-md;
+
+    h1 {
+        margin-bottom: $spacing-xs;
+    }
+
+    .subtitle {
+        color: var(--text-secondary);
+    }
+}
+
+.device-info-summary {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: $spacing-sm;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    margin-bottom: $spacing-md;
+    border-left: 3px solid var(--border-light);
+}
+
+.api-availability {
+    display: flex;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+    margin: $spacing-sm 0;
+}
+
+.api-status-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.api-status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.api-status-item.supported .api-status-indicator {
+    background: var(--accent);
+    box-shadow: 0 0 4px var(--accent);
+}
+
+.api-status-item.unavailable .api-status-indicator {
+    background: var(--red);
+    box-shadow: 0 0 4px var(--red);
+}
+
+.api-status-label {
+    font-family: $font-mono;
+    font-size: 0.8rem;
+}
+
+// Controls Section
+.controls-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+    align-items: center;
+    background: var(--card);
+    padding: $spacing-lg;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.search-container {
+    flex: 2 1 400px;  // Increased flex-grow to take more space
+}
+
+.filter-group,
+.action-group {
+    display: flex;
+    gap: $spacing-xs;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-md;  // Reduced vertical padding
+    background: var(--card-hover);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;  // Smaller font
+    font-weight: 500;  // Less bold
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: var(--bg-secondary);
+        border-color: var(--border-light);
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    .btn-icon {
+        font-size: 1rem;  // Smaller icon
+    }
+}
+
+
+// Main Content Area
+main#main-content {
+    flex: 1;
+    min-height: 400px;
+}
+
+// Footer
+.site-footer {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: $spacing-lg;
+    border: 1px solid var(--border);
+    margin-top: $spacing-xl;
+    font-size: 0.9rem;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xl;
+    margin-bottom: $spacing-md;
+}
+
+.footer-section {
+    flex: 1 1 250px;
+
+    h3 {
+        font-size: 0.85rem;
+        margin-bottom: $spacing-xs;
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin: 0 0 $spacing-xs 0;
+    }
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    li {
+        margin: 0;
+    }
+
+    a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.85rem;
+        display: inline-block;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: var(--text);
+        }
+    }
+}
+
+.footer-bottom {
+    padding-top: $spacing-sm;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-dimmed);
+    line-height: 1.6;
+}
+
+
 // Results Grid
 .grid {
     display: grid;
@@ -335,7 +536,7 @@ h1 {
     @include card;
     padding: $spacing-md $spacing-lg;
     box-shadow: var(--shadow);
-    overflow: hidden; // Prevent cards from expanding beyond grid
+    // REMOVED: overflow: hidden;  // This was causing truncation
 }
 
 .section-header {
@@ -344,7 +545,7 @@ h1 {
     color: var(--text);
     margin-bottom: $spacing-sm;
     text-transform: uppercase;
-    border-left: 3px solid var(--accent);
+    border-left: 3px solid var(--border);
     padding-left: $spacing-sm;
     display: flex;
     justify-content: space-between;
@@ -359,8 +560,10 @@ h1 {
 
 .support-count {
     font-size: 0.75rem;
-    color: $text-dimmed;
+    color: var(--text-secondary);
     font-weight: normal;
+    text-transform: none;
+    white-space: nowrap;
 }
 
 // Codec Items
@@ -378,6 +581,7 @@ h1 {
         background: var(--card-hover);
         transform: translateX(4px) translateY(-2px);
         box-shadow: var(--shadow);
+        z-index: 1;
 
         .codec-chevron {
             opacity: 1;
@@ -396,9 +600,10 @@ h1 {
         transform: none;
 
         .codec-details {
-            max-height: 1000px;
+            max-height: none;  // Changed from 1000px
             opacity: 1;
             margin-top: $spacing-sm;
+            overflow: visible;  // Allow content to expand fully
         }
 
         .codec-chevron {
@@ -429,7 +634,12 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: $spacing-sm;
+    gap: $spacing-md;  // Increased from sm for more breathing room
+
+    > div:first-child {
+        flex: 1;
+        min-width: 0;  // Allow text truncation if needed
+    }
 }
 
 .codec-chevron {
@@ -479,7 +689,7 @@ h1 {
 .codec-string {
     font-family: $font-mono;
     font-size: 0.75rem;
-    color: var(--text-dimmed);
+    color: var(--text);
     word-break: break-all;
     display: flex;
     align-items: center;
@@ -487,8 +697,10 @@ h1 {
     margin-top: $spacing-sm;
     line-height: 1.4;
     padding: $spacing-xs;
-    background: var(--bg-secondary);
+    background: transparent;  // Removed bg-secondary to inherit from parent
     border-radius: 4px;
+    border-left: 2px solid var(--border);
+    padding-left: $spacing-sm;
 }
 
 .copy-btn {
@@ -523,13 +735,14 @@ h1 {
 }
 
 .status-badge {
-    float: right;
+    display: inline-block;  // Changed from float
     font-weight: 700;
     font-size: 0.7rem;
     padding: 4px 10px;
     border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    margin-bottom: $spacing-xs;  // Add spacing below badge
 }
 
 .info-line {
@@ -543,7 +756,7 @@ h1 {
     font-size: 0.7rem;
     padding: 3px 8px;
     border-radius: 3px;
-    margin-left: $spacing-xs;
+    margin-left: $spacing-md;
     background: var(--bg-secondary);
     color: var(--text);
     font-weight: 600;
@@ -559,13 +772,14 @@ h1 {
 
 // API Results
 .api-results {
-    margin-top: $spacing-sm;
-    padding: $spacing-sm;
-    background: var(--bg-tertiary);
-    border-radius: 6px;
+    margin-top: $spacing-lg;
+    padding: $spacing-md;
+    background: var(--bg-secondary);
+    border-radius: 8px;
     font-size: 0.7rem;
     line-height: 1.8;
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);  // Default border
+    border-left-width: 4px;
     color: var(--text-secondary);
 }
 
@@ -605,11 +819,31 @@ h1 {
 
 .api-test-block {
     margin-top: $spacing-md;
-    border-left: 3px solid var(--border);
-    padding-left: $spacing-sm;
+    border-left: 4px solid var(--border);
+    padding: $spacing-sm;
+    background: var(--card);
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px var(--border);
+    transition: border-color 0.2s ease, background 0.2s ease;
 
     &:first-of-type {
         margin-top: 0;
+    }
+
+    // Hover color based on API result (reflected by badge class)
+    &:has(.api-number.success):hover {
+        border-left-color: var(--accent);
+        background: rgba(0, 255, 136, 0.05);
+    }
+
+    &:has(.api-number.partial):hover {
+        border-left-color: var(--yellow);
+        background: rgba(255, 215, 0, 0.05);
+    }
+
+    &:has(.api-number.fail):hover {
+        border-left-color: var(--red);
+        background: rgba(255, 68, 68, 0.05);
     }
 }
 
@@ -674,7 +908,7 @@ h1 {
         background: var(--bg-secondary);
         padding: 2px 6px;
         border-radius: 3px;
-        color: var(--accent);
+        color: var(--text);  // Changed from accent (green) to neutral
         font-size: 0.7rem;
     }
 }
@@ -684,11 +918,12 @@ h1 {
     background: var(--bg-secondary);
     padding: $spacing-xs;
     border-radius: 4px;
-    color: var(--text-dimmed);
+    color: var(--text-secondary);  // Changed from text-dimmed for better readability
     font-size: 0.65rem;
     overflow-x: auto;
     margin: 4px 0;
     border: 1px solid var(--border);
+    opacity: 1;  // Ensure full opacity
 }
 
 .response-value {
@@ -751,7 +986,7 @@ h1 {
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 4px;
-    color: var(--accent);
+    color: var(--text);  // Changed from accent (green) to neutral
     font-weight: 500;
     font-size: 0.85rem;
     cursor: pointer;
@@ -786,7 +1021,7 @@ h1 {
     h4 {
         font-size: 0.9rem;
         font-weight: 600;
-        color: var(--accent);
+        color: var(--text);  // Changed from accent (green) to neutral
         margin-bottom: $spacing-sm;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -796,6 +1031,8 @@ h1 {
         color: var(--text-secondary);
         line-height: 1.6;
         margin-bottom: $spacing-sm;
+        word-wrap: break-word;  // Ensure text wraps
+        overflow-wrap: break-word;
     }
 }
 
@@ -817,8 +1054,9 @@ h1 {
     .format-badge {
         display: inline-block;
         padding: 2px 8px;
-        background: var(--accent);
-        color: var(--bg);
+        background: var(--bg-secondary);
+        color: var(--text);
+        border: 1px solid var(--border);
         border-radius: 3px;
         font-size: 0.75rem;
         font-weight: 600;
@@ -866,6 +1104,9 @@ h1 {
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: $spacing-md;
+    overflow: hidden;  // Prevent content overflow
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 
     .platform-header {
         display: flex;
@@ -892,8 +1133,7 @@ h1 {
 }
 
 // Support Level Colors
-.SUPPORTED,
-.PROBABLY {
+.SUPPORTED {
     border-left-color: var(--accent);
     background: var(--card);
 
@@ -905,9 +1145,14 @@ h1 {
         background: var(--accent);
         color: var(--bg);
     }
+
+    // API results inherit green border
+    .api-results {
+        border-color: var(--accent);
+    }
 }
 
-.MAYBE {
+.PROBABLY {
     border-left-color: var(--yellow);
     background: var(--card);
 
@@ -918,6 +1163,11 @@ h1 {
     .status-badge {
         background: var(--yellow);
         color: var(--bg);
+    }
+
+    // API results inherit yellow border
+    .api-results {
+        border-color: var(--yellow);
     }
 }
 
@@ -939,6 +1189,45 @@ h1 {
     .codec-name,
     .codec-summary {
         color: var(--text-dimmed);
+    }
+
+    // API results inherit red border
+    .api-results {
+        border-color: var(--red);
+    }
+}
+
+// FAILED state - Purple for retries exhausted
+.FAILED {
+    border-left-color: $purple;
+    background: var(--card);
+    opacity: 0.7;
+    cursor: default;
+
+    &:hover {
+        background: var(--card-hover);
+        opacity: 0.85;
+    }
+
+    .status-badge {
+        background: $purple;
+        color: var(--bg);
+
+        &::after {
+            content: ' (2 retries)';
+            font-size: 0.6rem;
+            opacity: 0.8;
+        }
+    }
+
+    .codec-name,
+    .codec-summary {
+        color: var(--text-dimmed);
+    }
+
+    // API results inherit purple border
+    .api-results {
+        border-color: $purple;
     }
 }
 
@@ -1086,6 +1375,21 @@ h1 {
 }
 
 @media (max-width: 768px) {
+    .canvas-container {
+        padding: $spacing-sm;
+        gap: $spacing-md;
+    }
+
+    .controls-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group,
+    .action-group {
+        justify-content: center;
+    }
+
     .grid {
         grid-template-columns: 1fr;
     }
@@ -1103,6 +1407,24 @@ h1 {
     .device-info {
         grid-template-columns: 1fr;
     }
+
+    .api-results {
+        font-size: 0.8rem;
+        padding: $spacing-xs;
+    }
+
+    .api-test-block {
+        padding-left: $spacing-xs;
+    }
+
+    .api-name {
+        font-size: 0.75rem;
+    }
+
+    .config-json {
+        font-size: 0.65rem;
+        overflow-x: auto;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1113,5 +1435,43 @@ h1 {
     h1 {
         font-size: 1.25rem;
         letter-spacing: 0.1em;
+    }
+
+    .api-results {
+        font-size: 0.75rem;  // Changed from 0.85rem (less crowding)
+        margin-top: $spacing-sm;  // Increased from xs
+        padding: $spacing-sm;  // Increased from xs (was 6px, now 10px)
+    }
+
+    .api-test-header {
+        // REMOVE flex-wrap - keep inline layout
+        gap: 6px;  // Increased from 4px
+    }
+
+    .api-number {
+        font-size: 0.7rem;
+        min-width: 24px;
+        height: 24px;
+        flex-shrink: 0;  // Prevent badge squishing
+    }
+
+    .api-name {
+        font-size: 0.75rem;  // Reduced from 0.8rem
+        // REMOVE: flex: 1 1 100%;  // Don't force new line
+    }
+
+    .capability-grid {
+        gap: 4px;  // Increased from 2px
+    }
+
+    .capability-label,
+    .response-value {
+        font-size: 0.7rem;  // Reduced from 0.75rem
+    }
+
+    .config-json {
+        font-size: 0.65rem;
+        overflow-x: auto;
+        max-width: 100%;
     }
 }

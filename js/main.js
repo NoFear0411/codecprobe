@@ -80,22 +80,40 @@ async function initialize() {
             updateCardState(groupKey, codecResult);
         });
 
+        // Save results to state for export
+        if (typeof state !== 'undefined') {
+            state.testResults = results;
+        }
+
+        // Force remove any stuck PENDING cards
+        const stuckCards = document.querySelectorAll('.codec-item.PENDING');
+        if (stuckCards.length > 0) {
+            console.warn(`[MAIN] ${stuckCards.length} stuck PENDING cards`);
+            stuckCards.forEach(card => {
+                card.classList.remove('PENDING');
+                card.classList.add('FAILED');
+                const badge = card.querySelector('.status-badge');
+                if (badge) badge.textContent = 'FAILED';
+            });
+            updateAllSectionCounts();
+        }
+
         setupEducationToggles();
 
         console.log('='.repeat(80));
         console.log('TESTING COMPLETE');
         console.log('='.repeat(80));
-        console.log(`Total codecs tested: ${results.supported + results.maybe + results.unsupported}`);
-        console.log(`✓ Fully supported: ${results.supported}`);
-        console.log(`⚠ Partially supported: ${results.maybe}`);
+        const totalTested = results.supported + results.unsupported + results.failed;
+        console.log(`Total codecs tested: ${totalTested}`);
+        console.log(`✓ Supported: ${results.supported}`);
         console.log(`✗ Unsupported: ${results.unsupported}`);
+        if (results.failed > 0) console.log(`⚠ Failed: ${results.failed}`);
         console.log(`⏱ Test duration: ${results.testDuration}ms`);
         console.log('='.repeat(80));
 
         logNotableFindings(results, deviceInfo);
 
-        const totalCodecs = results.supported + results.maybe + results.unsupported;
-        announceToScreenReader(`Testing complete. ${totalCodecs} codecs tested. ${results.supported} fully supported.`);
+        announceToScreenReader(`Testing complete. ${totalTested} codecs tested. ${results.supported} supported.`);
     } catch (error) {
         console.error('⚠ Codec testing failed:', error);
         const loadingEl = document.getElementById('loading');

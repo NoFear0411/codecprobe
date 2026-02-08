@@ -12,7 +12,7 @@ CodecProbe is a browser-based codec testing tool for media server users. It test
 
 ```
 js/
-├── codec-database.js    - 110+ codec test definitions (all ISO/Apple/LG/HLS/DASH formats)
+├── codec-database.js    - 254 codec test definitions (all ISO/Apple/LG/HLS/DASH formats)
 ├── device-detection.js  - UAParser.js v2.x integration (async)
 ├── drm-detection.js     - DRM/EME system testing
 ├── codec-tester.js      - Multi-API testing logic
@@ -241,7 +241,7 @@ CodecProbe uses UAParser.js v2.x (AGPL-3.0). Since CodecProbe is open-source (MI
 
 ## Performance
 
-- 110+ codecs tested in ~2-5 seconds
+- 254 codecs tested in ~3-6 seconds
 - mediaCapabilities tests are async (rate-limited by browser)
 - Results render once all tests complete (no progressive rendering)
 - UAParser.js detection is async (uses Client Hints API on Chromium)
@@ -297,9 +297,9 @@ Keep docs focused and practical. No generic "best practices" sections.
 
 ## Tested Codecs Summary
 
-**Video**: HEVC, Dolby Vision (P5/7/8.1/8.4/10), AV1, VP9, H.264/AVC, VVC/H.266
-**Audio**: Dolby (AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS family, lossless (FLAC/ALAC/Opus), standard (AAC/MP3/Vorbis)
-**Containers**: MP4, MKV, WebM, MOV, fMP4, CMAF, native
-**Streaming**: HLS, DASH, CMAF
+**Video (142 tests)**: HEVC, Dolby Vision (P4/5/7/8.1/8.2/8.4/9/10 + supplemental), AV1, VP9, H.264/AVC, VVC/H.266, VP8, MPEG-4 Part 2, H.263, Theora
+**Audio (87 tests)**: Dolby (AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS (Core/Express/HD/MA/Lossless/X), lossless (FLAC/ALAC/Opus/PCM), standard (AAC-LC/HE/xHE/ELD/LD/MP3/Vorbis), MPEG-H 3D Audio
+**Containers (17 MIME types)**: MP4, MKV, WebM, MOV, MPEG-TS, 3GP, OGG, fMP4, CMAF, FLAC, WAV, AIFF, AAC, MP3
+**Streaming (25 tests)**: HLS fMP4, DASH, CMAF, MPEG-TS
 
-**Total**: 110+ codec/container combinations validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.
+**Total**: 254 codec/container combinations across 14 groups and 17 MIME types, validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.
