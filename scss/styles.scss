@@ -108,96 +108,22 @@ h1 {
     margin-bottom: $spacing-lg;
 }
 
-// Device Info - Collapsible
-.device-info-container {
-    margin-bottom: $spacing-lg;
-}
-
-.device-info-toggle {
+// Device Info Header
+.device-info-header {
     @include card;
-    @include card-hover;
     padding: $spacing-md $spacing-lg;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: $spacing-sm;
-
-    // webOS: larger tap target for remote control
-    min-height: 60px;
-}
-
-.device-info-summary {
+    margin-bottom: $spacing-lg;
+    text-align: center;
     color: var(--text);
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-left: 3px solid var(--accent);
 
     span {
         color: var(--accent);
         margin-left: $spacing-sm;
-        font-weight: 400;
+        font-weight: 600;
     }
-}
-
-.device-info-arrow {
-    color: var(--text-dimmed);
-    font-size: 1.5rem;
-    transition: transform 0.3s ease;
-
-    &.expanded {
-        transform: rotate(180deg);
-    }
-}
-
-.device-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: $spacing-sm;
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: all 0.3s ease;
-
-    &.expanded {
-        max-height: 2000px;
-        opacity: 1;
-        margin-bottom: $spacing-md;
-    }
-}
-
-.device-info-item {
-    @include card;
-    padding: $spacing-md;
-    border-left: 3px solid var(--border-light);
-
-    &:hover {
-        border-left-color: var(--accent);
-        background: var(--card-hover);
-    }
-
-    &.full-width {
-        grid-column: 1 / -1;
-    }
-
-    &.highlight {
-        border-left-color: var(--blue);
-        background: var(--bg-tertiary);
-    }
-}
-
-.device-info-label {
-    color: var(--text-secondary);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: $spacing-xs;
-    font-weight: 600;
-}
-
-.device-info-value {
-    color: var(--accent);
-    font-weight: 600;
-    font-size: 0.95rem;
 }
 
 // Filter Bar
@@ -351,6 +277,18 @@ h1 {
     &:last-child {
         margin-bottom: 0;
     }
+
+    &.expanded {
+        background: var(--card-hover);
+        border-left-width: 4px;
+        padding-bottom: $spacing-md;
+
+        .codec-details {
+            max-height: 1000px;
+            opacity: 1;
+            margin-top: $spacing-sm;
+        }
+    }
 }
 
 .codec-name {
@@ -360,14 +298,30 @@ h1 {
     margin-bottom: $spacing-xs;
 }
 
+.codec-summary {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: $spacing-xs;
+}
+
+.codec-details {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
 .codec-string {
     font-family: $font-mono;
     font-size: 0.75rem;
     color: var(--text-dimmed);
     word-break: break-all;
     display: block;
-    margin-top: $spacing-xs;
+    margin-top: $spacing-sm;
     line-height: 1.4;
+    padding: $spacing-xs;
+    background: var(--bg-secondary);
+    border-radius: 4px;
 }
 
 .status-badge {
@@ -401,10 +355,11 @@ h1 {
 .api-results {
     margin-top: $spacing-sm;
     padding: $spacing-sm;
-    background: #0a0a0a;
+    background: var(--bg-secondary);
     border-radius: 6px;
     font-size: 0.7rem;
     line-height: 1.8;
+    border: 1px solid var(--border);
 }
 
 .api-result-line {

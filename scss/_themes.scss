@@ -146,12 +146,16 @@
 
     .card,
     .section,
-    .device-info-item,
+    .device-info-header,
     .codec-item,
     .filter-btn,
     .export-btn {
         border: var(--border-width) solid var(--border);
         box-shadow: var(--shadow);
+    }
+
+    .codec-details {
+        background: var(--bg-secondary);
     }
 
     button,
@@ -202,7 +206,8 @@
     // Text glow
     h1, h2, h3, h4, h5, h6,
     .codec-name,
-    .section-header {
+    .section-header,
+    .device-info-header {
         text-shadow: var(--text-glow);
     }
 
@@ -210,9 +215,20 @@
     .card,
     .section,
     .codec-item,
+    .device-info-header,
     .filter-btn,
     .export-btn {
         box-shadow: var(--glow);
+    }
+
+    .codec-details {
+        background: rgba(0, 255, 0, 0.05);
+        border: 1px solid rgba(0, 255, 0, 0.2);
+    }
+
+    .codec-string,
+    .api-results {
+        background: rgba(0, 255, 0, 0.03);
     }
 }
 

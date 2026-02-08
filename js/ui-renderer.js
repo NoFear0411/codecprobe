@@ -11,151 +11,41 @@ const state = {
 };
 
 /**
- * Setup device info toggle
- */
-function setupDeviceInfoToggle() {
-    const toggle = document.getElementById('device-info-toggle');
-    const deviceInfo = document.getElementById('device-info');
-    const arrow = toggle.querySelector('.device-info-arrow');
-
-    if (!toggle) return;
-
-    toggle.addEventListener('click', () => {
-        deviceInfo.classList.toggle('expanded');
-        arrow.classList.toggle('expanded');
-    });
-}
-
-/**
  * Render device information header
  * @param {Object} info - Device info object from detectDeviceInfo()
  */
 function renderDeviceInfo(info) {
-    const container = document.getElementById('device-info');
-    const summary = document.getElementById('device-info-summary');
+    const header = document.getElementById('device-info-summary');
 
-    // Update summary
-    if (summary) {
-        let summaryText = `${info.browser} ${info.browserVersion} • ${info.os} ${info.osVersion}`;
-        if (info.screenHDR) {
-            summaryText += ` • <span>HDR Display</span>`;
-        }
-        summary.innerHTML = summaryText;
-    }
+    if (!header) return;
 
-    let html = `
-        <div class="device-info-item">
-            <div class="device-info-label">Browser</div>
-            <div class="device-info-value">${info.browser} ${info.browserVersion}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">OS</div>
-            <div class="device-info-value">${info.os} ${info.osVersion}</div>
-        </div>
-    `;
+    let headerText = `${info.browser} ${info.browserVersion} • ${info.os} ${info.osVersion}`;
 
     if (info.deviceModel) {
-        html += `
-            <div class="device-info-item">
-                <div class="device-info-label">Device</div>
-                <div class="device-info-value">${info.deviceModel}</div>
-            </div>
-        `;
+        headerText += ` • ${info.deviceModel}`;
     }
 
-    html += `
-        <div class="device-info-item">
-            <div class="device-info-label">Screen</div>
-            <div class="device-info-value">${info.screenWidth}×${info.screenHeight} @ ${info.pixelRatio}x DPR</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">HDR Display</div>
-            <div class="device-info-value">${info.screenHDR ? 'YES' : 'NO'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">Color Gamut</div>
-            <div class="device-info-value">${info.rec2020 ? 'Rec.2020' : info.wideGamut ? 'P3' : 'sRGB'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">CPU Cores</div>
-            <div class="device-info-value">${info.hardwareConcurrency}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">RAM</div>
-            <div class="device-info-value">${info.deviceMemory}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">canPlayType</div>
-            <div class="device-info-value">${info.apiSupport.canPlayType ? 'YES' : 'NO'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">isTypeSupported</div>
-            <div class="device-info-value">${info.apiSupport.isTypeSupported ? 'YES' : 'NO'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">mediaCapabilities</div>
-            <div class="device-info-value">${info.apiSupport.mediaCapabilities ? 'YES' : 'NO'}</div>
-        </div>
-    `;
+    headerText += ` • ${info.screenWidth}×${info.screenHeight}`;
 
-    // DRM Support Section
-    console.log('[Debug] DRM info:', info.drm);
+    if (info.screenHDR) {
+        headerText += ` • <span>HDR Display</span>`;
+    }
 
-    if (info.drm) {
-        console.log('[Debug] DRM available:', info.drm.emeAvailable);
-        console.log('[Debug] DRM systems:', info.drm.systems);
-        console.log('[Debug] DRM timed out:', info.drm.timedOut);
+    // Add DRM info if available
+    if (info.drm && !info.drm.timedOut && info.drm.emeAvailable) {
+        const supportedDRM = Object.values(info.drm.systems)
+            .filter(s => s.supported)
+            .map(s => {
+                const level = s.details?.securityLevel || '';
+                return `${s.name}${level ? ` (${level})` : ''}`;
+            });
 
-        if (info.drm.timedOut) {
-            html += `
-                <div class="device-info-item full-width">
-                    <div class="device-info-label">DRM/EME Support</div>
-                    <div class="device-info-value" style="color: #ff8800;">Testing (may take a few seconds...)</div>
-                </div>
-            `;
-        } else if (info.drm.emeAvailable) {
-            const supportedDRM = Object.values(info.drm.systems)
-                .filter(s => s.supported)
-                .map(s => {
-                    const level = s.details?.securityLevel || '';
-                    return `${s.name}${level ? ` (${level})` : ''}`;
-                });
-
-            if (supportedDRM.length > 0) {
-                html += `
-                    <div class="device-info-item full-width highlight">
-                        <div class="device-info-label">DRM/EME Support</div>
-                        <div class="device-info-value">${supportedDRM.join(' • ')}</div>
-                    </div>
-                `;
-            } else {
-                html += `
-                    <div class="device-info-item full-width">
-                        <div class="device-info-label">DRM/EME Support</div>
-                        <div class="device-info-value" style="color: #666;">No DRM systems detected</div>
-                    </div>
-                `;
-            }
-        } else {
-            html += `
-                <div class="device-info-item full-width">
-                    <div class="device-info-label">DRM/EME Support</div>
-                    <div class="device-info-value" style="color: #666;">EME not available</div>
-                </div>
-            `;
+        if (supportedDRM.length > 0) {
+            headerText += ` • DRM: <span>${supportedDRM.join(', ')}</span>`;
         }
-    } else {
-        console.log('[Debug] No DRM info in deviceInfo');
     }
 
-    html += `
-        <div class="device-info-item full-width">
-            <div class="device-info-label">User Agent</div>
-            <div class="device-info-value" style="font-size: 0.7rem; word-break: break-all; color: #888; font-weight: normal;">${info.userAgent}</div>
-        </div>
-    `;
-
-    container.innerHTML = html;
+    header.innerHTML = headerText;
 }
 
 /**
@@ -164,26 +54,26 @@ function renderDeviceInfo(info) {
  * @returns {string} HTML string
  */
 function formatApiResults(codec) {
-    let html = '<div class="api-results">';
-    
+    let html = '<div class="api-results"><strong>Raw API Detection Results:</strong>';
+
     // canPlayType
     if (codec.apis.canPlayType) {
-        const valueClass = codec.apis.canPlayType === 'probably' ? '' : 
+        const valueClass = codec.apis.canPlayType === 'probably' ? '' :
                           codec.apis.canPlayType === 'maybe' ? 'partial' : 'fail';
         html += `
             <div class="api-result-line">
-                <span class="api-label">canPlayType:</span>
+                <span class="api-label">HTMLMediaElement.canPlayType():</span>
                 <span class="api-value ${valueClass}">${codec.apis.canPlayType}</span>
             </div>
         `;
     }
-    
+
     // isTypeSupported
     if (codec.apis.isTypeSupported) {
         const valueClass = codec.apis.isTypeSupported === 'probably' ? '' : 'fail';
         html += `
             <div class="api-result-line">
-                <span class="api-label">isTypeSupported:</span>
+                <span class="api-label">MediaSource.isTypeSupported():</span>
                 <span class="api-value ${valueClass}">${codec.apis.isTypeSupported}</span>
             </div>
         `;
@@ -283,17 +173,37 @@ function renderResults(results) {
         filteredCodecs.forEach(codec => {
             const item = document.createElement('div');
             item.className = `codec-item ${codec.support.toUpperCase()}`;
-            
+            item.setAttribute('tabindex', '0');
+            item.setAttribute('role', 'button');
+            item.setAttribute('aria-expanded', 'false');
+            item.setAttribute('aria-label', `${codec.name} - Click to see details`);
+
             item.innerHTML = `
                 <span class="status-badge">${codec.support.toUpperCase()}</span>
                 <span class="codec-name">${codec.name}
                     <span class="platform-badge">${codec.container}</span>
                 </span>
-                <span class="info-line">${codec.info}</span>
-                <span class="codec-string">${codec.codec}</span>
-                ${formatApiResults(codec)}
+                <div class="codec-summary">${codec.info}</div>
+                <div class="codec-details">
+                    <div class="codec-string"><strong>MIME Type:</strong> ${codec.codec}</div>
+                    ${formatApiResults(codec)}
+                </div>
             `;
-            
+
+            // Toggle details on click
+            const handleToggle = (e) => {
+                if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === ' ') e.preventDefault();
+                    item.classList.toggle('expanded');
+                    const isExpanded = item.classList.contains('expanded');
+                    item.setAttribute('aria-expanded', isExpanded.toString());
+                    console.log('[UI] Codec card toggled:', codec.name, isExpanded);
+                }
+            };
+
+            item.addEventListener('click', handleToggle);
+            item.addEventListener('keydown', handleToggle);
+
             section.appendChild(item);
         });
 
@@ -308,9 +218,6 @@ function renderResults(results) {
  * Setup filter buttons and search
  */
 function setupFilters() {
-    // Setup device info toggle
-    setupDeviceInfoToggle();
-
     console.log('[UI] Setting up filter buttons...');
     document.querySelectorAll('.filter-btn').forEach(btn => {
         // Make buttons keyboard/remote accessible
