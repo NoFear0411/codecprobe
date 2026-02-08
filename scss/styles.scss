@@ -120,11 +120,15 @@ h1 {
     margin-bottom: $spacing-lg;
 }
 
-// Device Info Header
+// Device Info Section
+.device-info-section {
+    margin-bottom: $spacing-lg;
+}
+
 .device-info-header {
     @include card;
     padding: $spacing-md $spacing-lg;
-    margin-bottom: $spacing-lg;
+    margin-bottom: $spacing-sm;
     text-align: center;
     color: var(--text);
     font-size: 0.95rem;
@@ -136,6 +140,48 @@ h1 {
         margin-left: $spacing-sm;
         font-weight: 600;
     }
+}
+
+.device-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-xs;
+}
+
+.device-info-item {
+    @include card;
+    padding: $spacing-sm $spacing-md;
+    border-left: 2px solid var(--border-light);
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-left-color: var(--accent);
+        background: var(--card-hover);
+    }
+
+    &.full-width {
+        grid-column: 1 / -1;
+    }
+
+    &.highlight {
+        border-left-color: var(--blue);
+        background: var(--bg-tertiary);
+    }
+}
+
+.device-info-label {
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: $spacing-xs;
+    font-weight: 600;
+}
+
+.device-info-value {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.875rem;
 }
 
 // Filter Bar

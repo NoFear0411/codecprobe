@@ -26,41 +26,113 @@ function announceToScreenReader(message) {
 }
 
 /**
- * Render device information header
+ * Render device information header and grid
  * @param {Object} info - Device info object from detectDeviceInfo()
  */
 function renderDeviceInfo(info) {
     const header = document.getElementById('device-info-summary');
+    const grid = document.getElementById('device-info-grid');
 
-    if (!header) return;
+    if (!header || !grid) return;
 
+    // Header summary
     let headerText = `${info.browser} ${info.browserVersion} • ${info.os} ${info.osVersion}`;
-
     if (info.deviceModel) {
         headerText += ` • ${info.deviceModel}`;
     }
-
     headerText += ` • ${info.screenWidth}×${info.screenHeight}`;
-
     if (info.screenHDR) {
         headerText += ` • <span>HDR Display</span>`;
     }
+    header.innerHTML = headerText;
 
-    // Add DRM info if available
-    if (info.drm && !info.drm.timedOut && info.drm.emeAvailable) {
-        const supportedDRM = Object.values(info.drm.systems)
-            .filter(s => s.supported)
-            .map(s => {
-                const level = s.details?.securityLevel || '';
-                return `${s.name}${level ? ` (${level})` : ''}`;
-            });
+    // Detailed grid
+    let gridHTML = `
+        <div class="device-info-item">
+            <div class="device-info-label">Browser</div>
+            <div class="device-info-value">${info.browser} ${info.browserVersion}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">OS</div>
+            <div class="device-info-value">${info.os} ${info.osVersion}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">Screen</div>
+            <div class="device-info-value">${info.screenWidth}×${info.screenHeight} @ ${info.pixelRatio}x DPR</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">HDR Display</div>
+            <div class="device-info-value">${info.screenHDR ? 'YES' : 'NO'}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">Color Gamut</div>
+            <div class="device-info-value">${info.rec2020 ? 'Rec.2020' : info.wideGamut ? 'P3' : 'sRGB'}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">CPU Cores</div>
+            <div class="device-info-value">${info.hardwareConcurrency}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">RAM</div>
+            <div class="device-info-value">${info.deviceMemory}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">canPlayType</div>
+            <div class="device-info-value">${info.apiSupport.canPlayType ? 'YES' : 'NO'}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">isTypeSupported</div>
+            <div class="device-info-value">${info.apiSupport.isTypeSupported ? 'YES' : 'NO'}</div>
+        </div>
+        <div class="device-info-item">
+            <div class="device-info-label">mediaCapabilities</div>
+            <div class="device-info-value">${info.apiSupport.mediaCapabilities ? 'YES' : 'NO'}</div>
+        </div>
+    `;
 
-        if (supportedDRM.length > 0) {
-            headerText += ` • DRM: <span>${supportedDRM.join(', ')}</span>`;
+    // DRM info
+    if (info.drm) {
+        if (info.drm.timedOut) {
+            gridHTML += `
+                <div class="device-info-item full-width">
+                    <div class="device-info-label">DRM/EME Support</div>
+                    <div class="device-info-value" style="color: var(--orange);">Testing (may take a few seconds...)</div>
+                </div>
+            `;
+        } else if (info.drm.emeAvailable) {
+            const supportedDRM = Object.values(info.drm.systems)
+                .filter(s => s.supported)
+                .map(s => {
+                    const level = s.details?.securityLevel || '';
+                    return `${s.name}${level ? ` (${level})` : ''}`;
+                });
+
+            if (supportedDRM.length > 0) {
+                gridHTML += `
+                    <div class="device-info-item full-width highlight">
+                        <div class="device-info-label">DRM/EME Support</div>
+                        <div class="device-info-value">${supportedDRM.join(' • ')}</div>
+                    </div>
+                `;
+            } else {
+                gridHTML += `
+                    <div class="device-info-item full-width">
+                        <div class="device-info-label">DRM/EME Support</div>
+                        <div class="device-info-value" style="color: var(--text-dimmed);">No DRM systems detected</div>
+                    </div>
+                `;
+            }
+        } else {
+            gridHTML += `
+                <div class="device-info-item full-width">
+                    <div class="device-info-label">DRM/EME Support</div>
+                    <div class="device-info-value" style="color: var(--text-dimmed);">EME not available</div>
+                </div>
+            `;
         }
     }
 
-    header.innerHTML = headerText;
+    grid.innerHTML = gridHTML;
 }
 
 /**

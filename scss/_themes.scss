@@ -147,6 +147,7 @@
     .card,
     .section,
     .device-info-header,
+    .device-info-item,
     .codec-item,
     .filter-btn,
     .export-btn {
@@ -156,6 +157,10 @@
 
     .codec-details {
         background: var(--bg-secondary);
+    }
+
+    .device-info-item {
+        border-left-width: var(--border-width);
     }
 
     button,
