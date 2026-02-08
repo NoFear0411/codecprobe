@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Multi-API codec testing for media server enthusiasts - Test Dolby Vision, HEVC, AV1, DTS support">
+    <meta name="keywords" content="codec test, HDR, Dolby Vision, HEVC, AV1, DTS, media capabilities, jellyfin, plex, emby">
+    <title>CodecProbe - Multi-API Codec Testing for Media Server Enthusiasts</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="header">
+        <h1>CodecProbe</h1>
+        <div class="subtitle">Multi-API codec testing for media server enthusiasts</div>
+        <div class="device-info" id="device-info"></div>
+    </div>
+
+    <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All Codecs</button>
+        <button class="filter-btn" data-filter="supported">Supported Only</button>
+        <button class="filter-btn" data-filter="video">Video Only</button>
+        <button class="filter-btn" data-filter="audio">Audio Only</button>
+        <button class="export-btn" id="export-btn">Export Results (JSON)</button>
+    </div>
+
+    <div id="loading" class="loading">
+        <div>Running comprehensive codec tests...</div>
+        <div style="margin-top: 10px; color: #666;">Testing all APIs across all codecs</div>
+    </div>
+
+    <div class="grid" id="codec-grid" style="display: none;"></div>
+
+    <footer class="footer">
+        <p>
+            <strong>CodecProbe</strong> • 
+            <a href="https://github.com/yourusername/codecprobe" target="_blank">GitHub</a> • 
+            Testing: HEVC, Dolby Vision, AV1, VP9, H.264, Dolby Audio, DTS, and more
+        </p>
+        <p style="margin-top: 10px; font-size: 0.75rem; color: #666;">
+            Multi-API testing: canPlayType() • isTypeSupported() • mediaCapabilities.decodingInfo()
+        </p>
+    </footer>
+
+    <script src="js/codec-database.js"></script>
+    <script src="js/device-detection.js"></script>
+    <script src="js/codec-tester.js"></script>
+    <script src="js/ui-renderer.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
