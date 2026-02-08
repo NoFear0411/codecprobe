@@ -49,8 +49,9 @@
   - Twitter Card meta tags
   - Schema.org structured data
   - Canonical URL
-- GitHub Actions workflow for automatic deployment
+- GitHub Actions workflow with SCSS compilation for automatic deployment
 - Documentation:
+  - BUILD.md with SCSS build instructions
   - CLAUDE.md for AI assistant context
   - CONTRIBUTING.md with contribution guidelines
   - CHANGELOG.md (this file)
@@ -60,12 +61,20 @@
   - .editorconfig
 
 ### Changed
+- **Compact layout** - Reduced spacing and padding for less scrolling:
+  - Spacing system reduced by ~20% (6px-28px range vs 8px-32px)
+  - Card padding optimized (14px vertical, 20px horizontal)
+  - Grid gap reduced from 24px to 14px
+  - Section headers smaller (1rem vs 1.125rem)
+  - Codec items more compact (10px-14px padding vs 16px)
+  - Border widths reduced (3px vs 4px)
 - Improved state management in ui-renderer.js (const object vs let variables)
-- Reduced overuse of "comprehensive" in user-facing text
-- Enhanced filter logic to support both category filters and text search
-- Updated README with new features
-- Grid layout now uses `minmax(min(100%, 500px), 1fr)` for proper responsive behavior
-- All interactive buttons now support keyboard navigation (tabindex, Enter/Space keys)
+- Removed AI slop from documentation ("comprehensive", "enhanced", etc.)
+- Filter logic supports both category filters and text search
+- Updated README and SETUP.md with SCSS build process
+- Grid layout uses `minmax(min(100%, 500px), 1fr)` for proper responsive behavior
+- All interactive buttons support keyboard navigation (tabindex, Enter/Space keys)
+- GitHub Actions now compiles SCSS before deployment
 
 ### Fixed
 - Variable scoping issues in ui-renderer.js

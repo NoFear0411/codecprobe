@@ -25,7 +25,34 @@
    ```
 4. Follow steps 2-7 from Method 1
 
-## Local Testing
+## Development Setup
+
+### Install Dependencies
+```bash
+npm install
+```
+
+This installs the SCSS compiler and build tools.
+
+### Development Mode
+```bash
+npm run dev
+```
+
+This starts:
+- Local server on `http://localhost:8000`
+- SCSS watcher (auto-compiles on changes)
+
+### Build CSS Only
+```bash
+npm run build:css
+```
+
+Compiles `scss/styles.scss` → `css/styles.css` (compressed)
+
+## Local Testing (Without Building)
+
+If you just want to test without modifying styles:
 
 ### Option 1: Python HTTP Server
 ```bash
@@ -47,12 +74,26 @@ http-server -p 8000
 2. Open project folder in VS Code
 3. Right-click `index.html` → "Open with Live Server"
 
+## GitHub Actions Build Process
+
+The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically:
+1. Installs Node.js dependencies
+2. Compiles SCSS to CSS
+3. Deploys to GitHub Pages
+
+**This means:**
+- You don't need to commit compiled CSS files
+- CSS is built fresh on every push to `main`
+- Themes are automatically compiled from SCSS source
+
 ## File Structure Requirements
 
 For GitHub Pages to work, you MUST have:
 - `index.html` in the root directory
 - All paths relative to root
 - No server-side code (PHP, etc.)
+- `package.json` for npm dependencies
+- SCSS source files in `scss/` directory
 
 ## Customization
 

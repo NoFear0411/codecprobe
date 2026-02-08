@@ -78,8 +78,9 @@ Complete picture: decoder capability + DRM support for every platform.
 - Share capability matrix across your device fleet
 - Includes user agent, OS version, hardware specs
 
-### 🎨 Modern UI
-- Dark theme with high contrast mode support
+### 🎨 Modern UI with Multi-Theme System
+- **4 distinctive themes** - Dark OLED (default), Light, Brutalist, Retro Terminal
+- Instant theme switching with localStorage persistence
 - Responsive design (mobile/tablet/desktop/TV)
 - **webOS TV optimized** - Larger touch targets, 18px base font for TV viewing distance
 - Collapsible device info to reduce clutter
@@ -116,14 +117,21 @@ Complete picture: decoder capability + DRM support for every platform.
 1. Fork this repository
 2. Enable GitHub Pages in repository settings
 3. Select `main` branch as source
-4. Access at `https://nofear0411.github.io/codecprobe/`
+4. GitHub Actions will automatically build and deploy
+5. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
 
 ### Local Development
 ```bash
 git clone https://github.com/nofear0411/codecprobe.git
 cd codecprobe
-python -m http.server 8000  # or any web server
+npm install          # Install SCSS compiler
+npm run dev          # Start dev server + SCSS watcher
 # Open http://localhost:8000
+```
+
+**Without building CSS:**
+```bash
+python -m http.server 8000  # Uses pre-compiled CSS
 ```
 
 ## Project Structure
