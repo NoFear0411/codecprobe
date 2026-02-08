@@ -1,11 +1,30 @@
 /**
  * UI Renderer Module
- * 
+ *
  * Handles rendering of device info and codec test results
  */
 
-let currentFilter = 'all';
-let testResults = null;
+const state = {
+    currentFilter: 'all',
+    testResults: null,
+    searchQuery: ''
+};
+
+/**
+ * Setup device info toggle
+ */
+function setupDeviceInfoToggle() {
+    const toggle = document.getElementById('device-info-toggle');
+    const deviceInfo = document.getElementById('device-info');
+    const arrow = toggle.querySelector('.device-info-arrow');
+
+    if (!toggle) return;
+
+    toggle.addEventListener('click', () => {
+        deviceInfo.classList.toggle('expanded');
+        arrow.classList.toggle('expanded');
+    });
+}
 
 /**
  * Render device information header
@@ -13,7 +32,17 @@ let testResults = null;
  */
 function renderDeviceInfo(info) {
     const container = document.getElementById('device-info');
-    
+    const summary = document.getElementById('device-info-summary');
+
+    // Update summary
+    if (summary) {
+        let summaryText = `${info.browser} ${info.browserVersion} • ${info.os} ${info.osVersion}`;
+        if (info.screenHDR) {
+            summaryText += ` • <span>HDR Display</span>`;
+        }
+        summary.innerHTML = summaryText;
+    }
+
     let html = `
         <div class="device-info-item">
             <div class="device-info-label">Browser</div>
@@ -67,6 +96,59 @@ function renderDeviceInfo(info) {
             <div class="device-info-label">mediaCapabilities</div>
             <div class="device-info-value">${info.apiSupport.mediaCapabilities ? 'YES' : 'NO'}</div>
         </div>
+    `;
+
+    // DRM Support Section
+    console.log('[Debug] DRM info:', info.drm);
+
+    if (info.drm) {
+        console.log('[Debug] DRM available:', info.drm.emeAvailable);
+        console.log('[Debug] DRM systems:', info.drm.systems);
+        console.log('[Debug] DRM timed out:', info.drm.timedOut);
+
+        if (info.drm.timedOut) {
+            html += `
+                <div class="device-info-item full-width">
+                    <div class="device-info-label">DRM/EME Support</div>
+                    <div class="device-info-value" style="color: #ff8800;">Testing (may take a few seconds...)</div>
+                </div>
+            `;
+        } else if (info.drm.emeAvailable) {
+            const supportedDRM = Object.values(info.drm.systems)
+                .filter(s => s.supported)
+                .map(s => {
+                    const level = s.details?.securityLevel || '';
+                    return `${s.name}${level ? ` (${level})` : ''}`;
+                });
+
+            if (supportedDRM.length > 0) {
+                html += `
+                    <div class="device-info-item full-width highlight">
+                        <div class="device-info-label">DRM/EME Support</div>
+                        <div class="device-info-value">${supportedDRM.join(' • ')}</div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="device-info-item full-width">
+                        <div class="device-info-label">DRM/EME Support</div>
+                        <div class="device-info-value" style="color: #666;">No DRM systems detected</div>
+                    </div>
+                `;
+            }
+        } else {
+            html += `
+                <div class="device-info-item full-width">
+                    <div class="device-info-label">DRM/EME Support</div>
+                    <div class="device-info-value" style="color: #666;">EME not available</div>
+                </div>
+            `;
+        }
+    } else {
+        console.log('[Debug] No DRM info in deviceInfo');
+    }
+
+    html += `
         <div class="device-info-item full-width">
             <div class="device-info-label">User Agent</div>
             <div class="device-info-value" style="font-size: 0.7rem; word-break: break-all; color: #888; font-weight: normal;">${info.userAgent}</div>
@@ -158,18 +240,26 @@ function formatApiResults(codec) {
  * @param {Object} results - Test results from runCodecTests()
  */
 function renderResults(results) {
-    testResults = results;
+    state.testResults = results;
     const grid = document.getElementById('codec-grid');
     grid.innerHTML = '';
     grid.style.display = 'grid';
 
     for (const [groupKey, group] of Object.entries(results.tests)) {
-        // Apply filter
+        // Apply filter and search
         const filteredCodecs = group.codecs.filter(codec => {
-            if (currentFilter === 'all') return true;
-            if (currentFilter === 'supported') return codec.support === 'probably' || codec.support === 'maybe';
-            if (currentFilter === 'video') return codec.type === 'video';
-            if (currentFilter === 'audio') return codec.type === 'audio';
+            // Filter type
+            if (state.currentFilter === 'supported' && codec.support !== 'probably' && codec.support !== 'maybe') return false;
+            if (state.currentFilter === 'video' && codec.type !== 'video') return false;
+            if (state.currentFilter === 'audio' && codec.type !== 'audio') return false;
+
+            // Search
+            if (state.searchQuery) {
+                const query = state.searchQuery.toLowerCase();
+                const searchText = `${codec.name} ${codec.codec} ${codec.info} ${codec.container}`.toLowerCase();
+                if (!searchText.includes(query)) return false;
+            }
+
             return true;
         });
 
@@ -215,27 +305,74 @@ function renderResults(results) {
 }
 
 /**
- * Setup filter buttons
+ * Setup filter buttons and search
  */
 function setupFilters() {
+    // Setup device info toggle
+    setupDeviceInfoToggle();
+
+    console.log('[UI] Setting up filter buttons...');
     document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            currentFilter = e.target.dataset.filter;
-            
-            if (testResults) {
-                renderResults(testResults);
+        // Make buttons keyboard/remote accessible
+        btn.setAttribute('tabindex', '0');
+
+        const handleActivation = (e) => {
+            // Support both click and Enter/Space for webOS remote
+            if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+                if (e.key === ' ') e.preventDefault();
+
+                console.log('[UI] Filter button activated:', btn.dataset.filter);
+
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+                state.currentFilter = btn.dataset.filter;
+
+                if (state.testResults) {
+                    renderResults(state.testResults);
+                }
+            }
+        };
+
+        btn.addEventListener('click', handleActivation);
+        btn.addEventListener('keydown', handleActivation);
+    });
+
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            state.searchQuery = e.target.value;
+            if (state.testResults) {
+                renderResults(state.testResults);
             }
         });
-    });
+
+        // Keyboard shortcut: / to focus search
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+            // Escape to clear search
+            if (e.key === 'Escape' && document.activeElement === searchInput) {
+                searchInput.value = '';
+                state.searchQuery = '';
+                if (state.testResults) {
+                    renderResults(state.testResults);
+                }
+            }
+        });
+    }
 }
 
 /**
  * Export results to JSON file
  */
 function exportResults() {
-    if (!testResults) {
+    if (!state.testResults) {
         alert('No test results available to export');
         return;
     }
@@ -245,12 +382,12 @@ function exportResults() {
         timestamp: new Date().toISOString(),
         device: deviceInfo,
         summary: {
-            supported: testResults.supported,
-            maybe: testResults.maybe,
-            unsupported: testResults.unsupported,
-            testDuration: testResults.testDuration
+            supported: state.testResults.supported,
+            maybe: state.testResults.maybe,
+            unsupported: state.testResults.unsupported,
+            testDuration: state.testResults.testDuration
         },
-        codecs: testResults.tests
+        codecs: state.testResults.tests
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
@@ -266,5 +403,17 @@ function exportResults() {
  * Setup export button
  */
 function setupExport() {
-    document.getElementById('export-btn').addEventListener('click', exportResults);
+    const exportBtn = document.getElementById('export-btn');
+    exportBtn.setAttribute('tabindex', '0');
+
+    const handleExport = (e) => {
+        if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+            if (e.key === ' ') e.preventDefault();
+            console.log('[UI] Export button activated');
+            exportResults();
+        }
+    };
+
+    exportBtn.addEventListener('click', handleExport);
+    exportBtn.addEventListener('keydown', handleExport);
 }

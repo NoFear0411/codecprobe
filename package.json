@@ -1,0 +1,39 @@
+{
+  "name": "codecprobe",
+  "version": "1.0.0",
+  "description": "Multi-API codec testing for media server enthusiasts",
+  "main": "index.html",
+  "scripts": {
+    "serve": "python -m http.server 8000",
+    "serve:node": "npx http-server -p 8000 -c-1",
+    "watch:css": "sass --watch scss:css --style compressed",
+    "build:css": "sass scss:css --style compressed",
+    "dev": "npm-run-all --parallel serve watch:css"
+  },
+  "devDependencies": {
+    "sass": "^1.70.0",
+    "npm-run-all": "^4.1.5"
+  },
+  "keywords": [
+    "codec",
+    "hevc",
+    "dolby-vision",
+    "av1",
+    "dts",
+    "media-capabilities",
+    "jellyfin",
+    "plex",
+    "emby",
+    "hdr"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nofear0411/codecprobe.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nofear0411/codecprobe/issues"
+  },
+  "homepage": "https://nofear0411.github.io/codecprobe/"
+}

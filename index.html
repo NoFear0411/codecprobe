@@ -3,47 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Multi-API codec testing for media server enthusiasts - Test Dolby Vision, HEVC, AV1, DTS support">
-    <meta name="keywords" content="codec test, HDR, Dolby Vision, HEVC, AV1, DTS, media capabilities, jellyfin, plex, emby">
+    <meta name="description" content="Test browser codec support using canPlayType, MediaSource, and mediaCapabilities APIs. Check Dolby Vision, HEVC, AV1, DTS compatibility for Jellyfin, Plex, Emby.">
+    <meta name="keywords" content="codec test, HDR, Dolby Vision, HEVC, AV1, DTS, media capabilities, jellyfin, plex, emby, browser codec support">
     <title>CodecProbe - Multi-API Codec Testing for Media Server Enthusiasts</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff0080">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CodecProbe - Multi-API Codec Testing">
+    <meta property="og:description" content="Test browser codec support using three different APIs. Check Dolby Vision, HEVC, AV1, and DTS compatibility for your media server.">
+    <meta property="og:url" content="https://nofear0411.github.io/codecprobe/">
+    <meta property="og:site_name" content="CodecProbe">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CodecProbe - Multi-API Codec Testing">
+    <meta name="twitter:description" content="Test browser codec support for Jellyfin, Plex, Emby. Check HEVC, Dolby Vision, AV1, DTS compatibility.">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://nofear0411.github.io/codecprobe/">
+
+    <!-- Schema.org markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CodecProbe",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any (Web Browser)",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Browser codec testing tool using canPlayType, MediaSource, and mediaCapabilities APIs"
+    }
+    </script>
+
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+    <a href="#codec-grid" class="skip-link">Skip to results</a>
 
     <div class="header">
         <h1>CodecProbe</h1>
         <div class="subtitle">Multi-API codec testing for media server enthusiasts</div>
-        <div class="device-info" id="device-info"></div>
+
+        <div class="device-info-container">
+            <div class="device-info-toggle" id="device-info-toggle">
+                <div class="device-info-summary" id="device-info-summary">
+                    Loading device info...
+                </div>
+                <div class="device-info-arrow">▼</div>
+            </div>
+            <div class="device-info" id="device-info"></div>
+        </div>
     </div>
 
-    <div class="filter-bar">
-        <button class="filter-btn active" data-filter="all">All Codecs</button>
-        <button class="filter-btn" data-filter="supported">Supported Only</button>
-        <button class="filter-btn" data-filter="video">Video Only</button>
-        <button class="filter-btn" data-filter="audio">Audio Only</button>
-        <button class="export-btn" id="export-btn">Export Results (JSON)</button>
+    <div class="filter-bar" role="toolbar" aria-label="Filter and export controls">
+        <input type="search" id="search-input" class="search-input" placeholder="Search codecs... (Press / to focus)" aria-label="Search codecs">
+        <div role="group" aria-label="Codec filters">
+            <button class="filter-btn active" data-filter="all" aria-pressed="true">All Codecs</button>
+            <button class="filter-btn" data-filter="supported" aria-pressed="false">Supported Only</button>
+            <button class="filter-btn" data-filter="video" aria-pressed="false">Video Only</button>
+            <button class="filter-btn" data-filter="audio" aria-pressed="false">Audio Only</button>
+        </div>
+        <button class="export-btn" id="export-btn" aria-label="Export results as JSON">Export Results (JSON)</button>
     </div>
 
-    <div id="loading" class="loading">
-        <div>Running comprehensive codec tests...</div>
+    <div id="loading" class="loading" role="status" aria-live="polite">
+        <div>Running codec tests...</div>
         <div style="margin-top: 10px; color: #666;">Testing all APIs across all codecs</div>
     </div>
 
-    <div class="grid" id="codec-grid" style="display: none;"></div>
+    <main id="codec-grid" class="grid" style="display: none;" role="main" aria-label="Codec test results"></main>
 
     <footer class="footer">
         <p>
-            <strong>CodecProbe</strong> • 
-            <a href="https://github.com/yourusername/codecprobe" target="_blank">GitHub</a> • 
+            <strong>CodecProbe</strong> •
+            <a href="https://github.com/nofear0411/codecprobe" target="_blank">GitHub</a> •
             Testing: HEVC, Dolby Vision, AV1, VP9, H.264, Dolby Audio, DTS, and more
         </p>
         <p style="margin-top: 10px; font-size: 0.75rem; color: #666;">
-            Multi-API testing: canPlayType() • isTypeSupported() • mediaCapabilities.decodingInfo()
+            Decoder APIs: canPlayType() • isTypeSupported() • mediaCapabilities.decodingInfo()
+            <br>
+            DRM/EME: Widevine • PlayReady • FairPlay
         </p>
     </footer>
 
     <script src="js/codec-database.js"></script>
     <script src="js/device-detection.js"></script>
+    <script src="js/drm-detection.js"></script>
     <script src="js/codec-tester.js"></script>
     <script src="js/ui-renderer.js"></script>
     <script src="js/main.js"></script>

@@ -134,11 +134,11 @@ function detectDeviceInfo() {
     info.colorDepth = screen.colorDepth;
 
     // ==================== API SUPPORT DETECTION ====================
-    
+
     info.apiSupport = {
         canPlayType: true,
         isTypeSupported: typeof MediaSource !== 'undefined' && typeof MediaSource.isTypeSupported === 'function',
-        mediaCapabilities: typeof navigator.mediaCapabilities !== 'undefined' && 
+        mediaCapabilities: typeof navigator.mediaCapabilities !== 'undefined' &&
                           typeof navigator.mediaCapabilities.decodingInfo === 'function',
         mediaSource: typeof MediaSource !== 'undefined',
         encryptedMedia: typeof navigator.requestMediaKeySystemAccess !== 'undefined',
@@ -152,6 +152,21 @@ function detectDeviceInfo() {
             }
         })()
     };
+
+    return info;
+}
+
+/**
+ * Detect device info with DRM support (async version)
+ * @returns {Promise<Object>} Complete device information including DRM
+ */
+async function detectDeviceInfoWithDRM() {
+    const info = detectDeviceInfo();
+
+    // Add DRM detection if available
+    if (typeof detectDRMSupport === 'function') {
+        info.drm = await detectDRMSupport();
+    }
 
     return info;
 }

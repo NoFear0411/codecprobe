@@ -9,14 +9,14 @@
 4. Under "Source", select `main` branch
 5. Click "Save"
 6. Wait 1-2 minutes for deployment
-7. Access at: `https://YOUR_USERNAME.github.io/codec-detector/`
+7. Access at: `https://YOUR_USERNAME.github.io/codecprobe/`
 
 ### Method 2: New Repository
 1. Create a new repository on GitHub
 2. Clone this repository locally:
    ```bash
-   git clone https://github.com/ORIGINAL_OWNER/codec-detector.git
-   cd codec-detector
+   git clone https://github.com/ORIGINAL_OWNER/codecprobe.git
+   cd codecprobe
    ```
 3. Change remote to your new repo:
    ```bash
@@ -29,7 +29,7 @@
 
 ### Option 1: Python HTTP Server
 ```bash
-cd codec-detector
+cd codecprobe
 python -m http.server 8000
 # Open http://localhost:8000
 ```
@@ -37,7 +37,7 @@ python -m http.server 8000
 ### Option 2: Node.js HTTP Server
 ```bash
 npm install -g http-server
-cd codec-detector
+cd codecprobe
 http-server -p 8000
 # Open http://localhost:8000
 ```
@@ -59,12 +59,12 @@ For GitHub Pages to work, you MUST have:
 ### Update Repository Links
 Edit `index.html` line 25:
 ```html
-<a href="https://github.com/YOUR_USERNAME/codec-detector" target="_blank">GitHub</a>
+<a href="https://github.com/YOUR_USERNAME/codecprobe" target="_blank">GitHub</a>
 ```
 
 ### Update README Links
 Edit `README.md`:
-- Replace `yourusername` with your GitHub username
+- Replace `nofear0411` with your GitHub username
 - Update demo link
 - Update contact information
 
@@ -132,7 +132,7 @@ Older browsers may work with reduced functionality.
 
 To pull latest changes from upstream:
 ```bash
-git remote add upstream https://github.com/ORIGINAL_OWNER/codec-detector.git
+git remote add upstream https://github.com/ORIGINAL_OWNER/codecprobe.git
 git fetch upstream
 git merge upstream/main
 git push origin main

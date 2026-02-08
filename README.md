@@ -6,7 +6,7 @@ Ever wonder why Dolby Vision doesn't work on your LG TV through Jellyfin? Or why
 
 Built after discovering race conditions in webOS Jellyfin apps and Safari's deliberately hidden Dolby Vision support.
 
-🔗 **[Live Demo](https://nofear0411.github.io/codecprobe/)** (replace with your GitHub Pages URL)
+🔗 **[Live Demo](https://nofear0411.github.io/codecprobe/)**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
@@ -48,13 +48,22 @@ webOS changed DTS detection in v25. The `canPlayDts()` check stops at `< 23`, ca
 
 ## Features
 
-### 🎯 Three APIs, One Test
-Most tools only use `canPlayType()`. CodecProbe tests **all three browser APIs**:
+### 🎯 Multi-API Testing
+CodecProbe goes beyond basic codec detection:
+
+**Decoder Testing (3 APIs)**:
 - **canPlayType()** - What browsers claim to support
-- **isTypeSupported()** - What Media Source Extensions supports  
+- **isTypeSupported()** - What Media Source Extensions supports
 - **mediaCapabilities** - What hardware can *actually* decode smoothly
 
-Compare results side-by-side for every codec.
+**DRM/EME Testing**:
+- **Widevine** - Google DRM (Chrome/Android)
+- **PlayReady** - Microsoft DRM (Edge/Xbox)
+- **FairPlay** - Apple DRM (Safari/iOS)
+- **Security levels** - Hardware (L1) vs Software (L3)
+- **Persistent state** - Offline playback capability
+
+Complete picture: decoder capability + DRM support for every platform.
 
 ### 📊 Designed for Media Server Users
 - **80+ codec combinations** across MP4 and MKV containers
@@ -70,10 +79,14 @@ Compare results side-by-side for every codec.
 - Includes user agent, OS version, hardware specs
 
 ### 🎨 Modern UI
-- Dark theme optimized for viewing
-- Responsive design (mobile/tablet/desktop)
-- Filter by support level, type, or view all
-- Zero external dependencies
+- Dark theme with high contrast mode support
+- Responsive design (mobile/tablet/desktop/TV)
+- **webOS TV optimized** - Larger touch targets, enhanced readability
+- Collapsible device info to reduce clutter
+- Filter by support level, type, or search by name
+- Keyboard shortcuts (/ for search, Esc to clear)
+- Full accessibility (ARIA labels, skip links, reduced motion)
+- Built with modern SCSS (compiles to vanilla CSS)
 
 ## Tested Codecs
 
@@ -103,12 +116,12 @@ Compare results side-by-side for every codec.
 1. Fork this repository
 2. Enable GitHub Pages in repository settings
 3. Select `main` branch as source
-4. Access at `https://yourusername.github.io/codec-detector/`
+4. Access at `https://nofear0411.github.io/codecprobe/`
 
 ### Local Development
 ```bash
-git clone https://github.com/yourusername/codec-detector.git
-cd codec-detector
+git clone https://github.com/nofear0411/codecprobe.git
+cd codecprobe
 python -m http.server 8000  # or any web server
 # Open http://localhost:8000
 ```
@@ -116,7 +129,7 @@ python -m http.server 8000  # or any web server
 ## Project Structure
 
 ```
-codec-detector/
+codecprobe/
 ├── index.html                 # Main HTML file
 ├── css/
 │   └── styles.css            # All styling
@@ -183,7 +196,7 @@ Many codecs show different support across containers:
 #### Android
 - Highly fragmented support
 - Dolby Vision varies by manufacturer
-- Check Widevine L1 for DRM content
+- Shows Widevine L1 (hardware) or L3 (software) capability
 
 ## Use Cases
 
@@ -217,9 +230,9 @@ See [adding new codecs](#adding-new-codecs) below.
 
 ## Support & Community
 
-- 🐛 [Report issues](https://github.com/yourusername/codecprobe/issues)
-- 💡 [Request features](https://github.com/yourusername/codecprobe/issues)
-- 💬 [Discussions](https://github.com/yourusername/codecprobe/discussions)
+- 🐛 [Report issues](https://github.com/nofear0411/codecprobe/issues)
+- 💡 [Request features](https://github.com/nofear0411/codecprobe/issues)
+- 💬 [Discussions](https://github.com/nofear0411/codecprobe/discussions)
 
 **Found this useful?** Star the repo and share with your media server community!
 
@@ -296,8 +309,8 @@ Built by media server enthusiasts, for media server enthusiasts.
 
 ## Contributing
 
-- 🐛 [Report a bug](https://github.com/yourusername/codec-detector/issues)
-- 💡 [Request a feature](https://github.com/yourusername/codec-detector/issues)
+- 🐛 [Report a bug](https://github.com/nofear0411/codecprobe/issues)
+- 💡 [Request a feature](https://github.com/nofear0411/codecprobe/issues)
 
 ---
 

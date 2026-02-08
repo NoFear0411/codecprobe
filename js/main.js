@@ -8,17 +8,41 @@ async function initialize() {
     console.log('='.repeat(80));
     console.log('CodecProbe - Multi-API Codec Testing for Media Server Enthusiasts');
     console.log('='.repeat(80));
-    
+
     // Step 1: Detect device information
     console.log('Step 1: Detecting device information...');
     const deviceInfo = detectDeviceInfo();
+    console.log('[Debug] Initial device info:', deviceInfo);
     renderDeviceInfo(deviceInfo);
-    
+
+    // Step 1b: Detect DRM support (non-blocking, can timeout on webOS)
+    console.log('Step 1b: Testing DRM support (may take a few seconds)...');
+    console.log('[Debug] detectDRMSupport function exists:', typeof detectDRMSupport !== 'undefined');
+
+    if (typeof detectDRMSupport !== 'undefined') {
+        try {
+            const drmInfo = await detectDRMSupport();
+            console.log('[Debug] DRM detection complete:', drmInfo);
+            deviceInfo.drm = drmInfo;
+            renderDeviceInfo(deviceInfo); // Re-render with DRM info
+            if (drmInfo.timedOut) {
+                console.log('⚠ DRM detection timed out (common on TV browsers)');
+            }
+        } catch (error) {
+            console.error('⚠ DRM detection failed:', error);
+            deviceInfo.drm = { emeAvailable: false, error: error.message };
+            renderDeviceInfo(deviceInfo);
+        }
+    } else {
+        console.error('[Debug] detectDRMSupport function not found!');
+    }
+
     console.log('Device Info:', {
         browser: `${deviceInfo.browser} ${deviceInfo.browserVersion}`,
         os: `${deviceInfo.os} ${deviceInfo.osVersion}`,
         screen: `${deviceInfo.screenWidth}×${deviceInfo.screenHeight}`,
-        hdr: deviceInfo.screenHDR
+        hdr: deviceInfo.screenHDR,
+        drm: deviceInfo.drm ? getDRMSummary(deviceInfo.drm) : 'Not tested'
     });
     
     // Step 2: Setup UI controls
@@ -26,8 +50,8 @@ async function initialize() {
     setupFilters();
     setupExport();
     
-    // Step 3: Run comprehensive codec tests
-    console.log('Step 3: Running comprehensive codec tests...');
+    // Step 3: Run codec tests
+    console.log('Step 3: Running codec tests across all APIs...');
     console.log('This will test all codecs using 3 APIs:');
     console.log('  - HTMLMediaElement.canPlayType()');
     console.log('  - MediaSource.isTypeSupported()');
@@ -103,6 +127,25 @@ function logNotableFindings(results, deviceInfo) {
         console.log('✗ AV1: No profiles supported');
     }
     
+    // DRM support summary
+    if (deviceInfo.drm && deviceInfo.drm.emeAvailable) {
+        console.log('');
+        console.log('DRM/EME Support:');
+        for (const [id, system] of Object.entries(deviceInfo.drm.systems)) {
+            if (system.supported && system.details) {
+                console.log(`  ✓ ${system.name}: ${system.details.securityLevel}`);
+                if (system.details.robustness) {
+                    console.log(`    - Robustness: ${system.details.robustness}`);
+                }
+                if (system.details.persistentState !== 'not-allowed') {
+                    console.log(`    - Persistent state: ${system.details.persistentState}`);
+                }
+            } else {
+                console.log(`  ✗ ${system.name}: Not supported`);
+            }
+        }
+    }
+
     // Platform-specific notes
     if (deviceInfo.webOS) {
         console.log('');
@@ -114,13 +157,19 @@ function logNotableFindings(results, deviceInfo) {
         console.log(`📱 iOS ${deviceInfo.osVersion} Notes:`);
         console.log('  - Safari canPlayType() may not report Dolby Vision (API limitation)');
         console.log('  - Hardware may support DV even if APIs report unsupported');
+        if (deviceInfo.drm?.systems?.fairplay?.supported) {
+            console.log('  - FairPlay DRM available for protected content');
+        }
     } else if (deviceInfo.android) {
         console.log('');
         console.log('🤖 Android Notes:');
         console.log('  - Codec support varies greatly by manufacturer and chipset');
-        console.log('  - Widevine L1 required for DRM-protected content');
+        if (deviceInfo.drm?.systems?.widevine?.supported) {
+            const level = deviceInfo.drm.systems.widevine.details.securityLevel;
+            console.log(`  - Widevine ${level} available for protected content`);
+        }
     }
-    
+
     console.log('-'.repeat(80));
 }
 

@@ -1,0 +1,555 @@
+// Variables
+$bg: #0a0a0a;
+$card: #141414;
+$card-hover: #1a1a1a;
+$text: #e8e8e8;
+$text-muted: #888;
+$text-dimmed: #666;
+
+$accent: #ff0080;
+$green: #00ff88;
+$blue: #00d4ff;
+$yellow: #ffd700;
+$red: #ff4444;
+$orange: #ff8800;
+
+$border: #222;
+$border-light: #333;
+
+// Spacing
+$spacing-xs: 8px;
+$spacing-sm: 12px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// Typography
+$font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+$font-mono: 'SF Mono', 'Monaco', 'Courier New', monospace;
+
+// Mixins
+@mixin card {
+    background: $card;
+    border-radius: 8px;
+    border: 1px solid $border;
+    transition: all 0.2s ease;
+}
+
+@mixin card-hover {
+    &:hover {
+        background: $card-hover;
+        border-color: $border-light;
+    }
+}
+
+// Reset
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: $bg;
+    color: $text;
+    font-family: $font-stack;
+    padding: $spacing-lg;
+    line-height: 1.6;
+    min-height: 100vh;
+
+    // webOS optimization: larger text for TV viewing distance
+    @media (max-width: 1920px) and (min-width: 1280px) {
+        font-size: 18px;
+    }
+}
+
+// Accessibility
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: $accent;
+    color: #fff;
+    padding: $spacing-xs $spacing-md;
+    text-decoration: none;
+    border-radius: 0 0 4px 0;
+    z-index: 100;
+
+    &:focus {
+        top: 0;
+    }
+}
+
+// Header
+.header {
+    margin-bottom: $spacing-xl;
+}
+
+h1 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: $spacing-sm;
+    font-weight: 900;
+}
+
+.subtitle {
+    color: $text-muted;
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
+    margin-bottom: $spacing-lg;
+}
+
+// Device Info - Collapsible
+.device-info-container {
+    margin-bottom: $spacing-lg;
+}
+
+.device-info-toggle {
+    @include card;
+    @include card-hover;
+    padding: $spacing-md $spacing-lg;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-sm;
+
+    // webOS: larger tap target for remote control
+    min-height: 60px;
+}
+
+.device-info-summary {
+    color: $text;
+    font-size: 1rem;
+    font-weight: 600;
+
+    span {
+        color: $green;
+        margin-left: $spacing-sm;
+        font-weight: 400;
+    }
+}
+
+.device-info-arrow {
+    color: $text-dimmed;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+
+    &.expanded {
+        transform: rotate(180deg);
+    }
+}
+
+.device-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: $spacing-sm;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+
+    &.expanded {
+        max-height: 2000px;
+        opacity: 1;
+        margin-bottom: $spacing-md;
+    }
+}
+
+.device-info-item {
+    @include card;
+    padding: $spacing-md;
+    border-left: 3px solid $border-light;
+
+    &:hover {
+        border-left-color: $accent;
+        background: $card-hover;
+    }
+
+    &.full-width {
+        grid-column: 1 / -1;
+    }
+
+    &.highlight {
+        border-left-color: $blue;
+        background: rgba($blue, 0.05);
+    }
+}
+
+.device-info-label {
+    color: $text-muted;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: $spacing-xs;
+    font-weight: 600;
+}
+
+.device-info-value {
+    color: $green;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+// Filter Bar
+.filter-bar {
+    @include card;
+    padding: $spacing-md;
+    margin-bottom: $spacing-lg;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+    background: $card-hover;
+    border: 1px solid $border-light;
+    color: $text;
+    padding: $spacing-sm $spacing-md;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease;
+
+    // webOS: larger input for remote control
+    min-height: 48px;
+
+    &:focus {
+        border-color: $accent;
+        background: $border;
+    }
+
+    &::placeholder {
+        color: $text-dimmed;
+    }
+}
+
+.filter-btn {
+    background: $border;
+    color: $text-muted;
+    border: 1px solid $border-light;
+    padding: $spacing-sm $spacing-md;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+
+    // webOS: larger buttons for remote control
+    min-height: 48px;
+    min-width: 100px;
+
+    &:hover,
+    &:focus {
+        background: $card-hover;
+        border-color: $accent;
+        outline: 2px solid $accent;
+        outline-offset: 2px;
+    }
+
+    &.active {
+        background: $accent;
+        color: #fff;
+        border-color: $accent;
+    }
+
+    // webOS remote control focus
+    &:focus-visible {
+        outline: 3px solid $accent;
+        outline-offset: 3px;
+    }
+}
+
+.export-btn {
+    background: $blue;
+    color: #000;
+    border: none;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-left: auto;
+    min-height: 48px;
+    transition: all 0.2s ease;
+
+    &:hover,
+    &:focus {
+        background: $green;
+        transform: translateY(-2px);
+        outline: 3px solid $green;
+        outline-offset: 3px;
+    }
+
+    &:focus-visible {
+        outline: 3px solid $green;
+    }
+}
+
+// Results Grid
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+    gap: $spacing-lg;
+    margin-bottom: $spacing-xl;
+}
+
+.section {
+    @include card;
+    padding: $spacing-lg;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    overflow: hidden; // Prevent cards from expanding beyond grid
+}
+
+.section-header {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: $spacing-md;
+    text-transform: uppercase;
+    border-left: 4px solid $accent;
+    padding-left: $spacing-sm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    letter-spacing: 0.05em;
+}
+
+.support-count {
+    font-size: 0.75rem;
+    color: $text-dimmed;
+    font-weight: normal;
+}
+
+// Codec Items
+.codec-item {
+    background: #0f0f0f;
+    padding: $spacing-md;
+    border-radius: 8px;
+    margin-bottom: $spacing-sm;
+    border-left: 4px solid $border-light;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+        background: $card;
+        transform: translateX(4px);
+    }
+}
+
+.codec-name {
+    font-weight: 600;
+    display: block;
+    font-size: 1rem;
+    margin-bottom: $spacing-xs;
+}
+
+.codec-string {
+    font-family: $font-mono;
+    font-size: 0.75rem;
+    color: $text-dimmed;
+    word-break: break-all;
+    display: block;
+    margin-top: $spacing-xs;
+    line-height: 1.4;
+}
+
+.status-badge {
+    float: right;
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.info-line {
+    font-size: 0.8rem;
+    color: $text-muted;
+    margin-top: $spacing-xs;
+}
+
+.platform-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-left: $spacing-xs;
+    background: $border;
+    color: $text-muted;
+    font-weight: 600;
+}
+
+// API Results
+.api-results {
+    margin-top: $spacing-sm;
+    padding: $spacing-sm;
+    background: #0a0a0a;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    line-height: 1.8;
+}
+
+.api-result-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    gap: $spacing-sm;
+}
+
+.api-label {
+    color: $text-muted;
+    font-weight: 600;
+}
+
+.api-value {
+    color: $green;
+    text-align: right;
+
+    &.fail {
+        color: $red;
+    }
+
+    &.partial {
+        color: $yellow;
+    }
+}
+
+// Support Level Colors
+.PROBABLY {
+    border-left-color: $green;
+    background: rgba($green, 0.03);
+
+    .status-badge {
+        background: $green;
+        color: #000;
+    }
+}
+
+.MAYBE {
+    border-left-color: $yellow;
+    background: rgba($yellow, 0.03);
+
+    .status-badge {
+        background: $yellow;
+        color: #000;
+    }
+}
+
+.UNSUPPORTED {
+    border-left-color: $border-light;
+    opacity: 0.5;
+
+    .status-badge {
+        background: $border-light;
+        color: $text-dimmed;
+    }
+}
+
+// Loading State
+.loading {
+    text-align: center;
+    padding: 60px $spacing-lg;
+    color: $text-muted;
+    font-size: 1.125rem;
+}
+
+// Footer
+.footer {
+    text-align: center;
+    padding: $spacing-xl $spacing-lg;
+    border-top: 1px solid $border;
+    margin-top: $spacing-xl;
+    color: $text-muted;
+    font-size: 0.875rem;
+
+    a {
+        color: $blue;
+        text-decoration: none;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: $green;
+        }
+    }
+}
+
+// Media Queries
+@media (prefers-contrast: high) {
+    $bg: #000;
+    $card: #1a1a1a;
+    $text: #fff;
+
+    .codec-item,
+    .filter-btn {
+        border-width: 2px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+// webOS TV specific optimizations
+@media (max-width: 1920px) and (min-width: 1280px) {
+    body {
+        padding: $spacing-xl;
+    }
+
+    .filter-btn,
+    .export-btn,
+    .search-input {
+        min-height: 56px;
+        font-size: 1.125rem;
+    }
+
+    .codec-item {
+        padding: $spacing-lg;
+
+        &:hover {
+            transform: translateX(8px);
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .export-btn {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .device-info {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: $spacing-sm;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+        letter-spacing: 0.1em;
+    }
+}

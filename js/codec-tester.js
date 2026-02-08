@@ -122,7 +122,7 @@ async function testCodec(test, type) {
 }
 
 /**
- * Run comprehensive codec tests across all codecs in database
+ * Run codec tests across all codecs in database
  * @returns {Promise<Object>} Complete test results
  */
 async function runCodecTests() {
@@ -133,7 +133,7 @@ async function runCodecTests() {
         tests: {}
     };
 
-    console.log('Starting comprehensive codec tests...');
+    console.log('Starting codec tests...');
     const startTime = performance.now();
 
     for (const [groupKey, group] of Object.entries(codecDatabase)) {
