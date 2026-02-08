@@ -53,9 +53,10 @@ jobs:
 
       - name: Prepare deployment
         run: |
-          mkdir -p deploy
+          mkdir -p deploy/js
           cp -r css deploy/
-          cp -r build/js deploy/js
+          cp -r build/js/* deploy/js/
+          cp -r js/vendor deploy/js/
           cp manifest.json favicon.* CNAME _headers deploy/
           cp .nojekyll deploy/
 
