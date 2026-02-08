@@ -45,14 +45,10 @@ jobs:
         if: steps.scss-check.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
         run: npm run build:css
 
-      - name: Build JS (strip console.logs)
-        run: npm run build:js
-
       - name: Prepare deployment
         run: |
           mkdir -p deploy
-          cp -r css icons manifest.json favicon.* index.html deploy/
-          cp -r build/js deploy/js
+          cp -r css js icons manifest.json favicon.* index.html CNAME deploy/
           cp .nojekyll deploy/
 
       - name: Report build sizes
