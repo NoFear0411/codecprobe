@@ -6,7 +6,7 @@ Ever wonder why Dolby Vision doesn't work on your LG TV through Jellyfin? Or why
 
 Built after discovering race conditions in webOS Jellyfin apps and Safari's deliberately hidden Dolby Vision support.
 
-🔗 **[Live Demo](https://nofear0411.github.io/codecprobe/)**
+🔗 **[Live Demo](https://codecprobe.dev)**
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES6+-yellow.svg)
