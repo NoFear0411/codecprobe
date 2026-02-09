@@ -2,6 +2,20 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.1.3] - 2026-02-09
+
+### Fixed
+
+- **Education overview font size**: Added `font-size: 0.85rem` to education panel paragraphs — was inheriting parent card size, now matches other secondary text
+- **Removed stale comment**: Cleaned up redundant `// Ensure text wraps` comment in education paragraph styles
+
+### Changed
+
+- **README rewrite**: Streamlined project description, updated feature list and technical details
+- Version bump to 3.1.3
+
+---
+
 ## [3.1.2] - 2026-02-09
 
 ### Added
