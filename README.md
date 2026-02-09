@@ -11,7 +11,7 @@ Each tested codec includes education content explaining the codec string format,
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES2020+-yellow.svg)
 ![Dependencies](https://img.shields.io/badge/runtime_deps-zero-green.svg)
-![Deploy Status](https://github.com/nofear0411/codecprobe/actions/workflows/deploy.yml/badge.svg)
+![Deploy Status](https://github.com/nofear0411/codecprobe/actions/workflows/release.yml/badge.svg)
 
 ---
 
