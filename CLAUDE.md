@@ -229,9 +229,9 @@ python -m http.server 8000
 
 **Development**: sass, terser, ua-parser-js (build tools only)
 
-## License Note
+## License
 
-CodecProbe uses UAParser.js v2.x (AGPL-3.0). Since CodecProbe is open-source (MIT), this is fully compliant. UAParser is bundled at build time and included in the repo.
+CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also AGPL-3.0). This means modifications must be shared under the same license, including network use (Section 13). UAParser is bundled at build time in `js/vendor/`.
 
 ## Security Notes
 

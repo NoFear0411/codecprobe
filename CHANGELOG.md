@@ -2,6 +2,25 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.0.0] - 2026-02-09
+
+### Changed
+
+- **License: MIT → AGPL-3.0-or-later**. Protects the community-built codec database — modifications shared over a network must publish source under the same license. Aligns with bundled UAParser.js v2.x (also AGPL-3.0), resolving a compliance gap in v2.x where MIT + bundled AGPL was technically incorrect.
+
+### Added
+
+- **PWA service worker** (`sw.js`): Offline support via cache-first static assets, network-first navigation. All 14 core assets precached at install. Build system injects timestamp for cache versioning. `skipWaiting()` + `clients.claim()` for immediate activation (avoids stale SW on TV browsers).
+- **Education content for 90 codec entries**: Codec string breakdowns, platform-specific notes (Apple cbcs, Dolby dvcC box, LG Luna IPC, Android ExoPlayer), streaming format details (HLS/DASH/CMAF). Covers HEVC, DV, AV1, VP9, AVC, VVC, VP8, legacy video, Dolby Audio, DTS, lossless, standard audio, MPEG-H, and 18 streaming entries.
+- **CSS-only API details toggle**: Checkbox hack replaces JavaScript-driven expand/collapse for API detail rows. `attachApiToggleHandler()` stops event propagation to card handler.
+
+### Fixed
+
+- **Cross-platform UX**: Search bar sizing, touch/mobile interactions, safe area insets, custom scrollbar styling
+- **Layout breakpoints removed**: All `@media 768px/480px` layout rules replaced by intrinsic CSS — only capability queries (`hover: hover`, `prefers-contrast`, `prefers-reduced-motion`) remain
+
+---
+
 ## [2.3.0] - 2026-02-09
 
 ### Changed

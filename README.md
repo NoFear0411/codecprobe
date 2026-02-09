@@ -6,7 +6,7 @@ CodecProbe tests what your browser can actually decode by querying three differe
 
 **[Live Demo](https://codecprobe.dev)**
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)
 ![JavaScript](https://img.shields.io/badge/javascript-ES2020+-yellow.svg)
 ![Dependencies](https://img.shields.io/badge/runtime_deps-zero-green.svg)
 ![Deploy Status](https://github.com/nofear0411/codecprobe/actions/workflows/deploy.yml/badge.svg)
@@ -130,6 +130,7 @@ All streaming tests use `type: 'media-source'` for proper MSE validation.
 - **Keyboard shortcuts** — `/` to focus search, `Esc` to clear
 - **Accessibility** — ARIA labels, skip links, screen reader announcements, reduced motion support
 - **UAParser.js v2.x** — accurate device detection with Client Hints API and iPad detection
+- **Offline PWA** — service worker precaches all assets, works without network after first visit
 - **Zero runtime dependencies** — UAParser.js bundled at build time, no CDN requests
 - **Fluid responsive** — intrinsic CSS layout with `clamp()`/`min()`/`auto-fit`, no hardcoded breakpoints (webOS TV optimized)
 
@@ -220,6 +221,7 @@ npm run dev        # Dev server + SCSS file watcher
 ```
 codecprobe/
 ├── index.html                 # Single-page application
+├── sw.js                      # Service worker (offline PWA)
 ├── css/
 │   └── styles.css             # Compiled from SCSS (all themes)
 ├── scss/
@@ -318,6 +320,8 @@ Areas that benefit from contributions:
 
 ## License
 
-MIT License — see [LICENSE](LICENSE).
+AGPL-3.0-or-later — see [LICENSE](LICENSE).
 
-UAParser.js v2.x is bundled under AGPL-3.0. CodecProbe's MIT license is compatible since it's open source.
+This means if you modify CodecProbe and make it available over a network, you must share your source code under the same license. This protects the community-built codec database.
+
+UAParser.js v2.x is bundled under the same AGPL-3.0 license.

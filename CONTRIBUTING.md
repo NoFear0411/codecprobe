@@ -95,4 +95,4 @@ Title format: `Add:`, `Fix:`, `Update:`, `Refactor:`
 
 ## License
 
-Contributions are licensed under MIT.
+Contributions are licensed under AGPL-3.0-or-later. See [LICENSE](LICENSE).
