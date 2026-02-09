@@ -4279,7 +4279,10 @@ seg_h264_2.m4s
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HLS fMP4 with H.264 on all Android versions. H.264 Baseline/Main/High profiles are universally hardware-decoded — MediaCodecList reports AVC decoders on every Android device since 3.0. Widevine DRM: cenc (API 19+), cbcs (API 25+). HLS is the most reliable streaming format on Android for H.264 content. ExoPlayer uses chunkless preparation by default (reads codec info from the multivariant playlist CODECS attribute without downloading media segments).'
+                    }
                 }
             },
             // CMAF (Common Media Application Format)
@@ -4388,7 +4391,10 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports DASH with AV1 in fMP4 containers. Hardware AV1 decode: Snapdragon 888+ (2021), Dimensity 9000+ (2022), Exynos 2200+ (2022), Tensor G2+ (Pixel 7). Software fallback via dav1d on Android 10+ but too slow for 4K. Widevine DRM: cenc (API 19+), cbcs (API 25+). ExoPlayer checks AV1ProfileMain10 via MediaCodecInfo for HDR10 capability. DASH containers supported: fMP4, WebM, Matroska (NOT MPEG-TS). Ultra low-latency CMAF also supported for live DASH.'
+                    }
                 }
             },
             // DASH with VP9
@@ -4427,7 +4433,10 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports VP9 DASH in WebM containers. VP9 Profile 2 (10-bit HDR) hardware decode on Snapdragon 835+ (2017), Exynos 9810+ (2018). YouTube uses VP9 DASH as the primary 4K HDR format on Android. ExoPlayer checks VP9Profile2 via MediaCodecInfo.CodecCapabilities for HDR capability. DASH supports WebM segments natively — Matroska-based, not ISO BMFF. Widevine DRM: cenc (API 19+), cbcs (API 25+).'
+                    }
                 }
             },
             {
@@ -4475,7 +4484,10 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports VP9 Profile 0 DASH in WebM. VP9 Profile 0 (8-bit SDR) is hardware-decoded on virtually all Android devices from 2015+ (Snapdragon 800+ era). YouTube serves VP9 SDR as the default adaptive format on Android Chrome. ExoPlayer automatically adapts between VP9 Representations in the DASH MPD based on bandwidth and device capability.'
+                    }
                 }
             },
             {
@@ -4525,7 +4537,10 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AV1 DASH in WebM containers — uses Matroska-based segments instead of ISO BMFF. Same hardware requirements as AV1 in fMP4 (Snapdragon 888+, Dimensity 9000+). WebM AV1 DASH is less common than fMP4 AV1 DASH in production but YouTube uses it. ExoPlayer handles both container formats transparently. No DRM for WebM containers in DASH — Widevine requires fMP4.'
+                    }
                 }
             },
             // Additional streaming formats
@@ -4593,7 +4608,10 @@ sdr_1080/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 reads the dvh1 codec string from the HLS playlist CODECS attribute and checks MediaCodecInfo for Dolby Vision support. The DV decoder name is typically c2.dolby.dv_hevc.decoder (Codec 2.0) or OMX.dolby.hevc.decoder. Requires Dolby-licensed SoC: Snapdragon 865+ (2020), Dimensity 1000+ (2020). Widevine L1 required for protected DV content. ExoPlayer supports Apple LL-HLS for DV streams.'
+                    }
                 }
             },
             {
@@ -4643,7 +4661,10 @@ segment_002.ts
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HLS with MPEG-TS segments — the legacy HLS container format. H.264 in MPEG-TS is universally supported on Android. ExoPlayer extracts H.264 NALUs from the MPEG-TS PES packets and feeds them to MediaCodec. AES-128 encryption supported for MPEG-TS HLS. CEA-608/708 closed captions extracted from the H.264 SEI messages. Note: MPEG-TS is NOT supported in DASH on ExoPlayer — only in HLS.'
+                    }
                 }
             },
             {
@@ -4696,7 +4717,10 @@ segment_002.ts
                         { title: 'ISO/IEC 14496-15' },
                         { title: 'ISO/IEC 13818-1' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports H.264 Baseline Profile in MPEG-TS HLS. Baseline Profile is the most compatible H.264 variant — hardware decode available on every Android device since Android 3.0 (API 11). Mobile HLS streams commonly use Baseline for maximum device compatibility. ExoPlayer handles the MPEG-TS demux internally and supports AES-128 encryption.'
+                    }
                 }
             },
             {
@@ -4755,7 +4779,10 @@ segment_002.ts
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'ISO/IEC 13818-1' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HEVC in MPEG-TS for HLS streaming. HEVC hardware decode requires Android 5.0+ with MediaCodec HEVCProfileMain10HDR10 for HDR content. MPEG-TS carries HEVC via stream type 0x24 (ITU-T H.265). ExoPlayer extracts HEVC NALUs from PES packets. Note: MPEG-TS is supported in HLS and progressive playback but NOT in DASH.'
+                    }
                 }
             },
             {
@@ -4796,7 +4823,10 @@ segment_002.ts
                         { title: 'ISO/IEC 14496-3' },
                         { title: 'ISO/IEC 13818-1' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AAC in MPEG-TS for HLS audio segments. AAC-LC is universally decoded on Android (hardware + software). MPEG-TS audio-only HLS is common for radio/podcast live streams. ExoPlayer extracts ADTS-framed AAC from the MPEG-TS PES packets. In HLS, AAC MPEG-TS segments are the fallback when fMP4 is not available.'
+                    }
                 }
             },
             {
@@ -4829,7 +4859,10 @@ segment_002.ts
                         { title: 'ETSI TS 102 366' },
                         { title: 'ISO/IEC 13818-1' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AC-3 (Dolby Digital) in MPEG-TS for HLS. AC-3 decode requires hardware support from the SoC audio DSP — most Snapdragon 600+ series include it. Android TV devices (Shield, Chromecast) support AC-3 passthrough via HDMI to AVRs. ExoPlayer detects AC-3 capability via MediaCodecInfo. MPEG-TS AC-3 is common in broadcast-origin HLS streams.'
+                    }
                 }
             },
             {
@@ -4908,7 +4941,10 @@ segment_002.ts
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports H.264 CMAF in both HLS and DASH contexts. H.264 in CMAF uses fMP4 segments with avcC configuration in the init segment. Universal hardware decode on Android. Widevine DRM: cenc (API 19+), cbcs (API 25+). CMAF H.264 is the broadest-compatible streaming format — works across Apple, Android, LG, and all browser engines.'
+                    }
                 }
             },
             {
@@ -4963,7 +4999,10 @@ segment_002.ts
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports H.264 DASH in fMP4 containers. H.264 is universally hardware-decoded on Android — MediaCodec reports AVC decoders on every device. Widevine DRM: cenc (API 19+), cbcs (API 25+). ClearKey API 21+ (cenc only). PlayReady SL2000 on Android TV only. ExoPlayer automatically adapts between Representations based on bandwidth. DASH H.264 is the safest streaming choice for maximum Android device compatibility.'
+                    }
                 }
             },
             {
@@ -5018,7 +5057,10 @@ segment_002.ts
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HEVC DASH in fMP4 containers. HEVC hardware decode: Android 5.0+ via MediaCodec. HDR10 requires HEVCProfileMain10HDR10 — check via MediaCodecInfo.CodecCapabilities. Widevine L1 required for protected 4K HDR content (L3 is SD-capped). DASH HEVC uses the same fMP4 segments as HLS — CMAF-compatible when authored correctly. DASH containers: fMP4, WebM, Matroska (NOT MPEG-TS).'
+                    }
                 }
             },
             {
@@ -5128,7 +5170,10 @@ audio_seg_2.m4s
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AAC in HLS fMP4 segments. AAC-LC is universally hardware-decoded on Android. ExoPlayer reads the CODECS attribute (mp4a.40.2) from the HLS playlist for chunkless preparation. Widevine DRM supported for encrypted audio segments. Apple LL-HLS supported for low-latency audio streaming. AAC fMP4 HLS is the standard audio format for all major streaming services on Android.'
+                    }
                 }
             },
             {
@@ -5243,7 +5288,10 @@ h264_1080/playlist.m3u8`,
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports VP9 CMAF for both HLS and DASH delivery. VP9 Profile 2 (10-bit HDR) hardware decode on Snapdragon 835+ (2017). VP9 CMAF uses WebM-based segments — not ISO BMFF fMP4. This means VP9 CMAF has different segment format than HEVC/AV1 CMAF. Chrome and Firefox support VP9 CMAF; Safari does not (no VP9). Widevine DRM works with VP9 CMAF on Android.'
+                    }
                 }
             },
             {
@@ -5415,7 +5463,10 @@ cmaf_hdr10/playlist.m3u8`,
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HEVC SDR in HLS fMP4. HEVC hardware decode on Android 5.0+ via MediaCodec. SDR HEVC uses HEVCProfileMain (8-bit) or HEVCProfileMain10 (10-bit SDR for banding reduction). ExoPlayer reads hvc1 CODECS from the HLS playlist. Widevine DRM: cenc (API 19+), cbcs (API 25+). HLS HEVC is common for Jellyfin/Plex direct play to Android clients — avoids transcoding when the device has HEVC hardware decode.'
+                    }
                 }
             },
             {
@@ -5451,7 +5502,10 @@ cmaf_hdr10/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
+                    ],
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AV1 SDR DASH in fMP4. AV1 hardware decode: Snapdragon 888+ (2021), Dimensity 9000+ (2022). Software AV1 via dav1d on Android 10+ — adequate for 1080p SDR on mid-range devices. AV1 encoder mandatory from Android 14+ (decoder from Android 10+). ExoPlayer uses MediaCodecList.findDecoderForFormat() with MIMETYPE_VIDEO_AV1 to check support. DASH AV1 SDR is YouTube default for non-HDR content on AV1-capable devices.'
+                    }
                 }
             }
         ]
