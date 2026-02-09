@@ -2,6 +2,21 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.1.4] - 2026-02-10
+
+### Changed
+
+- **Card header compacted to 2 lines**: Status badge moved inline with codec name (right-aligned), summary and technical specs merged into a single line with `•` separators, container badge removed (already in name string), gear icon removed
+- **Playback type in specs**: Cards now show `File` or `MSE` at the end of the specs line to indicate native vs streaming test mode
+
+### Removed
+
+- `.platform-badge` — duplicate container info already present in codec name
+- `.technical-specs` div and `⚙` gear icon — specs merged into summary line
+- Version bump to 3.1.4
+
+---
+
 ## [3.1.3] - 2026-02-09
 
 ### Fixed

@@ -703,33 +703,23 @@ main#main-content {
     margin-top: 2px;
 }
 
+.codec-header-line {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    margin-bottom: 2px;
+}
+
 .codec-name {
     font-weight: 600;
-    display: block;
     font-size: 1rem;
-    margin-bottom: $spacing-xs;
 }
 
 .codec-summary {
     font-size: 0.85rem;
     color: var(--text-secondary);
     margin-top: $spacing-xs;
-}
-
-.technical-specs {
-    font-size: 0.7rem;
-    color: var(--text-tertiary);
-    margin-top: 4px;
-    font-family: $font-mono;
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-xs;
-
-    &::before {
-        content: '⚙';
-        margin-right: 4px;
-        opacity: 0.5;
-    }
 }
 
 .codec-details {
@@ -793,39 +783,21 @@ main#main-content {
 }
 
 .status-badge {
-    display: inline-block;  // Changed from float
+    display: inline-block;
     font-weight: 700;
     font-size: 0.7rem;
     padding: 4px 10px;
     border-radius: 4px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: $spacing-xs;  // Add spacing below badge
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .info-line {
     font-size: 0.8rem;
     color: var(--text-secondary);
     margin-top: $spacing-xs;
-}
-
-.platform-badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    padding: 3px 8px;
-    border-radius: 3px;
-    margin-left: $spacing-md;
-    background: var(--bg-secondary);
-    color: var(--text);
-    font-weight: 600;
-    border: 1px solid var(--border);
-}
-
-// Theme-specific overrides for better contrast
-.theme-light .platform-badge {
-    background: #e0e0e0;
-    color: #1a1a1a;
-    border-color: #c0c0c0;
 }
 
 // API Results — flat section divider, not a nested box

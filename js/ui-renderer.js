@@ -641,9 +641,16 @@ function buildTechnicalSpecs(codec) {
         specs.push(`${khz}kHz`);
     }
 
+    // Playback type
+    if (codec.mediaConfig.type === 'media-source') {
+        specs.push('MSE');
+    } else if (codec.mediaConfig.type) {
+        specs.push('File');
+    }
+
     if (specs.length === 0) return '';
 
-    return `<div class="technical-specs">${specs.join(' • ')}</div>`;
+    return specs.join(' \u2022 ');
 }
 
 /**
@@ -788,15 +795,16 @@ function createCardElement(codec, groupKey, isPending) {
         : `${codec.name} - ${codec.support}`);
 
     // All content from internal codec database — safe for innerHTML
+    const specsStr = isPending ? '' : buildTechnicalSpecs(codec);
+    const summaryText = codec.info + (specsStr ? ' \u2022 ' + specsStr : '');
     item.innerHTML = `
         <div class="codec-card-header">
             <div>
-                <span class="status-badge">${isPending ? 'PENDING' : codec.support.toUpperCase()}</span>
-                <span class="codec-name">${codec.name}
-                    <span class="platform-badge">${codec.container}</span>
-                </span>
-                <div class="codec-summary">${codec.info}</div>
-                ${isPending ? '' : buildTechnicalSpecs(codec)}
+                <div class="codec-header-line">
+                    <span class="codec-name">${codec.name}</span>
+                    <span class="status-badge">${isPending ? 'PENDING' : codec.support.toUpperCase()}</span>
+                </div>
+                <div class="codec-summary">${summaryText}</div>
             </div>
             <svg class="codec-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -894,11 +902,13 @@ export function updateCardState(groupKey, codecResult) {
     const badge = card.querySelector('.status-badge');
     if (badge) badge.textContent = codecResult.support.toUpperCase();
 
-    // Add technical specs to header (not present during PENDING)
-    const headerContent = card.querySelector('.codec-card-header > div');
-    if (headerContent && !headerContent.querySelector('.technical-specs')) {
-        const specsHTML = buildTechnicalSpecs(codecResult);
-        if (specsHTML) headerContent.insertAdjacentHTML('beforeend', specsHTML);
+    // Append technical specs to summary line (not present during PENDING)
+    const summary = card.querySelector('.codec-summary');
+    if (summary) {
+        const specsStr = buildTechnicalSpecs(codecResult);
+        if (specsStr) {
+            summary.textContent = summary.textContent + ' \u2022 ' + specsStr;
+        }
     }
 
     // Replace details with completed content using shared function
