@@ -786,16 +786,13 @@ main#main-content {
     border-color: #c0c0c0;
 }
 
-// API Results
+// API Results — flat section divider, not a nested box
 .api-results {
-    margin-top: $spacing-lg;
-    padding: $spacing-md;
-    background: var(--bg-secondary);
-    border-radius: 8px;
+    margin-top: $spacing-md;
+    padding-top: $spacing-md;
+    border-top: 2px solid var(--border);
     font-size: 0.7rem;
     line-height: 1.8;
-    border: 2px solid var(--border);  // Default border
-    border-left-width: 4px;
     color: var(--text-secondary);
 }
 
@@ -824,26 +821,81 @@ main#main-content {
     }
 }
 
+// API details toggle — checkbox hack (no JS, no breakpoints)
+.api-toggle-checkbox {
+    display: none;
+}
+
+.api-toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: var(--bg-secondary);
+    }
+}
+
 .api-section-title {
-    font-size: 0.85rem;
+    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
     font-weight: 700;
     color: var(--text);
-    margin-bottom: $spacing-sm;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
+.api-toggle-burger {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px;
+
+    span {
+        width: 16px;
+        height: 2px;
+        background: var(--text-secondary);
+        border-radius: 2px;
+        transition: 0.3s;
+    }
+}
+
+.api-toggle-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+}
+
+// Expand content + burger→X animation when checked
+.api-toggle-checkbox:checked ~ .api-toggle-content {
+    max-height: 1500px;
+}
+
+.api-toggle-checkbox:checked ~ .api-toggle-label {
+    .api-toggle-burger span:nth-child(1) {
+        transform: translateY(5px) rotate(45deg);
+    }
+    .api-toggle-burger span:nth-child(2) {
+        opacity: 0;
+    }
+    .api-toggle-burger span:nth-child(3) {
+        transform: translateY(-5px) rotate(-45deg);
+    }
+}
+
 .api-test-block {
-    margin-top: $spacing-md;
-    border-left: 4px solid var(--border);
-    padding: $spacing-sm;
-    background: var(--card);
-    border-radius: 6px;
-    box-shadow: inset 0 0 0 1px var(--border);
+    margin-top: $spacing-sm;
+    border-left: 3px solid var(--border);
+    padding: clamp(6px, 1.5vw, 10px);
+    background: var(--bg-secondary);
+    border-radius: 4px;
     transition: border-color 0.2s ease, background 0.2s ease;
 
-    &:first-of-type {
-        margin-top: 0;
+    &:first-child {
+        margin-top: $spacing-sm;
     }
 
     // Hover color based on API result (reflected by badge class)
@@ -881,6 +933,7 @@ main#main-content {
     border-radius: 50%;
     font-size: 0.7rem;
     font-weight: 700;
+    flex-shrink: 0;
 
     &.success {
         background: var(--accent);
@@ -934,12 +987,12 @@ main#main-content {
     background: var(--bg-secondary);
     padding: $spacing-xs;
     border-radius: 4px;
-    color: var(--text-secondary);  // Changed from text-dimmed for better readability
+    color: var(--text-secondary);
     font-size: 0.65rem;
     overflow-x: auto;
+    max-width: 100%;
     margin: 4px 0;
     border: 1px solid var(--border);
-    opacity: 1;  // Ensure full opacity
 }
 
 .response-value {
@@ -1052,6 +1105,86 @@ main#main-content {
     }
 }
 
+// Codec string breakdown
+.codec-breakdown {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: $spacing-md;
+    margin-bottom: $spacing-sm;
+}
+
+.breakdown-mime {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-bottom: $spacing-xs;
+
+    code {
+        font-family: $font-mono;
+    }
+}
+
+.breakdown-string {
+    margin-bottom: $spacing-md;
+    padding: $spacing-sm;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    text-align: center;
+
+    code {
+        font-family: $font-mono;
+        font-size: 1rem;
+        letter-spacing: 0.02em;
+    }
+}
+
+.breakdown-token {
+    color: var(--text);
+    font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 2px;
+    background: var(--card-hover);
+    border: 1px solid var(--border);
+}
+
+.breakdown-dot {
+    color: var(--text-dimmed);
+    padding: 0 2px;
+    font-weight: 400;
+}
+
+.breakdown-details {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+}
+
+.breakdown-row {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: baseline;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.breakdown-token-label {
+    font-family: $font-mono;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    min-width: 48px;
+    text-align: center;
+}
+
+.breakdown-meaning {
+    color: var(--text-secondary);
+}
+
 // Streaming examples
 .streaming-example {
     margin-bottom: $spacing-md;
@@ -1162,9 +1295,8 @@ main#main-content {
         color: var(--bg);
     }
 
-    // API results inherit green border
     .api-results {
-        border-color: var(--accent);
+        border-top-color: var(--accent);
     }
 }
 
@@ -1181,9 +1313,8 @@ main#main-content {
         color: var(--bg);
     }
 
-    // API results inherit yellow border
     .api-results {
-        border-color: var(--yellow);
+        border-top-color: var(--yellow);
     }
 }
 
@@ -1207,9 +1338,8 @@ main#main-content {
         color: var(--text-dimmed);
     }
 
-    // API results inherit red border
     .api-results {
-        border-color: var(--red);
+        border-top-color: var(--red);
     }
 }
 
@@ -1241,9 +1371,8 @@ main#main-content {
         color: var(--text-dimmed);
     }
 
-    // API results inherit purple border
     .api-results {
-        border-color: $purple;
+        border-top-color: $purple;
     }
 }
 
@@ -1390,60 +1519,3 @@ main#main-content {
     }
 }
 
-@media (max-width: 768px) {
-    .api-results {
-        font-size: 0.8rem;
-        padding: $spacing-xs;
-    }
-
-    .api-test-block {
-        padding-left: $spacing-xs;
-    }
-
-    .api-name {
-        font-size: 0.75rem;
-    }
-
-    .config-json {
-        font-size: 0.65rem;
-        overflow-x: auto;
-    }
-}
-
-@media (max-width: 480px) {
-    .api-results {
-        font-size: 0.75rem;
-        margin-top: $spacing-sm;
-        padding: $spacing-sm;
-    }
-
-    .api-test-header {
-        gap: 6px;
-    }
-
-    .api-number {
-        font-size: 0.7rem;
-        min-width: 24px;
-        height: 24px;
-        flex-shrink: 0;
-    }
-
-    .api-name {
-        font-size: 0.75rem;
-    }
-
-    .capability-grid {
-        gap: 4px;
-    }
-
-    .capability-label,
-    .response-value {
-        font-size: 0.7rem;
-    }
-
-    .config-json {
-        font-size: 0.65rem;
-        overflow-x: auto;
-        max-width: 100%;
-    }
-}

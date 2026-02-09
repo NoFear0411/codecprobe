@@ -192,8 +192,16 @@ export function renderDeviceInfo(info) {
  * @returns {string} HTML string
  */
 function formatApiResults(codec) {
+    const safeId = codec.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+    const toggleId = `api-${safeId}`;
+
     let html = '<div class="api-results">';
-    html += '<div class="api-section-title">API Test Results</div>';
+    html += `<input type="checkbox" id="${toggleId}" class="api-toggle-checkbox">`;
+    html += `<label for="${toggleId}" class="api-toggle-label">`;
+    html += '<span class="api-section-title">API Test Results</span>';
+    html += '<span class="api-toggle-burger"><span></span><span></span><span></span></span>';
+    html += '</label>';
+    html += '<div class="api-toggle-content">';
 
     // API 1: canPlayType
     html += `
@@ -325,7 +333,8 @@ function formatApiResults(codec) {
         `;
     }
 
-    html += '</div>';
+    html += '</div>'; // close api-toggle-content
+    html += '</div>'; // close api-results
     return html;
 }
 
@@ -347,6 +356,15 @@ function escapeHtml(text) {
  */
 function formatEducationContent(education) {
     let html = '';
+
+    // Codec string breakdown
+    if (education.codecBreakdown) {
+        html += `
+        <section class="education-section">
+            <h4>Codec String Breakdown</h4>
+            ${formatCodecBreakdown(education.codecBreakdown)}
+        </section>`;
+    }
 
     // Overview section
     if (education.overview) {
@@ -374,6 +392,38 @@ function formatEducationContent(education) {
             ${formatPlatformNotes(education.platforms)}
         </section>`;
     }
+
+    return html;
+}
+
+/**
+ * Format codec string breakdown into annotated token display
+ * @param {Object} breakdown - { string, mime, parts: [{ token, meaning }] }
+ * @returns {string} HTML string
+ */
+function formatCodecBreakdown(breakdown) {
+    const tokensHtml = breakdown.parts.map((part, i) => {
+        const separator = i > 0 ? '<span class="breakdown-dot">.</span>' : '';
+        return `${separator}<span class="breakdown-token" data-index="${i}">${escapeHtml(part.token)}</span>`;
+    }).join('');
+
+    const descriptionsHtml = breakdown.parts.map((part, i) =>
+        `<div class="breakdown-row">
+            <code class="breakdown-token-label">${escapeHtml(part.token)}</code>
+            <span class="breakdown-meaning">${escapeHtml(part.meaning)}</span>
+        </div>`
+    ).join('');
+
+    let html = `<div class="codec-breakdown">`;
+
+    if (breakdown.mime) {
+        html += `<div class="breakdown-mime"><code>${escapeHtml(breakdown.mime)}</code></div>`;
+    }
+
+    html += `
+        <div class="breakdown-string"><code>${tokensHtml}</code></div>
+        <div class="breakdown-details">${descriptionsHtml}</div>
+    </div>`;
 
     return html;
 }
@@ -638,6 +688,21 @@ function attachCopyHandler(container) {
 }
 
 /**
+ * Prevent API toggle clicks from bubbling to card expand/collapse handler.
+ * The checkbox hack label click would otherwise toggle the card.
+ */
+function attachApiToggleHandler(container) {
+    const label = container.querySelector('.api-toggle-label');
+    if (label) {
+        label.addEventListener('click', (e) => e.stopPropagation());
+    }
+    const checkbox = container.querySelector('.api-toggle-checkbox');
+    if (checkbox) {
+        checkbox.addEventListener('click', (e) => e.stopPropagation());
+    }
+}
+
+/**
  * Create a codec card DOM element.
  * Single source of truth for card structure — used by pending rendering,
  * progressive updates, and filter/search re-renders.
@@ -688,6 +753,7 @@ function createCardElement(codec, groupKey, isPending) {
 
     if (!isPending) {
         attachCopyHandler(item);
+        attachApiToggleHandler(item);
         const eduToggle = item.querySelector('.education-toggle');
         if (eduToggle) setupEducationToggle(eduToggle);
     }
@@ -771,9 +837,12 @@ export function updateCardState(groupKey, codecResult) {
 
     // Replace details with completed content using shared function
     const detailsDiv = card.querySelector('.codec-details');
+    // Replace details with completed content using shared function
+    // All content from internal codec database — safe for innerHTML
     if (detailsDiv) {
         detailsDiv.innerHTML = createDetailsHTML(codecResult, false);
         attachCopyHandler(card);
+        attachApiToggleHandler(card);
         const eduToggle = card.querySelector('.education-toggle');
         if (eduToggle) setupEducationToggle(eduToggle);
     }
