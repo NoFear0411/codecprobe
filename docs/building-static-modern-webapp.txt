@@ -1,0 +1,1419 @@
+Fluid Typography (scaling the font) with Overflow Management (controlling the text wrap)
+---
+To ensure text never breaks the layout or looks "ugly" when containers resize, you need a strategy that combines Fluid Typography (scaling the font) with Overflow Management (controlling the text wrap).
+
+Here are the three essential fixes to apply to the code we've built.
+1. Fluid Typography with clamp()
+
+Instead of setting a fixed font-size: 16px, use clamp(). This allows the text to shrink smoothly as the screen gets smaller, but prevents it from becoming unreadably tiny.
+CSS
+
+.value {
+    /* min: 0.9rem, scaled: 2vw, max: 1.2rem */
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1.2rem);
+    line-height: 1.2;
+}
+
+2. The "Word-Break" Safety Net
+
+For "parsed info" like Session IDs, IP addresses, or long URLs, the text often contains no spaces. Without this CSS, the text will simply poke out the side of your box on small screens.
+
+    word-break: break-all;: Forces a break anywhere to prevent horizontal scrolling.
+
+    overflow-wrap: anywhere;: Similar to break-all, but smarter about preserving words where possible.
+
+CSS
+
+.info-box .value {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+    display: block; /* Ensures the text respects the box boundaries */
+}
+
+3. Preventing "Widows" with text-wrap: balance
+
+For your headers or short descriptions, use the modern balance property. It prevents "widows" (a single word sitting alone on the last line) by distributing the text evenly across lines.
+CSS
+
+h1, h2, .label {
+    text-wrap: balance;
+}
+
+Implementation: The Combined "Unbreakable" Info Box
+
+Apply these updates to your .info-box CSS:
+CSS
+
+.info-box {
+    /* ... existing Albatross flex logic ... */
+    flex: 1 1 calc((var(--snap-point) - 100%) * 999);
+
+    /* New fixes */
+    min-width: 0;                /* CRITICAL for Flexbox text wrapping */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.value {
+    font-family: 'Cascadia Code', monospace;
+    font-size: clamp(0.85rem, 4vw, 1.1rem);
+    word-break: break-all;      /* Stops long IDs from overlapping */
+    line-height: 1.4;
+    color: white;
+}
+
+Why min-width: 0 is the "Secret Sauce"
+
+In Flexbox, the default min-width of an item is auto. This means a flex item will refuse to shrink smaller than its longest word (like a long Session ID). By setting min-width: 0, you tell the browser: "I don't care how long the text is, make the box fit the layout, and then wrap the text inside it."
+Summary of the "Unbreakable" Header
+
+    Container: Use Flexbox with flex-wrap: wrap.
+
+    Item: Use flex: 1 1 [Albatross Formula] and min-width: 0.
+
+    Text: Use clamp() for size and word-break: break-all for safety.
+
+---
+
+some webos and mobile fixes/optimizations
+---
+Since you are building for a mix of webOS (TV) and Mobile, your UI/UX needs to bridge the gap between "Lean-back" (remote control) and "Lean-forward" (touch) experiences.
+
+Here are five high-impact tips that elevate a site from a "basic webpage" to a "native app" feel.
+1. The "Safe Area"Inset
+
+Mobile phones have notches and "home bars," and TVs often have overscan (where the edges of the screen are cut off). If you place buttons at the absolute 0 coordinate, they might be unclickable.
+
+The Fix: Use CSS env() variables. They automatically detect the "unsafe" areas of the device.
+CSS
+
+body {
+    padding-top: env(safe-area-inset-top, 20px);
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    padding-left: env(safe-area-inset-left, 5%);
+    padding-right: env(safe-area-inset-right, 5%);
+}
+
+2. Eliminating "Sticky" Hover States on Mobile
+
+A common mobile UX bug: you tap a button, and the :hover style (like a color change) stays stuck even after you lift your finger. This happens because mobile browsers simulate a mouse hover on tap.
+
+The Fix: Use the @media (hover: hover) query. This ensures hover effects only apply to users with an actual mouse (like on a PC or some webOS setups).
+CSS
+
+/* Only apply hover if the device actually supports hovering */
+@media (hover: hover) {
+    .info-box:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--accent);
+    }
+}
+
+3. Skeleton Loading States
+
+For "Parsed Info" headers, nothing feels lamer than a bunch of "0" or "Loading..." text while waiting for data. Skeletons reduce perceived wait time by showing a shimmering placeholder that matches the content's shape.
+CSS
+
+.skeleton {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    color: transparent !important; /* Hide "0" or "loading" text */
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+4. Active State "Squish" (Haptic Feedback)
+
+On mobile and TV, users need visual confirmation that a "click" happened. Adding a subtle scale-down effect makes the interface feel tactile.
+CSS
+
+.info-box:active, .btn:active {
+    transform: scale(0.96);
+    filter: brightness(0.9);
+    transition: transform 0.1s ease;
+}
+
+5. Content "Focus" for TVs (webOS Specific)
+
+If your app is running on webOS, the user is likely using a "Magic Remote" (pointer) or D-Pad. To make your "Parsed Info" boxes accessible via D-Pad, they need to be focusable.
+
+The Fix: Add tabindex="0" to your boxes. Then, style the :focus state so the user knows which box they are "on."
+HTML
+
+<div class="info-box" tabindex="0" data-copy="Value"> ... </div>
+
+CSS
+
+.info-box:focus {
+    outline: 3px solid var(--accent);
+    outline-offset: 4px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+Pro-Tip: The "Fat Finger" Rule
+
+For mobile UX, ensure any clickable element (like your copyable info boxes) is at least 44x44 pixels. Even if the visual icon is small, the "hit area" should be large enough for a thumb.
+
+---
+
+More improvements across mobile/desktop/tv browsers
+---
+
+Since you are targeting the full spectrum—Android (Mobile), Desktop Browsers, and webOS (TV)—you have to account for the three primary input methods: Touch, Mouse, and Keyboard/D-Pad.
+
+Here are the final mission-critical UI/UX adjustments to ensure your "Unbreakable Dashboard" feels native everywhere.
+1. Disable "Tap Highlight" on Android
+
+On Chrome for Android, when you tap a div or button, a grey or blue box often flickers over it. This looks "web-like" and ruins the app feel.
+CSS
+
+/* Removes the mobile tap highlight color */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+2. Custom Sleek Scrollbars
+
+Standard scrollbars on Windows/Chrome are bulky and ugly. Since you have a dark-themed "Albatross" header, a custom scrollbar keeps the aesthetic premium.
+CSS
+
+/* Custom Scrollbar for Chrome, Edge, Safari, and Android */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+    border: 2px solid var(--bg); /* Creates a 'floating' effect */
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* Firefox Support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #334155 var(--bg);
+}
+
+3. Prevent Auto-Zoom on Inputs (iOS Safari)
+
+On iPhones, if your search bar font is smaller than 16px, Safari will automatically zoom in when the user taps the input. This is annoying because the user has to manually zoom out afterward.
+
+The Fix: Use the clamp() logic we discussed to ensure the font stays at or above 16px specifically for inputs, or use this "no-zoom" hack:
+CSS
+
+/* Ensures font size is at least 16px on mobile to prevent auto-zoom */
+input, select, textarea {
+    font-size: 16px !important;
+}
+
+/* If you want it smaller on desktop, use a media query for 'pointer: fine' */
+@media (pointer: fine) {
+    input { font-size: 14px !important; }
+}
+
+4. Overscroll Behavior
+
+On Android and iOS, if a user reaches the top or bottom of a scrollable area, the whole page "bounces" or pulls down to refresh. In a dashboard app, this can feel broken.
+CSS
+
+body {
+    /* Prevents 'pull-to-refresh' or 'bounce' effects */
+    overscroll-behavior-y: contain;
+}
+
+5. Input Masking & Keyboard Optimization
+
+For your search bar or any parsed input, you can tell Android and iOS which keyboard to open. This saves the user from switching between the "ABC" and "123" layouts.
+HTML
+
+<input type="text" inputmode="decimal" placeholder="Enter IP Address...">
+
+<input type="email" placeholder="user@domain.com">
+
+The Final "Unbreakable" Checklist for All Platforms
+
+    Desktop (Chrome/Edge/Firefox): Use :hover states and the Custom Scrollbar.
+
+    Android/iOS: Use -webkit-tap-highlight-color and inputmode.
+
+    Safari: Use 16px font size for inputs to prevent the "Jumpy Zoom."
+
+    webOS (TV): Use tabindex="0" and :focus outlines for D-Pad navigation.
+
+Implementation Tip: Feature Detection
+
+Instead of checking for "Android" or "Windows," check for capabilities.
+JavaScript
+
+// Detect if the user is using a touch device
+const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+if (isTouch) {
+    document.body.classList.add('touch-device');
+}
+
+---
+
+OLED-optimized scrollbars, and a Pull-to-Refresh visual indicator + manifest.json to have (install feature)
+---
+To wrap everything up, here is your "Ultimate Universal Shell." This single-file solution includes the Holy Albatross logic, the Search Bar, the Copy-to-Clipboard header, OLED-optimized scrollbars, and a Pull-to-Refresh visual indicator.
+1. The Universal Single-File App
+
+This code uses "Pure Black" (#000000) for the background to save battery on OLED mobile screens and OLED TVs.
+HTML
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <link rel="manifest" href="manifest.json">
+    <title>Universal Dashboard</title>
+
+    <style>
+        /* --- OLED & THEME VARIABLES --- */
+        :root {
+            --bg: #000000; /* Pure black for OLED */
+            --surface: #121212; /* Dark grey for boxes */
+            --accent: #38bdf8;
+            --text: #f8fafc;
+            --snap-point: 650px;
+        }
+
+        /* --- GLOBAL RESET & UX FIXES --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            overscroll-behavior-y: contain; /* Needed for Pull-to-Refresh logic */
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* --- OLED CUSTOM SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+            border: 2px solid var(--bg);
+        }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* --- PULL TO REFRESH UI --- */
+        #ptr-indicator {
+            height: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            transition: height 0.2s ease;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        /* --- HEADER: HOLY ALBATROSS --- */
+        .dashboard-header {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .info-box {
+            flex: 1 1 calc((var(--snap-point) - 100%) * 999);
+            min-width: 0;
+            background: var(--surface);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #222;
+            cursor: pointer;
+            transition: transform 0.1s;
+            position: relative;
+        }
+
+        .info-box:active { transform: scale(0.97); }
+        .info-box:focus { outline: 2px solid var(--accent); }
+
+        .label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; display: block; }
+        .value { font-family: monospace; font-size: 1.1rem; word-break: break-all; }
+
+        /* --- SEARCH BAR --- */
+        .search-area { padding: 0 20px 20px; }
+        .search-bar {
+            display: flex;
+            background: var(--surface);
+            border-radius: 50px;
+            padding: 5px 5px 5px 20px;
+            border: 1px solid #333;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            outline: none;
+            font-size: 16px; /* Prevents iOS auto-zoom */
+        }
+
+        .search-btn {
+            background: var(--accent);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: black;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ptr-indicator">Release to Refresh...</div>
+
+    <header class="dashboard-header">
+        <div class="info-box" tabindex="0" onclick="copyText('192.168.1.1', this)">
+            <span class="label">Local IP</span>
+            <span class="value">192.168.1.1</span>
+        </div>
+        <div class="info-box" tabindex="0" onclick="copyText('OFFLINE', this)">
+            <span class="label">Cloud Status</span>
+            <span class="value" style="color: #ef4444;">OFFLINE</span>
+        </div>
+    </header>
+
+    <div class="search-area">
+        <div class="search-bar">
+            <input type="text" placeholder="Search logs..." inputmode="search">
+            <button class="search-btn">GO</button>
+        </div>
+    </div>
+
+    <div id="copy-toast" class="toast">COPIED</div>
+
+    <script>
+        // --- COPY LOGIC ---
+        function copyText(text, el) {
+            navigator.clipboard.writeText(text);
+            const toast = document.getElementById('copy-toast');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2000);
+        }
+
+        // --- SIMPLE PULL-TO-REFRESH LOGIC ---
+        let startY = 0;
+        const ptr = document.getElementById('ptr-indicator');
+
+        window.addEventListener('touchstart', e => startY = e.touches[0].pageY);
+        window.addEventListener('touchmove', e => {
+            const y = e.touches[0].pageY;
+            if (window.scrollY === 0 && y > startY) {
+                const diff = y - startY;
+                if (diff < 80) ptr.style.height = diff + 'px';
+            }
+        });
+        window.addEventListener('touchend', () => {
+            if (parseInt(ptr.style.height) > 60) location.reload();
+            ptr.style.height = '0';
+        });
+    </script>
+</body>
+</html>
+
+2. The manifest.json File
+
+Place this file in the same directory as your HTML. It tells Android and Desktop Chrome that this is an "Installable App."
+JSON
+
+{
+  "name": "Universal Dash",
+  "short_name": "Dash",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#38bdf8",
+  "description": "Cross-platform dashboard for Mobile, TV, and Desktop.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1006/1006771.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
+Why this works for your specific targets:
+
+    Android/Chrome/Edge: The manifest.json enables the "Add to Home Screen" prompt.
+
+    OLED Support: The #000000 background ensures that on OLED displays (common in modern TVs and high-end Androids), the pixels are physically turned off, saving power and providing perfect contrast.
+
+    iOS/Safari: The viewport-fit=cover and 16px font size solve the most common Safari layout and zoom bugs.
+
+    webOS: The tabindex="0" on .info-box elements allows the LG Magic Remote or D-pad to "jump" between data points.
+
+---
+
+To make the Pull-to-Refresh and Skeleton Loader feel high-end, we need to move away from simple text and use fluid animations.
+
+For the "Pull-to-Refresh," we'll add a rotating CSS icon that scales as you pull. For the "Skeleton," we'll use a CSS linear gradient that "shimmers" to indicate that data is being parsed.
+1. The Optimized Pull-to-Refresh UI
+
+We’ll replace the "Release to Refresh" text with a sleek, spinning loader icon.
+
+CSS for the Spinner:
+CSS
+
+/* Enhanced PTR Container */
+#ptr-indicator {
+    height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    transition: height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ptr-icon {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(56, 189, 248, 0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    transition: transform 0.1s linear;
+}
+
+/* Add this class via JS when refreshing starts */
+.ptr-refreshing .ptr-icon {
+    animation: ptr-spin 0.8s linear infinite;
+}
+
+@keyframes ptr-spin {
+    to { transform: rotate(360deg); }
+}
+
+2. The Shimmering Skeleton Loader
+
+This is used to replace the "Value" text while the app is fetching the parsed info. It prevents layout shift (CLS) and looks much more professional than a blank screen.
+
+CSS for the Shimmer:
+CSS
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #1e293b; /* Slightly lighter than OLED black to be visible */
+    border-radius: 4px;
+    height: 1.2rem;
+    width: 80%; /* Match approximate data length */
+    display: inline-block;
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.08),
+        transparent
+    );
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
+}
+
+3. Updated JavaScript Implementation
+
+We need to update the Touch logic to handle the icon rotation and trigger the skeleton state.
+JavaScript
+
+let startY = 0;
+const ptr = document.getElementById('ptr-indicator');
+const body = document.body;
+
+window.addEventListener('touchstart', e => {
+    // Only allow pull if we are at the very top of the page
+    if (window.scrollY === 0) startY = e.touches[0].pageY;
+});
+
+window.addEventListener('touchmove', e => {
+    const y = e.touches[0].pageY;
+    const diff = y - startY;
+
+    if (window.scrollY === 0 && diff > 0 && diff < 120) {
+        ptr.style.height = diff + 'px';
+        // Rotate the icon based on pull distance
+        const icon = ptr.querySelector('.ptr-icon');
+        if (icon) icon.style.transform = `rotate(${diff * 3}deg)`;
+    }
+});
+
+window.addEventListener('touchend', () => {
+    if (parseInt(ptr.style.height) > 70) {
+        body.classList.add('ptr-refreshing');
+        ptr.style.height = '60px';
+
+        // SIMULATE DATA REFRESH
+        document.querySelectorAll('.value').forEach(v => {
+            v.innerHTML = '<span class="skeleton"></span>';
+        });
+
+        setTimeout(() => {
+            location.reload(); // Actual refresh or fetch() call
+        }, 1500);
+    } else {
+        ptr.style.height = '0';
+    }
+});
+
+UX Integration Summary
+
+    Skeleton Mode: Apply the .skeleton class to any <span> where data is being loaded.
+
+    Visual Feedback: The transform: rotate in the touchmove event gives the user a tactile feel—the harder they pull, the more the icon spins.
+
+    OLED Safety: The shimmer uses rgba(255, 255, 255, 0.08), which is bright enough to see but dark enough to prevent "blooming" or high power draw on OLED panels.
+
+---
+
+some general device(vendor)/platform research that can be useful
+---
+
+Since your app is a diagnostic tool for browser APIs, the UX should be extremely "honest"—meaning it should clearly differentiate between a supported API, a missing API, and a secure-context-only API (like navigator.clipboard or requestMediaKeySystemAccess).
+
+Here is how to optimize the "probe" experience across vendors (Samsung Internet, Chrome, Safari, webOS) including the offline/online logic.
+1. The Offline/Online Detection
+
+On mobile and TV, network stability is inconsistent. You can use the online and offline events to change your header status box in real-time without a refresh.
+JavaScript
+
+function updateOnlineStatus() {
+    const statusBox = document.querySelector('[data-status]');
+    const value = statusBox.querySelector('.value');
+    const indicator = statusBox.querySelector('.indicator');
+
+    if (navigator.onLine) {
+        value.textContent = "Online";
+        indicator.style.background = "#22c55e"; // Green
+    } else {
+        value.textContent = "Offline";
+        indicator.style.background = "#ef4444"; // Red
+    }
+}
+
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+2. Probing API Capabilities
+
+For a diagnostic app, you want a "Traffic Light" system for your info boxes. Here is a pattern to probe an API and set the class based on the result.
+JavaScript
+
+const probeAPI = (name, check) => {
+    const supported = check();
+    return {
+        name: name,
+        status: supported ? 'Supported' : 'Unsupported',
+        color: supported ? '#22c55e' : '#ef4444'
+    };
+};
+
+// Example Probes
+const results = [
+    probeAPI('EME (DRM)', () => !!navigator.requestMediaKeySystemAccess),
+    probeAPI('Clipboard', () => !!navigator.clipboard),
+    probeAPI('WebGPU', () => !!navigator.gpu),
+    probeAPI('Service Worker', () => 'serviceWorker' in navigator)
+];
+
+3. The "Unbreakable" Multi-Platform UI Layout
+
+This final version incorporates the OLED Black, Holy Albatross logic, Skeleton Shimmer, and Universal Input Optimization.
+HTML
+
+<style>
+    /* OLED optimized "Traffic Light" colors */
+    .status-supported { color: #22c55e; }
+    .status-missing { color: #ef4444; opacity: 0.8; }
+
+    /* Ensure the search/probe bar looks like a console on Desktop/TV */
+    .console-input {
+        font-family: 'Cascadia Code', 'Fira Code', monospace;
+        background: #000;
+        color: var(--accent);
+        border: 1px solid #334155;
+        padding: 12px;
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    /* Logic for D-Pad/Magic Remote Focus (webOS) */
+    .info-box:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 4px;
+        background: #1e293b;
+    }
+</style>
+
+<div class="albatross-container">
+    <div class="info-box" tabindex="0">
+        <span class="label">User Agent</span>
+        <div class="value" id="ua-probe">
+            <span class="skeleton"></span>
+        </div>
+    </div>
+
+    <div class="info-box" tabindex="0" data-status>
+        <span class="label">Connection</span>
+        <div class="value">
+            <span class="indicator"></span> <span class="text">Checking...</span>
+        </div>
+    </div>
+</div>
+
+4. Critical UX Tips for Browser Probing
+
+    Secure Context Warning: Some APIs (like DRM or Clipboard) return false simply because you are on http:// instead of https://. Add a warning box if window.isSecureContext is false.
+
+    Vendor Prefixes: If you are probing older versions of webOS or Safari, you might need to check for webkit prefixes.
+
+    The "User Agent" Trap: Don't rely solely on the UA string. Use Feature Detection (checking if the object exists in window or navigator) as your primary source of truth.
+
+5. Summary of fixes for your platforms:
+
+    Android: -webkit-tap-highlight-color: transparent to make it feel like an app.
+
+    webOS: tabindex="0" for remote control focus.
+
+    Desktop: OLED-styled scrollbars and :hover effects.
+
+    iOS: 16px font size to stop the "Safari Shiver" (auto-zoom).
+
+Since your app is a diagnostic "Probe" for browser capabilities, the goal is to provide high-density data that is easy to read on a TV across the room, but interactive enough for a mobile user to tap for details.
+
+Here is the "Prober" edition of the shell, featuring real-time API detection and the "Secure Context" safety check.
+1. The "Traffic Light" Probe UI
+
+We’ll use a specific color-coding scheme: Green (Supported), Red (Unsupported), and Yellow (Supported but limited or requires HTTPS).
+2. The Universal Probe Shell (OLED Optimized)
+
+This code includes a Secure Context Check, a Widevine DRM Probe, and a WebGPU Detection.
+HTML
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>API Capability Probe</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --surface: #121212;
+            --accent: #38bdf8;
+            --success: #22c55e;
+            --fail: #ef4444;
+            --warn: #eab308;
+            --snap: 600px;
+        }
+
+        body {
+            background: var(--bg);
+            color: #fff;
+            font-family: ui-monospace, 'Cascadia Code', monospace;
+            padding: 20px;
+            overscroll-behavior-y: contain;
+        }
+
+        /* --- THE ALBATROSS PROBE GRID --- */
+        .probe-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .probe-card {
+            flex: 1 1 calc((var(--snap) - 100%) * 999);
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #222;
+            min-width: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .probe-card:focus { outline: 2px solid var(--accent); }
+
+        .api-name { color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; }
+        .api-status { font-weight: bold; font-size: 1rem; }
+
+        /* --- OLED SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        .warning-banner {
+            background: var(--warn);
+            color: #000;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: none; /* Shown via JS if not HTTPS */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="secure-warn" class="warning-banner">⚠️ UNSECURE CONTEXT: Many APIs will be disabled.</div>
+
+    <div class="probe-grid" id="probe-results">
+        </div>
+
+    <script>
+        // 1. Secure Context Check (Vital for Chrome/Android/webOS)
+        if (!window.isSecureContext) {
+            document.getElementById('secure-warn').style.display = 'block';
+        }
+
+        // 2. The Probing Engine
+        async function runProbes() {
+            const container = document.getElementById('probe-results');
+
+            const probes = [
+                { name: 'WebGPU', check: () => !!navigator.gpu },
+                { name: 'Service Worker', check: () => 'serviceWorker' in navigator },
+                { name: 'Widevine L3', check: async () => {
+                    try {
+                        await navigator.requestMediaKeySystemAccess('com.widevine.alpha', [{
+                            initDataTypes: ['cenc'],
+                            videoCapabilities: [{ contentType: 'video/mp4;codecs="avc1.42E01E"' }]
+                        }]);
+                        return true;
+                    } catch(e) { return false; }
+                }},
+                { name: 'Cookies Enabled', check: () => navigator.cookieEnabled },
+                { name: 'Touch Support', check: () => 'ontouchstart' in window || navigator.maxTouchPoints > 0 }
+            ];
+
+            for (const p of probes) {
+                const isSupported = await p.check();
+                const card = document.createElement('div');
+                card.className = 'probe-card';
+                card.tabIndex = 0;
+                card.innerHTML = `
+                    <span class="api-name">${p.name}</span>
+                    <span class="api-status" style="color: ${isSupported ? 'var(--success)' : 'var(--fail)'}">
+                        ${isSupported ? 'YES' : 'NO'}
+                    </span>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        runProbes();
+    </script>
+</body>
+</html>
+
+3. Native Platform Tricks for Diagnostics
+
+Since you are probing across Vendors (Google, Samsung, Apple, LG), keep these quirks in mind:
+
+    Samsung Internet: Often hides certain APIs (like WebBluetooth) unless enabled in internet://flags.
+
+    iOS Safari: navigator.standalone is a non-standard property you can probe to see if the user has installed your manifest as a PWA.
+
+    webOS: You should check window.PalmSystem. If it exists, you are running on an LG TV.
+
+    Firefox: Unlike Chrome, it won't let you probe navigator.userAgentData (Client Hints) by default yet; it sticks to the classic userAgent string.
+
+4. Why the Skeleton Shimmer is extra useful here
+
+When probing DRM (Widevine/PlayReady), the browser actually has to spin up the Decryption Module, which can take 500ms–2000ms on an older TV. Using the skeleton loader we built prevents the UI from looking frozen while the hardware "wakes up" to answer the probe.
+
+Since you are building for webOS (TV), relying on a mouse-style scrollbar or touch-swipes isn't enough. On a TV, the user expects the D-Pad (Arrow Keys) to "snap" focus from one probe result to the next.
+
+Here is the D-Pad navigation logic, combined with the OLED-optimized UI and the DRM/API Prober.
+1. The D-Pad "Spatial Navigation" Logic
+
+Standard browsers try to handle Tab focus, but they often struggle with grid layouts. This script listens for arrow keys and moves the focus logically based on your Holy Albatross columns.
+JavaScript
+
+// D-Pad Navigation for TV Remotes
+document.addEventListener('keydown', (e) => {
+    const focusable = Array.from(document.querySelectorAll('.probe-card'));
+    const index = focusable.indexOf(document.activeElement);
+
+    // If nothing is focused, start at the first card
+    if (index === -1) {
+        if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            focusable[0].focus();
+        }
+        return;
+    }
+
+    let nextIndex;
+    const columns = window.innerWidth >= 600 ? 2 : 1; // Match your Albatross snap point logic
+
+    switch (e.key) {
+        case 'ArrowRight': nextIndex = index + 1; break;
+        case 'ArrowLeft':  nextIndex = index - 1; break;
+        case 'ArrowDown':  nextIndex = index + columns; break;
+        case 'ArrowUp':    nextIndex = index - columns; break;
+        case 'Enter':      document.activeElement.click(); break; // Trigger Copy/Detail
+        default: return;
+    }
+
+    if (focusable[nextIndex]) {
+        e.preventDefault();
+        focusable[nextIndex].focus();
+        // Ensure the focused item is visible (important for long probe lists)
+        focusable[nextIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+
+2. The Universal "Probe & Detect" Dashboard
+
+This version merges the Skeleton Loader, OLED Black, Pull-to-Refresh, and D-Pad into one diagnostic tool.
+HTML
+
+<style>
+    /* OLED Focus State: Bright but thin to avoid burn-in */
+    .probe-card:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        background: #1a1a1a;
+        transform: scale(1.02);
+    }
+
+    /* Visual cue for TV users */
+    .probe-card::after {
+        content: 'CLICK TO COPY';
+        font-size: 0.6rem;
+        position: absolute;
+        bottom: 5px;
+        right: 10px;
+        opacity: 0;
+        color: var(--accent);
+    }
+    .probe-card:focus::after { opacity: 1; }
+</style>
+
+<script>
+    async function checkWidevine() {
+        try {
+            const access = await navigator.requestMediaKeySystemAccess('com.widevine.alpha', [{
+                initDataTypes: ['cenc'],
+                videoCapabilities: [{
+                    contentType: 'video/mp4;codecs="avc1.42E01E"',
+                    robustness: 'SW_SECURE_DECODE' // Standard probe
+                }]
+            }]);
+            return "SUPPORTED (L3)";
+        } catch (e) {
+            return "NOT SUPPORTED";
+        }
+    }
+</script>
+
+3. Comprehensive UX Checklist for Diagnostics
+Target	Essential UX Fix applied
+webOS (TV)	D-Pad script handles the "Magic Remote" and physical arrow keys.
+Android	overscroll-behavior-y: contain keeps the pull-to-refresh internal.
+Desktop	Custom OLED scrollbars and hover scales.
+iOS	16px font on inputs stops the Safari zoom-in.
+Global	Pure Black (#000) saves energy on OLED Mobile/TV panels.
+4. Why this "Probe" approach matters in 2026
+
+In 2026, many browsers are moving toward Privacy Sandbox and Client Hints. Traditional "User Agent" sniffing is dying. By using this Feature Detection approach:
+
+    You see what the browser can do, not what it says it is.
+
+    You catch cases where a user has disabled a feature (like Cookies or DRM) in their settings.
+
+    You handle the "Secure Context" requirement which is now mandatory for almost all modern APIs.
+
+---
+
+To make your diagnostic tool truly "Universal," you need a Service Worker. This allows the app to load instantly from the device's local storage—even if the TV or phone has no internet—and it enables that "Install" button on Android and Chrome.
+
+Since you are targeting OLED screens, we will keep the Service Worker logic lean to ensure it doesn't wake up the CPU more than necessary.
+1. The "Offline-Ready" Service Worker (sw.js)
+
+Create a file named sw.js in your root folder. This script caches your HTML and assets so the prober works anywhere.
+JavaScript
+
+const CACHE_NAME = 'probe-v1';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
+  // Add any icons or CSS files here
+];
+
+// Install: Cache everything
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+});
+
+// Fetch: Serve from cache first, then network
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((response) => {
+      return response || fetch(e.request);
+    })
+  );
+});
+
+2. Registering the Worker in your HTML
+
+Add this to your <script> block. It tells the browser to start the offline engine.
+JavaScript
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("Probe Engine: Offline Ready"))
+        .catch(() => console.log("Probe Engine: Online Only"));
+}
+
+3. The "Unbreakable" Final UI Components
+
+For the best UX across all 2026 devices, here is the combined logic for the OLED-safe Scrollbar, D-Pad Navigation, and Feature Probing.
+OLED-Safe Custom Scrollbar
+
+Standard scrollbars are too bright. This one uses pure black and a muted blue to prevent "blooming" on high-brightness TVs.
+CSS
+
+/* Custom Scrollbar for Chrome, Edge, Safari, Android, and webOS */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #000000; /* Pure Black OLED */
+}
+::-webkit-scrollbar-thumb {
+    background: #27272a; /* Muted Dark Gray */
+    border-radius: 10px;
+    border: 2px solid #000000;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+The D-Pad "Spatial" Logic Fix
+
+When the user is on a TV, the "Holy Albatross" might wrap into 1 column (mobile view) or stay in 3 columns (desktop/TV view). Your navigation needs to be aware of the layout.
+JavaScript
+
+// Calculate columns dynamically for D-Pad navigation
+function getColumns() {
+    const wrapper = document.querySelector('.probe-grid');
+    if (!wrapper) return 1;
+    // Get the width of one card vs the total width
+    const card = document.querySelector('.probe-card');
+    if (!card) return 1;
+    return Math.floor(wrapper.offsetWidth / card.offsetWidth);
+}
+
+document.addEventListener('keydown', (e) => {
+    const cards = Array.from(document.querySelectorAll('.probe-card'));
+    const active = document.activeElement;
+    const index = cards.indexOf(active);
+    const cols = getColumns();
+
+    if (index === -1) {
+        if (e.key.includes('Arrow')) cards[0].focus();
+        return;
+    }
+
+    let next;
+    if (e.key === 'ArrowRight') next = index + 1;
+    if (e.key === 'ArrowLeft')  next = index - 1;
+    if (e.key === 'ArrowDown')  next = index + cols;
+    if (e.key === 'ArrowUp')    next = index - cols;
+
+    if (cards[next]) {
+        e.preventDefault();
+        cards[next].focus();
+        cards[next].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+});
+
+Final Diagnostic Feature: The "Vendor Probe"
+
+Since you are probing browser APIs, you should include a "Vendor Guess" based on the proprietary objects available. Add this to your probes array:
+JavaScript
+
+{
+    name: 'Detected Environment',
+    check: () => {
+        if (window.PalmSystem) return "LG webOS TV";
+        if (navigator.userAgent.includes("SamsungBrowser")) return "Samsung Internet";
+        if (!!window.chrome && !navigator.userAgent.includes("Edg")) return "Google Chrome";
+        if (navigator.userAgent.includes("Edg")) return "Microsoft Edge";
+        if (!!window.safari) return "Apple Safari";
+        return "Generic WebKit/Blink";
+    }
+}
+
+Summary of your "Universal Prober"
+
+    OLED Black (#000): Saves power on Android/TV/iPhone.
+
+    Holy Albatross: Binary logic for column stacking.
+
+    Skeleton Shimmer: Professional loading states.
+
+    Pull-to-Refresh: Tactile interaction for mobile users.
+
+    D-Pad Nav: Seamless remote control support for TVs.
+
+    Service Worker: Full offline functionality and PWA installability.
+
+That is the classic "Service Worker Trap." By default, a Service Worker is too good at its job—it will keep serving the old, cached version even if you've updated the server, because it doesn't even "ask" the network if you're offline or online.
+
+To solve this, you need an Update Logic that checks for changes whenever the device regains a connection or when the user performs your "Pull-to-Refresh."
+1. The "Stale-While-Revalidate" Strategy
+
+Update your sw.js fetch logic. This tells the browser: "Show the cache immediately (speed), but go fetch the new version in the background and update the cache for next time (freshness)."
+JavaScript
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(event.request).then((cachedResponse) => {
+        const fetchedResponse = fetch(event.request).then((networkResponse) => {
+          // If we got a real response from the network, update the cache
+          if (networkResponse.status === 200) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {
+            // If network fails (offline), we just do nothing and keep the cache
+        });
+
+        return cachedResponse || fetchedResponse;
+      });
+    })
+  );
+});
+
+2. Auto-Update on "Online" Event
+
+In your main index.html script, you can force the Service Worker to check for updates the millisecond the device detects an internet connection.
+JavaScript
+
+window.addEventListener('online', () => {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            // Force the Service Worker to check the server for a new sw.js
+            registration.update();
+            console.log("Network restored: Checking for probe updates...");
+        });
+    }
+});
+
+3. The "Skip Waiting" UX Hack
+
+Even if the Service Worker downloads the new version, the browser usually won't activate it until the user closes every single tab of the app. For a PWA or a TV app, that might never happen.
+
+Add this to your sw.js to force the new version to take over immediately:
+JavaScript
+
+self.addEventListener('install', (event) => {
+    // Forces the waiting service worker to become the active service worker
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+    // Ensure the new SW takes control of all open tabs immediately
+    event.waitUntil(clients.claim());
+});
+
+4. Integrating with "Pull-to-Refresh"
+
+Since you already have a Pull-to-Refresh gesture, you can make it "Smart." Instead of just a page reload, make it check for a new Service Worker first.
+
+Update your touchend logic:
+JavaScript
+
+window.addEventListener('touchend', () => {
+    if (parseInt(ptr.style.height) > 70) {
+        // 1. Trigger the visual refresh
+        body.classList.add('ptr-refreshing');
+
+        // 2. If online, check for app updates
+        if (navigator.onLine && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => reg.update());
+        }
+
+        // 3. Reload to apply changes
+        setTimeout(() => location.reload(), 1000);
+    }
+    ptr.style.height = '0';
+});
+
+Summary of the "Offline-to-Online" Flow:
+
+    Device Offline: App loads 100% from cache (instantly).
+
+    You Release v2: Device doesn't know yet.
+
+    Device comes Online: The online listener triggers registration.update().
+
+    Background Download: The browser sees sw.js has changed and downloads the new assets.
+
+    Activation: Because of skipWaiting(), the new version installs itself in the background.
+
+    The Result: The next time the user taps a box or refreshes, they are on v2.
+---
+
+Adding an "Update Toast" is the gold standard for PWA UX. It prevents the jarring experience of the app changing under the user's feet while they are mid-probe, but ensures they don't stay on an old version forever.
+1. The "Update Controller" Script
+
+Add this logic to your main index.html. It listens specifically for the moment a new Service Worker is installed and waiting to take over.
+JavaScript
+
+let newWorker;
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+            newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+                // Logic: If a new worker is installed (not just installing)
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    showUpdateToast();
+                }
+            });
+        });
+    });
+}
+
+function showUpdateToast() {
+    const toast = document.getElementById('update-toast');
+    toast.style.display = 'flex';
+}
+
+function applyUpdate() {
+    // Tell the new service worker to skipWaiting and activate
+    if (newWorker) {
+        newWorker.postMessage({ action: 'skipWaiting' });
+    }
+    window.location.reload();
+}
+
+2. The OLED-Safe Update Toast
+
+Since we are keeping the OLED theme, the toast should be high-contrast and easy to hit on mobile or focus with a D-Pad on a TV.
+HTML
+
+<div id="update-toast" class="update-banner">
+    <span>New version available</span>
+    <button onclick="applyUpdate()" id="update-btn">UPDATE NOW</button>
+</div>
+
+<style>
+    .update-banner {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: #000;
+        padding: 12px 20px;
+        border-radius: 50px;
+        display: none; /* Hidden by default */
+        align-items: center;
+        gap: 15px;
+        z-index: 9999;
+        font-weight: bold;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    #update-btn {
+        background: #000;
+        color: var(--accent);
+        border: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 900;
+    }
+
+    /* webOS / D-Pad Focus Support */
+    #update-btn:focus {
+        outline: 2px solid #fff;
+    }
+</style>
+
+3. Updates to sw.js
+
+Your Service Worker needs to be ready to receive that skipWaiting message we sent in the applyUpdate function.
+JavaScript
+
+// Inside sw.js
+self.addEventListener('message', (event) => {
+    if (event.data.action === 'skipWaiting') {
+        self.skipWaiting();
+    }
+});
+
+Why this is the "Ultimate" Version:
+
+    TV Friendly: On webOS, the update-btn can be reached via D-Pad.
+
+    Network Resilience: If the user is at a trade show or in a basement (low signal) and the update fails halfway, the Service Worker simply keeps the old version running perfectly until a full download is possible.
+
+    Battery/OLED Efficiency: The check only happens in the background. It doesn't block the UI or keep the screen bright with loading spinners.
+
+Final Probing Tip:
+
+When you release a new version (v2), make sure you change at least one character in your sw.js (like a version constant: const VERSION = 'v2'). Browsers only check for an update if the sw.js file itself has changed byte-for-byte.
+
+Adding a "Build Timestamp" or "Version ID" is the ultimate way to debug your probes. When you're standing in front of an LG TV or holding a testing phone, you need to know exactly which code you are looking at without opening the DevTools console.
+
+Here is the implementation for a dynamic version tracker that updates only when the Service Worker successfully activates a new build.
+1. The Versioned Service Worker (sw.js)
+
+We will use a constant to force the browser to recognize an update. When you change v1 to v2, the browser triggers the update flow we built.
+JavaScript
+
+const CACHE_NAME = 'probe-v1'; // Change this to 'v2' to trigger update
+const BUILD_TIME = '2026-02-09 13:15';
+
+self.addEventListener('install', (e) => {
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(['./', './index.html', './manifest.json']);
+    })
+  );
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data === 'getVersion') {
+        event.source.postMessage({
+            type: 'VERSION_INFO',
+            version: CACHE_NAME,
+            build: BUILD_TIME
+        });
+    }
+});
+
+2. The Header Display (OLED Style)
+
+Add a tiny, low-profile version string to your header. We’ll use a dim grey to prevent OLED burn-in on stationary TVs.
+HTML
+
+<div class="version-tag" id="app-version">
+    Checking build...
+</div>
+
+<style>
+    .version-tag {
+        font-size: 10px;
+        color: #444; /* Dim for OLED safety */
+        text-align: right;
+        padding: 5px 20px;
+        font-family: monospace;
+    }
+</style>
+
+3. The Auto-Detect Logic
+
+This script asks the Service Worker for its version info as soon as it's ready and updates the UI.
+JavaScript
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+        // Ask the worker for version info
+        if (reg.active) {
+            reg.active.postMessage('getVersion');
+        }
+    });
+
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.type === 'VERSION_INFO') {
+            document.getElementById('app-version').innerText =
+                `${event.data.version} | ${event.data.build}`;
+        }
+    });
+}
+
+Final Platform Optimization Summary
+Platform	UX Feature	Benefit
+Android	manifest.json + sw.js	App becomes "Installable" with its own icon.
+Desktop	Custom Scrollbars	OLED-safe, premium aesthetic.
+webOS (TV)	D-Pad Navigation	Remote control support via arrow keys.
+iOS	viewport-fit=cover	Ensures UI fits around the iPhone notch.
+Offline	Stale-While-Revalidate	App opens instantly even in "Dead Zones."
+One Last Trick: The "Hard Reset"
+
+Sometimes a cache gets corrupted during testing. You can add a "Nuclear Option" to your Pull-to-Refresh logic: if the user pulls down and holds for 5 seconds, you can clear all caches and unregister the service worker.
+JavaScript
+
+// Hard Reset Snippet
+async function nukeApp() {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(key => caches.delete(key)));
+    const regs = await navigator.serviceWorker.getRegistrations();
+    for(let reg of regs) await reg.unregister();
+    window.location.reload();
+}
+
+This completes your Universal Browser API Prober. You now have a tool that is responsive, OLED-optimized, offline-capable, and D-pad navigable.
+
+

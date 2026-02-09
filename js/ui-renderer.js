@@ -620,6 +620,45 @@ function buildTechnicalSpecs(codec) {
 }
 
 /**
+ * Build plain-text summary of a codec card for clipboard copy.
+ * Includes name, support status, MIME type, and all API results.
+ */
+function buildCopyText(codec) {
+    const lines = [];
+    lines.push(`${codec.name} — ${codec.support.toUpperCase()}`);
+    lines.push(`MIME: ${codec.codec}`);
+    lines.push(`Container: ${codec.container} | Info: ${codec.info}`);
+    lines.push('');
+    lines.push(`API 1 (canPlayType): ${codec.apis.canPlayType || 'N/A'}`);
+    lines.push(`API 2 (isTypeSupported): ${codec.apis.isTypeSupported || 'N/A'}`);
+    if (codec.apis.mediaCapabilities) {
+        const mc = codec.apis.mediaCapabilities;
+        if (mc.error) {
+            lines.push(`API 3 (mediaCapabilities): error — ${mc.error}`);
+        } else {
+            const caps = [mc.supported ? 'supported' : 'unsupported'];
+            if (mc.smooth) caps.push('smooth');
+            if (mc.powerEfficient) caps.push('power efficient');
+            lines.push(`API 3 (mediaCapabilities): ${caps.join(', ')}`);
+        }
+    } else {
+        lines.push('API 3 (mediaCapabilities): N/A');
+    }
+    if (codec.apis.mediaCapabilitiesSpatial) {
+        const mcs = codec.apis.mediaCapabilitiesSpatial;
+        if (mcs.error) {
+            lines.push(`API 3b (spatial audio): error — ${mcs.error}`);
+        } else {
+            const caps = [mcs.supported ? 'supported' : 'unsupported'];
+            if (mcs.smooth) caps.push('smooth');
+            if (mcs.powerEfficient) caps.push('power efficient');
+            lines.push(`API 3b (spatial audio): ${caps.join(', ')}`);
+        }
+    }
+    return lines.join('\n');
+}
+
+/**
  * Generate details section HTML for a codec card.
  * Single source of truth — used by progressive updates, filter re-renders, and pending cards.
  */
@@ -634,7 +673,7 @@ function createDetailsHTML(codec, isPending) {
     let html = `
         <div class="codec-string">
             <strong>MIME Type:</strong> ${codec.codec}
-            <button class="copy-btn" data-copy="${codec.codec}" aria-label="Copy MIME type" title="Copy to clipboard">
+            <button class="copy-btn" data-copy="${buildCopyText(codec).replace(/"/g, '&quot;')}" aria-label="Copy card result" title="Copy result to clipboard">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                     <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>

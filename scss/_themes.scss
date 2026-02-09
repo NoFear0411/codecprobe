@@ -260,3 +260,31 @@
         box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
     }
 }
+
+// ============================================================================
+// Scrollbars — theme-aware via CSS variables
+// ============================================================================
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 10px;
+    border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-dimmed);
+}
+
+// Firefox
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-light) var(--bg);
+}

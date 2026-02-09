@@ -50,15 +50,20 @@ $font-mono: 'SF Mono', 'Monaco', 'Courier New', monospace;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     background: var(--bg);
     color: var(--text);
     font-family: $font-stack;
-    padding: clamp(4px, 1vw, 20px);
+    padding: max(clamp(4px, 1vw, 20px), env(safe-area-inset-top, 0px))
+             max(clamp(4px, 1vw, 20px), env(safe-area-inset-right, 0px))
+             max(clamp(4px, 1vw, 20px), env(safe-area-inset-bottom, 0px))
+             max(clamp(4px, 1vw, 20px), env(safe-area-inset-left, 0px));
     line-height: 1.6;
     min-height: 100vh;
+    overscroll-behavior-y: contain;
     transition: background-color 0.3s ease, color 0.3s ease;
 
     // webOS optimization: larger text for TV viewing distance
@@ -113,6 +118,7 @@ h1 {
     letter-spacing: 0.2em;
     margin-bottom: $spacing-sm;
     font-weight: 900;
+    text-wrap: balance;
 }
 
 // Light theme: Make header stand out
@@ -149,24 +155,29 @@ h1 {
 }
 
 .device-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+    --snap-point: 600px;
+    display: flex;
+    flex-wrap: wrap;
     gap: $spacing-xs;
 }
 
 .device-info-item {
     @include card;
+    flex: 1 1 calc((var(--snap-point) - 100%) * 999);
+    min-width: 0;
     padding: clamp(6px, 1vw, 10px) clamp(8px, 1.5vw, 14px);
     border-left: 2px solid var(--border-light);
     transition: all 0.2s ease;
 
-    &:hover {
-        border-left-color: var(--border);
-        background: var(--card-hover);
+    @media (hover: hover) {
+        &:hover {
+            border-left-color: var(--border);
+            background: var(--card-hover);
+        }
     }
 
     &.full-width {
-        grid-column: 1 / -1;
+        flex-basis: 100%;
     }
 
     &.highlight {
@@ -188,6 +199,7 @@ h1 {
     color: var(--text);
     font-weight: 600;
     font-size: 0.875rem;
+    overflow-wrap: anywhere;
 }
 
 // Filter Bar
@@ -202,7 +214,7 @@ h1 {
 }
 
 .search-input {
-    flex: 1;
+    width: 100%;
     background: var(--bg-secondary);
     border: 2px solid var(--border);
     color: var(--text);
@@ -236,12 +248,25 @@ h1 {
     transition: all 0.2s ease;
     min-height: clamp(36px, 5vw, 48px);
     min-width: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
 
-    &:hover,
     &:focus {
         background: var(--card);
         border-color: var(--border-light);
         color: var(--text);
+    }
+
+    @media (hover: hover) {
+        &:hover {
+            background: var(--card);
+            border-color: var(--border-light);
+            color: var(--text);
+        }
+    }
+
+    &:active {
+        transform: scale(0.97);
     }
 
     &.active {
@@ -416,7 +441,6 @@ h1 {
     display: flex;
     gap: $spacing-xs;
     flex-wrap: wrap;
-    flex: 1 1 auto;
 }
 
 .action-btn {
@@ -433,10 +457,19 @@ h1 {
     font-weight: 500;
     min-height: clamp(36px, 5vw, 48px);
     transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
 
-    &:hover {
+    &:focus {
         background: var(--bg-secondary);
         border-color: var(--border-light);
+    }
+
+    @media (hover: hover) {
+        &:hover {
+            background: var(--bg-secondary);
+            border-color: var(--border-light);
+        }
     }
 
     &:active {
@@ -564,6 +597,7 @@ main#main-content {
     justify-content: space-between;
     align-items: center;
     letter-spacing: 0.05em;
+    text-wrap: balance;
 }
 
 // Light theme: Ensure good contrast
@@ -590,19 +624,22 @@ main#main-content {
     cursor: pointer;
     position: relative;
 
-    &:hover {
-        background: var(--card-hover);
-        box-shadow: var(--shadow);
-        z-index: 1;
-
-        @media (hover: hover) {
+    @media (hover: hover) {
+        &:hover {
+            background: var(--card-hover);
+            box-shadow: var(--shadow);
+            z-index: 1;
             transform: translateX(4px) translateY(-2px);
-        }
 
-        .codec-chevron {
-            opacity: 1;
-            color: var(--accent);
+            .codec-chevron {
+                opacity: 1;
+                color: var(--accent);
+            }
         }
+    }
+
+    &:active {
+        transform: scale(0.98);
     }
 
     &:last-child {
