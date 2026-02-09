@@ -7,7 +7,7 @@
  * - FairPlay (Apple - Safari/iOS)
  */
 
-const DRM_SYSTEMS = {
+export const DRM_SYSTEMS = {
     widevine: {
         name: 'Widevine',
         keySystems: [
@@ -50,7 +50,7 @@ const DRM_SYSTEMS = {
  * @param {string} drmName - Friendly name for logging
  * @returns {Promise<Object>} DRM capability info
  */
-async function testKeySystem(keySystem, drmName) {
+export async function testKeySystem(keySystem, drmName) {
     if (!navigator.requestMediaKeySystemAccess) {
         return { supported: false, reason: 'EME not available' };
     }
@@ -152,23 +152,14 @@ async function testKeySystem(keySystem, drmName) {
  * Test all DRM systems with overall timeout
  * @returns {Promise<Object>} Complete DRM support results
  */
-async function detectDRMSupport() {
-    console.log('[DRM] detectDRMSupport called');
-
+export async function detectDRMSupport() {
     const results = {
         emeAvailable: typeof navigator.requestMediaKeySystemAccess === 'function',
         systems: {},
         timedOut: false
     };
 
-    console.log('[DRM] EME available:', results.emeAvailable);
-
-    if (!results.emeAvailable) {
-        console.log('EME (Encrypted Media Extensions) not available');
-        return results;
-    }
-
-    console.log('Testing DRM systems...');
+    if (!results.emeAvailable) return results;
 
     // Overall timeout for all DRM tests - don't block UI on webOS
     const overallTimeout = new Promise((resolve) => {
@@ -195,13 +186,8 @@ async function detectDRMSupport() {
             if (result.supported) {
                 results.systems[systemId].supported = true;
                 results.systems[systemId].details = result;
-                console.log(`✓ ${system.name}: ${result.securityLevel}`);
                 break;
             }
-        }
-
-        if (!results.systems[systemId].supported) {
-            console.log(`✗ ${system.name}: Not supported`);
         }
     }
 
@@ -216,7 +202,7 @@ async function detectDRMSupport() {
  * @param {Object} drmResults - Results from detectDRMSupport()
  * @returns {string} Human-readable summary
  */
-function getDRMSummary(drmResults) {
+export function getDRMSummary(drmResults) {
     if (!drmResults.emeAvailable) {
         return 'EME not available';
     }

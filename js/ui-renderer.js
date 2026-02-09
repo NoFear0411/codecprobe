@@ -4,7 +4,11 @@
  * Handles rendering of device info and codec test results
  */
 
-const state = {
+import { codecDatabase } from './codec-database.js';
+import { updateURLState } from './url-state.js';
+import { detectDeviceInfo } from './device-detection.js';
+
+export const state = {
     currentFilter: 'all',
     testResults: null,
     searchQuery: ''
@@ -14,7 +18,7 @@ const state = {
  * Announce message to screen readers
  * @param {string} message - Message to announce
  */
-function announceToScreenReader(message) {
+export function announceToScreenReader(message) {
     const announcer = document.getElementById('sr-announcements');
     if (announcer) {
         announcer.textContent = message;
@@ -29,7 +33,7 @@ function announceToScreenReader(message) {
  * Render device information header and grid
  * @param {Object} info - Device info object from detectDeviceInfo()
  */
-function renderDeviceInfo(info) {
+export function renderDeviceInfo(info) {
     const header = document.getElementById('device-info-summary');
     const grid = document.getElementById('device-info-grid');
 
@@ -465,7 +469,7 @@ function setupEducationToggle(button) {
 /**
  * Setup event listeners for all educational content toggles
  */
-function setupEducationToggles() {
+export function setupEducationToggles() {
     document.querySelectorAll('.education-toggle').forEach(button => {
         setupEducationToggle(button);
     });
@@ -566,9 +570,135 @@ function buildTechnicalSpecs(codec) {
 }
 
 /**
+ * Generate details section HTML for a codec card.
+ * Single source of truth — used by progressive updates, filter re-renders, and pending cards.
+ */
+function createDetailsHTML(codec, isPending) {
+    if (isPending) {
+        return `
+            <div class="codec-string"><strong>MIME Type:</strong> ${codec.codec}</div>
+            <p style="color: var(--text-dimmed); font-style: italic;">Test in progress...</p>
+        `;
+    }
+
+    let html = `
+        <div class="codec-string">
+            <strong>MIME Type:</strong> ${codec.codec}
+            <button class="copy-btn" data-copy="${codec.codec}" aria-label="Copy MIME type" title="Copy to clipboard">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                </svg>
+            </button>
+        </div>
+    `;
+
+    if (codec.education) {
+        html += `
+            <div class="codec-education">
+                <button class="education-toggle" aria-expanded="false" type="button">
+                    <svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16">
+                        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Learn More: Initialization & Platform Support
+                </button>
+                <div class="education-content" hidden>
+                    ${formatEducationContent(codec.education)}
+                </div>
+            </div>
+        `;
+    }
+
+    html += formatApiResults(codec);
+    return html;
+}
+
+/**
+ * Attach clipboard copy handler to copy buttons within a container
+ */
+function attachCopyHandler(container) {
+    const copyBtn = container.querySelector('.copy-btn');
+    if (!copyBtn) return;
+
+    copyBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+            await navigator.clipboard.writeText(copyBtn.dataset.copy);
+            const originalHTML = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+                copyBtn.innerHTML = originalHTML;
+                copyBtn.classList.remove('copied');
+            }, 1500);
+        } catch (err) {
+            console.error('Copy failed:', err);
+        }
+    });
+}
+
+/**
+ * Create a codec card DOM element.
+ * Single source of truth for card structure — used by pending rendering,
+ * progressive updates, and filter/search re-renders.
+ */
+function createCardElement(codec, groupKey, isPending) {
+    const item = document.createElement('div');
+    const supportClass = isPending ? 'PENDING' : (codec.support === 'failed' ? 'FAILED' : codec.support.toUpperCase());
+    item.className = `codec-item ${supportClass}`;
+    item.setAttribute('data-group', groupKey);
+    item.setAttribute('data-codec', codec.codec);
+    item.setAttribute('data-name', codec.name);
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('role', 'button');
+    item.setAttribute('aria-expanded', 'false');
+    item.setAttribute('aria-label', isPending
+        ? `${codec.name} - Testing in progress`
+        : `${codec.name} - ${codec.support}`);
+
+    // All content from internal codec database — safe for innerHTML
+    item.innerHTML = `
+        <div class="codec-card-header">
+            <div>
+                <span class="status-badge">${isPending ? 'PENDING' : codec.support.toUpperCase()}</span>
+                <span class="codec-name">${codec.name}
+                    <span class="platform-badge">${codec.container}</span>
+                </span>
+                <div class="codec-summary">${codec.info}</div>
+                ${isPending ? '' : buildTechnicalSpecs(codec)}
+            </div>
+            <svg class="codec-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="codec-details">
+            ${createDetailsHTML(codec, isPending)}
+        </div>
+    `;
+
+    const handleToggle = (e) => {
+        if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+            if (e.key === ' ') e.preventDefault();
+            item.classList.toggle('expanded');
+            item.setAttribute('aria-expanded', item.classList.contains('expanded').toString());
+        }
+    };
+    item.addEventListener('click', handleToggle);
+    item.addEventListener('keydown', handleToggle);
+
+    if (!isPending) {
+        attachCopyHandler(item);
+        const eduToggle = item.querySelector('.education-toggle');
+        if (eduToggle) setupEducationToggle(eduToggle);
+    }
+
+    return item;
+}
+
+/**
  * Render all codec cards in PENDING state immediately
  */
-function renderPendingCards() {
+export function renderPendingCards() {
     const grid = document.getElementById('codec-grid');
     grid.innerHTML = '';
     grid.style.display = 'grid';
@@ -600,208 +730,56 @@ function renderPendingCards() {
         grid.appendChild(section);
     }
 
-    console.log('[UI] Rendered all cards in PENDING state');
 }
 
 /**
- * Create a single pending card
+ * Create a single pending card — delegates to shared createCardElement
  */
 function createPendingCard(groupKey, test, type) {
-    const item = document.createElement('div');
-    item.className = 'codec-item PENDING';
-    item.setAttribute('data-group', groupKey);
-    item.setAttribute('data-codec', test.codec);
-    item.setAttribute('data-name', test.name);
-    item.setAttribute('tabindex', '0');
-    item.setAttribute('role', 'button');
-    item.setAttribute('aria-expanded', 'false');
-    item.setAttribute('aria-label', `${test.name} - Testing in progress`);
-
-    const header = document.createElement('div');
-    header.className = 'codec-card-header';
-
-    const headerContent = document.createElement('div');
-
-    const badge = document.createElement('span');
-    badge.className = 'status-badge';
-    badge.textContent = 'PENDING';
-
-    const name = document.createElement('span');
-    name.className = 'codec-name';
-    name.textContent = test.name;
-
-    const containerBadge = document.createElement('span');
-    containerBadge.className = 'platform-badge';
-    containerBadge.textContent = test.container;
-    name.appendChild(containerBadge);
-
-    const summary = document.createElement('div');
-    summary.className = 'codec-summary';
-    summary.textContent = test.info;
-
-    headerContent.appendChild(badge);
-    headerContent.appendChild(name);
-    headerContent.appendChild(summary);
-
-    const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    chevron.setAttribute('class', 'codec-chevron');
-    chevron.setAttribute('width', '20');
-    chevron.setAttribute('height', '20');
-    chevron.setAttribute('viewBox', '0 0 20 20');
-    chevron.setAttribute('fill', 'none');
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', 'M5 7.5L10 12.5L15 7.5');
-    path.setAttribute('stroke', 'currentColor');
-    path.setAttribute('stroke-width', '2');
-    path.setAttribute('stroke-linecap', 'round');
-    path.setAttribute('stroke-linejoin', 'round');
-    chevron.appendChild(path);
-
-    header.appendChild(headerContent);
-    header.appendChild(chevron);
-
-    const details = document.createElement('div');
-    details.className = 'codec-details';
-
-    const codecString = document.createElement('div');
-    codecString.className = 'codec-string';
-    const strong = document.createElement('strong');
-    strong.textContent = 'MIME Type: ';
-    codecString.appendChild(strong);
-    codecString.appendChild(document.createTextNode(test.codec));
-
-    const pendingMsg = document.createElement('p');
-    pendingMsg.style.color = 'var(--text-dimmed)';
-    pendingMsg.style.fontStyle = 'italic';
-    pendingMsg.textContent = 'Test in progress...';
-
-    details.appendChild(codecString);
-    details.appendChild(pendingMsg);
-
-    item.appendChild(header);
-    item.appendChild(details);
-
-    const handleToggle = (e) => {
-        // Allow expanding even when PENDING to see what's happening
-        if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
-            if (e.key === ' ') e.preventDefault();
-            item.classList.toggle('expanded');
-            const isExpanded = item.classList.contains('expanded');
-            item.setAttribute('aria-expanded', isExpanded.toString());
-        }
-    };
-
-    item.addEventListener('click', handleToggle);
-    item.addEventListener('keydown', handleToggle);
-
-    return item;
+    return createCardElement({ ...test, type }, groupKey, true);
 }
 
 /**
- * Update a specific card with test results
+ * Update a specific card with test results.
+ * Uses shared createDetailsHTML for consistent card content.
  */
-function updateCardState(groupKey, codecResult) {
+export function updateCardState(groupKey, codecResult) {
     const grid = document.getElementById('codec-grid');
-
-    // Find card by data-name (unique) within the group
     const allCards = grid.querySelectorAll(`.codec-item[data-group="${groupKey}"]`);
     const card = Array.from(allCards).find(c => c.dataset.name === codecResult.name);
 
     if (!card) {
-        console.error('[UI] Card not found for update:', {
-            groupKey,
-            name: codecResult.name,
-            availableCards: allCards.length
-        });
+        console.error('[UI] Card not found:', codecResult.name);
         return;
     }
 
+    // Update state class
     card.classList.remove('PENDING');
-
-    if (codecResult.support === 'failed') {
-        card.classList.add('FAILED');
-    } else {
-        card.classList.add(codecResult.support.toUpperCase());
-    }
-
+    card.classList.add(codecResult.support === 'failed' ? 'FAILED' : codecResult.support.toUpperCase());
     card.classList.add('state-transition');
     card.setAttribute('aria-label', `${codecResult.name} - ${codecResult.support}`);
 
     const badge = card.querySelector('.status-badge');
-    if (badge) {
-        badge.textContent = codecResult.support.toUpperCase();
+    if (badge) badge.textContent = codecResult.support.toUpperCase();
+
+    // Add technical specs to header (not present during PENDING)
+    const headerContent = card.querySelector('.codec-card-header > div');
+    if (headerContent && !headerContent.querySelector('.technical-specs')) {
+        const specsHTML = buildTechnicalSpecs(codecResult);
+        if (specsHTML) headerContent.insertAdjacentHTML('beforeend', specsHTML);
     }
 
+    // Replace details with completed content using shared function
     const detailsDiv = card.querySelector('.codec-details');
     if (detailsDiv) {
-        detailsDiv.textContent = '';
-
-        const codecStringDiv = document.createElement('div');
-        codecStringDiv.className = 'codec-string';
-        const strong = document.createElement('strong');
-        strong.textContent = 'MIME Type: ';
-        codecStringDiv.appendChild(strong);
-        codecStringDiv.appendChild(document.createTextNode(codecResult.codec));
-
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy-btn';
-        copyBtn.setAttribute('data-copy', codecResult.codec);
-        copyBtn.setAttribute('aria-label', 'Copy MIME type');
-        copyBtn.setAttribute('title', 'Copy to clipboard');
-        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>';
-
-        copyBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            try {
-                await navigator.clipboard.writeText(codecResult.codec);
-                const originalHTML = copyBtn.innerHTML;
-                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-                copyBtn.classList.add('copied');
-                setTimeout(() => {
-                    copyBtn.innerHTML = originalHTML;
-                    copyBtn.classList.remove('copied');
-                }, 1500);
-            } catch (err) {
-                console.error('Failed to copy:', err);
-            }
-        });
-
-        codecStringDiv.appendChild(copyBtn);
-        detailsDiv.appendChild(codecStringDiv);
-
-        if (codecResult.education) {
-            const eduDiv = document.createElement('div');
-            eduDiv.className = 'codec-education';
-            eduDiv.innerHTML = `
-                <button class="education-toggle" aria-expanded="false" type="button">
-                    <svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                    Learn More: Initialization & Platform Support
-                </button>
-                <div class="education-content" hidden>
-                    ${formatEducationContent(codecResult.education)}
-                </div>
-            `;
-            detailsDiv.appendChild(eduDiv);
-        }
-
-        const apiDiv = document.createElement('div');
-        apiDiv.innerHTML = formatApiResults(codecResult);
-        detailsDiv.appendChild(apiDiv);
+        detailsDiv.innerHTML = createDetailsHTML(codecResult, false);
+        attachCopyHandler(card);
+        const eduToggle = card.querySelector('.education-toggle');
+        if (eduToggle) setupEducationToggle(eduToggle);
     }
 
     updateSectionCounts(groupKey);
-
-    // Setup education toggle for this card
-    const eduToggle = card.querySelector('.education-toggle');
-    if (eduToggle) {
-        setupEducationToggle(eduToggle);
-    }
-
-    setTimeout(() => {
-        card.classList.remove('state-transition');
-    }, 500);
+    setTimeout(() => card.classList.remove('state-transition'), 500);
 }
 
 /**
@@ -854,19 +832,17 @@ function updateSectionCounts(groupKey) {
 /**
  * Update ALL section counts (called after force cleanup or bulk updates)
  */
-function updateAllSectionCounts() {
+export function updateAllSectionCounts() {
     const grid = document.getElementById('codec-grid');
     grid.querySelectorAll('.section').forEach(updateSectionCount);
 }
 
-// Export for use in main.js
-window.updateAllSectionCounts = updateAllSectionCounts;
 
 /**
  * Render codec test results
  * @param {Object} results - Test results from runCodecTests()
  */
-function renderResults(results) {
+export function renderResults(results) {
     state.testResults = results;
     const grid = document.getElementById('codec-grid');
     grid.innerHTML = '';
@@ -910,105 +886,9 @@ function renderResults(results) {
             </div>
         `;
 
-        // Add codec items
+        // Add codec items — uses shared createCardElement for consistent structure
         filteredCodecs.forEach(codec => {
-            const item = document.createElement('div');
-            item.className = `codec-item ${codec.support.toUpperCase()}`;
-            item.setAttribute('tabindex', '0');
-            item.setAttribute('role', 'button');
-            item.setAttribute('aria-expanded', 'false');
-            item.setAttribute('aria-label', `${codec.name} - Click to see details`);
-
-            item.innerHTML = `
-                <div class="codec-card-header">
-                    <div>
-                        <span class="status-badge">${codec.support.toUpperCase()}</span>
-                        <span class="codec-name">${codec.name}
-                            <span class="platform-badge">${codec.container}</span>
-                        </span>
-                        <div class="codec-summary">${codec.info}</div>
-                        ${buildTechnicalSpecs(codec)}
-                    </div>
-                    <svg class="codec-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div class="codec-details">
-                    <div class="codec-string">
-                        <strong>MIME Type:</strong> ${codec.codec}
-                        <button class="copy-btn" data-copy="${codec.codec}" aria-label="Copy MIME type" title="Copy to clipboard">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    ${codec.education ? `
-                    <div class="codec-education">
-                        <button class="education-toggle" aria-expanded="false" type="button">
-                            <svg class="chevron-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            Learn More: Initialization & Platform Support
-                        </button>
-                        <div class="education-content" hidden>
-                            ${formatEducationContent(codec.education)}
-                        </div>
-                    </div>
-                    ` : ''}
-                    ${formatApiResults(codec)}
-                </div>
-            `;
-
-            // Toggle details on click
-            const handleToggle = (e) => {
-                if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
-                    if (e.key === ' ') e.preventDefault();
-                    item.classList.toggle('expanded');
-                    const isExpanded = item.classList.contains('expanded');
-                    item.setAttribute('aria-expanded', isExpanded.toString());
-
-                    // Announce to screen readers
-                    announceToScreenReader(`${codec.name} details ${isExpanded ? 'expanded' : 'collapsed'}`);
-
-                    console.log('[UI] Codec card toggled:', codec.name, isExpanded);
-                }
-            };
-
-            item.addEventListener('click', handleToggle);
-            item.addEventListener('keydown', handleToggle);
-
-            // Setup copy button (prevent card toggle on button click)
-            const copyBtn = item.querySelector('.copy-btn');
-            if (copyBtn) {
-                copyBtn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const dataToCopy = copyBtn.dataset.copy;
-
-                    try {
-                        await navigator.clipboard.writeText(dataToCopy);
-
-                        // Visual feedback
-                        const originalHTML = copyBtn.innerHTML;
-                        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-                        copyBtn.classList.add('copied');
-
-                        setTimeout(() => {
-                            copyBtn.innerHTML = originalHTML;
-                            copyBtn.classList.remove('copied');
-                        }, 2000);
-                    } catch (err) {
-                        console.error('[UI] Copy failed:', err);
-                        const originalHTML = copyBtn.innerHTML;
-                        copyBtn.textContent = 'Failed';
-                        setTimeout(() => {
-                            copyBtn.innerHTML = originalHTML;
-                        }, 2000);
-                    }
-                });
-            }
-
-            section.appendChild(item);
+            section.appendChild(createCardElement(codec, groupKey, false));
         });
 
         grid.appendChild(section);
@@ -1065,8 +945,7 @@ function toggleAllCards(expand) {
 /**
  * Setup filter buttons and search
  */
-function setupFilters() {
-    console.log('[UI] Setting up filter buttons...');
+export function setupFilters() {
 
     // Setup expand/collapse toggle
     const expandToggleBtn = document.getElementById('expand-toggle-btn');
@@ -1101,8 +980,6 @@ function setupFilters() {
             // Support both click and Enter/Space for webOS remote
             if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
                 if (e.key === ' ') e.preventDefault();
-
-                console.log('[UI] Filter button activated:', btn.dataset.filter);
 
                 document.querySelectorAll('.filter-btn').forEach(b => {
                     b.classList.remove('active');
@@ -1159,13 +1036,13 @@ function setupFilters() {
 /**
  * Export results to JSON file
  */
-function exportResults() {
+async function exportResults() {
     if (!state.testResults) {
         alert('No test results available to export');
         return;
     }
 
-    const deviceInfo = detectDeviceInfo();
+    const deviceInfo = await detectDeviceInfo();
     const exportData = {
         timestamp: new Date().toISOString(),
         device: deviceInfo,
@@ -1190,14 +1067,13 @@ function exportResults() {
 /**
  * Setup export button
  */
-function setupExport() {
+export function setupExport() {
     const exportBtn = document.getElementById('export-btn');
     exportBtn.setAttribute('tabindex', '0');
 
     const handleExport = (e) => {
         if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
             if (e.key === ' ') e.preventDefault();
-            console.log('[UI] Export button activated');
             exportResults();
         }
     };
@@ -1206,45 +1082,3 @@ function setupExport() {
     exportBtn.addEventListener('keydown', handleExport);
 }
 
-// Track expand/collapse state
-const expandCollapseState = {
-    expandedCards: new Set()
-};
-
-/**
- * Expand all codec cards
- */
-function expandAllCards() {
-    const cards = document.querySelectorAll('.codec-item');
-    cards.forEach(card => {
-        if (!card.classList.contains('expanded')) {
-            card.classList.add('expanded');
-            card.setAttribute('aria-expanded', 'true');
-
-            expandCollapseState.expandedCards.add(card.dataset.codec);
-        }
-    });
-
-    console.log('[UI] Expanded all cards');
-}
-
-/**
- * Collapse all codec cards
- */
-function collapseAllCards() {
-    const cards = document.querySelectorAll('.codec-item');
-    cards.forEach(card => {
-        if (card.classList.contains('expanded')) {
-            card.classList.remove('expanded');
-            card.setAttribute('aria-expanded', 'false');
-
-            expandCollapseState.expandedCards.delete(card.dataset.codec);
-        }
-    });
-
-    console.log('[UI] Collapsed all cards');
-}
-
-// Export functions
-window.expandAllCards = expandAllCards;
-window.collapseAllCards = collapseAllCards;

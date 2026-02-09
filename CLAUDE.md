@@ -8,21 +8,23 @@ CodecProbe is a browser-based codec testing tool for media server users. It test
 
 ## Architecture
 
-### Module Structure
+### Module Structure (ES Modules)
 
 ```
 js/
-├── codec-database.js    - 254 codec test definitions (all ISO/Apple/LG/HLS/DASH formats)
-├── device-detection.js  - UAParser.js v2.x integration (async)
-├── drm-detection.js     - DRM/EME system testing
-├── codec-tester.js      - Multi-API testing logic
-├── ui-renderer.js       - Results display, filtering, dynamic API badges
-├── theme-manager.js     - Theme switching (3 themes)
-├── url-state.js         - URL state management
-├── main.js              - Initialization orchestrator (async)
+├── main.js              - Entry point, imports all modules
+├── codec-database.js    - 254 codec test definitions
+├── device-detection.js  - UAParser.js v2.x integration (← drm-detection)
+├── drm-detection.js     - DRM/EME system testing (leaf)
+├── codec-tester.js      - Multi-API testing logic (← codec-database)
+├── ui-renderer.js       - Rendering, filtering, badges (← codec-database, url-state, device-detection)
+├── theme-manager.js     - Theme switching (leaf)
+├── url-state.js         - URL state management (leaf)
 └── vendor/
-    └── ua-parser.min.js - Bundled UAParser.js v2.0.9 (35.3 KB)
+    └── ua-parser.min.js - Bundled UAParser.js v2.0.9 (35.3 KB, non-module global)
 ```
+
+All JS files use ES module syntax (`import`/`export`). `index.html` loads ua-parser.min.js as a regular script (global), then `main.js` as `type="module"`. The browser resolves all other imports from main.js.
 
 **Data flow**: main.js → detect device (async UAParser) → detect DRM → run tests → render results
 
@@ -243,7 +245,7 @@ CodecProbe uses UAParser.js v2.x (AGPL-3.0). Since CodecProbe is open-source (MI
 
 - 254 codecs tested in ~3-6 seconds
 - mediaCapabilities tests are async (rate-limited by browser)
-- Results render once all tests complete (no progressive rendering)
+- Progressive rendering: PENDING cards appear instantly, update as tests complete
 - UAParser.js detection is async (uses Client Hints API on Chromium)
 
 ## Known Issues

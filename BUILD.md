@@ -36,15 +36,17 @@ Mixins: `@include card`, `@include card-hover`.
 
 ## JS Build Process (`build.js`)
 
-1. Reads all `.js` files from `js/`
-2. Minifies with Terser (strips console.logs and comments)
+1. Reads all `.js` ES modules from `js/`
+2. Minifies with Terser (`module: true`, strips `console.log`/`console.debug`, preserves `console.warn`/`console.error`)
 3. Outputs to `build/js/`
 4. Copies `ua-parser.min.js` to `js/vendor/`
 5. Generates `build/version-manifest.json` with MD5 hashes of 10 files
 
 ## Version Injection (`inject-versions.js`)
 
-Reads the version manifest and appends `?v=abc123` to all asset references in `index.html`. Output goes to `deploy/index.html`.
+1. Appends `?v=abc123` to asset references in `index.html` (CSS, JS entry point, vendor)
+2. Appends `?v=abc123` to ES module `import` paths in `build/js/*.js`
+3. Output goes to `deploy/index.html` (built JS files are modified in-place)
 
 Cache headers (`_headers` file):
 - HTML: `max-age=0, must-revalidate`

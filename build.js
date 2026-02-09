@@ -21,14 +21,16 @@ if (!fs.existsSync(BUILD_DIR)) {
 
 // Terser configuration
 const terserOptions = {
+    module: true,
     compress: {
-        drop_console: true,  // Remove console.* calls
+        drop_console: false,
+        pure_funcs: ['console.log', 'console.debug'],
         drop_debugger: true,
         passes: 2
     },
-    mangle: false,  // Don't mangle names (keep readable for debugging)
+    mangle: false,
     format: {
-        comments: false  // Remove comments
+        comments: false
     }
 };
 

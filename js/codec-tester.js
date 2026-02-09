@@ -1,6 +1,6 @@
 /**
  * Codec Testing Module
- * 
+ *
  * Tests codecs using three APIs:
  * 1. HTMLMediaElement.canPlayType()
  * 2. MediaSource.isTypeSupported()
@@ -8,18 +8,19 @@
  *    - For audio: tests both with and without spatialRendering: true
  */
 
+import { codecDatabase } from './codec-database.js';
+
 const video = document.createElement('video');
 const audio = document.createElement('audio');
 
-// API availability
-const API_METHODS = {
+export const API_METHODS = {
     canPlayType: true,
     isTypeSupported: typeof MediaSource !== 'undefined' && typeof MediaSource.isTypeSupported === 'function',
     mediaCapabilities: typeof navigator.mediaCapabilities !== 'undefined' && 
                       typeof navigator.mediaCapabilities.decodingInfo === 'function'
 };
 
-console.log('API Support Detection:', API_METHODS);
+console.log('APIs:', Object.entries(API_METHODS).filter(([,v]) => v).map(([k]) => k).join(', '));
 
 /**
  * Test codec with retry logic
@@ -29,7 +30,7 @@ console.log('API Support Detection:', API_METHODS);
  * @param {number} timeout - Timeout per attempt in ms (default 1000)
  * @returns {Promise<Object>} Test result or failed result
  */
-async function testCodecWithRetry(test, type, maxRetries = 2, timeout = 1000) {
+export async function testCodecWithRetry(test, type, maxRetries = 2, timeout = 1000) {
     let lastError = null;
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -77,7 +78,7 @@ async function testCodecWithRetry(test, type, maxRetries = 2, timeout = 1000) {
  * @param {string} type - 'audio' or 'video'
  * @returns {Promise<Object>} Test results
  */
-async function testCodec(test, type) {
+export async function testCodec(test, type) {
     const element = type === 'audio' ? audio : video;
     const result = {
         name: test.name,
@@ -223,7 +224,7 @@ async function testCodec(test, type) {
  * Configuration for test batching
  * User preference: 10 codecs per batch (recommended - balanced performance)
  */
-const BATCH_CONFIG = {
+export const BATCH_CONFIG = {
     batchSize: 10,
     batchDelay: 50,
     parallelWithinBatch: true
@@ -234,7 +235,7 @@ const BATCH_CONFIG = {
  * @param {Function} onProgress - Callback for each completed test (groupKey, codecResult)
  * @returns {Promise<Object>} Test results
  */
-async function runCodecTests(onProgress = null) {
+export async function runCodecTests(onProgress = null) {
     const results = {
         supported: 0,
         unsupported: 0,
@@ -242,10 +243,8 @@ async function runCodecTests(onProgress = null) {
         tests: {}
     };
 
-    console.log('Starting codec tests in batches...');
     const startTime = performance.now();
 
-    // Flatten codec list with metadata
     const allCodecs = [];
     for (const [groupKey, group] of Object.entries(codecDatabase)) {
         results.tests[groupKey] = {
@@ -261,18 +260,10 @@ async function runCodecTests(onProgress = null) {
     }
 
     const totalCodecs = allCodecs.length;
-    const totalBatches = Math.ceil(totalCodecs / BATCH_CONFIG.batchSize);
-
-    console.log(`Total codecs to test: ${totalCodecs}`);
-    console.log(`Batch configuration: ${BATCH_CONFIG.batchSize} codecs per batch, ${BATCH_CONFIG.batchDelay}ms delay`);
-    console.log(`Estimated batches: ${totalBatches}`);
 
     // Process in batches
     for (let i = 0; i < totalCodecs; i += BATCH_CONFIG.batchSize) {
         const batch = allCodecs.slice(i, i + BATCH_CONFIG.batchSize);
-        const batchNum = Math.floor(i / BATCH_CONFIG.batchSize) + 1;
-
-        console.log(`Processing batch ${batchNum}/${totalBatches} (${batch.length} codecs)...`);
 
         const batchPromises = batch.map(({ groupKey, test, type }) =>
             testCodecWithRetry(test, type, 2, 1000).then(codecResult => {
@@ -314,11 +305,7 @@ async function runCodecTests(onProgress = null) {
         }
     }
 
-    const endTime = performance.now();
-    results.testDuration = Math.round(endTime - startTime);
-
-    console.log(`All tests completed in ${results.testDuration}ms`);
-    console.log(`Summary: ${results.supported} supported, ${results.unsupported} unsupported, ${results.failed} failed`);
+    results.testDuration = Math.round(performance.now() - startTime);
 
     return results;
 }

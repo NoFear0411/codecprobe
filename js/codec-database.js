@@ -11,7 +11,7 @@
  * Based on ISO/IEC 14496, ITU-T standards, Dolby, DTS, Apple, and MPEG specifications
  */
 
-const codecDatabase = {
+export const codecDatabase = {
     // ==================== VIDEO CODECS ====================
 
     video_hevc: {

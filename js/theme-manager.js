@@ -5,7 +5,7 @@
  * Completely decoupled from codec testing logic
  */
 
-const THEMES = {
+export const THEMES = {
     'dark-oled': {
         name: 'Dark OLED',
         className: 'theme-dark-oled'
@@ -28,7 +28,7 @@ let currentTheme = DEFAULT_THEME;
 /**
  * Initialize theme system
  */
-function initThemeSystem() {
+export function initThemeSystem() {
     // Load saved theme from localStorage
     const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
     if (savedTheme && THEMES[savedTheme]) {
@@ -41,7 +41,6 @@ function initThemeSystem() {
     // Setup theme switcher UI
     setupThemeSwitcher();
 
-    console.log('[Theme] System initialized, current theme:', currentTheme);
 }
 
 /**
@@ -71,7 +70,6 @@ function applyTheme(themeId) {
     // Update UI
     updateThemeSwitcherUI();
 
-    console.log('[Theme] Applied theme:', theme.name);
 }
 
 /**
@@ -80,7 +78,7 @@ function applyTheme(themeId) {
 function setupThemeSwitcher() {
     const switcher = document.getElementById('theme-switcher');
     if (!switcher) {
-        console.warn('[Theme] Theme switcher element not found');
+        console.warn('Theme switcher element not found');
         return;
     }
 
@@ -132,7 +130,7 @@ function updateThemeSwitcherUI() {
  * Get current theme
  * @returns {string} Current theme ID
  */
-function getCurrentTheme() {
+export function getCurrentTheme() {
     return currentTheme;
 }
 
@@ -140,6 +138,6 @@ function getCurrentTheme() {
  * Get current theme display name
  * @returns {string} Theme name
  */
-function getCurrentThemeName() {
+export function getCurrentThemeName() {
     return THEMES[currentTheme]?.name || 'Unknown';
 }

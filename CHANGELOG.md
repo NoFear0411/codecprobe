@@ -2,6 +2,36 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [2.2.0] - 2026-02-09
+
+### Changed
+
+- **ES modules**: All JS files converted from global scripts to ES modules with `import`/`export`
+  - `index.html` reduced from 8 `<script>` tags to 2 (vendor global + module entry point)
+  - Explicit dependency graph replaces implicit global variable sharing
+  - `url-state.js` circular dependency broken via callback parameter in `initURLState()`
+- **Unified card rendering**: Single `createCardElement()` and `createDetailsHTML()` functions replace dual rendering paths
+  - `createPendingCard()` (imperative DOM) and `renderResults()` (innerHTML templates) now produce identical card structure
+  - `updateCardState()` uses same `createDetailsHTML()` for consistent details content
+  - `attachCopyHandler()` extracted as shared utility
+  - Cards from filter/search re-renders now have `data-group`, `data-name` attributes (were missing)
+- **Production logging**: Terser changed from `drop_console: true` (strips ALL console methods) to `pure_funcs` targeting only `console.log`/`console.debug`
+  - `console.warn` and `console.error` preserved in production builds
+  - Dev logging reduced: removed step markers, per-batch progress, separator lines, debug dumps
+- **Version injection**: `inject-versions.js` now versions ES module `import` paths in built JS files (cache busting for module dependencies)
+
+### Fixed
+
+- **Export button**: `exportResults()` was calling async `detectDeviceInfo()` without `await` (returned a Promise object instead of device info)
+
+### Removed
+
+- Dead code: `expandAllCards()`, `collapseAllCards()`, `expandCollapseState` (unused, `toggleAllCards()` handles both)
+- `window.updateAllSectionCounts` global export (ES module export replaces it)
+- ~200 lines of verbose console logging across 6 files
+
+---
+
 ## [2.1.0] - 2026-02-09
 
 ### Changed

@@ -5,11 +5,9 @@
  * Uses withClientHints() for accurate device info on Chromium browsers
  */
 
-/**
- * Detect device info using UAParser v2.x with advanced features
- * @returns {Promise<Object>} Device information
- */
-async function detectDeviceInfo() {
+import { detectDRMSupport } from './drm-detection.js';
+
+export async function detectDeviceInfo() {
     const parser = new UAParser();
     const ua = navigator.userAgent;
 
@@ -112,13 +110,8 @@ async function detectDeviceInfo() {
  * Detect device info with DRM support (async version)
  * @returns {Promise<Object>} Complete device information including DRM
  */
-async function detectDeviceInfoWithDRM() {
+export async function detectDeviceInfoWithDRM() {
     const info = await detectDeviceInfo();
-
-    // Add DRM detection if available
-    if (typeof detectDRMSupport === 'function') {
-        info.drm = await detectDRMSupport();
-    }
-
+    info.drm = await detectDRMSupport();
     return info;
 }
