@@ -133,6 +133,7 @@ All streaming tests use `type: 'media-source'` for proper MSE validation.
 - **Offline PWA** — service worker precaches all assets, works without network after first visit
 - **Zero runtime dependencies** — UAParser.js bundled at build time, no CDN requests
 - **Fluid responsive** — intrinsic CSS layout with `clamp()`/`min()`/`auto-fit`, no hardcoded breakpoints (webOS TV optimized)
+- **Education & references** — codec string breakdowns, platform notes, and cited spec references for 115 entries
 
 ## Understanding Results
 
@@ -297,17 +298,17 @@ The `name` field must be unique — it's used for card matching in the UI.
 
 ## Technical References
 
-- ISO/IEC 14496 (MPEG-4 / MP4)
-- ISO/IEC 23008 (HEVC, HDR)
-- ISO/IEC 23091 (AV1)
-- ISO/IEC 23094 (VVC/H.266)
-- ISO/IEC 23000-19 (CMAF)
-- Dolby Vision Bitstreams Within the ISO Base Media File Format
-- ETSI TS 102 366 (DTS)
-- Apple HLS Authoring Specification
-- DASH-IF Implementation Guidelines
-- VP Codec ISO Media File Format Binding
-
+Every education entry in the codec database cites its sources. 36 specifications across 6 standards bodies are referenced inline — linked where freely available, cited by number for paywalled specs.
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Standards Body | Specifications                                                                                                                                                                                     |
+|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **ITU-T**      | H.264 (AVC), H.265 (HEVC), H.266 (VVC)                                                                                                                                                             |
+| **ISO/IEC**    | 14496-3 (AAC), 14496-15 (codec packaging), 23008-2 (HEVC), 23008-3 (MPEG-H 3D Audio), 23091-2 (AV1 registration), 23094-1 (VVC), 23000-19 (CMAF), 23009-1 (DASH), 13818-1 (MPEG-TS), 11172-3 (MP3) |
+| **ETSI**       | TS 102 114 (DTS), TS 102 366 (Dolby AC-3/E-AC-3), TS 103 572 (Dolby Vision)                                                                                                                        |
+| **IETF**       | RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC)                                                                                                                                   |
+| **Industry**   | AV1 Bitstream & Decoding Process, AV1 ISOBMFF Binding, VP9 Bitstream & Decoding Process, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF Implementation Guidelines                            |
+| **Vendor**     | Apple HLS Authoring Specification, webOS TV Developer Guide, Android MediaCodec Reference                                                                                                          |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 ## Contributing
 
 Pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

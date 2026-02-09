@@ -1,14 +1,82 @@
 /**
- * Comprehensive Codec Test Database
+ * Codec Test Database — 254 tests · 14 groups · 17 MIME types · 115 education entries
  *
- * Covers all major video and audio codecs across all container formats:
- * - ISO BMFF (MP4, fMP4, CMAF)
- * - Apple (HLS, MOV, QuickTime)
- * - Matroska (MKV, WebM)
- * - MPEG-DASH streaming
- * - webOS/LG TV specific variants
+ * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+ * │ VIDEO CODECS                                                                   142 tests total   │
+ * ├────────────────────┬───────┬────────┬──────────────┬──────────────────────────────┬──────────────┤
+ * │ Group              │ Tests │   Line │ Category     │ Containers                   │ Edu / Platf. │
+ * ├────────────────────┼───────┼────────┼──────────────┼──────────────────────────────┼──────────────┤
+ * │ video_hevc         │    23 │     17 │ HEVC/H.265   │ MP4 · MKV · MOV              │  9 │ A L G   │
+ * │ video_dolby_vision │    31 │    659 │ Dolby Vision │ MP4 · MKV · MOV              │ 31 │ A L G   │
+ * │ video_av1          │    26 │   1932 │ AV1          │ MP4 · MKV · WebM · MOV       │ 10 │ A L G   │
+ * │ video_vp9          │    20 │   2595 │ VP9          │ WebM · MP4 · MKV             │  6 │ A L G   │
+ * │ video_avc          │    20 │   3063 │ AVC/H.264    │ MP4 · MKV · MOV · WebM       │ 10 │         │
+ * │ video_vvc          │     8 │   3566 │ VVC/H.266    │ MP4 · MKV                    │  3 │         │
+ * │ video_vp8          │     5 │   6536 │ VP8          │ WebM · MKV                   │  1 │         │
+ * │ video_legacy       │     9 │   6636 │ Legacy       │ OGG · MP4 · MKV · 3GP        │  4 │         │
+ * ├────────────────────┴───────┴────────┴──────────────┴──────────────────────────────┴──────────────┤
+ * │ STREAMING FORMATS                                                                25 tests total  │
+ * ├────────────────────┬───────┬────────┬──────────────┬──────────────────────────────┬──────────────┤
+ * │ streaming_hls      │    25 │   3764 │ HLS/DASH     │ fMP4 · CMAF · MPEG-TS · DASH │ 25 │ A L G   │
+ * ├────────────────────┴───────┴────────┴──────────────┴──────────────────────────────┴──────────────┤
+ * │ AUDIO CODECS                                                                    87 tests total   │
+ * ├────────────────────┬───────┬────────┬──────────────┬──────────────────────────────┬──────────────┤
+ * │ audio_dolby        │    17 │   5038 │ Dolby Audio  │ MP4 · MKV · MOV · fMP4       │  4 │         │
+ * │ audio_dts          │    15 │   5361 │ DTS Audio    │ MP4 · MKV · fMP4             │  2 │         │
+ * │ audio_lossless     │    27 │   5624 │ Lossless     │ MKV·MP4·FLAC·WAV·AIFF·OGG…   │  4 │         │
+ * │ audio_standard     │    24 │   6093 │ Standard     │ MP4·MKV·AAC·MP3·OGG·MOV…     │  5 │         │
+ * │ audio_mpeg_h       │     4 │   6845 │ MPEG-H 3D    │ MP4 · MKV                    │  1 │         │
+ * └────────────────────┴───────┴────────┴──────────────┴──────────────────────────────┴──────────────┘
+ *   Platforms: A = Apple (Safari/iOS/tvOS)  L = LG (webOS)  G = Android (Chrome/ExoPlayer)
  *
- * Based on ISO/IEC 14496, ITU-T standards, Dolby, DTS, Apple, and MPEG specifications
+ * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+ * │ CODEC VARIANTS TESTED                                                                            │
+ * ├──────────────────┬───────────────────────────────────────────────────────────────────────────────┤
+ * │ HEVC/H.265       │ Main, Main 10 (hvc1/hev1) · SDR, HDR10/PQ, HLG · 1080p–8K · L3.1–L6.1         │
+ * │ Dolby Vision     │ Profiles 4/5/7/8.1/8.2/8.4/9/10 · dvh1/dvhe/dva1/dav1 · Supplemental RPU      │
+ * │ AV1              │ Main/High/Professional · 8/10/12-bit · HDR10/HLG · L4.0–L6.1                  │
+ * │ VP9              │ Profiles 0/2/3 · 8/10/12-bit · HDR · L1.0–L6.1                                │
+ * │ AVC/H.264        │ Baseline/Main/High · L3.0–L5.1 · 4:2:0 8-bit                                  │
+ * │ VVC/H.266        │ Main 10 (vvc1/vvi1) · L3.1–L6.2 · 4K–8K                                       │
+ * │ VP8              │ 720p/1080p · WebM/MKV                                                         │
+ * │ Legacy           │ Theora (OGG) · MPEG-4 Part 2 (mp4v) · H.263 (3GP)                             │
+ * ├──────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+ * │ Dolby Audio      │ AC-3 (5.1) · E-AC-3/DD+ (7.1/Atmos JOC) · TrueHD (MLP) · AC-4 (IMS)           │
+ * │ DTS Audio        │ Core (dtsc) · Express (dtse) · HD (dtsh) · HD MA (dtsl) · DTS:X (dtsx)        │
+ * │ Lossless         │ FLAC (2ch/5.1/CD/Hi-Res) · ALAC · Opus · PCM 16/24-bit 44.1–192kHz            │
+ * │ Standard         │ AAC-LC · HE-AAC v1/v2 · xHE-AAC · AAC-ELD · AAC-LD · MP3 · Vorbis             │
+ * │ MPEG-H 3D        │ Baseline/LC profiles · Levels 1–5 · mhm1/mhm2                                 │
+ * ├──────────────────┼───────────────────────────────────────────────────────────────────────────────┤
+ * │ Streaming        │ HLS fMP4 · DASH · CMAF · MPEG-TS │ HEVC/H.264/AV1/VP9/DV/EAC3/AAC             │
+ * └──────────────────┴───────────────────────────────────────────────────────────────────────────────┘
+ *
+ * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+ * │ CONTAINER COVERAGE — 17 MIME types                                                               │
+ * ├────────────────┬─────────────────────────────────────────────────────────────────────────────────┤
+ * │ ISO BMFF       │ video/mp4 · audio/mp4 · video/quicktime · audio/quicktime                       │
+ * │ Matroska       │ video/x-matroska · audio/x-matroska · video/webm · audio/webm                   │
+ * │ Streaming      │ video/mp2t (MPEG-TS) · fMP4 (fragmented) · CMAF (ISO 23000-19)                  │
+ * │ Native         │ audio/flac · audio/wav · audio/aiff · audio/aac · audio/mpeg                    │
+ * │ Legacy         │ video/ogg · audio/ogg · video/3gpp                                              │
+ * └────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
+ *
+ * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+ * │ REFERENCED SPECIFICATIONS — 36 sources across 6 standards bodies                                 │
+ * ├────────────────┬─────────────────────────────────────────────────────────────────────────────────┤
+ * │ ITU-T          │ H.264 (AVC) · H.266 (VVC) · H.263                                               │
+ * │ ISO/IEC        │ 14496-2 (MPEG-4 Visual) · 14496-3 (AAC) · 14496-15 (NALU mapping)               │
+ * │                │ 14496-15:2022 (VVC) · 23008-2 (HEVC) · 23008-3 (MPEG-H 3D Audio)                │
+ * │                │ 23009-1 (DASH) · 23000-19 (CMAF) · 11172-3 (MP3) · 13818-1 (MPEG-TS)            │
+ * │ ETSI           │ TS 102 366 (AC-3/E-AC-3) · TS 102 114 (DTS)                                     │
+ * │                │ TS 103 572 (Dolby Vision) · TS 103 190 (AC-4)                                   │
+ * │ IETF           │ RFC 6386 (VP8) · RFC 6716 (Opus) · RFC 8216 (HLS) · RFC 9639 (FLAC)             │
+ * │ Industry       │ AV1 Bitstream Spec (AOMedia) · VP9 Bitstream Spec (WebM Project)                │
+ * │                │ Dolby Vision HLS/DASH Specs · DASH-IF Interop Points                            │
+ * │                │ Vorbis I Spec (Xiph.Org) · Theora Spec (Xiph.Org)                               │
+ * │ Vendor         │ Apple HLS Authoring Spec (developer.apple.com)                                  │
+ * │                │ webOS TV Developer Guide (webostv.developer.lge.com)                            │
+ * │                │ Android MediaCodec Reference (developer.android.com)                            │
+ * └────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
  */
 
 export const codecDatabase = {
@@ -50,7 +118,14 @@ export const codecDatabase = {
                         apple: 'Hardware decode on iPhone 6+ (A8), iPad Air 2+ (A8X), Mac 2015+ (Skylake iGPU) and all Apple Silicon. In HLS, Apple requires hvc1 tag and fMP4 container — MPEG-TS is not supported for HEVC. Main Profile content does not need VIDEO-RANGE attribute (SDR is the default).',
                         lg: 'Supported on all webOS versions (3.0+, 2016 TVs onward). Hardware decode via LG SoC. No codec licensing issues — HEVC license is built into the TV firmware. Both hvc1 and hev1 tags work.',
                         android: 'HEVC Main Profile hardware decode available on Android 5.0+ via MediaCodec, but actual support depends on SoC. Qualcomm Snapdragon 610+, Samsung Exynos 7420+, MediaTek Helio P20+ all include HEVC hardware decoders. Software fallback via platform codec is possible but too slow for real-time 1080p on older devices.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -124,7 +199,14 @@ sdr_1080p.m3u8`,
                         apple: 'HEVC hardware acceleration available on: iPhone 7+ (A10), iPad Pro 2017+ (A10X), Mac 2018+ (T2 or Apple Silicon). Safari requires VIDEO-RANGE attribute in HLS. Use hvc1 tag for better compatibility than hev1.',
                         lg: 'Universal support on webOS 3.0+. Hardware decoding via LG SoC. HEVC licensing built-in, no browser-specific limitations. Supports both hvc1 and hev1 tags.',
                         android: 'HEVC Main 10 support requires Android 7.0+ with MediaCodec hardware decoder. Check capabilities via MediaCodecList. Samsung Exynos, Qualcomm Snapdragon 820+, and HiSilicon Kirin support HEVC. Software fallback available on Android 5.0+ but not performant for 4K.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -179,7 +261,14 @@ sdr_1080p.m3u8`,
                         apple: 'Apple HLS authoring spec marks hev1/dvhe as "use not recommended." Safari and AVFoundation prefer hvc1/dvh1 because the out-of-band parameter sets allow faster segment initialization. hev1 may work in practice but is not guaranteed across all Apple devices.',
                         lg: 'webOS accepts both hvc1 and hev1 without distinction. The built-in media pipeline handles both parameter set locations transparently.',
                         android: 'MediaCodec on Android handles both tags. The distinction matters more for the muxer (ffmpeg -tag:v hvc1 vs hev1) than for browser-side decoding. ExoPlayer treats both identically.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             // HLG variants
@@ -206,7 +295,14 @@ sdr_1080p.m3u8`,
                         apple: 'HLG supported on iPhone 8+ (A11), iPad Pro 2018+ (A12X), Apple TV 4K, Mac with Apple Silicon. In HLS, Apple allows DV Profile 8.4 as a supplemental codec over HLG base: SUPPLEMENTAL-CODECS="dvh1.08.01/db4h" where db4h is the HLG-compatible DV brand. The codec string in CODECS uses hvc1.2.20000000.L150.B0 — the 20000000 compatibility flag signals HLG-aware decoders.',
                         lg: 'HLG supported on webOS 3.5+ (2017 OLED onward). LG TVs with built-in broadcast tuners use HLG for over-the-air HDR (DVB, ATSC 3.0). The display pipeline handles HLG natively without conversion to PQ.',
                         android: 'HLG support added in Android 10 (API 29) for MediaCodec. The Display.HdrCapabilities API reports HLG alongside HDR10. On devices that support HDR10 but not HLG, some SoCs convert HLG to PQ internally — the mediaCapabilities result may still return supported: true.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             // High frame rate
@@ -263,7 +359,14 @@ sdr_1080p.m3u8`,
                         apple: 'No Apple device currently supports 8K HEVC decode. Apple Silicon M-series chips top out at Level 5.1 (4K60) for hardware decode. Software decode is theoretically possible but impractical for real-time 8K. Safari will report unsupported.',
                         lg: 'LG 8K TVs (88Z9/77ZX and newer QNED 8K models) support Level 6.1 hardware decode. Standard 4K webOS TVs do not — they cap at Level 5.1. The webOS browser may report unsupported even on 8K models if the web engine was not updated to reflect the SoC capability.',
                         android: '8K decode is available on Qualcomm Snapdragon 8 Gen 2+ and Samsung Exynos 2200+. Samsung Galaxy S23+ can hardware decode 8K HEVC. Most Android devices will report unsupported. The MediaCodecInfo.VideoCapabilities.isSizeSupported() API is the definitive check.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             // QuickTime/MOV container (Apple)
@@ -298,7 +401,14 @@ sdr_1080p.m3u8`,
                         apple: 'QuickTime is Apple-native — Safari, AVFoundation, and all Apple media APIs treat .mov as a first-class format. ProRes in MOV is the standard for professional video editing (Final Cut Pro, DaVinci Resolve). HEVC in MOV is how iPhone records video natively.',
                         lg: 'webOS has limited QuickTime/MOV support. The built-in browser may not recognize video/quicktime MIME type at all. Remuxing to MP4 (identical codec, different container) typically resolves playback issues on LG TVs.',
                         android: 'Android MediaPlayer supports MOV playback since early versions, but browser support for video/quicktime is inconsistent. Chrome on Android may reject the MIME type. Remux to MP4 for reliable browser playback.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -436,7 +546,14 @@ sdr_1080p.m3u8`,
                         apple: 'Apple HLS authoring spec states HEVC "must not exceed Main 10 Profile, Level 5.1, High Tier" overall. However, individual HLS variants should be "less than or equal to Main 10 Profile, Level 4.0, Main Tier" for adaptive streaming. High Tier is accepted for the top-quality variant only.',
                         lg: 'webOS hardware decoders support High Tier for local playback and USB media. For streaming via the built-in browser or apps, the bitrate is limited by network throughput rather than decoder capability.',
                         android: 'High Tier support depends on the SoC decoder. MediaCodecInfo.CodecCapabilities reports the max supported level — if it reports Level 5.1, it typically covers both tiers. But some budget SoCs only implement Main Tier at higher levels.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -471,7 +588,14 @@ sdr_1080p.m3u8`,
                         apple: 'HEIF/HEIC is the default photo format since iOS 11. macOS 10.13+ can decode HEIF natively. However, Safari does not necessarily report this profile as supported via video codec APIs — the image decoder is a separate pipeline from HTMLMediaElement.',
                         lg: 'webOS does not typically use HEVC still picture in the browser context. LG TVs handle HEIF thumbnails through the built-in photo viewer app, not the web engine.',
                         android: 'HEIF support added in Android 8.0 (API 26). The MediaCodec HEVC decoder usually accepts Main Still Picture since it is a Main Profile subset. Gallery apps use the image decoder path, not MediaCodec.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -503,7 +627,11 @@ sdr_1080p.m3u8`,
                             { token: 'B0', meaning: 'No additional constraint flags.' }
                         ]
                     },
-                    overview: 'Level 5.2 targets 4K@120fps — primarily used for gaming capture, sports, and high-frame-rate HDR content. HDMI 2.1 connections can carry 4K@120Hz HEVC. Few browsers support this because the use case is niche for web video. The jump from Level 5.1 (4K@60) to 5.2 (4K@120) doubles the required decoder throughput, which many hardware decoders cannot sustain.'
+                    overview: 'Level 5.2 targets 4K@120fps — primarily used for gaming capture, sports, and high-frame-rate HDR content. HDMI 2.1 connections can carry 4K@120Hz HEVC. Few browsers support this because the use case is niche for web video. The jump from Level 5.1 (4K@60) to 5.2 (4K@120) doubles the required decoder throughput, which many hardware decoders cannot sustain.',
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' }
+                    ]
                 }
             },
             {
@@ -633,7 +761,13 @@ sdr_1080p.m3u8`,
                         dolby: 'Dolby\'s reference signaling for P5 differs from P8: in DASH MPD, P5 uses codecs="dvh1.05.06" directly on the AdaptationSet (not supplementalCodecs) because there is no backward-compatible base layer. Compare with P8.1 which uses codecs="hvc1.2.4.L153.B0" supplementalCodecs="dvh1.08.06" — the HEVC base layer serves non-DV clients. P5 cannot do this split because its IPT-PQ color space is unintelligible to standard HEVC decoders. Dolby recommends serving P5 content alongside a separate non-DV AdaptationSet for fallback.',
                         lg: 'webOS 4.0+ (2019 OLEDs) supports Profile 5 natively. The TV\'s DV decoder initializes via the DOVIDecoderConfigurationRecord (dvcC box) in the fMP4 init segment — dv_profile=5, rpu_present_flag=1, bl_present_flag=1, el_present_flag=0. For DASH, webOS reads the dvcC box from the init segment, not the MPD codec string. For HLS, webOS reads the codec string from the m3u8 manifest. webOS 25+ added MKV DV P5 support. The Luna IPC getHdrCapabilities call may return stale results if called before the DV firmware module initializes (the async race condition).',
                         android: 'Profile 5 requires dedicated Dolby Vision hardware — MediaCodec decoder "c2.dolby.dv_hevc.decoder" or "OMX.dolby.hevc.decoder". Available on Pixel 6+ (Tensor), Samsung S21+ (Exynos 2100+), Shield TV Pro. For DASH on Android, ExoPlayer reads the dvcC box from the init segment and the supplementalCodecs from the MPD. However, P5 has no supplementalCodecs path — ExoPlayer must see dvh1.05 in the main codecs field to activate the DV decoder. Devices with only HDR10 hardware cannot fall back because IPT-PQ is not a standard BT.2020 signal.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -663,7 +797,10 @@ sdr_1080p.m3u8`,
                             { token: '06', meaning: 'Level 6 — 3840x2160 @ 24fps.' }
                         ]
                     },
-                    overview: 'The dvh1/dvhe distinction mirrors hvc1/hev1 exactly. Both carry the same DOVIDecoderConfigurationRecord in the container — the dvcC box is identical. The only difference is whether HEVC parameter sets (VPS/SPS/PPS) are stored once in the MP4 sample entry (dvh1) or repeated in-band in each sample (dvhe). Apple prefers dvh1 for HLS because out-of-band parameter sets allow faster segment initialization during adaptive bitrate switching.'
+                    overview: 'The dvh1/dvhe distinction mirrors hvc1/hev1 exactly. Both carry the same DOVIDecoderConfigurationRecord in the container — the dvcC box is identical. The only difference is whether HEVC parameter sets (VPS/SPS/PPS) are stored once in the MP4 sample entry (dvh1) or repeated in-band in each sample (dvhe). Apple prefers dvh1 for HLS because out-of-band parameter sets allow faster segment initialization during adaptive bitrate switching.',
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -707,7 +844,10 @@ sdr_1080p.m3u8`,
                         "lg": "webOS 25+ reads DV configuration from MKV CodecPrivate data and BlockAdditionMapping. The DV decoder initializes from the dvcC record stored in the MKV header. For local USB playback, the built-in player handles this natively. For web app playback (Jellyfin webOS app), MSE processes the MKV-remuxed fMP4 segments. The browser canPlayType for video/x-matroska with dvh1 codec strings returns varying results depending on webOS version — CodecProbe exposes this gap.",
                         "apple": "Apple does not support MKV containers at all — Safari and AVPlayer reject video/x-matroska MIME types. DV P5 MKV files must be remuxed to MP4 or fMP4 for Apple playback.",
                         "android": "ExoPlayer can play DV MKV files on devices with DV hardware (Pixel 6+, Shield TV). MediaCodec extracts the dvcC configuration from MKV CodecPrivate. The c2.dolby.dv_hevc.decoder handles the IPT-PQ decoding."
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // Profile 7 (Blu-ray dual layer)
@@ -743,7 +883,13 @@ sdr_1080p.m3u8`,
                         apple: 'Apple does NOT support Profile 7 in HLS or Safari — there is no way to deliver a dual-track stream over HLS. Profile 7 is for local/disc playback only. Apple TV 4K can play P7 from local files via Infuse or MrMC apps, not via the browser.',
                         lg: 'webOS supports Profile 7 for local USB playback on OLED models (webOS 4.0+). The built-in media player reads both BL and EL tracks from the MP4/MKV container. The browser/web engine does not support P7 — MSE has no mechanism for dual-track DV.',
                         android: 'Shield TV Pro supports Profile 7 via Kodi/Plex for local playback. Browser-based playback is not possible — MediaSource API cannot handle dual-track DV. The MediaCodec DV decoder expects single-track input when used via MSE.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -782,7 +928,10 @@ sdr_1080p.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Profile 7 MKV files are typically Blu-ray remuxes (disc rips). MKVToolNix stores the enhancement layer as a separate track linked to the base layer via TrackCombinePlanes. The EL can be MEL (Minimum Enhancement Layer, 1-3 Mbps) or FEL (Full Enhancement Layer, up to 50 Mbps). Browser support is zero — MSE cannot handle dual-track DV playback. Media server apps (Jellyfin, Plex) must either strip the EL and serve as P8 (losing DV precision) or transcode entirely."
+                    "overview": "Profile 7 MKV files are typically Blu-ray remuxes (disc rips). MKVToolNix stores the enhancement layer as a separate track linked to the base layer via TrackCombinePlanes. The EL can be MEL (Minimum Enhancement Layer, 1-3 Mbps) or FEL (Full Enhancement Layer, up to 50 Mbps). Browser support is zero — MSE cannot handle dual-track DV playback. Media server apps (Jellyfin, Plex) must either strip the EL and serve as P8 (losing DV precision) or transcode entirely.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // Profile 8.1 (HDR10 compatible)
@@ -847,7 +996,15 @@ stream_hdr10.m3u8`,
                         apple: 'Supported on iPhone 12+, iPad Pro M1+, Apple TV 4K (2021+). Apple HLS requires fMP4 container (styp box with msdh or msix brand). Safari hides DV from canPlayType() — returns "" for all dvh1.* strings. But mediaCapabilities with transferFunction:"pq" reveals actual hardware support. Use dvh1 tag exclusively — dvhe is "use not recommended" per Apple authoring spec.',
                         lg: 'webOS 5.0+ supports Profile 8.1 on OLED/QNED models. The DV decoder initializes from the DOVIDecoderConfigurationRecord in the dvcC box — it reads dv_profile=8, bl_signal_compatibility_id=1 to confirm HDR10-compatible base layer. webOS 6.0+ required for MKV DV (earlier versions reject video/x-matroska with dvh1 codecs). Known issue: getSupportedHdrProfiles() may return [] before Luna IPC completes on first page load.',
                         android: 'Requires Android 12+ with Dolby-licensed hardware. The DOVIDecoderConfigurationRecord is passed to MediaCodec via CSD (Codec-Specific Data) buffers during decoder init. MediaCodec reports DV support via the "c2.dolby.dv_hevc.decoder" or "OMX.dolby.hevc.decoder" codec name. Pixel 6+, Samsung S21+ (Exynos with Dolby license), and Shield TV Pro confirmed. ExoPlayer reads the dvcC box and routes to the DV decoder automatically.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'Dolby Vision Streams Within the HTTP Live Streaming', url: 'https://professionalsupport.dolby.com/s/article/Dolby-Vision-Streams-Within-the-HTTP-Live-Streaming' },
+                        { title: 'Dolby Vision Streams Within the MPEG-DASH', url: 'https://professionalsupport.dolby.com/s/article/Dolby-Vision-Streams-Within-the-MPEG-DASH' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -890,7 +1047,10 @@ stream_hdr10.m3u8`,
                     "platforms": {
                         "lg": "webOS 6+ supports P8.1 MKV natively for local playback. For streaming via Jellyfin webOS app, the fMP4 HLS remux path applies. The m3u8 CODECS string determines whether webOS activates the DV or HDR10 decoder pipeline — wrong signaling means HDR10 playback despite DV data being present in the stream.",
                         "android": "ExoPlayer reads the dvcC record from MKV CodecPrivate and activates the DV decoder if available. Devices without DV hardware fall back to HDR10 using the backward-compatible base layer — this fallback is the entire point of Profile 8."
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // Profile 8.4 (HLG compatible)
@@ -926,7 +1086,13 @@ stream_hdr10.m3u8`,
                         apple: 'Apple uses P8.4 for HLG+DV broadcast content. In HLS: CODECS="hvc1.2.20000000.L153.B0" with SUPPLEMENTAL-CODECS="dvh1.08.01/db4h" and VIDEO-RANGE=HLG. The db4h brand is the cross-check: "4" = HLG compatibility, "h" = HLG. Leaving out either db4h or VIDEO-RANGE=HLG is spec-non-compliant per Apple. Requires fMP4 container.',
                         lg: 'webOS 5.0+ supports P8.4. The LG SoC reads dv_bl_signal_compatibility_id=4 from the dvcC box and initializes the DV decoder in HLG-base mode. LG TVs with built-in DVB-T2 tuners use P8.4 for over-the-air DV broadcasts in supported markets.',
                         android: 'P8.4 support follows the same hardware requirements as P8.1 — the dv_bl_signal_compatibility_id determines base layer handling, not a separate hardware path. Android 13+ added explicit HLG DV support in MediaCodec. ExoPlayer maps P8.4 to the same DV decoder as P8.1.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             // Multi-codec declaration
@@ -962,7 +1128,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Multi-codec strings list both the HEVC base and DV enhancement in a single codecs attribute. This is distinct from DASH supplementalCodecs (which separates them into different XML attributes). The multi-codec approach tests whether the browser can parse and accept both codec identifiers simultaneously. In practice, Profile 5 has NO backward-compatible base — the hvc1 string here is misleading because P5 IPT-PQ cannot be correctly decoded as standard HEVC. This test entry exists to check browser behavior when confronted with a dual codec declaration for a non-backward-compatible DV profile."
+                    "overview": "Multi-codec strings list both the HEVC base and DV enhancement in a single codecs attribute. This is distinct from DASH supplementalCodecs (which separates them into different XML attributes). The multi-codec approach tests whether the browser can parse and accept both codec identifiers simultaneously. In practice, Profile 5 has NO backward-compatible base — the hvc1 string here is misleading because P5 IPT-PQ cannot be correctly decoded as standard HEVC. This test entry exists to check browser behavior when confronted with a dual codec declaration for a non-backward-compatible DV profile.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // Profile 10 (AV1-based)
@@ -998,7 +1167,13 @@ stream_hdr10.m3u8`,
                         apple: 'Profile 10 support is limited to Apple Silicon Macs (M3+) and Apple TV 4K (2022+) with AV1 hardware decode. Older Apple devices lack AV1 hardware entirely. In HLS, P10 would use SUPPLEMENTAL-CODECS="dva1.10.01/db1p" with an AV1 base layer in CODECS, but Apple has not yet published official HLS authoring guidance for DV+AV1.',
                         lg: 'webOS 23+ (2023 models) added AV1 hardware decode, but DV Profile 10 support depends on Dolby firmware updates. LG OLEDs with MediaTek MT9638+ SoCs have the hardware capability. Support is still rolling out — check webOS version specifically.',
                         android: 'Requires SoC with both AV1 hardware decode and Dolby DV license. Qualcomm Snapdragon 8 Gen 2+ and MediaTek Dimensity 9200+ qualify. Samsung Galaxy S24+ and Pixel 8 Pro are early adopters. The MediaCodec decoder name is "c2.dolby.dv_av1.decoder" or similar.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             // Additional DV profiles and supplemental codecs
@@ -1029,7 +1204,10 @@ stream_hdr10.m3u8`,
                             { token: '06', meaning: 'Level 6 — 3840x2160 @ 24fps.' }
                         ]
                     },
-                    overview: 'Profile 4 is the legacy dual-layer HLG-based DV format. It required two HEVC tracks (base + enhancement), making it impractical for streaming. Profile 8.4 replaced it by putting the DV metadata into RPU NALUs within a single HEVC track. You will only encounter P4 in early DV Blu-ray discs and archival content. No browser or streaming platform supports P4 — it requires a dual-track container parser that MSE does not provide.'
+                    overview: 'Profile 4 is the legacy dual-layer HLG-based DV format. It required two HEVC tracks (base + enhancement), making it impractical for streaming. Profile 8.4 replaced it by putting the DV metadata into RPU NALUs within a single HEVC track. You will only encounter P4 in early DV Blu-ray discs and archival content. No browser or streaming platform supports P4 — it requires a dual-track container parser that MSE does not provide.',
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1057,7 +1235,10 @@ stream_hdr10.m3u8`,
                             { token: '02', meaning: 'Level 2 — 1280x720 @ 24fps. Note: this is also sometimes seen at higher levels (06, 09) for higher resolutions. The level in the codec string is often mismatched in practice — some encoders use the DV level while others use a generic level.' }
                         ]
                     },
-                    overview: 'Profile 8.2 has dv_bl_signal_compatibility_id=2, meaning the base layer is SDR BT.709. Non-DV devices play standard SDR content; DV devices apply the RPU to reconstruct HDR from SDR. This is the "upgrade SDR to HDR" profile — useful for services that want a single encode that looks good on both SDR and HDR displays. Less common than P8.1 because most HDR-capable services already deliver HDR10 as the base layer. No transferFunction or colorGamut in mediaConfig because the base layer is SDR.'
+                    overview: 'Profile 8.2 has dv_bl_signal_compatibility_id=2, meaning the base layer is SDR BT.709. Non-DV devices play standard SDR content; DV devices apply the RPU to reconstruct HDR from SDR. This is the "upgrade SDR to HDR" profile — useful for services that want a single encode that looks good on both SDR and HDR displays. Less common than P8.1 because most HDR-capable services already deliver HDR10 as the base layer. No transferFunction or colorGamut in mediaConfig because the base layer is SDR.',
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1096,7 +1277,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Profile 8.4 with the dvh1 tag. The difference from the dvhe variant (P8.4 dvhe) is parameter set storage only — dvh1 stores VPS/SPS/PPS in the sample entry, dvhe stores them in-band. For HLS delivery, dvh1 is preferred because out-of-band parameter sets allow the player to configure the decoder from the init segment before processing media segments. The HLG base layer means non-DV devices display HLG HDR (common on broadcast TVs) while DV devices apply the full Dolby Vision enhancement."
+                    "overview": "Profile 8.4 with the dvh1 tag. The difference from the dvhe variant (P8.4 dvhe) is parameter set storage only — dvh1 stores VPS/SPS/PPS in the sample entry, dvhe stores them in-band. For HLS delivery, dvh1 is preferred because out-of-band parameter sets allow the player to configure the decoder from the init segment before processing media segments. The HLG base layer means non-DV devices display HLG HDR (common on broadcast TVs) while DV devices apply the full Dolby Vision enhancement.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1135,7 +1319,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "dvhe.08.06 and dvh1.08.06 carry identical DV content — the only difference is HEVC parameter set storage. dvhe is less common in streaming because in-band parameter sets add overhead to every fMP4 segment. Apple HLS strongly prefers dvh1. Some browsers accept dvh1 but reject dvhe, or vice versa — this test entry exposes that inconsistency. When Jellyfin produces fMP4 HLS output with -tag:v dvh1, it forces the dvh1 tag regardless of the source container's original tag."
+                    "overview": "dvhe.08.06 and dvh1.08.06 carry identical DV content — the only difference is HEVC parameter set storage. dvhe is less common in streaming because in-band parameter sets add overhead to every fMP4 segment. Apple HLS strongly prefers dvh1. Some browsers accept dvh1 but reject dvhe, or vice versa — this test entry exposes that inconsistency. When Jellyfin produces fMP4 HLS output with -tag:v dvh1, it forces the dvh1 tag regardless of the source container's original tag.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1165,7 +1352,10 @@ stream_hdr10.m3u8`,
                             { token: '06', meaning: 'Level 6 — capped at 1080p for AVC-based DV. Higher DV levels (7+) are only available with HEVC or AV1 base codecs.' }
                         ]
                     },
-                    overview: 'Profile 9 is the AVC/H.264-based Dolby Vision — a niche format for devices with H.264 hardware but no HEVC decoder. It was briefly used on some early Android TV devices and low-end streaming boxes. Netflix used P9 for DV delivery on older Qualcomm SoCs that had Dolby licensing but only H.264 hardware decode. Resolution capped at 1080p. Effectively obsolete now that HEVC is universal on DV-capable hardware.'
+                    overview: 'Profile 9 is the AVC/H.264-based Dolby Vision — a niche format for devices with H.264 hardware but no HEVC decoder. It was briefly used on some early Android TV devices and low-end streaming boxes. Netflix used P9 for DV delivery on older Qualcomm SoCs that had Dolby licensing but only H.264 hardware decode. Resolution capped at 1080p. Effectively obsolete now that HEVC is universal on DV-capable hardware.',
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // Supplemental codec strings (base + DV enhancement)
@@ -1200,7 +1390,13 @@ stream_hdr10.m3u8`,
                         apple: 'Apple HLS uses SUPPLEMENTAL-CODECS="dvh1.08.06/db1p" instead of putting both codecs in CODECS. The browser API test with both codecs in a single string is NOT how Apple delivers DV — it is a direct codec capability query. Safari may reject this dual-string format even on DV-capable hardware.',
                         lg: 'webOS parses the dual-codec string from the container\'s DOVIDecoderConfigurationRecord, not from the codec string in the browser API. The browser test with dual codecs checks MSE/MediaSource parsing, which may differ from native media player behavior.',
                         android: 'ExoPlayer and Android MediaCodec handle dual-codec DV by reading the dvcC/dvvC box during track selection, then routing to the DV decoder. The dual-codec browser test checks whether the browser\'s MSE implementation can parse a comma-separated codec list — Chrome on Android typically handles this correctly.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -1235,7 +1431,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Tests the hev1 base layer variant of the supplemental codec declaration. The hvc1 version (hvc1 + dvh1) is the more common pairing in production. Using hev1 as the base is less standard — most HLS and DASH implementations pair hvc1 with dvh1. This test checks if browsers treat hev1+dvh1 differently from hvc1+dvh1 in multi-codec parsing."
+                    "overview": "Tests the hev1 base layer variant of the supplemental codec declaration. The hvc1 version (hvc1 + dvh1) is the more common pairing in production. Using hev1 as the base is less standard — most HLS and DASH implementations pair hvc1 with dvh1. This test checks if browsers treat hev1+dvh1 differently from hvc1+dvh1 in multi-codec parsing.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1274,7 +1473,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "dav1 is the alternative codec tag for AV1-based Dolby Vision (Profile 10). The primary tag is dva1 (which maps to av01 like dav1 maps differently in some implementations). The distinction parallels dvh1/dvhe — dav1 and dva1 may differ in parameter set handling, though the AV1 bitstream format makes this less relevant than for HEVC. Testing both tags reveals which browsers implement each variant of the AV1 DV codec registry."
+                    "overview": "dav1 is the alternative codec tag for AV1-based Dolby Vision (Profile 10). The primary tag is dva1 (which maps to av01 like dav1 maps differently in some implementations). The distinction parallels dvh1/dvhe — dav1 and dva1 may differ in parameter set handling, though the AV1 bitstream format makes this less relevant than for HEVC. Testing both tags reveals which browsers implement each variant of the AV1 DV codec registry.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1313,7 +1515,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Tests DV Profile 5 at the high-framerate Level 9. Most DV P5 content is 24fps film (Level 6), but gaming captures and sports content may target 60fps. The level increase from 06→09 roughly doubles the pixel throughput. Devices that report P5 L6 support may fail L9 — this test distinguishes between \"supports DV P5\" and \"supports DV P5 at high framerates.\" Apple devices generally support L9 on A15+ chips; earlier A11-A14 chips max out at L6-L7."
+                    "overview": "Tests DV Profile 5 at the high-framerate Level 9. Most DV P5 content is 24fps film (Level 6), but gaming captures and sports content may target 60fps. The level increase from 06→09 roughly doubles the pixel throughput. Devices that report P5 L6 support may fail L9 — this test distinguishes between \"supports DV P5\" and \"supports DV P5 at high framerates.\" Apple devices generally support L9 on A15+ chips; earlier A11-A14 chips max out at L6-L7.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1352,7 +1557,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Tests the dvh1 tag variant of Profile 7. The other P7 entry uses dvhe.07.06 — this tests dvh1.07.06. Some Blu-ray remux tools produce dvh1-tagged P7 tracks while others produce dvhe. The practical difference is minimal for local playback, but browser API responses may differ. Browser support for P7 is near-zero in either tag variant because MSE cannot handle dual-track playback."
+                    "overview": "Tests the dvh1 tag variant of Profile 7. The other P7 entry uses dvhe.07.06 — this tests dvh1.07.06. Some Blu-ray remux tools produce dvh1-tagged P7 tracks while others produce dvhe. The practical difference is minimal for local playback, but browser API responses may differ. Browser support for P7 is near-zero in either tag variant because MSE cannot handle dual-track playback.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1373,7 +1581,10 @@ stream_hdr10.m3u8`,
                     }
                 },
                 education: {
-                    overview: 'HLG+DV supplemental is the broadcast variant. In Apple HLS: CODECS="hvc1.2.20000000.L153.B0" (note the 20000000 compatibility flag for HLG) with SUPPLEMENTAL-CODECS="dvh1.08.01/db4h" and VIDEO-RANGE=HLG. The db4h brand means "Dolby Vision backward-compatible HLG" — the "4" maps to dv_bl_signal_compatibility_id=4, and "h" denotes HLG. This differs from the PQ variant which uses db1p (compatibility_id=1, PQ). Apple requires all three attributes (CODECS, SUPPLEMENTAL-CODECS with brand, VIDEO-RANGE) to be consistent — mismatches are spec violations.'
+                    overview: 'HLG+DV supplemental is the broadcast variant. In Apple HLS: CODECS="hvc1.2.20000000.L153.B0" (note the 20000000 compatibility flag for HLG) with SUPPLEMENTAL-CODECS="dvh1.08.01/db4h" and VIDEO-RANGE=HLG. The db4h brand means "Dolby Vision backward-compatible HLG" — the "4" maps to dv_bl_signal_compatibility_id=4, and "h" denotes HLG. This differs from the PQ variant which uses db1p (compatibility_id=1, PQ). Apple requires all three attributes (CODECS, SUPPLEMENTAL-CODECS with brand, VIDEO-RANGE) to be consistent — mismatches are spec violations.',
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1402,7 +1613,10 @@ stream_hdr10.m3u8`,
                             { token: 'dav1.10.01', meaning: 'Dolby Vision Profile 10, Level 1, using the dav1 tag (AV1 with in-band config, parallel to dvhe for HEVC). The DV RPU is carried in AV1 Metadata OBUs. dav1 vs dva1 follows the same in-band vs out-of-band pattern as dvhe vs dvh1.' }
                         ]
                     },
-                    overview: 'DV+AV1 supplemental tests whether the browser can handle dual-codec AV1+DV strings. This is the newest DV delivery format — AV1 has no patent royalties (Alliance for Open Media), so DV+AV1 reduces per-stream licensing costs compared to DV+HEVC. Netflix and YouTube are the primary adopters. The DV RPU data rides in AV1 Metadata OBUs (type METADATA_TYPE_ITUT_T35 with Dolby country code), which is architecturally different from HEVC where RPUs are NALU type 62 (unregistered SEI).'
+                    overview: 'DV+AV1 supplemental tests whether the browser can handle dual-codec AV1+DV strings. This is the newest DV delivery format — AV1 has no patent royalties (Alliance for Open Media), so DV+AV1 reduces per-stream licensing costs compared to DV+HEVC. Netflix and YouTube are the primary adopters. The DV RPU data rides in AV1 Metadata OBUs (type METADATA_TYPE_ITUT_T35 with Dolby country code), which is architecturally different from HEVC where RPUs are NALU type 62 (unregistered SEI).',
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // MOV DV coverage (Apple QuickTime)
@@ -1442,7 +1656,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "DV Profile 5 in Apple QuickTime container. MOV is Apple's native container format and predates MP4 (which is derived from MOV). Safari and Apple native apps may prefer MOV over MP4 for local playback. For DV specifically, the container format (MOV vs MP4) makes no difference to the DV decoder — the dvcC box, RPU NALUs, and HEVC bitstream are identical. This test checks whether browsers that support DV P5 in MP4 also accept the QuickTime MIME type."
+                    "overview": "DV Profile 5 in Apple QuickTime container. MOV is Apple's native container format and predates MP4 (which is derived from MOV). Safari and Apple native apps may prefer MOV over MP4 for local playback. For DV specifically, the container format (MOV vs MP4) makes no difference to the DV decoder — the dvcC box, RPU NALUs, and HEVC bitstream are identical. This test checks whether browsers that support DV P5 in MP4 also accept the QuickTime MIME type.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1481,7 +1698,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "DV Profile 8.1 in QuickTime/MOV container. iPhone camera recordings in Dolby Vision (iPhone 12+) are natively captured as MOV files with DV Profile 8.4 (HLG base). This test uses P8.1 (HDR10 base) in MOV — less common in practice but valid per the spec. The MOV container is relevant for iPhone-to-Mac workflows where files stay in Apple's ecosystem without remuxing to MP4."
+                    "overview": "DV Profile 8.1 in QuickTime/MOV container. iPhone camera recordings in Dolby Vision (iPhone 12+) are natively captured as MOV files with DV Profile 8.4 (HLG base). This test uses P8.1 (HDR10 base) in MOV — less common in practice but valid per the spec. The MOV container is relevant for iPhone-to-Mac workflows where files stay in Apple's ecosystem without remuxing to MP4.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // MKV DV coverage
@@ -1521,7 +1741,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "HLG-based DV Profile 8.4 in MKV container. This combination appears in broadcast recordings and some streaming rips where the source used HLG transfer function. The HLG base layer provides backward compatibility with broadcast HDR TVs (which widely support HLG), while the DV RPU adds dynamic metadata for scene-by-scene tone mapping on DV displays. Less common than P8.1 (HDR10 base) in media libraries."
+                    "overview": "HLG-based DV Profile 8.4 in MKV container. This combination appears in broadcast recordings and some streaming rips where the source used HLG transfer function. The HLG base layer provides backward compatibility with broadcast HDR TVs (which widely support HLG), while the DV RPU adds dynamic metadata for scene-by-scene tone mapping on DV displays. Less common than P8.1 (HDR10 base) in media libraries.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             // MKV Dolby Vision coverage
@@ -1561,7 +1784,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Tests the dvhe tag variant of DV Profile 5 in MKV. The dvh1 MKV variant tests whether webOS 25+ recognizes dvh1-tagged MKV DV — this entry tests the dvhe tag. Some browsers and devices may accept one tag but not the other for the same profile in MKV. The dvh1/dvhe distinction is especially important for Jellyfin remux: when the source MKV uses dvhe but the fMP4 output is tagged dvh1 (via -tag:v dvh1), the RPU content is identical — only the parameter set delivery changes."
+                    "overview": "Tests the dvhe tag variant of DV Profile 5 in MKV. The dvh1 MKV variant tests whether webOS 25+ recognizes dvh1-tagged MKV DV — this entry tests the dvhe tag. Some browsers and devices may accept one tag but not the other for the same profile in MKV. The dvh1/dvhe distinction is especially important for Jellyfin remux: when the source MKV uses dvhe but the fMP4 output is tagged dvh1 (via -tag:v dvh1), the RPU content is identical — only the parameter set delivery changes.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1600,7 +1826,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "P8.1 with dvhe tag in MKV. Tests the same DV profile as \"DV Profile 8.1 (MKV)\" (which uses dvh1) but with the alternate hev1-style tag. In practice, the DV decoder behavior is identical — the distinction only affects HEVC parameter set delivery. Comparing results between dvh1 and dvhe MKV entries reveals whether the browser's MKV parser treats these tags differently."
+                    "overview": "P8.1 with dvhe tag in MKV. Tests the same DV profile as \"DV Profile 8.1 (MKV)\" (which uses dvh1) but with the alternate hev1-style tag. In practice, the DV decoder behavior is identical — the distinction only affects HEVC parameter set delivery. Comparing results between dvh1 and dvhe MKV entries reveals whether the browser's MKV parser treats these tags differently.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1637,7 +1866,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Profile 8.2 is the SDR-compatible DV variant. The base layer uses BT.709 SDR — completely standard definition color and transfer. The DV RPU carries metadata that allows DV displays to reconstruct a wider dynamic range image from the SDR base. This enables DV content delivery over SDR-only infrastructure (broadcast chains that strip HDR metadata). Rare in media libraries — mostly used in broadcast and cable TV applications."
+                    "overview": "Profile 8.2 is the SDR-compatible DV variant. The base layer uses BT.709 SDR — completely standard definition color and transfer. The DV RPU carries metadata that allows DV displays to reconstruct a wider dynamic range image from the SDR base. This enables DV content delivery over SDR-only infrastructure (broadcast chains that strip HDR metadata). Rare in media libraries — mostly used in broadcast and cable TV applications.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1676,7 +1908,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "DV Profile 9 in MKV uses AVC (H.264) as the base codec instead of HEVC. This provides the widest possible backward compatibility — any device that plays H.264 can show the SDR base layer. The DV RPU enhances the image on DV-capable displays. Profile 9 is rare: it sacrifices compression efficiency (AVC is ~50% less efficient than HEVC) for universal base-layer compatibility. Used in some early DV streaming experiments and cable TV deployments."
+                    "overview": "DV Profile 9 in MKV uses AVC (H.264) as the base codec instead of HEVC. This provides the widest possible backward compatibility — any device that plays H.264 can show the SDR base layer. The DV RPU enhances the image on DV-capable displays. Profile 9 is rare: it sacrifices compression efficiency (AVC is ~50% less efficient than HEVC) for universal base-layer compatibility. Used in some early DV streaming experiments and cable TV deployments.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1715,7 +1950,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "DV Profile 10 in MKV container using the dva1 tag. AV1-based DV is the newest DV profile, combining AV1's superior compression efficiency with DV dynamic metadata. The MKV container stores AV1 DV RPU similarly to HEVC DV — as BlockAdditions in modern MKVToolNix. Browser support depends on both AV1 decode capability and DV firmware — Chrome supports AV1 widely but DV activation requires platform-level DV hardware. Android TV devices with AV1 hardware decode (Chromecast with Google TV 4K) are early adopters."
+                    "overview": "DV Profile 10 in MKV container using the dva1 tag. AV1-based DV is the newest DV profile, combining AV1's superior compression efficiency with DV dynamic metadata. The MKV container stores AV1 DV RPU similarly to HEVC DV — as BlockAdditions in modern MKVToolNix. Browser support depends on both AV1 decode capability and DV firmware — Chrome supports AV1 widely but DV activation requires platform-level DV hardware. Android TV devices with AV1 hardware decode (Chromecast with Google TV 4K) are early adopters.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             },
             {
@@ -1750,7 +1988,10 @@ stream_hdr10.m3u8`,
                             }
                         ]
                     },
-                    "overview": "Multi-codec declaration of P8.1 + HEVC base layer in MKV container. This parallels the MP4 supplemental entries but in Matroska. The practical test: does the browser accept a dual-codec string for video/x-matroska? Most browsers parse the codec string left-to-right — some accept only the first codec, others parse both. This reveals whether MKV DV content can use supplemental codec signaling or must rely on the container-level dvcC record for DV detection."
+                    "overview": "Multi-codec declaration of P8.1 + HEVC base layer in MKV container. This parallels the MP4 supplemental entries but in Matroska. The practical test: does the browser accept a dual-codec string for video/x-matroska? Most browsers parse the codec string left-to-right — some accept only the first codec, others parse both. This reveals whether MKV DV content can use supplemental codec signaling or must rely on the container-level dvcC record for DV detection.",
+                    references: [
+                        { title: 'ETSI TS 103 572' }
+                    ]
                 }
             }
         ]
@@ -1780,7 +2021,14 @@ stream_hdr10.m3u8`,
                         apple: 'Hardware decode on A17 Pro+ (iPhone 15 Pro) and M3+ Macs. Software decode via VideoToolbox on M1/M2/A14-A16. Safari 17+ supports AV1 in MP4 and WebM. HLS AV1 requires fMP4 segments with CODECS="av01..." in the master playlist.',
                         android: 'Hardware decode varies by SoC: Snapdragon 8 Gen 1+ (2022), MediaTek Dimensity 1000+ (2020), Exynos 2200+ (2022). Software decode via dav1d library on Android 10+. MediaCodec.getCodecInfo() distinguishes hardware vs software decoders.',
                         lg: 'AV1 hardware decode on webOS 6.0+ (2021 TVs with MediaTek MT9638). Supports DASH and WebM containers for AV1 content. 4K AV1 decode on C1/G1 and newer models.'
-                    }
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -1830,7 +2078,14 @@ stream_hdr10.m3u8`,
                         apple: 'AV1 HDR10 decode on A17 Pro+ and M3+. Safari passes transferFunction:"pq" to mediaCapabilities correctly. QuickTime/MOV container support for AV1 HDR added in macOS Sonoma.',
                         android: 'HDR10 AV1 requires hardware decoder with HDR10 profile support. Check MediaCodecInfo.CodecCapabilities for HDR10 profile flag. Not all AV1-capable SoCs support the HDR10 profile.',
                         lg: 'webOS 6.0+ decodes AV1 HDR10 in DASH streams. HDR10 metadata (SMPTE ST 2086, MaxCLL/MaxFALL) passed through to display pipeline.'
-                    }
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -1903,7 +2158,11 @@ stream_hdr10.m3u8`,
                             { token: '0', meaning: 'videoFullRangeFlag = 0 (limited/studio range 16-235)' }
                         ]
                     },
-                    overview: 'This is the full 10-token AV1 codec string. Tokens 5-10 are optional and map directly to ISO 23091-2 (CICP) values — the same color description system used by HEVC, VP9, and VVC. When omitted, browsers assume defaults from the AV1 bitstream sequence_header OBU. Including them explicitly can help browsers make faster decode decisions without parsing the bitstream. The color primaries (09) and transfer characteristics (16) together define HDR10: BT.2020 gamut + Perceptual Quantizer.'
+                    overview: 'This is the full 10-token AV1 codec string. Tokens 5-10 are optional and map directly to ISO 23091-2 (CICP) values — the same color description system used by HEVC, VP9, and VVC. When omitted, browsers assume defaults from the AV1 bitstream sequence_header OBU. Including them explicitly can help browsers make faster decode decisions without parsing the bitstream. The color primaries (09) and transfer characteristics (16) together define HDR10: BT.2020 gamut + Perceptual Quantizer.',
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -1940,7 +2199,11 @@ stream_hdr10.m3u8`,
                             { token: '0', meaning: 'videoFullRangeFlag = 0 (limited range)' }
                         ]
                     },
-                    overview: 'AV1 film grain synthesis is a unique codec feature: the encoder analyzes source grain patterns, strips them during encoding (improving compression), and embeds grain parameters in film_grain_params() OBU metadata. The decoder then re-synthesizes matching grain on playback. This is not signaled in the codec string — it is a bitstream-level feature all AV1 decoders must support. The BT.709 color values here (01.01.01) indicate SDR color space despite 10-bit depth, which is common for archival/film content where extra bit depth preserves grain detail rather than HDR range.'
+                    overview: 'AV1 film grain synthesis is a unique codec feature: the encoder analyzes source grain patterns, strips them during encoding (improving compression), and embeds grain parameters in film_grain_params() OBU metadata. The decoder then re-synthesizes matching grain on playback. This is not signaled in the codec string — it is a bitstream-level feature all AV1 decoders must support. The BT.709 color values here (01.01.01) indicate SDR color space despite 10-bit depth, which is common for archival/film content where extra bit depth preserves grain detail rather than HDR range.',
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2004,7 +2267,11 @@ stream_hdr10.m3u8`,
                             { token: '10', meaning: '10-bit depth' }
                         ]
                     },
-                    overview: 'Profile 1 (High) retains full chroma resolution — every pixel gets independent color values (4:4:4) instead of sharing chroma across pixel groups. This is critical for screen content (text, UI captures, graphics) where chroma subsampling causes color bleeding at sharp edges. It also matters for professional color grading workflows. Profile 1 decoders are rare in consumer hardware — most GPUs and SoCs only implement Profile 0 (Main). Software decode via dav1d handles all profiles.'
+                    overview: 'Profile 1 (High) retains full chroma resolution — every pixel gets independent color values (4:4:4) instead of sharing chroma across pixel groups. This is critical for screen content (text, UI captures, graphics) where chroma subsampling causes color bleeding at sharp edges. It also matters for professional color grading workflows. Profile 1 decoders are rare in consumer hardware — most GPUs and SoCs only implement Profile 0 (Main). Software decode via dav1d handles all profiles.',
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2034,7 +2301,11 @@ stream_hdr10.m3u8`,
                             { token: '10', meaning: '10-bit depth' }
                         ]
                     },
-                    overview: 'Profile 2 (Professional) supports 4:2:2 chroma subsampling — horizontal chroma is preserved while vertical is halved. This is the standard for broadcast and post-production (ProRes 422, DNxHR HQ). Profile 2 also uniquely supports 12-bit depth and can do 4:4:4 at 12-bit. Practically no consumer hardware decodes Profile 2 in real-time — it exists for professional encoding pipelines where the output is later transcoded to Profile 0 for distribution.'
+                    overview: 'Profile 2 (Professional) supports 4:2:2 chroma subsampling — horizontal chroma is preserved while vertical is halved. This is the standard for broadcast and post-production (ProRes 422, DNxHR HQ). Profile 2 also uniquely supports 12-bit depth and can do 4:4:4 at 12-bit. Practically no consumer hardware decodes Profile 2 in real-time — it exists for professional encoding pipelines where the output is later transcoded to Profile 0 for distribution.',
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2083,7 +2354,11 @@ stream_hdr10.m3u8`,
                             { token: '10', meaning: '10-bit depth' }
                         ]
                     },
-                    overview: 'Level 6.0 (seq_level_idx=16) is the highest tier commonly referenced. It supports 8K resolution at 30fps with Main tier bitrate limits. Level 6.1 (idx 17) bumps to 60fps and 100 Mbps. No consumer hardware currently decodes 8K AV1 in real-time — this test verifies whether the browser/decoder advertises the capability even without hardware acceleration. YouTube serves 8K AV1 content and relies on software decode via dav1d for playback.'
+                    overview: 'Level 6.0 (seq_level_idx=16) is the highest tier commonly referenced. It supports 8K resolution at 30fps with Main tier bitrate limits. Level 6.1 (idx 17) bumps to 60fps and 100 Mbps. No consumer hardware currently decodes 8K AV1 in real-time — this test verifies whether the browser/decoder advertises the capability even without hardware acceleration. YouTube serves 8K AV1 content and relies on software decode via dav1d for playback.',
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2216,7 +2491,11 @@ stream_hdr10.m3u8`,
                             { token: '10', meaning: '10-bit depth' }
                         ]
                     },
-                    overview: 'Level 5.1 (seq_level_idx=13) is the first level supporting 4K @ 120fps. The mediaCapabilities API tests this as a combined constraint: the decoder must handle both the resolution AND framerate simultaneously. Most hardware decoders support 4K@60 (Level 5.0) but not 4K@120. This test catches the gap — useful for gaming content and high-framerate HDR streaming where the server needs to know whether to offer 120fps or fall back to 60fps.'
+                    overview: 'Level 5.1 (seq_level_idx=13) is the first level supporting 4K @ 120fps. The mediaCapabilities API tests this as a combined constraint: the decoder must handle both the resolution AND framerate simultaneously. Most hardware decoders support 4K@60 (Level 5.0) but not 4K@120. This test catches the gap — useful for gaming content and high-framerate HDR streaming where the server needs to know whether to offer 120fps or fall back to 60fps.',
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2246,7 +2525,11 @@ stream_hdr10.m3u8`,
                             { token: '10', meaning: '10-bit depth' }
                         ]
                     },
-                    overview: 'The tier flag (M or H) controls maximum bitrate at a given level. Main tier targets streaming (lower bitrates), High tier targets high-quality local playback (higher bitrates). Level 4.1 Main caps at 20 Mbps; Level 4.1 High caps at 50 Mbps. Hardware decoders that support a level at Main tier may not handle High tier bitrates — the decoder might accept the codec string but drop frames if the actual bitrate exceeds its processing capacity. This test reveals whether the browser distinguishes M from H.'
+                    overview: 'The tier flag (M or H) controls maximum bitrate at a given level. Main tier targets streaming (lower bitrates), High tier targets high-quality local playback (higher bitrates). Level 4.1 Main caps at 20 Mbps; Level 4.1 High caps at 50 Mbps. Hardware decoders that support a level at Main tier may not handle High tier bitrates — the decoder might accept the codec string but drop frames if the actual bitrate exceeds its processing capacity. This test reveals whether the browser distinguishes M from H.',
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2281,7 +2564,14 @@ stream_hdr10.m3u8`,
                         apple: 'AV1 in MOV supported since macOS Sonoma / iOS 17. Hardware decode requires M3+ or A17 Pro+. Safari uses the av1C sample entry box (same as MP4). AV1 in HLS still requires fMP4 segments, not MOV.',
                         lg: 'webOS does not support video/quicktime MIME type. AV1 content for LG TVs must use MP4 or WebM containers.',
                         android: 'Android does not natively support video/quicktime. ExoPlayer and other players may remux MOV to MP4 internally but the browser API will report unsupported.'
-                    }
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2391,7 +2681,14 @@ stream_hdr10.m3u8`,
                         apple: 'Safari does not support VP9 in WebM. Apple has never implemented VP9 decode — they skipped directly from H.264 to HEVC and AV1. This test will show unsupported on all Apple devices.',
                         android: 'VP9 Profile 0 hardware decode on most Android devices since ~2015 (Snapdragon 800+ era). YouTube relies on VP9 as primary codec on Android Chrome.',
                         lg: 'webOS supports VP9 Profile 0 and 2 in WebM. Hardware decode on all webOS 3.0+ (2016+) TVs.'
-                    }
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2419,7 +2716,11 @@ stream_hdr10.m3u8`,
                             { token: '08', meaning: '8-bit color depth' }
                         ]
                     },
-                    overview: 'VP9 in MP4 requires the full "vp09" codec string — the bare "vp9" form is only valid in WebM. The 4-token format vp09.{profile}.{level}.{bitDepth} mirrors AV1 structure but levels use MajorMinor notation (not sequential index). Optional tokens 5-9 (chromaSubsampling, colorPrimaries, transferCharacteristics, matrixCoefficients, fullRange) use the same ISO 23091-2 CICP values as AV1. VP9 in MP4 was standardized later than WebM and has inconsistent browser support — Chrome accepts it, Firefox varies, Safari rejects it.'
+                    overview: 'VP9 in MP4 requires the full "vp09" codec string — the bare "vp9" form is only valid in WebM. The 4-token format vp09.{profile}.{level}.{bitDepth} mirrors AV1 structure but levels use MajorMinor notation (not sequential index). Optional tokens 5-9 (chromaSubsampling, colorPrimaries, transferCharacteristics, matrixCoefficients, fullRange) use the same ISO 23091-2 CICP values as AV1. VP9 in MP4 was standardized later than WebM and has inconsistent browser support — Chrome accepts it, Firefox varies, Safari rejects it.',
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2458,7 +2759,14 @@ stream_hdr10.m3u8`,
                         apple: 'Not supported. Safari has no VP9 implementation. Apple devices use HEVC or AV1 for HDR content.',
                         android: 'VP9 Profile 2 hardware decode on Snapdragon 835+ (2017) and Exynos 9810+ (2018). YouTube HDR on Android primarily uses VP9 P2 with PQ transfer.',
                         lg: 'webOS supports VP9 Profile 2 HDR10 on webOS 4.0+ (2018+ TVs). HDR10 metadata passed through to panel. YouTube app uses VP9 P2 for HDR on older webOS models without AV1.'
-                    }
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2530,7 +2838,11 @@ stream_hdr10.m3u8`,
                             { token: '01', meaning: 'Full range' }
                         ]
                     },
-                    overview: 'HLG (Hybrid Log-Gamma) differs from PQ (HDR10) in transfer characteristic value: 18 vs 16. HLG is backward-compatible with SDR displays — the gamma curve maps to reasonable SDR brightness without tone mapping. PQ requires explicit tone mapping. YouTube uses HLG for live HDR broadcasts. The mediaCapabilities API tests this with transferFunction:"hlg" — some devices support PQ but not HLG, or vice versa.'
+                    overview: 'HLG (Hybrid Log-Gamma) differs from PQ (HDR10) in transfer characteristic value: 18 vs 16. HLG is backward-compatible with SDR displays — the gamma curve maps to reasonable SDR brightness without tone mapping. PQ requires explicit tone mapping. YouTube uses HLG for live HDR broadcasts. The mediaCapabilities API tests this with transferFunction:"hlg" — some devices support PQ but not HLG, or vice versa.',
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2561,7 +2873,11 @@ stream_hdr10.m3u8`,
                             { token: '08', meaning: '8-bit depth' }
                         ]
                     },
-                    overview: 'VP9 profiles map chroma subsampling and bit depth into a 2x2 matrix: Profile 0 (4:2:0/8-bit), Profile 1 (non-4:2:0/8-bit), Profile 2 (4:2:0/10-12-bit), Profile 3 (non-4:2:0/10-12-bit). Profile 1 preserves higher chroma resolution at 8-bit depth — used for screen content capture and graphics. Almost no consumer hardware decodes Profile 1; it falls back to software decode (libvpx). This test reveals whether the browser even advertises support for non-4:2:0 VP9.'
+                    overview: 'VP9 profiles map chroma subsampling and bit depth into a 2x2 matrix: Profile 0 (4:2:0/8-bit), Profile 1 (non-4:2:0/8-bit), Profile 2 (4:2:0/10-12-bit), Profile 3 (non-4:2:0/10-12-bit). Profile 1 preserves higher chroma resolution at 8-bit depth — used for screen content capture and graphics. Almost no consumer hardware decodes Profile 1; it falls back to software decode (libvpx). This test reveals whether the browser even advertises support for non-4:2:0 VP9.',
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2623,7 +2939,11 @@ stream_hdr10.m3u8`,
                             { token: '08', meaning: '8-bit depth' }
                         ]
                     },
-                    overview: 'This tests the same Profile 0 capability as bare "vp9" but using the explicit vp09.PP.LL.DD format. Some browsers handle the two forms differently — canPlayType may return "probably" for bare "vp9" but "maybe" or empty for "vp09.00.21.08" in WebM, because the ISOBMFF binding form was not part of the original WebM specification. This discrepancy reveals whether the browser treats the two strings as equivalent or applies different parsing logic.'
+                    overview: 'This tests the same Profile 0 capability as bare "vp9" but using the explicit vp09.PP.LL.DD format. Some browsers handle the two forms differently — canPlayType may return "probably" for bare "vp9" but "maybe" or empty for "vp09.00.21.08" in WebM, because the ISOBMFF binding form was not part of the original WebM specification. This discrepancy reveals whether the browser treats the two strings as equivalent or applies different parsing logic.',
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 },
                 mediaConfig: {
                     type: 'file',
@@ -2838,7 +3158,11 @@ stream_hdr10.m3u8`,
                             { token: "33", meaning: "level_idc: 0x33 = 51 decimal = Level 5.1. Levels cap resolution, framerate, bitrate, and DPB size. Level 5.1 allows 1080p@60 or 4K@30 at up to 50 Mbps. Formula: level = hex_to_dec / 10, so 0x1E=30→3.0, 0x28=40→4.0, 0x33=51→5.1" }
                         ]
                     },
-                    overview: "AVC codec strings are 6 hex characters — three bytes concatenated: profile_idc + constraint_flags + level_idc. Unlike AV1/VP9 (dot-separated decimal), AVC uses raw hex from the SPS NAL unit\n\nHigh Profile is the de facto standard for 1080p content. Netflix, YouTube, and Apple HLS all mandate High for HD streams. Baseline is reserved for low-latency videoconferencing and legacy mobile\n\nEvery browser and hardware decoder shipping since ~2012 supports High Profile Level 5.1. It's the safest codec string for maximum compatibility — if this fails, the device can't play H.264 at all"
+                    overview: "AVC codec strings are 6 hex characters — three bytes concatenated: profile_idc + constraint_flags + level_idc. Unlike AV1/VP9 (dot-separated decimal), AVC uses raw hex from the SPS NAL unit\n\nHigh Profile is the de facto standard for 1080p content. Netflix, YouTube, and Apple HLS all mandate High for HD streams. Baseline is reserved for low-latency videoconferencing and legacy mobile\n\nEvery browser and hardware decoder shipping since ~2012 supports High Profile Level 5.1. It's the safest codec string for maximum compatibility — if this fails, the device can't play H.264 at all",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             {
@@ -2932,7 +3256,11 @@ stream_hdr10.m3u8`,
                             { token: "28", meaning: "level_idc: 0x28 = 40 = Level 4.0. The Blu-ray level: 1080p@30fps at up to 20 Mbps (High) or 25 Mbps (High with CABAC). Most streaming services target Level 4.0 for 1080p30 content" }
                         ]
                     },
-                    overview: "Main Profile was the original 'good quality' profile — it adds CABAC (10-15% better compression than CAVLC) and B-frames (bidirectional prediction) over Baseline. High Profile then added 8×8 transforms on top\n\nThe constraint_set flags byte (middle hex pair) is often misunderstood. It's a bitfield where each bit declares compatibility with a lower profile. Setting constraint_set1 (0x40) in a Main string is redundant but valid — it just confirms Main compliance\n\nLevel 4.0 vs 5.1: Level 4.0 allows 1080p@30 (enough for most content). Level 5.1 doubles the macroblocks-per-second to allow 1080p@60 or 4K@30. Most encoders pick 4.0 for 30fps and 4.2 or 5.1 for 60fps"
+                    overview: "Main Profile was the original 'good quality' profile — it adds CABAC (10-15% better compression than CAVLC) and B-frames (bidirectional prediction) over Baseline. High Profile then added 8×8 transforms on top\n\nThe constraint_set flags byte (middle hex pair) is often misunderstood. It's a bitfield where each bit declares compatibility with a lower profile. Setting constraint_set1 (0x40) in a Main string is redundant but valid — it just confirms Main compliance\n\nLevel 4.0 vs 5.1: Level 4.0 allows 1080p@30 (enough for most content). Level 5.1 doubles the macroblocks-per-second to allow 1080p@60 or 4K@30. Most encoders pick 4.0 for 30fps and 4.2 or 5.1 for 60fps",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             // Baseline Profile
@@ -2962,7 +3290,11 @@ stream_hdr10.m3u8`,
                             { token: "1E", meaning: "level_idc: 0x1E = 30 = Level 3.0. Supports up to 720p@30fps at 10 Mbps. The standard level for video calling (WebRTC defaults to Baseline 3.0) and legacy mobile streaming" }
                         ]
                     },
-                    overview: "Baseline's ban on B-frames means every frame can be decoded with only past reference frames — no future-frame dependencies. This gives minimal decode latency (one frame), critical for WebRTC and video conferencing\n\nThe 0xE0 constraint byte is common in the wild. Encoder tools like x264 set all compatible constraint bits automatically. A Baseline stream is always Main-compatible and Extended-compatible by definition (it uses a strict subset of their tools)\n\nLevel 3.0 maps to 40,500 macroblocks/sec — enough for 720p@30. For 720p@60, you need Level 3.1 (0x1F = 108,000 MB/s). The level_idc hex-to-level formula: 0x1E=30→3.0, 0x1F=31→3.1, 0x20=32→3.2"
+                    overview: "Baseline's ban on B-frames means every frame can be decoded with only past reference frames — no future-frame dependencies. This gives minimal decode latency (one frame), critical for WebRTC and video conferencing\n\nThe 0xE0 constraint byte is common in the wild. Encoder tools like x264 set all compatible constraint bits automatically. A Baseline stream is always Main-compatible and Extended-compatible by definition (it uses a strict subset of their tools)\n\nLevel 3.0 maps to 40,500 macroblocks/sec — enough for 720p@30. For 720p@60, you need Level 3.1 (0x1F = 108,000 MB/s). The level_idc hex-to-level formula: 0x1E=30→3.0, 0x1F=31→3.1, 0x20=32→3.2",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             // Constrained Baseline (HLS common)
@@ -2992,7 +3324,11 @@ stream_hdr10.m3u8`,
                             { token: "1E", meaning: "level_idc: 0x1E = 30 = Level 3.0. Standard 720p@30 level for adaptive streaming lowest rung" }
                         ]
                     },
-                    overview: "Constrained Baseline is not a separate profile_idc — it's Baseline (0x42) with constraint_set1 (Main-compatible) set. This intersection means: I/P frames only (from Baseline) + no FMO/ASO (from Main). The result is the simplest possible H.264 that both Baseline and Main decoders accept\n\nApple's HLS Authoring Specification mandates Constrained Baseline 3.0 (avc1.42C01E) as the minimum rung in adaptive bitrate ladders. Every HLS player must handle this string. It's the 'universal fallback' codec for streaming\n\nCompare the constraint bytes: 42E01E (Baseline) vs 42C01E (Constrained Baseline). The only difference is 0xE0 vs 0xC0 — Baseline sets constraint_set2 (Extended-compatible) while Constrained Baseline doesn't. In practice both decode identically on every player"
+                    overview: "Constrained Baseline is not a separate profile_idc — it's Baseline (0x42) with constraint_set1 (Main-compatible) set. This intersection means: I/P frames only (from Baseline) + no FMO/ASO (from Main). The result is the simplest possible H.264 that both Baseline and Main decoders accept\n\nApple's HLS Authoring Specification mandates Constrained Baseline 3.0 (avc1.42C01E) as the minimum rung in adaptive bitrate ladders. Every HLS player must handle this string. It's the 'universal fallback' codec for streaming\n\nCompare the constraint bytes: 42E01E (Baseline) vs 42C01E (Constrained Baseline). The only difference is 0xE0 vs 0xC0 — Baseline sets constraint_set2 (Extended-compatible) while Constrained Baseline doesn't. In practice both decode identically on every player",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             // High 10 Profile (10-bit)
@@ -3022,7 +3358,11 @@ stream_hdr10.m3u8`,
                             { token: "33", meaning: "level_idc: 0x33 = 51 = Level 5.1. Same level arithmetic as 8-bit — levels don't change based on bit depth, but 10-bit doubles the raw data per pixel so the effective bitrate ceiling matters more" }
                         ]
                     },
-                    overview: "High 10 is infamous in the anime fansub community. x264's 10-bit mode reduces banding in gradient-heavy animation (common in anime's flat-shaded cel style) by encoding in 10-bit then dithering to 8-bit on display. The encoder gets more precision for quantization decisions even if the display is 8-bit\n\nHardware decode support is rare: no browser ships a High 10 H.264 hardware decoder. Chrome, Firefox, and Safari all report unsupported. The content exists overwhelmingly in MKV fansub releases played through VLC/mpv with software decode (libx264). Jellyfin/Plex must transcode these to 8-bit High for streaming\n\nThis is why HEVC Main 10 and AV1 Main exist — they made 10-bit the baseline profile instead of an extension. If you need 10-bit in a browser, use HEVC Main 10 (hev1.2.4.L153.B0) or AV1 Main (av01.0.08M.10)"
+                    overview: "High 10 is infamous in the anime fansub community. x264's 10-bit mode reduces banding in gradient-heavy animation (common in anime's flat-shaded cel style) by encoding in 10-bit then dithering to 8-bit on display. The encoder gets more precision for quantization decisions even if the display is 8-bit\n\nHardware decode support is rare: no browser ships a High 10 H.264 hardware decoder. Chrome, Firefox, and Safari all report unsupported. The content exists overwhelmingly in MKV fansub releases played through VLC/mpv with software decode (libx264). Jellyfin/Plex must transcode these to 8-bit High for streaming\n\nThis is why HEVC Main 10 and AV1 Main exist — they made 10-bit the baseline profile instead of an extension. If you need 10-bit in a browser, use HEVC Main 10 (hev1.2.4.L153.B0) or AV1 Main (av01.0.08M.10)",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             // Additional AVC levels and profiles
@@ -3084,7 +3424,11 @@ stream_hdr10.m3u8`,
                             { token: "28", meaning: "level_idc: 0x28 = 40 = Level 4.0. Blu-ray standard level for 1080p@30. Combined with Constrained High this is the Apple HLS recommended string for 1080p30 HD rungs" }
                         ]
                     },
-                    overview: "Constrained High (constraint_set4+5) restricts High Profile by disabling: monochrome mode, scaling lists for 4:2:2/4:4:4, and some weighted prediction modes. The resulting subset is easier for hardware decoders to implement without sacrificing meaningful compression efficiency\n\nApple's HLS Authoring Specification recommends avc1.640028 (High 4.0) for general 1080p and avc1.640C28 (Constrained High 4.0) as an interop-safe alternative. The difference: 0x00 vs 0x0C constraint flags. Most hardware decoders treat them identically\n\nThe constraint_set4/5 flags (bits 4 and 5) were added later than the original set0-3 flags. They repurpose previously reserved bits in the SPS. Old decoders that predate the 2012 amendment ignore these bits, so Constrained High is backwards-compatible with regular High decoders"
+                    overview: "Constrained High (constraint_set4+5) restricts High Profile by disabling: monochrome mode, scaling lists for 4:2:2/4:4:4, and some weighted prediction modes. The resulting subset is easier for hardware decoders to implement without sacrificing meaningful compression efficiency\n\nApple's HLS Authoring Specification recommends avc1.640028 (High 4.0) for general 1080p and avc1.640C28 (Constrained High 4.0) as an interop-safe alternative. The difference: 0x00 vs 0x0C constraint flags. Most hardware decoders treat them identically\n\nThe constraint_set4/5 flags (bits 4 and 5) were added later than the original set0-3 flags. They repurpose previously reserved bits in the SPS. Old decoders that predate the 2012 amendment ignore these bits, so Constrained High is backwards-compatible with regular High decoders",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             {
@@ -3129,7 +3473,11 @@ stream_hdr10.m3u8`,
                             { token: "1E", meaning: "level_idc: 0x1E = 30 = Level 3.0. Standard 720p@30 level" }
                         ]
                     },
-                    overview: "Extended Profile was designed for streaming with graceful degradation — its SP/SI slices allow switching between bitrate streams without I-frame alignment, and data partitioning lets a decoder recover from packet loss. In theory, ideal for mobile networks circa 2005\n\nIn practice, Extended Profile was dead on arrival. CABAC-based Main/High profiles gave better compression, adaptive bitrate (HLS/DASH) solved stream switching at the manifest level, and no major hardware vendor implemented Extended's SP/SI decoding. By the time streaming took off, Extended was irrelevant\n\nMost browsers report 'unsupported' for this string. It exists in the spec but has near-zero real-world content. If you see it reported as supported, the browser is likely accepting the Baseline-compatible subset (via constraint_set0) and ignoring the Extended-specific tools"
+                    overview: "Extended Profile was designed for streaming with graceful degradation — its SP/SI slices allow switching between bitrate streams without I-frame alignment, and data partitioning lets a decoder recover from packet loss. In theory, ideal for mobile networks circa 2005\n\nIn practice, Extended Profile was dead on arrival. CABAC-based Main/High profiles gave better compression, adaptive bitrate (HLS/DASH) solved stream switching at the manifest level, and no major hardware vendor implemented Extended's SP/SI decoding. By the time streaming took off, Extended was irrelevant\n\nMost browsers report 'unsupported' for this string. It exists in the spec but has near-zero real-world content. If you see it reported as supported, the browser is likely accepting the Baseline-compatible subset (via constraint_set0) and ignoring the Extended-specific tools",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             {
@@ -3158,7 +3506,11 @@ stream_hdr10.m3u8`,
                             { token: "28", meaning: "level_idc: 0x28 = 40 = Level 4.0. At 4:2:2, the bitrate ceiling is 50% higher than 4:2:0 at the same level because there's 50% more chroma data per frame" }
                         ]
                     },
-                    overview: "4:2:2 means chroma (Cb/Cr) is sampled at full horizontal resolution but half vertical — twice the color data of 4:2:0 (which halves both). Used in professional video where chroma keying (green screen) or color grading needs precise color edges. Consumer content is always 4:2:0\n\nNo browser supports High 4:2:2 decode. It's a production/editing codec — cameras (Sony XAVC, Canon C-Log) capture in 4:2:2, editors work in 4:2:2, then the final encode for distribution is 4:2:0 High Profile. Jellyfin/Plex will always transcode 4:2:2 H.264\n\nThe profile_idc values form an ascending chain: 66 (Baseline) → 77 (Main) → 88 (Extended) → 100 (High) → 110 (High10) → 122 (High422) → 244 (High444PP). Each adds capabilities; a decoder supporting N supports all profiles below N"
+                    overview: "4:2:2 means chroma (Cb/Cr) is sampled at full horizontal resolution but half vertical — twice the color data of 4:2:0 (which halves both). Used in professional video where chroma keying (green screen) or color grading needs precise color edges. Consumer content is always 4:2:0\n\nNo browser supports High 4:2:2 decode. It's a production/editing codec — cameras (Sony XAVC, Canon C-Log) capture in 4:2:2, editors work in 4:2:2, then the final encode for distribution is 4:2:0 High Profile. Jellyfin/Plex will always transcode 4:2:2 H.264\n\nThe profile_idc values form an ascending chain: 66 (Baseline) → 77 (Main) → 88 (Extended) → 100 (High) → 110 (High10) → 122 (High422) → 244 (High444PP). Each adds capabilities; a decoder supporting N supports all profiles below N",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             {
@@ -3203,7 +3555,11 @@ stream_hdr10.m3u8`,
                             { token: "33", meaning: "level_idc: 0x33 = 51 = Level 5.1" }
                         ]
                     },
-                    overview: "WebM was created by Google specifically for VP8/VP9/AV1 — the container spec (a Matroska subset) was deliberately restricted to royalty-free codecs. H.264 in WebM violates the container specification and no conformant muxer will produce this combination\n\nThis test exists to probe browser behavior: does the browser validate the codec-container pairing, or does it just check codec support independently? Chrome may report 'probably' (it handles H.264 and ignores the container mismatch), while Firefox returns '' (it enforces WebM codec restrictions)\n\nIn media server context, this matters for DASH: some DASH manifests specify video/webm with H.264 codec strings (misconfigured). If the browser reports support, playback might work via MSE. If not, the server needs to re-mux to MP4 or re-encode to VP9"
+                    overview: "WebM was created by Google specifically for VP8/VP9/AV1 — the container spec (a Matroska subset) was deliberately restricted to royalty-free codecs. H.264 in WebM violates the container specification and no conformant muxer will produce this combination\n\nThis test exists to probe browser behavior: does the browser validate the codec-container pairing, or does it just check codec support independently? Chrome may report 'probably' (it handles H.264 and ignores the container mismatch), while Firefox returns '' (it enforces WebM codec restrictions)\n\nIn media server context, this matters for DASH: some DASH manifests specify video/webm with H.264 codec strings (misconfigured). If the browser reports support, playback might work via MSE. If not, the server needs to re-mux to MP4 or re-encode to VP9",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             },
             // MKV AVC coverage
@@ -3265,7 +3621,11 @@ stream_hdr10.m3u8`,
                             { token: "33", meaning: "level_idc: 0x33 = 51 = Level 5.1" }
                         ]
                     },
-                    overview: "This is the dominant format in anime fansub releases (MKV + H.264 High 10 + ASS subtitles + FLAC audio). The MKV container adds another layer of incompatibility — browsers barely support video/x-matroska even for 8-bit H.264, let alone 10-bit\n\nDouble unsupported: the combination of MKV container + High 10 profile means this will fail on every browser. Jellyfin/Plex must remux (MKV→MP4) AND transcode (10-bit→8-bit) — the slowest path possible. This is why anime libraries have the highest transcode load\n\nThe 24fps framerate reflects anime's standard production rate (23.976fps in practice, rounded here). Unlike live-action content which uses 30/60fps, anime at 24fps needs lower level limits — but encoders target Level 5.1 anyway for the higher bitrate ceiling"
+                    overview: "This is the dominant format in anime fansub releases (MKV + H.264 High 10 + ASS subtitles + FLAC audio). The MKV container adds another layer of incompatibility — browsers barely support video/x-matroska even for 8-bit H.264, let alone 10-bit\n\nDouble unsupported: the combination of MKV container + High 10 profile means this will fail on every browser. Jellyfin/Plex must remux (MKV→MP4) AND transcode (10-bit→8-bit) — the slowest path possible. This is why anime libraries have the highest transcode load\n\nThe 24fps framerate reflects anime's standard production rate (23.976fps in practice, rounded here). Unlike live-action content which uses 30/60fps, anime at 24fps needs lower level limits — but encoders target Level 5.1 anyway for the higher bitrate ceiling",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' }
+                    ]
                 }
             }
         ]
@@ -3305,7 +3665,11 @@ stream_hdr10.m3u8`,
                             { token: "H8", meaning: "general_max_chroma_format_constraint: H prefix + additional chroma constraint. H8 = hex-encoded constraint value. These trailing fields let decoders quickly reject streams they can't handle without parsing the full bitstream header" }
                         ]
                     },
-                    overview: "VVC's codec string is the most verbose of any video codec — 8 dot-separated fields with named prefixes (L, CQ, S, T, B, H). This was deliberate: after the ambiguity of HEVC's hex constraint bytes, the VVC committee made each parameter self-documenting with letter prefixes\n\nVVC claims ~50% bitrate reduction over HEVC at the same quality (and ~75% over H.264). It achieves this through affine motion compensation, geometric partitioning, adaptive loop filtering, and 64×64 CTU sizes. The decoder complexity roughly doubles vs HEVC\n\nAs of 2025, no browser ships VVC decode support. Safari has partial VVC in VideoToolbox (Apple Silicon), Chrome has no timeline. The first hardware decoders appeared in MediaTek Dimensity 9300 (2024) and Samsung Exynos 2400. VVC is 3-5 years from browser ubiquity — following the same adoption curve HEVC had from 2013-2018"
+                    overview: "VVC's codec string is the most verbose of any video codec — 8 dot-separated fields with named prefixes (L, CQ, S, T, B, H). This was deliberate: after the ambiguity of HEVC's hex constraint bytes, the VVC committee made each parameter self-documenting with letter prefixes\n\nVVC claims ~50% bitrate reduction over HEVC at the same quality (and ~75% over H.264). It achieves this through affine motion compensation, geometric partitioning, adaptive loop filtering, and 64×64 CTU sizes. The decoder complexity roughly doubles vs HEVC\n\nAs of 2025, no browser ships VVC decode support. Safari has partial VVC in VideoToolbox (Apple Silicon), Chrome has no timeline. The first hardware decoders appeared in MediaTek Dimensity 9300 (2024) and Samsung Exynos 2400. VVC is 3-5 years from browser ubiquity — following the same adoption curve HEVC had from 2013-2018",
+                    references: [
+                        { title: 'ITU-T H.266' },
+                        { title: 'ISO/IEC 14496-15:2022' }
+                    ]
                 }
             },
             {
@@ -3370,7 +3734,11 @@ stream_hdr10.m3u8`,
                             { token: "CQ31.S10.T1.B1.H8", meaning: "constraints: Same constraint set as the 4K entry — Main 10, 4:2:0, 10-bit. The level is the only difference between this and L123 (4K)" }
                         ]
                     },
-                    overview: "VVC level arithmetic: divide by 30 to get major.minor. L93=3.1, L123=4.1, L153=5.1, L180=6.0. This differs from HEVC (divide by 30, multiply by... nothing, same formula) but the actual level values differ — HEVC L153=5.1 and VVC L153=5.1 have different capability limits\n\n8K VVC at Level 6.0 targets ~50% bitrate reduction over HEVC Level 6.0 at the same quality. That means 8K HDR10 at ~30 Mbps instead of ~60 Mbps — bringing 8K streaming into the range of residential broadband. NHK and ATSC 3.0 are the primary drivers\n\nNo consumer device decodes 8K VVC today. The first hardware decoders (MediaTek Dimensity 9300) max out at 4K@120fps (Level 5.1). 8K VVC will require next-generation SoCs targeting 2026-2027 — and by then, the question is whether 8K content will exist outside of NHK broadcasts and demo reels"
+                    overview: "VVC level arithmetic: divide by 30 to get major.minor. L93=3.1, L123=4.1, L153=5.1, L180=6.0. This differs from HEVC (divide by 30, multiply by... nothing, same formula) but the actual level values differ — HEVC L153=5.1 and VVC L153=5.1 have different capability limits\n\n8K VVC at Level 6.0 targets ~50% bitrate reduction over HEVC Level 6.0 at the same quality. That means 8K HDR10 at ~30 Mbps instead of ~60 Mbps — bringing 8K streaming into the range of residential broadband. NHK and ATSC 3.0 are the primary drivers\n\nNo consumer device decodes 8K VVC today. The first hardware decoders (MediaTek Dimensity 9300) max out at 4K@120fps (Level 5.1). 8K VVC will require next-generation SoCs targeting 2026-2027 — and by then, the question is whether 8K content will exist outside of NHK broadcasts and demo reels",
+                    references: [
+                        { title: 'ITU-T H.266' },
+                        { title: 'ISO/IEC 14496-15:2022' }
+                    ]
                 }
             },
             {
@@ -3398,7 +3766,11 @@ stream_hdr10.m3u8`,
                             { token: "1.L123.CQ31.S10.T1.B1.H8", meaning: "parameters: Identical parameter fields to vvc1 — profile, level, constraints, bit depth, chroma, and constraint values. The tag is the only difference" }
                         ]
                     },
-                    overview: "The tag pairs across codec generations: avc1/avc3 (H.264), hvc1/hev1 (HEVC), vvc1/vvi1 (VVC). Out-of-band (avc1/hvc1/vvc1) stores decoder config in the container; in-band (avc3/hev1/vvi1) includes it in every access unit. Out-of-band is more efficient; in-band is needed for live/broadcast where receivers join mid-stream\n\nFor DASH and HLS, vvc1 (out-of-band) is preferred — the init segment carries the decoder config once, and each media segment is pure coded data. vvi1 would repeat parameter sets in every segment, wasting bandwidth. In-band matters for MPEG-TS (no init segment concept) and broadcast DVB-VVC\n\nTesting both tags reveals whether a browser's VVC implementation (when it exists) handles both carriage modes. Early implementations often support only vvc1 since that's what MP4 demuxers expect. vvi1 support requires the demuxer to detect and strip in-band parameter sets"
+                    overview: "The tag pairs across codec generations: avc1/avc3 (H.264), hvc1/hev1 (HEVC), vvc1/vvi1 (VVC). Out-of-band (avc1/hvc1/vvc1) stores decoder config in the container; in-band (avc3/hev1/vvi1) includes it in every access unit. Out-of-band is more efficient; in-band is needed for live/broadcast where receivers join mid-stream\n\nFor DASH and HLS, vvc1 (out-of-band) is preferred — the init segment carries the decoder config once, and each media segment is pure coded data. vvi1 would repeat parameter sets in every segment, wasting bandwidth. In-band matters for MPEG-TS (no init segment concept) and broadcast DVB-VVC\n\nTesting both tags reveals whether a browser's VVC implementation (when it exists) handles both carriage modes. Early implementations often support only vvc1 since that's what MP4 demuxers expect. vvi1 support requires the demuxer to detect and strip in-band parameter sets",
+                    references: [
+                        { title: 'ITU-T H.266' },
+                        { title: 'ISO/IEC 14496-15:2022' }
+                    ]
                 }
             },
             {
@@ -3514,7 +3886,17 @@ segment_2.m4s
                         apple: 'Safari/WebKit has native HLS support with fMP4 since iOS 10+/macOS 10.12+. MSE API support added in iOS 17.1+/macOS Sonoma for web apps. Native HLS playback (via video.src) bypasses MSE and uses system decoder, offering better battery efficiency. Web apps using MSE (like Jellyfin web) require iOS 17.1+.',
                         lg: 'webOS supports MSE + HLS fMP4 since webOS 3.0. Native media pipeline handles segment concatenation. Jellyfin app uses webOS Luna API (getAppInfo, mediacodec) for direct hardware decoding. Race condition in early app launch may cause false negatives in codec detection.',
                         android: 'Chrome on Android supports MSE + fMP4 since Android 7.0. ExoPlayer (used by many media apps) has excellent HLS support. Hardware HEVC decoding requires MediaCodec with HEVC profile support. Software decoding fallback available but not performant for 4K HDR. Widevine L1 required for protected content.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             // HLS fMP4 with AVC
@@ -3561,7 +3943,15 @@ seg_h264_2.m4s
 #EXT-X-ENDLIST`,
                             notes: 'H.264 HLS fMP4 media playlist: EXT-X-MAP references the init segment (moov box with avcC configuration). 6-second segments are the Apple-recommended duration for VOD. This playlist is referenced from the master playlist as the lowest-capability variant — players that cannot handle HEVC or AV1 variants select this one.'
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             // CMAF (Common Media Application Format)
@@ -3620,7 +4010,16 @@ hevc_1080_sdr/playlist.m3u8`,
                         dolby: 'Dolby\'s CMAF requirements center on DV metadata delivery. For CMAF DV Profile 8.1, the dvcC (Dolby Vision Codec Configuration) box must be present in the init segment\'s HEVC sample entry. The RPU NALUs are in-band (in each moof/mdat fragment). For dual-layer DV (Profile 7), Dolby specifies track group signaling via the trgr box — both the BL and EL tracks reference the same track group. Dolby\'s "Bitstreams Within the ISO Base Media File Format" specification defines these CMAF constraints. The key difference from plain HEVC CMAF: the init segment\'s stsd box contains additional DV config boxes that Apple, LG, and Android DV stacks each parse differently.',
                         lg: 'webOS 4.0+ (2019 TVs) supports CMAF playback. webOS reads the init segment natively — the dvcC box in the sample entry triggers DV decoding at the firmware level via the Luna media pipeline. Unlike browsers that rely on MSE + JS codec detection, webOS\' native CMAF parser bypasses web APIs entirely. webOS 6+ added cbcs encryption support (required for Apple-compatible CMAF). Before webOS 6, only cenc/ctr was supported — meaning pre-2021 LG TVs cannot play Apple-encrypted CMAF content. webOS 25+ improved CMAF chunk boundary handling for low-latency streaming (LL-HLS/LL-DASH with chunked transfer encoding).',
                         android: 'Android\'s CMAF support depends on the player layer. ExoPlayer (used by Jellyfin/Kodi Android) handles CMAF natively with both cbcs and cenc/ctr modes since ExoPlayer 2.12+. The underlying MediaCodec API doesn\'t know about CMAF — ExoPlayer demuxes fMP4 and feeds NALUs to the hardware decoder. For DV CMAF, ExoPlayer reads the dvcC box from the init segment and activates the DV decoder path if the SoC supports it (Snapdragon 865+, Dimensity 1000+). Android 12+ added platform-level cbcs support, fixing compatibility with Apple-encrypted CMAF on older ExoPlayer versions.'
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'ISO/IEC 23000-19' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             // DASH with AV1
@@ -3652,7 +4051,13 @@ hevc_1080_sdr/playlist.m3u8`,
                             { token: '10', meaning: '10-bit: Required for HDR10 PQ transfer function' }
                         ]
                     },
-                    overview: "AV1 DASH with HDR10 is the format YouTube and Netflix use for 4K HDR on non-Apple devices. AV1's royalty-free status means no per-stream licensing fees — a major factor at YouTube/Netflix scale (billions of streams per day)\n\nDASH HDR signaling for AV1 uses SupplementalProperty with CICP codes, same as HEVC DASH. The AV1 bitstream also carries HDR metadata internally (OBU metadata with HDR_CLL and HDR_MDCV), but DASH players rely on the MPD properties for initial HDR pipeline activation before parsing the first segment"
+                    overview: "AV1 DASH with HDR10 is the format YouTube and Netflix use for 4K HDR on non-Apple devices. AV1's royalty-free status means no per-stream licensing fees — a major factor at YouTube/Netflix scale (billions of streams per day)\n\nDASH HDR signaling for AV1 uses SupplementalProperty with CICP codes, same as HEVC DASH. The AV1 bitstream also carries HDR metadata internally (OBU metadata with HDR_CLL and HDR_MDCV), but DASH players rely on the MPD properties for initial HDR pipeline activation before parsing the first segment",
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             // DASH with VP9
@@ -3684,7 +4089,13 @@ hevc_1080_sdr/playlist.m3u8`,
                             { token: '10', meaning: '10-bit depth: Required for PQ/HLG HDR' }
                         ]
                     },
-                    overview: "VP9 HDR via DASH in WebM container is the YouTube legacy HDR format. Before AV1 hardware decode became widespread (2021+), VP9 Profile 2 was the only royalty-free way to stream 4K HDR. YouTube still serves VP9 HDR to devices that lack AV1 hardware decode\n\nThe WebM container in DASH uses Matroska-based segments (not ISO BMFF). This means VP9 WebM DASH and VP9 MP4 DASH have different segment formats despite carrying the same codec. Chrome supports both, Firefox supports both, Safari supports neither (no VP9). For Jellyfin, VP9 DASH is useful for Chrome/Firefox clients without HEVC support"
+                    overview: "VP9 HDR via DASH in WebM container is the YouTube legacy HDR format. Before AV1 hardware decode became widespread (2021+), VP9 Profile 2 was the only royalty-free way to stream 4K HDR. YouTube still serves VP9 HDR to devices that lack AV1 hardware decode\n\nThe WebM container in DASH uses Matroska-based segments (not ISO BMFF). This means VP9 WebM DASH and VP9 MP4 DASH have different segment formats despite carrying the same codec. Chrome supports both, Firefox supports both, Safari supports neither (no VP9). For Jellyfin, VP9 DASH is useful for Chrome/Firefox clients without HEVC support",
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             {
@@ -3725,7 +4136,13 @@ hevc_1080_sdr/playlist.m3u8`,
                             }
                         ]
                     },
-                    "overview": "VP9 SDR in WebM container for DASH streaming. YouTube uses this exact configuration for 1080p SDR delivery — VP9 Profile 0 in WebM is the most widely deployed adaptive streaming codec on the web. MSE (MediaSource Extensions) has excellent VP9+WebM support in Chrome and Firefox. Safari does not support WebM containers, making this a Chrome/Firefox-only streaming path. For cross-browser DASH, MP4 containers with VP9 provide Safari compatibility."
+                    "overview": "VP9 SDR in WebM container for DASH streaming. YouTube uses this exact configuration for 1080p SDR delivery — VP9 Profile 0 in WebM is the most widely deployed adaptive streaming codec on the web. MSE (MediaSource Extensions) has excellent VP9+WebM support in Chrome and Firefox. Safari does not support WebM containers, making this a Chrome/Firefox-only streaming path. For cross-browser DASH, MP4 containers with VP9 provide Safari compatibility.",
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             {
@@ -3768,7 +4185,13 @@ hevc_1080_sdr/playlist.m3u8`,
                             }
                         ]
                     },
-                    "overview": "AV1 HDR in WebM container for DASH. This tests AV1 HDR delivery in Google's preferred container format. YouTube serves AV1 HDR in WebM for Chrome — the same codec in MP4 containers targets Safari and TV platforms. The WebM container supports AV1 natively (unlike HEVC, which WebM does not support). For DASH MPD signaling, WebM AV1 uses the same codec string as MP4 AV1 — only the container MIME type changes. This test reveals whether MSE implementations support AV1 HDR specifically in WebM (some support AV1 SDR in WebM but not HDR)."
+                    "overview": "AV1 HDR in WebM container for DASH. This tests AV1 HDR delivery in Google's preferred container format. YouTube serves AV1 HDR in WebM for Chrome — the same codec in MP4 containers targets Safari and TV platforms. The WebM container supports AV1 natively (unlike HEVC, which WebM does not support). For DASH MPD signaling, WebM AV1 uses the same codec string as MP4 AV1 — only the container MIME type changes. This test reveals whether MSE implementations support AV1 HDR specifically in WebM (some support AV1 SDR in WebM but not HDR).",
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             // Additional streaming formats
@@ -3828,7 +4251,14 @@ sdr_1080/playlist.m3u8`,
 </AdaptationSet>`,
                             notes: 'DASH DV signaling: codecs= declares the HEVC base layer (backward-compatible HDR10). supplementalCodecs= declares the DV enhancement. Non-DV players read codecs= only and play HEVC. DV players activate both. This is one AdaptationSet serving both audiences — unlike HLS which needs separate variant streams.'
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             {
@@ -3870,7 +4300,14 @@ segment_002.ts
 #EXT-X-ENDLIST`,
                             notes: 'Legacy MPEG-TS HLS: VERSION:3 (no fMP4 support needed). Each .ts segment is self-contained — no separate init segment required (unlike fMP4 which needs EXT-X-MAP). The MPEG-TS container includes PAT/PMT tables and PES headers in every segment, making segments joinable mid-stream but adding ~5% overhead vs fMP4. Jellyfin generates TS segments by default for HLS transcoding because ffmpeg TS muxing is faster than fMP4 muxing.'
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             {
@@ -3917,7 +4354,12 @@ segment_002.ts
                             "m3u8": "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:10.000,\nseg0.ts\n#EXTINF:10.000,\nseg1.ts\n#EXT-X-ENDLIST",
                             "notes": "MPEG-TS HLS uses EXT-X-VERSION:3 per RFC 8216 — no fMP4 features needed. Version 6+ enables EXT-X-MAP for fMP4 init segments (Section 4.3.2.5); TS playlists don't use EXT-X-MAP. Apple now recommends fMP4 (Version 7) over TS for new deployments, but TS Baseline 720p remains required for maximum device reach. Each .ts segment is self-contained with PAT/PMT tables — no separate init segment required."
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'ISO/IEC 13818-1' }
+                    ]
                 }
             },
             {
@@ -3970,7 +4412,12 @@ segment_002.ts
                             "m3u8": "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:6\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:6.006,\nseg0.ts\n#EXTINF:6.006,\nseg1.ts\n#EXT-X-ENDLIST",
                             "notes": "HEVC in MPEG-TS for HLS. EXT-X-VERSION:3 per RFC 8216 — no EXT-X-MAP needed (that requires Version 6+, Section 4.3.2.5). Each TS segment is self-contained with PAT/PMT/PES headers. The HEVC stream uses Annex B format with start codes (0x00000001). For HDR10, HEVC SEI messages (mastering display color volume, content light level) must repeat in every TS segment for random access — unlike fMP4 where they live once in the init segment."
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'ISO/IEC 13818-1' }
+                    ]
                 }
             },
             {
@@ -4006,7 +4453,11 @@ segment_002.ts
                             }
                         ]
                     },
-                    "overview": "AAC-LC audio in MPEG Transport Stream. Note the MIME type is video/mp2t even though this is audio — MPEG-TS is a multiplexing container that uses the video MIME type regardless of content. AAC in TS is carried as ADTS (Audio Data Transport Stream) frames within PES packets. This is the standard audio format for HLS MPEG-TS segments. The mediaCapabilities API may reject this test because the AudioConfiguration uses a video/ MIME type — CodecProbe guards against this by skipping API 3 for MPEG-TS audio entries."
+                    "overview": "AAC-LC audio in MPEG Transport Stream. Note the MIME type is video/mp2t even though this is audio — MPEG-TS is a multiplexing container that uses the video MIME type regardless of content. AAC in TS is carried as ADTS (Audio Data Transport Stream) frames within PES packets. This is the standard audio format for HLS MPEG-TS segments. The mediaCapabilities API may reject this test because the AudioConfiguration uses a video/ MIME type — CodecProbe guards against this by skipping API 3 for MPEG-TS audio entries.",
+                    references: [
+                        { title: 'ISO/IEC 14496-3' },
+                        { title: 'ISO/IEC 13818-1' }
+                    ]
                 }
             },
             {
@@ -4034,7 +4485,11 @@ segment_002.ts
                             }
                         ]
                     },
-                    "overview": "Dolby Digital 5.1 surround sound in MPEG Transport Stream. AC-3 in TS is common in broadcast TV (ATSC, DVB) and HLS for Apple TV. The TS container carries AC-3 as a private stream within PES packets. For HLS, Apple requires AC-3/E-AC-3 audio to be declared in the master playlist with the AUDIO group-id and CODECS attribute. AC-3 5.1 in TS is the standard surround sound format for broadcast-origin HLS content — newer Atmos/spatial audio uses E-AC-3 JOC in fMP4 instead."
+                    "overview": "Dolby Digital 5.1 surround sound in MPEG Transport Stream. AC-3 in TS is common in broadcast TV (ATSC, DVB) and HLS for Apple TV. The TS container carries AC-3 as a private stream within PES packets. For HLS, Apple requires AC-3/E-AC-3 audio to be declared in the master playlist with the AUDIO group-id and CODECS attribute. AC-3 5.1 in TS is the standard surround sound format for broadcast-origin HLS content — newer Atmos/spatial audio uses E-AC-3 JOC in fMP4 instead.",
+                    references: [
+                        { title: 'ETSI TS 102 366' },
+                        { title: 'ISO/IEC 13818-1' }
+                    ]
                 }
             },
             {
@@ -4067,7 +4522,16 @@ segment_002.ts
                         apple: 'Apple supports AV1 CMAF on A15+ (iPhone 15+), M1+ Macs, and Apple TV 4K 3rd gen. cbcs encryption required for FairPlay. AV1 CMAF uses the same fMP4 infrastructure as HEVC CMAF — the only difference is the codec-specific boxes (av1C vs hvcC) in the init segment.',
                         lg: 'webOS 6.0+ supports AV1 CMAF with the MediaTek MT5895 SoC. The native CMAF parser reads the av1C box from the init segment. AV1 CMAF encryption: webOS 6+ supports cbcs, enabling unified CMAF AV1 segments for both Apple and LG TVs.',
                         android: 'ExoPlayer supports AV1 CMAF on devices with hardware AV1 decode (Snapdragon 888+, Dimensity 9000+). Both cbcs and cenc encryption modes work on Android 12+. For Jellyfin, AV1 CMAF is the best future-proof option for new transcodes — royalty-free, excellent compression, growing hardware support.'
-                    }
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'ISO/IEC 23000-19' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -4093,7 +4557,14 @@ segment_002.ts
                             { token: 'avc1.640028', meaning: 'H.264 High L4.0 in CMAF: Same codec string as regular H.264, wrapped in CMAF-compliant fMP4 segments. CMAF H.264 is the absolute lowest common denominator for unified streaming — every HLS and DASH player in existence supports it' }
                         ]
                     },
-                    overview: "CMAF H.264 is the fallback-of-fallbacks. When HEVC CMAF fails (no hardware decode), AV1 CMAF fails (too new), DV CMAF fails (no DV support) — H.264 CMAF always works. The CMAF spec (ISO/IEC 23000-19) defines H.264 as the mandatory baseline codec\n\nThe practical value of CMAF H.264: a single set of H.264 fMP4 segments serves as the universal fallback for both HLS and DASH ABR ladders. CDN storage for the H.264 tier is shared across all client types. For Jellyfin, this means the transcode target for maximum compatibility (H.264 CMAF fMP4) produces segments usable by every client — Apple via HLS, Android/TV via DASH, desktop browsers via either"
+                    overview: "CMAF H.264 is the fallback-of-fallbacks. When HEVC CMAF fails (no hardware decode), AV1 CMAF fails (too new), DV CMAF fails (no DV support) — H.264 CMAF always works. The CMAF spec (ISO/IEC 23000-19) defines H.264 as the mandatory baseline codec\n\nThe practical value of CMAF H.264: a single set of H.264 fMP4 segments serves as the universal fallback for both HLS and DASH ABR ladders. CDN storage for the H.264 tier is shared across all client types. For Jellyfin, this means the transcode target for maximum compatibility (H.264 CMAF fMP4) produces segments usable by every client — Apple via HLS, Android/TV via DASH, desktop browsers via either",
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'ISO/IEC 23000-19' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                    ]
                 }
             },
             {
@@ -4139,7 +4610,15 @@ segment_002.ts
 </AdaptationSet>`,
                             notes: 'H.264 DASH ABR ladder: Multiple Representations in one AdaptationSet. The DASH player (Shaka/dash.js) switches between Representations based on network bandwidth. All Representations share the same SegmentTemplate — only the init segment and segment content differ per resolution. segmentAlignment=true enables seamless switching between quality levels.'
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                    ]
                 }
             },
             {
@@ -4185,7 +4664,15 @@ segment_002.ts
 </AdaptationSet>`,
                             notes: 'DASH HEVC HDR signaling: SupplementalProperty with CICP codes — TransferCharacteristics=16 (PQ/ST.2084) and ColourPrimaries=9 (BT.2020). DASH players use these to activate the HDR rendering pipeline. Without CICP properties, some players display HDR content in SDR mode (washed out colors).'
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                    ]
                 }
             },
             {
@@ -4233,7 +4720,16 @@ video_1080/playlist.m3u8`,
                         apple: 'Apple devices decode E-AC-3 in hardware on iPhone 7+, iPad Pro 2017+, Apple TV 4K, and all Macs with T2/Apple Silicon. Safari reports E-AC-3 support via mediaCapabilities. For Atmos, Apple requires AirPods Pro/Max, HomePod, or HDMI passthrough to an Atmos-capable receiver. Apple mandates the CHANNELS="16/JOC" attribute in HLS for Atmos signaling — without it, even capable devices won\'t activate the Atmos decoder.',
                         lg: 'webOS has native E-AC-3 decode in all models since webOS 1.0 (2014). Atmos decode added in webOS 4.0+ (2019) via eARC or optical passthrough. webOS reports E-AC-3 support through its native media pipeline but may not expose it via browser canPlayType — the Jellyfin webOS app bypasses browser APIs and queries Luna IPC for audio codec support directly.',
                         android: 'E-AC-3 decode on Android requires hardware support from the SoC audio DSP. Most Snapdragon 600+ series chips include E-AC-3 decode. Android TV devices (Shield, Chromecast) support E-AC-3 passthrough via HDMI to AVRs. ExoPlayer detects E-AC-3 capability via MediaCodecInfo and falls back to AAC stereo when unavailable.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 102 366' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -4277,7 +4773,14 @@ audio_seg_2.m4s
 #EXT-X-ENDLIST`,
                             notes: 'AAC media playlist: EXT-X-MAP points to the init segment containing the esds box with AudioSpecificConfig. Shorter segments (4s) than video enable faster track switching. This is a media playlist — the master playlist references it via EXT-X-MEDIA with GROUP-ID for audio rendition selection.'
                         }
-                    }
+                    },
+                    references: [
+                        { title: 'ISO/IEC 14496-3' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             },
             {
@@ -4341,7 +4844,17 @@ h264_1080/playlist.m3u8`,
                         apple: 'AV1 hardware decode: iPhone 15+ (A15+ with AV1 decode block), iPad M1+, Mac M1+, Apple TV 4K 3rd gen (A15). Safari on older hardware does not support AV1 — no software fallback. In HLS, Apple treats AV1 like HEVC: VIDEO-RANGE=PQ for HDR, fMP4 segments with EXT-X-MAP. Apple TV+ started serving AV1 to capable devices in late 2023.',
                         lg: 'webOS AV1 support: webOS 6.0+ (2021 TVs with MediaTek MT5895 SoC) supports AV1 hardware decode up to 4K@60fps. Older webOS TVs have no AV1 support (no software fallback). webOS treats AV1 like any other fMP4 codec — the native pipeline reads the av01 sample entry from the init segment.',
                         android: 'AV1 hardware decode varies widely: Snapdragon 888+ (2021), Dimensity 9000+ (2022), Samsung Exynos 2200+ (2022), Tensor G2+ (Pixel 7). Software AV1 decode via dav1d is available on Android 10+ but too slow for 4K. ExoPlayer uses MediaCodec for hardware AV1 and falls back to dav1d for lower resolutions. For Jellyfin, this means AV1 direct play works on flagship devices from 2021+ — older devices need HEVC or H.264 transcoding.'
-                    }
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -4372,7 +4885,14 @@ h264_1080/playlist.m3u8`,
                             { token: '10', meaning: '10-bit depth. Enables PQ/HLG transfer functions and BT.2020 wide color gamut' }
                         ]
                     },
-                    overview: "VP9 in CMAF is an unusual combination. VP9 was designed for the WebM container (Matroska-based), not ISO BMFF. Putting VP9 in fMP4 requires the VP Codec ISO Media File Format Binding specification (Google/WebM Project), which maps VP9 codec configuration to the vpcC box in the MP4 sample entry\n\nIn practice, VP9 CMAF is primarily used by YouTube for DASH delivery in MP4 containers (as opposed to WebM). The CMAF profile for VP9 uses the same fMP4 structure as HEVC/AV1 CMAF but with VP9-specific init segment boxes. Apple HLS does not support VP9 in any container — Safari has no VP9 decode. This limits VP9 CMAF to DASH-only deployments or Chrome/Firefox HLS implementations\n\nFor media servers, VP9 CMAF is niche — AV1 is the preferred royalty-free codec for new CMAF content, and HEVC CMAF has broader platform support. VP9 CMAF exists mainly for YouTube backward compatibility"
+                    overview: "VP9 in CMAF is an unusual combination. VP9 was designed for the WebM container (Matroska-based), not ISO BMFF. Putting VP9 in fMP4 requires the VP Codec ISO Media File Format Binding specification (Google/WebM Project), which maps VP9 codec configuration to the vpcC box in the MP4 sample entry\n\nIn practice, VP9 CMAF is primarily used by YouTube for DASH delivery in MP4 containers (as opposed to WebM). The CMAF profile for VP9 uses the same fMP4 structure as HEVC/AV1 CMAF but with VP9-specific init segment boxes. Apple HLS does not support VP9 in any container — Safari has no VP9 decode. This limits VP9 CMAF to DASH-only deployments or Chrome/Firefox HLS implementations\n\nFor media servers, VP9 CMAF is niche — AV1 is the preferred royalty-free codec for new CMAF content, and HEVC CMAF has broader platform support. VP9 CMAF exists mainly for YouTube backward compatibility",
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ISO/IEC 23000-19' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                    ]
                 }
             },
             {
@@ -4424,7 +4944,16 @@ h264_1080/playlist.m3u8`,
                         dolby: 'Dolby\'s reference implementation uses supplementalCodecs as the canonical DASH DV signaling. The init segment must contain the dvcC box in the HEVC sample entry (stsd > hvc1/hev1 > dvcC). Dolby Vision Streams Within the ISO BMFF specification defines the box layout. Dolby mandates that the RPU NALUs appear as in-band SEI messages in every access unit — the DV enhancement is not stored separately.',
                         lg: 'webOS DASH support uses the native media pipeline, not a JS DASH player. The webOS media framework reads the MPD and init segments directly. For DV, webOS checks the dvcC box from the init segment, then queries Luna IPC getHdrCapabilities to confirm hardware DV support. webOS 6+ supports P8.1 via DASH. The race condition (getHdrCapabilities returning before Luna IPC completes) can cause false negatives on first DASH playback — retry or delayed detection is the workaround.',
                         android: 'ExoPlayer parses supplementalCodecs from the DASH MPD since ExoPlayer 2.15+. When supplementalCodecs contains a DV tag, ExoPlayer checks if the device\'s MediaCodec supports the DV profile. Snapdragon 865+ and Dimensity 1000+ SoCs report DV capability via MediaCodecInfo. ExoPlayer then activates DV decoding by configuring the codec with the DV MIME type (video/dolby-vision) instead of video/hevc.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -4487,7 +5016,15 @@ cmaf_hdr10/playlist.m3u8`,
                         dolby: 'Dolby\'s CMAF DV specification requires the dvcC box in the init segment\'s sample entry (stsd > hvc1 > dvcC). The RPU NALUs must be present as in-band SEI NAL units in every CMAF fragment. For CMAF DV Profile 8.1, Dolby specifies that the base layer HEVC must be independently decodable — the DV RPU is enhancement-only. This is what makes P8.1 CMAF work: strip the RPU NALUs and you have valid HEVC.',
                         lg: 'webOS reads CMAF init segments natively to detect DV. The dvcC box triggers the DV firmware path via Luna IPC. webOS 6+ supports cbcs-encrypted CMAF (required for Apple-compatible unified segments). Pre-webOS 6 TVs (2020 and earlier) only support cenc/ctr encryption — these cannot play Apple-encrypted CMAF DV content and require separate cenc-encrypted segments or unencrypted fallback.',
                         android: 'ExoPlayer handles CMAF DV by reading the dvcC box from the init segment. For DRM, ExoPlayer supports both cbcs and cenc/ctr on Android 12+ devices. On Android 10-11, cbcs support is SoC-dependent (Qualcomm Snapdragon 855+ supports it, older chips may not). This means Apple-encrypted CMAF DV works on newer Android but fails on older devices — Jellyfin should detect cbcs capability and fall back to cenc-encrypted segments when needed.'
-                    }
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'ISO/IEC 23000-19' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
+                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                    ]
                 }
             },
             {
@@ -4517,7 +5054,13 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: 'B0', meaning: 'No additional constraint flags' }
                         ]
                     },
-                    overview: "SDR HEVC via HLS fills the gap between H.264 (universal but lower compression) and HEVC HDR (higher quality but requires HDR display). For 1080p SDR content, HEVC Main Profile offers ~40% bitrate savings over H.264 High Profile at equivalent quality\n\nThis is the variant Apple TV+ uses for SDR catalog content on HEVC-capable devices. No VIDEO-RANGE attribute is needed in the HLS manifest (SDR is the default). The absence of transferFunction and colorGamut in mediaConfig means the browser's mediaCapabilities API evaluates this as pure SDR — no HDR pipeline activation, no tone mapping overhead"
+                    overview: "SDR HEVC via HLS fills the gap between H.264 (universal but lower compression) and HEVC HDR (higher quality but requires HDR display). For 1080p SDR content, HEVC Main Profile offers ~40% bitrate savings over H.264 High Profile at equivalent quality\n\nThis is the variant Apple TV+ uses for SDR catalog content on HEVC-capable devices. No VIDEO-RANGE attribute is needed in the HLS manifest (SDR is the default). The absence of transferFunction and colorGamut in mediaConfig means the browser's mediaCapabilities API evaluates this as pure SDR — no HDR pipeline activation, no tone mapping overhead",
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                    ]
                 }
             },
             {
@@ -4546,7 +5089,13 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: '08', meaning: '8-bit depth. SDR content — no HDR metadata, no wide color gamut. Standard BT.709 color space' }
                         ]
                     },
-                    overview: "SDR AV1 at 1080p is YouTube's default delivery codec for Chrome users. At 4 Mbps, AV1 SDR 1080p matches the visual quality of H.264 at 6-8 Mbps — a significant bandwidth saving at scale. Netflix uses SDR AV1 for mobile device streaming where bandwidth is constrained\n\nThe 08 bit depth (8-bit) distinguishes this from HDR AV1 (which uses 10). 8-bit AV1 is slightly faster to decode than 10-bit because there's no bit-depth upconversion. On devices with AV1 hardware decode, this difference is negligible. On software decode (dav1d), 8-bit 1080p is roughly 20% faster than 10-bit — enough to make the difference between real-time and stuttering on older mobile SoCs"
+                    overview: "SDR AV1 at 1080p is YouTube's default delivery codec for Chrome users. At 4 Mbps, AV1 SDR 1080p matches the visual quality of H.264 at 6-8 Mbps — a significant bandwidth saving at scale. Netflix uses SDR AV1 for mobile device streaming where bandwidth is constrained\n\nThe 08 bit depth (8-bit) distinguishes this from HDR AV1 (which uses 10). 8-bit AV1 is slightly faster to decode than 10-bit because there's no bit-depth upconversion. On devices with AV1 hardware decode, this difference is negligible. On software decode (dav1d), 8-bit 1080p is roughly 20% faster than 10-bit — enough to make the difference between real-time and stuttering on older mobile SoCs",
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                    ]
                 }
             }
         ]
@@ -4580,7 +5129,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "ac-3", meaning: "Dolby Digital tag: ETSI TS 102 366 / ATSC A/52. AC-3 is the original Dolby Digital: perceptual coding with 5.1 channels at up to 640 kbps. The codec string is a bare tag — no profile/level parameters. All AC-3 decoders handle the full spec" }
                         ]
                     },
-                    overview: "AC-3 has been the mandatory audio codec for DVD-Video since 1997 and ATSC digital TV since 1995. Every surround sound system and AV receiver made in the last 30 years decodes AC-3. It's the lowest common denominator for surround audio — if a device claims 5.1 support, it means AC-3\n\nBrowser support splits along platform lines: Safari/macOS decodes AC-3 natively (CoreAudio). Chrome on Windows uses the OS decoder (available since Windows 10). Chrome on Linux/ChromeOS generally does not support AC-3. Firefox doesn't support it on any platform (licensing). For Jellyfin, this means AC-3 passthrough works on Safari/Edge but needs transcoding to AAC for Firefox\n\nThe Dolby audio codec hierarchy: AC-3 (1992, lossy 5.1) → E-AC-3/DD+ (2004, lossy 7.1 + Atmos JOC) → TrueHD (2005, lossless 7.1 + Atmos) → AC-4 (2017, next-gen immersive). Each generation is backward-compatible: E-AC-3 streams carry an AC-3 core, TrueHD carries an AC-3 fallback on Blu-ray"
+                    overview: "AC-3 has been the mandatory audio codec for DVD-Video since 1997 and ATSC digital TV since 1995. Every surround sound system and AV receiver made in the last 30 years decodes AC-3. It's the lowest common denominator for surround audio — if a device claims 5.1 support, it means AC-3\n\nBrowser support splits along platform lines: Safari/macOS decodes AC-3 natively (CoreAudio). Chrome on Windows uses the OS decoder (available since Windows 10). Chrome on Linux/ChromeOS generally does not support AC-3. Firefox doesn't support it on any platform (licensing). For Jellyfin, this means AC-3 passthrough works on Safari/Edge but needs transcoding to AAC for Firefox\n\nThe Dolby audio codec hierarchy: AC-3 (1992, lossy 5.1) → E-AC-3/DD+ (2004, lossy 7.1 + Atmos JOC) → TrueHD (2005, lossless 7.1 + Atmos) → AC-4 (2017, next-gen immersive). Each generation is backward-compatible: E-AC-3 streams carry an AC-3 core, TrueHD carries an AC-3 fallback on Blu-ray",
+                    references: [
+                        { title: 'ETSI TS 102 366' }
+                    ]
                 }
             },
             {
@@ -4621,7 +5173,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "ec-3", meaning: "Dolby Digital Plus tag: Enhanced AC-3 (ETSI TS 102 366 Annex E). Doubles AC-3's channel count (7.1), triples bitrate ceiling (6.144 Mbps), and supports Dolby Atmos via Joint Object Coding (JOC). The codec string is bare — Atmos presence is signaled in the bitstream, not the MIME type" }
                         ]
                     },
-                    overview: "E-AC-3 is the mandatory Dolby audio format for streaming services. Netflix, Disney+, Apple TV+, and Amazon all deliver Dolby Atmos over E-AC-3 JOC in fMP4 containers. The typical streaming Atmos bitrate is 768 kbps — vastly more efficient than TrueHD's 18+ Mbps lossless path on Blu-ray\n\nDolby Atmos in E-AC-3 uses Joint Object Coding: the 7.1 bed channels carry the spatial audio foundation, and additional metadata describes object positions. A non-Atmos decoder plays the 7.1 bed normally. An Atmos renderer uses the object metadata to place sounds in 3D space. Same bitstream, two decode paths\n\nThe E-AC-3 codec string 'ec-3' is identical whether the content is stereo, 5.1, 7.1, or Atmos. The browser's codec detection can't distinguish these — it reports E-AC-3 support generically. CodecProbe's API 3b spatial audio test (spatialRendering: true in mediaCapabilities) is the only way to detect Atmos rendering capability"
+                    overview: "E-AC-3 is the mandatory Dolby audio format for streaming services. Netflix, Disney+, Apple TV+, and Amazon all deliver Dolby Atmos over E-AC-3 JOC in fMP4 containers. The typical streaming Atmos bitrate is 768 kbps — vastly more efficient than TrueHD's 18+ Mbps lossless path on Blu-ray\n\nDolby Atmos in E-AC-3 uses Joint Object Coding: the 7.1 bed channels carry the spatial audio foundation, and additional metadata describes object positions. A non-Atmos decoder plays the 7.1 bed normally. An Atmos renderer uses the object metadata to place sounds in 3D space. Same bitstream, two decode paths\n\nThe E-AC-3 codec string 'ec-3' is identical whether the content is stereo, 5.1, 7.1, or Atmos. The browser's codec detection can't distinguish these — it reports E-AC-3 support generically. CodecProbe's API 3b spatial audio test (spatialRendering: true in mediaCapabilities) is the only way to detect Atmos rendering capability",
+                    references: [
+                        { title: 'ETSI TS 102 366' }
+                    ]
                 }
             },
             {
@@ -4662,7 +5217,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "trhd", meaning: "TrueHD tag: Dolby TrueHD (Meridian Lossless Packing). Bit-identical lossless audio with optional Dolby Atmos spatial metadata. MKV-only in the browser context — TrueHD on Blu-ray uses .m2ts containers, but rips are always MKV" }
                         ]
                     },
-                    overview: "TrueHD is the lossless tier of the Dolby codec family. Bitrates range from 8-18 Mbps for 7.1 channels at 96kHz/24-bit — roughly 10-20× the size of E-AC-3 Atmos. The quality advantage is real (lossless vs lossy) but inaudible to most listeners on most equipment. It matters for archival and audiophile setups with calibrated speaker arrays\n\nNo browser decodes TrueHD. The codec is designed for hardware decode paths: Blu-ray players, AV receivers (HDMI bitstream passthrough), and media players like Kodi/VLC with libavcodec. Jellyfin/Plex handle TrueHD by either bitstream passthrough to a capable receiver or transcoding to E-AC-3/AAC\n\nThe 'mlp' codec tag (Meridian Lossless Packing) is an alternative registration for TrueHD. Both 'trhd' and 'mlp' refer to the same codec — trhd is the MP4RA-registered fourcc, mlp is the FFmpeg/Matroska name. Testing both reveals which tag a browser's demuxer recognizes"
+                    overview: "TrueHD is the lossless tier of the Dolby codec family. Bitrates range from 8-18 Mbps for 7.1 channels at 96kHz/24-bit — roughly 10-20× the size of E-AC-3 Atmos. The quality advantage is real (lossless vs lossy) but inaudible to most listeners on most equipment. It matters for archival and audiophile setups with calibrated speaker arrays\n\nNo browser decodes TrueHD. The codec is designed for hardware decode paths: Blu-ray players, AV receivers (HDMI bitstream passthrough), and media players like Kodi/VLC with libavcodec. Jellyfin/Plex handle TrueHD by either bitstream passthrough to a capable receiver or transcoding to E-AC-3/AAC\n\nThe 'mlp' codec tag (Meridian Lossless Packing) is an alternative registration for TrueHD. Both 'trhd' and 'mlp' refer to the same codec — trhd is the MP4RA-registered fourcc, mlp is the FFmpeg/Matroska name. Testing both reveals which tag a browser's demuxer recognizes",
+                    references: [
+                        { title: 'ETSI TS 102 366' }
+                    ]
                 }
             },
             {
@@ -4768,7 +5326,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "01", meaning: "mdcompat: Metadata compatibility flag. Signals the minimum decoder version needed to properly handle the stream's metadata features" }
                         ]
                     },
-                    overview: "AC-4 IMS (Immersive Stereo) renders spatial audio on stereo headphones without speaker arrays. It uses head-related transfer functions to simulate 3D positioning — Dolby's answer to Apple Spatial Audio and Sony 360 Reality Audio. The 'immersive' part is binaural rendering, not channel count\n\nAC-4 is Dolby's break from the AC-3 lineage. It's a clean-sheet codec with no backward compatibility to AC-3/E-AC-3 — a device must have an AC-4 decoder specifically. ATSC 3.0 mandates AC-4 support, but ATSC 1.0 (current US broadcast) doesn't. TV manufacturers shipping ATSC 3.0 tuners include AC-4 decoders\n\nBrowser support is near-zero. AC-4 targets embedded devices (TVs, set-top boxes, automotive) and native apps — not web browsers. The web ecosystem will likely skip AC-4 entirely and move from E-AC-3 to whatever comes next. Testing it here reveals early adopter platforms (some Samsung/LG TVs with ATSC 3.0)"
+                    overview: "AC-4 IMS (Immersive Stereo) renders spatial audio on stereo headphones without speaker arrays. It uses head-related transfer functions to simulate 3D positioning — Dolby's answer to Apple Spatial Audio and Sony 360 Reality Audio. The 'immersive' part is binaural rendering, not channel count\n\nAC-4 is Dolby's break from the AC-3 lineage. It's a clean-sheet codec with no backward compatibility to AC-3/E-AC-3 — a device must have an AC-4 decoder specifically. ATSC 3.0 mandates AC-4 support, but ATSC 1.0 (current US broadcast) doesn't. TV manufacturers shipping ATSC 3.0 tuners include AC-4 decoders\n\nBrowser support is near-zero. AC-4 targets embedded devices (TVs, set-top boxes, automotive) and native apps — not web browsers. The web ecosystem will likely skip AC-4 entirely and move from E-AC-3 to whatever comes next. Testing it here reveals early adopter platforms (some Samsung/LG TVs with ATSC 3.0)",
+                    references: [
+                        { title: 'ETSI TS 103 190' }
+                    ]
                 }
             },
             {
@@ -4891,7 +5452,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "dts-", meaning: "DTS Core tag: DTS Digital Surround core codec (ETSI TS 102 114). The trailing hyphen distinguishes it from the tag prefix — 'dts-' is the literal MP4RA-registered fourcc for DTS Core. Alternative registration: 'dtsc' (same codec, different tag)" }
                         ]
                     },
-                    overview: "DTS uses a family of four-character codec tags, each mapping to a specific tier: dts-/dtsc (Core 5.1), dtse (Express/LBR), dtsh (HD High Resolution + HD Master Audio), dtsl (HD Lossless), dtsx (DTS:X object audio). Unlike Dolby's separate codec names (ac-3, ec-3, trhd), DTS uses the tag itself to signal the tier\n\nDTS Core (1536 kbps, 5.1) is the Blu-ray equivalent of AC-3 — the mandatory lossy surround format on many disc releases. Every AV receiver decodes DTS Core. Browser support is rare: no browser includes a DTS decoder by default. Safari on macOS can passthrough to the system's CoreAudio (if the system supports DTS), but Chrome and Firefox do not\n\nThe dual-tag situation (dts- vs dtsc) exists because the original MP4RA registration used 'dts-' but FFmpeg and some muxers use 'dtsc'. Testing both reveals which tag a browser's demuxer recognizes. Jellyfin/Plex typically passthrough DTS to capable AV receivers via HDMI — browser decode is not expected"
+                    overview: "DTS uses a family of four-character codec tags, each mapping to a specific tier: dts-/dtsc (Core 5.1), dtse (Express/LBR), dtsh (HD High Resolution + HD Master Audio), dtsl (HD Lossless), dtsx (DTS:X object audio). Unlike Dolby's separate codec names (ac-3, ec-3, trhd), DTS uses the tag itself to signal the tier\n\nDTS Core (1536 kbps, 5.1) is the Blu-ray equivalent of AC-3 — the mandatory lossy surround format on many disc releases. Every AV receiver decodes DTS Core. Browser support is rare: no browser includes a DTS decoder by default. Safari on macOS can passthrough to the system's CoreAudio (if the system supports DTS), but Chrome and Firefox do not\n\nThe dual-tag situation (dts- vs dtsc) exists because the original MP4RA registration used 'dts-' but FFmpeg and some muxers use 'dtsc'. Testing both reveals which tag a browser's demuxer recognizes. Jellyfin/Plex typically passthrough DTS to capable AV receivers via HDMI — browser decode is not expected",
+                    references: [
+                        { title: 'ETSI TS 102 114' }
+                    ]
                 }
             },
             {
@@ -4995,7 +5559,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "dtsx", meaning: "DTS:X tag: DTS:X object-based spatial audio. The 'x' suffix distinguishes it from channel-based DTS tiers (dtsc/dtsh/dtsl/dtse). DTS:X is DTS's answer to Dolby Atmos — object metadata for height channels and spatial positioning" }
                         ]
                     },
-                    overview: "DTS:X vs Dolby Atmos: both are object-based spatial audio competing for the same market. DTS:X has one key difference — it doesn't require a dedicated height channel bed. DTS:X renders objects adaptively to whatever speaker layout exists (5.1, 7.1, 7.1.4), while Atmos requires at least a 7.1 bed for object placement. In practice, content creators choose based on studio deals, not technical merit\n\nDTS:X Profile 2 is the streaming variant (lower bitrate, designed for online delivery). Profile 1 is the disc/broadcast variant. The 'dtsx' codec tag covers both profiles — the profile is signaled in the bitstream header. Most browser/streaming codec detection can't distinguish between profiles\n\nBrowser decode of DTS:X is effectively nonexistent. The codec targets AV receiver passthrough: Jellyfin/Plex detect DTS:X in the MKV track header and bitstream-pass it over HDMI to a DTS:X-capable receiver. If the client can't passthrough, the server transcodes to E-AC-3 or AAC stereo"
+                    overview: "DTS:X vs Dolby Atmos: both are object-based spatial audio competing for the same market. DTS:X has one key difference — it doesn't require a dedicated height channel bed. DTS:X renders objects adaptively to whatever speaker layout exists (5.1, 7.1, 7.1.4), while Atmos requires at least a 7.1 bed for object placement. In practice, content creators choose based on studio deals, not technical merit\n\nDTS:X Profile 2 is the streaming variant (lower bitrate, designed for online delivery). Profile 1 is the disc/broadcast variant. The 'dtsx' codec tag covers both profiles — the profile is signaled in the bitstream header. Most browser/streaming codec detection can't distinguish between profiles\n\nBrowser decode of DTS:X is effectively nonexistent. The codec targets AV receiver passthrough: Jellyfin/Plex detect DTS:X in the MKV track header and bitstream-pass it over HDMI to a DTS:X-capable receiver. If the client can't passthrough, the server transcodes to E-AC-3 or AAC stereo",
+                    references: [
+                        { title: 'ETSI TS 102 114' }
+                    ]
                 }
             },
             {
@@ -5177,7 +5744,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "audio/flac", meaning: "FLAC MIME type: Native FLAC container — no codec parameter needed because the container IS the codec. Unlike MP4/MKV/WebM which are generic containers that need a codecs parameter, .flac files contain only FLAC audio. The MIME type alone identifies everything" }
                         ]
                     },
-                    overview: "FLAC (Free Lossless Audio Codec) is the Xiph.Org Foundation's lossless codec — companion to Vorbis (lossy) and Opus (low-latency). It's the de facto standard for music archival: lossless compression typically achieves 50-60% of PCM size. Every music library tool (foobar2000, MusicBrainz Picard, beets) treats FLAC as the reference format\n\nFLAC in three containers: native .flac (this test), MKV (audio/x-matroska; codecs=\"flac\"), and MP4 (audio/mp4; codecs=\"flac\" — non-standard, added by Apple for ALAC competition). Native .flac has the broadest browser support because it's the simplest: no container overhead, just FLAC frames with a streaminfo header\n\nAll major browsers support FLAC: Chrome (since 56), Firefox (since 51), Safari (since 11), Edge (Chromium-based). This makes FLAC the only lossless codec with universal browser support — TrueHD, DTS-HD MA, and ALAC all have gaps. For Jellyfin/Plex, FLAC is the safest lossless format for web clients"
+                    overview: "FLAC (Free Lossless Audio Codec) is the Xiph.Org Foundation's lossless codec — companion to Vorbis (lossy) and Opus (low-latency). It's the de facto standard for music archival: lossless compression typically achieves 50-60% of PCM size. Every music library tool (foobar2000, MusicBrainz Picard, beets) treats FLAC as the reference format\n\nFLAC in three containers: native .flac (this test), MKV (audio/x-matroska; codecs=\"flac\"), and MP4 (audio/mp4; codecs=\"flac\" — non-standard, added by Apple for ALAC competition). Native .flac has the broadest browser support because it's the simplest: no container overhead, just FLAC frames with a streaminfo header\n\nAll major browsers support FLAC: Chrome (since 56), Firefox (since 51), Safari (since 11), Edge (Chromium-based). This makes FLAC the only lossless codec with universal browser support — TrueHD, DTS-HD MA, and ALAC all have gaps. For Jellyfin/Plex, FLAC is the safest lossless format for web clients",
+                    references: [
+                        { title: 'RFC 9639', url: 'https://datatracker.ietf.org/doc/html/rfc9639' }
+                    ]
                 }
             },
             {
@@ -5233,7 +5803,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "alac", meaning: "ALAC codec tag: Apple Lossless Audio Codec in MP4/M4A container. Unlike FLAC's native container, ALAC always lives inside ISO BMFF (MP4/MOV). The codec tag is bare — no profile/level parameters. Apple open-sourced ALAC in 2011 but it remains Apple-ecosystem-first" }
                         ]
                     },
-                    overview: "ALAC and FLAC are functionally equivalent for music: both are lossless, both support up to 32-bit/384kHz, both achieve ~50-60% compression. The difference is ecosystem: ALAC is the native lossless format for iTunes, Apple Music, AirPlay, and HomeKit. Apple Music's 'Lossless' tier delivers ALAC, not FLAC\n\nSafari/macOS/iOS decode ALAC natively (CoreAudio). Chrome decodes ALAC on macOS (via VideoToolbox) and Windows (via Media Foundation on some versions). Firefox has limited ALAC support. The asymmetry means ALAC works perfectly in the Apple ecosystem but may need transcoding for non-Apple web clients\n\nFor Jellyfin/Plex music libraries: if the source is ALAC (.m4a) and the client is Safari, direct play works. For Chrome/Firefox clients, the server should transcode to FLAC (lossless-to-lossless, fast) or AAC (lossy but universal). Most media servers handle this automatically based on client codec support profiles"
+                    overview: "ALAC and FLAC are functionally equivalent for music: both are lossless, both support up to 32-bit/384kHz, both achieve ~50-60% compression. The difference is ecosystem: ALAC is the native lossless format for iTunes, Apple Music, AirPlay, and HomeKit. Apple Music's 'Lossless' tier delivers ALAC, not FLAC\n\nSafari/macOS/iOS decode ALAC natively (CoreAudio). Chrome decodes ALAC on macOS (via VideoToolbox) and Windows (via Media Foundation on some versions). Firefox has limited ALAC support. The asymmetry means ALAC works perfectly in the Apple ecosystem but may need transcoding for non-Apple web clients\n\nFor Jellyfin/Plex music libraries: if the source is ALAC (.m4a) and the client is Safari, direct play works. For Chrome/Firefox clients, the server should transcode to FLAC (lossless-to-lossless, fast) or AAC (lossy but universal). Most media servers handle this automatically based on client codec support profiles",
+                    references: [
+                        { title: 'Apple Lossless Audio Codec', url: 'https://alac.macosforge.org' }
+                    ]
                 }
             },
             {
@@ -5275,7 +5848,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "1", meaning: "format tag: WAV format tag 1 = PCM (uncompressed linear). The codecs parameter for WAV is the wFormatTag from the WAVEFORMATEX header. 1=PCM, 3=IEEE float, 6=A-law, 7=mu-law, 85=MP3. Most browser implementations only handle tag 1 (PCM)" }
                         ]
                     },
-                    overview: "PCM WAV is literally raw samples with a header — no compression, no transform, no entropy coding. Every sample is a fixed-point integer (16-bit CD, 24-bit pro audio). The bitrate is deterministic: channels × bit_depth × sample_rate. Stereo 16-bit 48kHz = 2 × 16 × 48000 = 1,536,000 bps\n\nEvery browser decodes PCM WAV — it's the simplest audio format possible. The Web Audio API uses PCM internally (32-bit float), so WAV playback is just reading samples into the audio buffer. There are no patents, no licensing, no codec complexity. WAV is the universal truth format for audio testing\n\nWAV's limitation is file size: a 3-minute stereo CD-quality track is ~30 MB (vs ~15 MB FLAC, ~4 MB AAC). For media servers, WAV is impractical for libraries but common as intermediate format — audio editors export to WAV, then encode to the target format. If a client reports WAV support, the server could skip audio transcoding entirely for lossless sources"
+                    overview: "PCM WAV is literally raw samples with a header — no compression, no transform, no entropy coding. Every sample is a fixed-point integer (16-bit CD, 24-bit pro audio). The bitrate is deterministic: channels × bit_depth × sample_rate. Stereo 16-bit 48kHz = 2 × 16 × 48000 = 1,536,000 bps\n\nEvery browser decodes PCM WAV — it's the simplest audio format possible. The Web Audio API uses PCM internally (32-bit float), so WAV playback is just reading samples into the audio buffer. There are no patents, no licensing, no codec complexity. WAV is the universal truth format for audio testing\n\nWAV's limitation is file size: a 3-minute stereo CD-quality track is ~30 MB (vs ~15 MB FLAC, ~4 MB AAC). For media servers, WAV is impractical for libraries but common as intermediate format — audio editors export to WAV, then encode to the target format. If a client reports WAV support, the server could skip audio transcoding entirely for lossless sources",
+                    references: [
+                        { title: 'IEC 60908' }
+                    ]
                 }
             },
             {
@@ -5316,7 +5892,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "opus", meaning: "Opus codec tag: Opus (RFC 6716/7845, IETF). Hybrid codec combining SILK (speech, low latency) and CELT (music, full bandwidth). Bare tag with no parameters — Opus adapts internally based on content type. Mandatory codec for WebRTC" }
                         ]
                     },
-                    overview: "Opus is unique among audio codecs: it's both the best low-latency speech codec AND competitive with AAC for music quality. At 128 kbps stereo it matches or beats AAC-LC in listening tests. At 32 kbps mono it outperforms every speech codec. This versatility made it the mandatory audio codec for WebRTC (RFC 7874)\n\nOpus operates at 48 kHz internally regardless of input — it resamples everything to 48000 Hz. The samplerate in mediaConfig is always 48000 for Opus. This is a codec design choice: 48 kHz gives enough bandwidth for full music fidelity while keeping the sample rate a multiple of common frame sizes\n\nWebM is Opus's native container (Google developed both). Opus also works in OGG (audio/ogg; codecs=\"opus\") and MP4 (audio/mp4; codecs=\"opus\" — added later for CMAF/DASH compatibility). Browser support is universal for WebM Opus. For Jellyfin, Opus in WebM is the safest lossy format for web transcoding — better quality than AAC at the same bitrate, and no licensing issues"
+                    overview: "Opus is unique among audio codecs: it's both the best low-latency speech codec AND competitive with AAC for music quality. At 128 kbps stereo it matches or beats AAC-LC in listening tests. At 32 kbps mono it outperforms every speech codec. This versatility made it the mandatory audio codec for WebRTC (RFC 7874)\n\nOpus operates at 48 kHz internally regardless of input — it resamples everything to 48000 Hz. The samplerate in mediaConfig is always 48000 for Opus. This is a codec design choice: 48 kHz gives enough bandwidth for full music fidelity while keeping the sample rate a multiple of common frame sizes\n\nWebM is Opus's native container (Google developed both). Opus also works in OGG (audio/ogg; codecs=\"opus\") and MP4 (audio/mp4; codecs=\"opus\" — added later for CMAF/DASH compatibility). Browser support is universal for WebM Opus. For Jellyfin, Opus in WebM is the safest lossy format for web transcoding — better quality than AAC at the same bitrate, and no licensing issues",
+                    references: [
+                        { title: 'RFC 6716', url: 'https://datatracker.ietf.org/doc/html/rfc6716' }
+                    ]
                 }
             },
             {
@@ -5607,7 +6186,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "2", meaning: "audioObjectType: AOT 2 = AAC-LC (Low Complexity). The default AAC profile: full-bandwidth audio without the spectral band replication (SBR) or parametric stereo (PS) tools. Other AOTs: 5=HE-AAC v1, 29=HE-AAC v2, 42=xHE-AAC/USAC, 23=ER AAC-LD, 39=AAC-ELD" }
                         ]
                     },
-                    overview: "The mp4a.40.X numbering comes from ISO/IEC 14496-1 (Systems) and 14496-3 (Audio). The audioObjectType (third field) maps directly to the AOT table in 14496-3: 1=AAC Main, 2=AAC-LC, 3=AAC-SSR, 4=AAC-LTP, 5=SBR (HE-AAC), 29=PS (HE-AAC v2), 42=USAC (xHE-AAC). These are decimal, not hex\n\nAAC-LC at 192 kbps stereo is the de facto standard for streaming audio. YouTube, Spotify (on mobile), Apple Music (lossy tier), and every HLS/DASH stream use AAC-LC as the baseline audio codec. It's the audio equivalent of H.264 High Profile — the universal format every device handles\n\nEvery browser supports AAC-LC: Chrome, Firefox (since 22, via platform decoders), Safari, Edge. It's the only lossy audio codec with truly universal browser support (Opus is close but Safari added it later). For Jellyfin/Plex, AAC-LC is the safe fallback when the client can't handle the original audio codec"
+                    overview: "The mp4a.40.X numbering comes from ISO/IEC 14496-1 (Systems) and 14496-3 (Audio). The audioObjectType (third field) maps directly to the AOT table in 14496-3: 1=AAC Main, 2=AAC-LC, 3=AAC-SSR, 4=AAC-LTP, 5=SBR (HE-AAC), 29=PS (HE-AAC v2), 42=USAC (xHE-AAC). These are decimal, not hex\n\nAAC-LC at 192 kbps stereo is the de facto standard for streaming audio. YouTube, Spotify (on mobile), Apple Music (lossy tier), and every HLS/DASH stream use AAC-LC as the baseline audio codec. It's the audio equivalent of H.264 High Profile — the universal format every device handles\n\nEvery browser supports AAC-LC: Chrome, Firefox (since 22, via platform decoders), Safari, Edge. It's the only lossy audio codec with truly universal browser support (Opus is close but Safari added it later). For Jellyfin/Plex, AAC-LC is the safe fallback when the client can't handle the original audio codec",
+                    references: [
+                        { title: 'ISO/IEC 14496-3' }
+                    ]
                 }
             },
             {
@@ -5664,7 +6246,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "5", meaning: "audioObjectType: AOT 5 = SBR (Spectral Band Replication) = HE-AAC v1. SBR reconstructs high frequencies from low-frequency content + side information. This lets HE-AAC deliver near-AAC-LC quality at half the bitrate (64 kbps vs 128 kbps)" }
                         ]
                     },
-                    overview: "HE-AAC v1 works by encoding the low frequencies (0-8 kHz) with standard AAC-LC, then adding a small SBR payload that describes how to reconstruct the 8-20 kHz range from harmonics of the lower frequencies. A legacy AAC-LC decoder can play HE-AAC v1 — it just hears the low-frequency core (implicit backward compatibility)\n\nThe AOT numbering reveals the family tree: AOT 2 (AAC-LC) + AOT 5 (SBR) = HE-AAC v1. Then AOT 29 adds Parametric Stereo (PS) on top = HE-AAC v2. Each layer adds a bandwidth-saving tool. The decoder peels layers: USAC decoders handle all AOTs, HE v2 decoders handle v2/v1/LC, LC decoders handle only LC\n\nDAB+ digital radio in Europe mandates HE-AAC v1. It's also the standard for low-bitrate streaming on mobile networks — Spotify on 2G/3G connections uses HE-AAC at 48-96 kbps. At 64 kbps, HE-AAC v1 sounds noticeably better than AAC-LC at the same bitrate, but worse than AAC-LC at 128 kbps"
+                    overview: "HE-AAC v1 works by encoding the low frequencies (0-8 kHz) with standard AAC-LC, then adding a small SBR payload that describes how to reconstruct the 8-20 kHz range from harmonics of the lower frequencies. A legacy AAC-LC decoder can play HE-AAC v1 — it just hears the low-frequency core (implicit backward compatibility)\n\nThe AOT numbering reveals the family tree: AOT 2 (AAC-LC) + AOT 5 (SBR) = HE-AAC v1. Then AOT 29 adds Parametric Stereo (PS) on top = HE-AAC v2. Each layer adds a bandwidth-saving tool. The decoder peels layers: USAC decoders handle all AOTs, HE v2 decoders handle v2/v1/LC, LC decoders handle only LC\n\nDAB+ digital radio in Europe mandates HE-AAC v1. It's also the standard for low-bitrate streaming on mobile networks — Spotify on 2G/3G connections uses HE-AAC at 48-96 kbps. At 64 kbps, HE-AAC v1 sounds noticeably better than AAC-LC at the same bitrate, but worse than AAC-LC at 128 kbps",
+                    references: [
+                        { title: 'ISO/IEC 14496-3' }
+                    ]
                 }
             },
             {
@@ -5706,7 +6291,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "42", meaning: "audioObjectType: AOT 42 = USAC (Unified Speech and Audio Coding) = xHE-AAC. Combines MPEG-D DRC (loudness normalization), enhanced SBR, ACELP speech coding, and parametric stereo into a single codec. Operates from 12 kbps to 500+ kbps" }
                         ]
                     },
-                    overview: "xHE-AAC is what Apple uses for Spatial Audio Lossless playback metadata and what Android uses for BLE Audio (Bluetooth LE Audio standard mandates LC3 which is USAC-derived). It's the most advanced AAC profile: it switches between speech coding (ACELP, like a phone codec) and music coding (MDCT, like AAC-LC) on a frame-by-frame basis\n\nThe AOT 42 number is notable — it's well above the original AAC AOTs (1-5) because USAC was standardized much later (ISO/IEC 23003-3, published 2012). The gap between AOT 29 (HE-AAC v2) and AOT 42 (USAC) spans a decade of MPEG audio research\n\nBrowser support is emerging: Safari supports xHE-AAC since iOS 15/macOS 12 (CoreAudio native). Chrome on Android supports it since Android 9 (via MediaCodec). Chrome on desktop and Firefox have limited support. Apple Music uses xHE-AAC for some low-bitrate adaptive streams (the codec switches between xHE and AAC-LC based on network conditions)"
+                    overview: "xHE-AAC is what Apple uses for Spatial Audio Lossless playback metadata and what Android uses for BLE Audio (Bluetooth LE Audio standard mandates LC3 which is USAC-derived). It's the most advanced AAC profile: it switches between speech coding (ACELP, like a phone codec) and music coding (MDCT, like AAC-LC) on a frame-by-frame basis\n\nThe AOT 42 number is notable — it's well above the original AAC AOTs (1-5) because USAC was standardized much later (ISO/IEC 23003-3, published 2012). The gap between AOT 29 (HE-AAC v2) and AOT 42 (USAC) spans a decade of MPEG audio research\n\nBrowser support is emerging: Safari supports xHE-AAC since iOS 15/macOS 12 (CoreAudio native). Chrome on Android supports it since Android 9 (via MediaCodec). Chrome on desktop and Firefox have limited support. Apple Music uses xHE-AAC for some low-bitrate adaptive streams (the codec switches between xHE and AAC-LC based on network conditions)",
+                    references: [
+                        { title: 'ISO/IEC 14496-3' }
+                    ]
                 }
             },
             // MP3
@@ -5731,7 +6319,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "audio/mpeg", meaning: "MPEG audio MIME type: MPEG-1 Layer III (ISO/IEC 11172-3, 1993). Like native FLAC and WAV, the MIME type alone identifies the codec — no codecs parameter needed. The .mp3 file has no separate container; the MPEG audio frames are the entire file (optionally with ID3 tags prepended)" }
                         ]
                     },
-                    overview: "MP3 was the codec that created digital music distribution. Developed at Fraunhofer IIS, it reduced CD audio from 1.4 Mbps to 128-320 kbps with acceptable quality. Napster (1999), iPod (2001), and iTunes Store (2003) all ran on MP3. Every significant patent expired by 2017, making it fully royalty-free\n\nAt 320 kbps, MP3 is transparent (indistinguishable from CD) for most listeners and content. At 128 kbps — the Napster-era standard — artifacts are audible on complex music (cymbals, reverb tails). AAC-LC at 128 kbps sounds better than MP3 at 128 kbps, which is why streaming services switched\n\nUniversal browser support — every browser that plays audio plays MP3. The HTML5 <audio> element was practically designed around MP3 compatibility. For media servers, MP3 is the 'just works' format: no transcoding needed, no compatibility checking, instant playback everywhere. Its only limitation is stereo-only (no surround) and lossy-only"
+                    overview: "MP3 was the codec that created digital music distribution. Developed at Fraunhofer IIS, it reduced CD audio from 1.4 Mbps to 128-320 kbps with acceptable quality. Napster (1999), iPod (2001), and iTunes Store (2003) all ran on MP3. Every significant patent expired by 2017, making it fully royalty-free\n\nAt 320 kbps, MP3 is transparent (indistinguishable from CD) for most listeners and content. At 128 kbps — the Napster-era standard — artifacts are audible on complex music (cymbals, reverb tails). AAC-LC at 128 kbps sounds better than MP3 at 128 kbps, which is why streaming services switched\n\nUniversal browser support — every browser that plays audio plays MP3. The HTML5 <audio> element was practically designed around MP3 compatibility. For media servers, MP3 is the 'just works' format: no transcoding needed, no compatibility checking, instant playback everywhere. Its only limitation is stereo-only (no surround) and lossy-only",
+                    references: [
+                        { title: 'ISO/IEC 11172-3' }
+                    ]
                 }
             },
             // Vorbis
@@ -5757,7 +6348,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "vorbis", meaning: "Vorbis codec tag: Xiph.Org Vorbis (2000). Open-source lossy audio codec, designed as a patent-free alternative to MP3 and AAC. Bare tag — no profile/level parameters. Supports mono through 255 channels, 8-192 kHz sample rate" }
                         ]
                     },
-                    overview: "Vorbis was the audio companion to Theora (video) in the Xiph.Org open media stack. At comparable bitrates, Vorbis matches or slightly exceeds MP3 quality (especially at low bitrates like 96 kbps) but falls behind AAC-LC at higher bitrates. Opus has now superseded Vorbis for new content\n\nVorbis appears in three containers: OGG (native, audio/ogg; codecs=\"vorbis\"), WebM (Google adopted it for WebM audio before Opus existed), and MKV (Matroska supports any codec). OGG Vorbis was the Spotify format for years before they switched to AAC/Opus\n\nChrome and Firefox support Vorbis in both WebM and OGG. Safari added WebM Vorbis support in Safari 14.1 (alongside VP8). For new content, use Opus instead — it's Vorbis's spiritual successor with better quality at every bitrate. Vorbis matters for playing existing content in media libraries"
+                    overview: "Vorbis was the audio companion to Theora (video) in the Xiph.Org open media stack. At comparable bitrates, Vorbis matches or slightly exceeds MP3 quality (especially at low bitrates like 96 kbps) but falls behind AAC-LC at higher bitrates. Opus has now superseded Vorbis for new content\n\nVorbis appears in three containers: OGG (native, audio/ogg; codecs=\"vorbis\"), WebM (Google adopted it for WebM audio before Opus existed), and MKV (Matroska supports any codec). OGG Vorbis was the Spotify format for years before they switched to AAC/Opus\n\nChrome and Firefox support Vorbis in both WebM and OGG. Safari added WebM Vorbis support in Safari 14.1 (alongside VP8). For new content, use Opus instead — it's Vorbis's spiritual successor with better quality at every bitrate. Vorbis matters for playing existing content in media libraries",
+                    references: [
+                        { title: 'Vorbis I Specification', url: 'https://xiph.org/vorbis/doc/Vorbis_I_spec.html' }
+                    ]
                 }
             },
             {
@@ -6033,7 +6627,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "vp8", meaning: "codec identifier: VP8 has no profile/level parameters in its codec string — just the bare identifier. VP8 predates the structured codec string conventions used by VP9 (vp09.PP.LL.DD) and AV1 (av01.P.LLT.DD). All VP8 streams have the same capabilities: 8-bit 4:2:0 only" }
                         ]
                     },
-                    overview: "Google acquired On2 Technologies in 2010 and open-sourced VP8 as the video codec for WebM. It was Google's answer to H.264's patent licensing — a royalty-free alternative. The WebM project (VP8+Vorbis in Matroska) launched alongside Chrome 6\n\nVP8 has no profiles or levels because it has no feature tiers — every VP8 decoder must support the full spec. This simplicity comes at a cost: no 10-bit, no 4:4:4, no HDR. It targets a single use case: 8-bit 4:2:0 web video at up to ~4K resolution\n\nChrome and Firefox support VP8 universally. Safari added VP8 WebM playback in Safari 14.1 (macOS Big Sur / iOS 14.5). Apple's support was a concession to WebRTC — VP8 was mandatory in the WebRTC 1.0 spec for interop, so Safari had to add it for video calls"
+                    overview: "Google acquired On2 Technologies in 2010 and open-sourced VP8 as the video codec for WebM. It was Google's answer to H.264's patent licensing — a royalty-free alternative. The WebM project (VP8+Vorbis in Matroska) launched alongside Chrome 6\n\nVP8 has no profiles or levels because it has no feature tiers — every VP8 decoder must support the full spec. This simplicity comes at a cost: no 10-bit, no 4:4:4, no HDR. It targets a single use case: 8-bit 4:2:0 web video at up to ~4K resolution\n\nChrome and Firefox support VP8 universally. Safari added VP8 WebM playback in Safari 14.1 (macOS Big Sur / iOS 14.5). Apple's support was a concession to WebRTC — VP8 was mandatory in the WebRTC 1.0 spec for interop, so Safari had to add it for video calls",
+                    references: [
+                        { title: 'RFC 6386', url: 'https://datatracker.ietf.org/doc/html/rfc6386' }
+                    ]
                 }
             },
             {
@@ -6130,7 +6727,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "theora", meaning: "codec identifier: Like VP8, Theora uses a bare identifier with no profile/level parameters. Theora's codec string in OGG containers is just 'theora'. The codec was based on On2's VP3, donated to the Xiph.Org Foundation in 2001" }
                         ]
                     },
-                    overview: "Theora was the Xiph.Org Foundation's video codec — companion to Vorbis (audio) and OGG (container). It was the open-source community's answer to MPEG-4/H.264 licensing in the early 2000s. Wikipedia, Archive.org, and early YouTube considered it before H.264 won\n\nFirefox was the first browser to add native Theora support (Firefox 3.5, 2009) as part of the HTML5 <video> debate. The W3C considered mandating Theora as the baseline codec for HTML5 but Apple and Microsoft refused, leading to the current 'no mandatory codec' policy\n\nTheora is effectively dead for new content — VP8/VP9/AV1 surpassed it in every metric. Firefox still decodes it for backwards compatibility. Chrome supports it via the ffmpeg-based media pipeline. Safari does not support Theora at all. Its legacy is political: it proved open codecs were viable and paved the way for AV1"
+                    overview: "Theora was the Xiph.Org Foundation's video codec — companion to Vorbis (audio) and OGG (container). It was the open-source community's answer to MPEG-4/H.264 licensing in the early 2000s. Wikipedia, Archive.org, and early YouTube considered it before H.264 won\n\nFirefox was the first browser to add native Theora support (Firefox 3.5, 2009) as part of the HTML5 <video> debate. The W3C considered mandating Theora as the baseline codec for HTML5 but Apple and Microsoft refused, leading to the current 'no mandatory codec' policy\n\nTheora is effectively dead for new content — VP8/VP9/AV1 surpassed it in every metric. Firefox still decodes it for backwards compatibility. Chrome supports it via the ffmpeg-based media pipeline. Safari does not support Theora at all. Its legacy is political: it proved open codecs were viable and paved the way for AV1",
+                    references: [
+                        { title: 'Theora Specification', url: 'https://theora.org/doc/Theora.pdf' }
+                    ]
                 }
             },
             {
@@ -6174,7 +6774,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "9", meaning: "profile-level-id: Decimal value from the Visual Profile and Level Indication table. 9 = Simple Profile Level 0. Other values: 1=Simple L1, 2=Simple L2, 3=Simple L3, 240=Advanced Simple L0, 245=Advanced Simple L5. The numbering is non-sequential and defined in Annex G" }
                         ]
                     },
-                    overview: "MPEG-4 Part 2 is the codec behind DivX and Xvid — the dominant video format of the early 2000s file-sharing era. Simple Profile restricts to I/P frames only (like H.264 Baseline), making it the lowest-complexity MPEG-4 Part 2 variant\n\nThe codec string format 'mp4v.20.X' uses three components: tag (mp4v), ObjectTypeIndication (20 = MPEG-4 Visual), and profile-level-id (specific profile). This is the ISO BMFF (MP4) registration — AVI DivX files used FourCC codes (DIVX, XVID, DX50) instead\n\nMost browsers still decode MPEG-4 Part 2 Simple Profile because it's cheap to support via hardware decoders that also handle H.264. The codec is everywhere in legacy content — early digital cameras, early smartphones, DVD rips from the 2000s. Jellyfin encounters it in old movie collections"
+                    overview: "MPEG-4 Part 2 is the codec behind DivX and Xvid — the dominant video format of the early 2000s file-sharing era. Simple Profile restricts to I/P frames only (like H.264 Baseline), making it the lowest-complexity MPEG-4 Part 2 variant\n\nThe codec string format 'mp4v.20.X' uses three components: tag (mp4v), ObjectTypeIndication (20 = MPEG-4 Visual), and profile-level-id (specific profile). This is the ISO BMFF (MP4) registration — AVI DivX files used FourCC codes (DIVX, XVID, DX50) instead\n\nMost browsers still decode MPEG-4 Part 2 Simple Profile because it's cheap to support via hardware decoders that also handle H.264. The codec is everywhere in legacy content — early digital cameras, early smartphones, DVD rips from the 2000s. Jellyfin encounters it in old movie collections",
+                    references: [
+                        { title: 'ISO/IEC 14496-2' }
+                    ]
                 }
             },
             {
@@ -6202,7 +6805,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "240", meaning: "profile-level-id: 240 = Advanced Simple Profile Level 0. ASP adds B-frames, quarter-pel motion compensation, and global motion compensation over Simple Profile. DivX 4-6 and Xvid encode ASP. Level 0 is base; Level 5 (245) allows 720p@30" }
                         ]
                     },
-                    overview: "Advanced Simple Profile is what people mean when they say 'DivX' or 'Xvid'. The DivX codec was a commercial ASP encoder; Xvid was the open-source equivalent. Both produce MPEG-4 Part 2 ASP bitstreams — the FourCC differs (DIVX vs XVID) but the codec is identical\n\nASP's B-frames were its killer feature over Simple Profile — 20-30% bitrate savings that made 700MB 'CD-rip' quality possible for feature-length movies. This was the lingua franca of file sharing from ~2002-2008 before H.264 displaced it\n\nBrowser support for ASP is inconsistent. Chrome/Edge may decode it via platform decoders (Windows Media Foundation on Windows, VideoToolbox on macOS). Firefox uses ffmpeg. Safari decodes it natively. The inconsistency matters for Jellyfin/Plex: some clients direct-play old DivX content, others need transcoding"
+                    overview: "Advanced Simple Profile is what people mean when they say 'DivX' or 'Xvid'. The DivX codec was a commercial ASP encoder; Xvid was the open-source equivalent. Both produce MPEG-4 Part 2 ASP bitstreams — the FourCC differs (DIVX vs XVID) but the codec is identical\n\nASP's B-frames were its killer feature over Simple Profile — 20-30% bitrate savings that made 700MB 'CD-rip' quality possible for feature-length movies. This was the lingua franca of file sharing from ~2002-2008 before H.264 displaced it\n\nBrowser support for ASP is inconsistent. Chrome/Edge may decode it via platform decoders (Windows Media Foundation on Windows, VideoToolbox on macOS). Firefox uses ffmpeg. Safari decodes it natively. The inconsistency matters for Jellyfin/Plex: some clients direct-play old DivX content, others need transcoding",
+                    references: [
+                        { title: 'ISO/IEC 14496-2' }
+                    ]
                 }
             },
             {
@@ -6244,7 +6850,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "h263", meaning: "codec identifier: H.263 (ITU-T Recommendation H.263) was designed for video conferencing over ISDN and PSTN lines. Like VP8 and Theora, the codec string is a bare identifier with no profile/level parameters in the MIME type. H.263 profiles (Baseline through High Latency) are signaled in the bitstream, not the container" }
                         ]
                     },
-                    overview: "H.263 was the predecessor to H.264 — developed by the ITU-T Video Coding Experts Group (VCEG) in 1995. It introduced half-pel motion compensation and variable-length coding that H.264 later refined. The resolution targets were CIF (352×288) and QCIF (176×144) — video phone sizes\n\n3GP (3GPP file format) was the mandatory container for H.263 on 2G/3G mobile networks. Every feature phone from ~2003-2010 could play H.263 in 3GP. MMS video messages used H.263+AMR-NB at QCIF resolution. 3GP is a simplified MP4 (ISO BMFF profile) with mobile-specific tracks\n\nH.263 support in modern browsers is disappearing. Chrome dropped it from Android, Safari never supported 3GP natively in the browser (though iOS can play it via the media framework), and Firefox removed it. If this test shows supported, the browser has legacy decoder paths — useful for playing old phone recordings in Jellyfin"
+                    overview: "H.263 was the predecessor to H.264 — developed by the ITU-T Video Coding Experts Group (VCEG) in 1995. It introduced half-pel motion compensation and variable-length coding that H.264 later refined. The resolution targets were CIF (352×288) and QCIF (176×144) — video phone sizes\n\n3GP (3GPP file format) was the mandatory container for H.263 on 2G/3G mobile networks. Every feature phone from ~2003-2010 could play H.263 in 3GP. MMS video messages used H.263+AMR-NB at QCIF resolution. 3GP is a simplified MP4 (ISO BMFF profile) with mobile-specific tracks\n\nH.263 support in modern browsers is disappearing. Chrome dropped it from Android, Safari never supported 3GP natively in the browser (though iOS can play it via the media framework), and Firefox removed it. If this test shows supported, the browser has legacy decoder paths — useful for playing old phone recordings in Jellyfin",
+                    references: [
+                        { title: 'ITU-T H.263' }
+                    ]
                 }
             },
             {
@@ -6327,7 +6936,10 @@ cmaf_hdr10/playlist.m3u8`,
                             { token: "0x0D", meaning: "profileLevelIndication: 0x0D = 13 = Low Complexity Profile Level 3. MPEG-H profiles: 0x0B=Baseline L3, 0x0C=LC L1, 0x0D=LC L3, 0x0E=LC L4. The hex prefix '0x' is part of the codec string — unlike other codecs that use plain decimal or hex, MPEG-H explicitly marks its profile-level as hexadecimal" }
                         ]
                     },
-                    overview: "MPEG-H 3D Audio is the open standard competitor to Dolby Atmos and DTS:X. It combines channel-based audio (5.1/7.1 bed), object-based audio (positioned sounds), and scene-based audio (Higher Order Ambisonics/HOA) in a single codec. The listener can interactively adjust dialogue levels and select audio objects\n\nMPEG-H is mandated by ATSC 3.0 (US next-gen broadcast, alongside AC-4), DVB (European digital TV), and TTAS (Korean digital TV — Korea has been broadcasting MPEG-H since 2017 on terrestrial TV). Sony 360 Reality Audio is built on MPEG-H. It's the most deployed immersive audio standard in broadcast\n\nBrowser support is near-zero outside Samsung TVs (which include MPEG-H decoders for Korean broadcast content) and some Sony devices. No desktop browser ships an MPEG-H decoder. The codec competes with Dolby Atmos for streaming services — and Dolby's E-AC-3 JOC has the market locked down. MPEG-H's strength is broadcast, not OTT streaming"
+                    overview: "MPEG-H 3D Audio is the open standard competitor to Dolby Atmos and DTS:X. It combines channel-based audio (5.1/7.1 bed), object-based audio (positioned sounds), and scene-based audio (Higher Order Ambisonics/HOA) in a single codec. The listener can interactively adjust dialogue levels and select audio objects\n\nMPEG-H is mandated by ATSC 3.0 (US next-gen broadcast, alongside AC-4), DVB (European digital TV), and TTAS (Korean digital TV — Korea has been broadcasting MPEG-H since 2017 on terrestrial TV). Sony 360 Reality Audio is built on MPEG-H. It's the most deployed immersive audio standard in broadcast\n\nBrowser support is near-zero outside Samsung TVs (which include MPEG-H decoders for Korean broadcast content) and some Sony devices. No desktop browser ships an MPEG-H decoder. The codec competes with Dolby Atmos for streaming services — and Dolby's E-AC-3 JOC has the market locked down. MPEG-H's strength is broadcast, not OTT streaming",
+                    references: [
+                        { title: 'ISO/IEC 23008-3' }
+                    ]
                 }
             },
             {

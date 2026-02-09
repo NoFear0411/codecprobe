@@ -393,6 +393,15 @@ function formatEducationContent(education) {
         </section>`;
     }
 
+    // References
+    if (education.references) {
+        html += `
+        <section class="education-section">
+            <h4>References</h4>
+            ${formatReferences(education.references)}
+        </section>`;
+    }
+
     return html;
 }
 
@@ -487,6 +496,24 @@ function formatPlatformNotes(platforms) {
     }
 
     html += '</div>';
+    return html;
+}
+
+/**
+ * Format references as pill-shaped chips
+ * @param {Array} references - Array of { title, url? } objects
+ * @returns {string} HTML string
+ */
+function formatReferences(references) {
+    let html = '<ul class="reference-list">';
+    for (const ref of references) {
+        if (ref.url) {
+            html += `<li><a href="${escapeHtml(ref.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref.title)}</a></li>`;
+        } else {
+            html += `<li>${escapeHtml(ref.title)}</li>`;
+        }
+    }
+    html += '</ul>';
     return html;
 }
 

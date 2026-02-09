@@ -1318,6 +1318,34 @@ main#main-content {
     }
 }
 
+// Reference list — pill chips in a flex-wrap row
+.reference-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-xs;
+
+    li {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 3px $spacing-sm;
+
+        a {
+            color: var(--blue);
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
 // Support Level Colors
 .SUPPORTED {
     border-left-color: var(--accent);

@@ -2,6 +2,22 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.1.0] - 2026-02-09
+
+### Added
+
+- **Education references system**: Each education entry can now cite its sources via an `education.references` array. References render as compact pill-shaped chips below the education panel — linked titles open in a new tab, unlinked titles (paywalled ISO/ITU specs) render as plain text.
+- **115 entries populated with spec references**: All existing education content now cites authoritative sources across 36 specifications from 6 standards bodies:
+  - **ITU-T**: H.264, H.265, H.266
+  - **ISO/IEC**: 14496-3 (AAC), 14496-15 (codec packaging), 23008-2 (HEVC), 23008-3 (MPEG-H), 23091-2 (AV1 registration), 23094-1 (VVC), 23000-19 (CMAF), 23009-1 (DASH), 13818-1 (MPEG-TS), 11172-3 (MP3)
+  - **ETSI**: TS 102 114 (DTS), TS 102 366 (Dolby AC-3/E-AC-3), TS 103 572 (Dolby Vision)
+  - **IETF**: RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC)
+  - **Industry**: AV1 Bitstream Spec, AV1 ISOBMFF Binding, VP9 Bitstream Spec, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF IOP, Dolby Vision HLS/DASH specs
+  - **Vendor**: Apple HLS Authoring Spec, webOS TV Developer Guide, Android MediaCodec Reference
+- **Codec database ASCII table index**: Developer-facing TOC at the top of `codec-database.js` with box-drawing tables covering group index (test counts, line numbers, containers, education/platform coverage), codec variants tested, container coverage matrix, and referenced specifications by standards body. Stripped by Terser in production builds — zero runtime cost.
+
+---
+
 ## [3.0.0] - 2026-02-09
 
 ### Changed
