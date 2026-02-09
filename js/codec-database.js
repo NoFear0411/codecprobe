@@ -61,7 +61,7 @@
  * └────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
  *
  * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
- * │ REFERENCED SPECIFICATIONS — 36 sources across 6 standards bodies                                 │
+ * │ REFERENCED SPECIFICATIONS — 38 sources across 6 standards bodies                                 │
  * ├────────────────┬─────────────────────────────────────────────────────────────────────────────────┤
  * │ ITU-T          │ H.264 (AVC) · H.266 (VVC) · H.263                                               │
  * │ ISO/IEC        │ 14496-2 (MPEG-4 Visual) · 14496-3 (AAC) · 14496-15 (NALU mapping)               │
@@ -74,8 +74,9 @@
  * │                │ Dolby Vision HLS/DASH Specs · DASH-IF Interop Points                            │
  * │                │ Vorbis I Spec (Xiph.Org) · Theora Spec (Xiph.Org)                               │
  * │ Vendor         │ Apple HLS Authoring Spec (developer.apple.com)                                  │
- * │                │ webOS TV AV Formats (webostv.developer.lge.com)                                │
- * │                │ Android Supported Media Formats (developer.android.com)                        │
+ * │                │ webOS TV AV Formats (webostv.developer.lge.com)                                 │
+ * │                │ Android Supported Media Formats (developer.android.com)                         │
+ * │                │ Android ExoPlayer DASH/HLS (developer.android.com/media/media3)                 │
  * └────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
  */
 
@@ -4210,7 +4211,7 @@ segment_2.m4s
                     platforms: {
                         apple: 'Safari/WebKit has native HLS support with fMP4 since iOS 10+/macOS 10.12+. MSE API support added in iOS 17.1+/macOS Sonoma for web apps. Native HLS playback (via video.src) bypasses MSE and uses system decoder, offering better battery efficiency. Web apps using MSE (like Jellyfin web) require iOS 17.1+.',
                         lg: 'webOS supports MSE + HLS fMP4 since webOS 3.0. Native media pipeline handles segment concatenation. Jellyfin app uses webOS Luna API (getAppInfo, mediacodec) for direct hardware decoding. Race condition in early app launch may cause false negatives in codec detection.',
-                        android: 'Chrome on Android supports MSE + fMP4 since Android 7.0. ExoPlayer (used by many media apps) has excellent HLS support. Hardware HEVC decoding requires MediaCodec with HEVC profile support. Software decoding fallback available but not performant for 4K HDR. Widevine L1 required for protected content.'
+                        android: 'Chrome on Android supports MSE + fMP4 since Android 7.0. ExoPlayer/Media3 supports HLS with fMP4 and MPEG-TS containers, including Apple Low-Latency HLS. DRM: Widevine cenc (API 19+), cbcs (API 25+) — L1 required for HD/4K protected content, L3 is SD-capped. Hardware HEVC decoding requires MediaCodec with HEVCProfileMain10HDR10 for HDR content. MediaCodecList.findDecoderForFormat() is the programmatic way to check device-specific codec support.'
                     },
                     references: [
                         { title: 'ISO/IEC 23008-2' },
@@ -4220,7 +4221,8 @@ segment_2.m4s
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4275,7 +4277,8 @@ seg_h264_2.m4s
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4343,7 +4346,9 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4381,7 +4386,8 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
                         { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -4419,7 +4425,8 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'VP9 Bitstream & Decoding Process Spec' },
                         { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -4466,7 +4473,8 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'VP9 Bitstream & Decoding Process Spec' },
                         { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -4515,7 +4523,8 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
                         { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -4582,7 +4591,8 @@ sdr_1080/playlist.m3u8`,
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4631,7 +4641,8 @@ segment_002.ts
                         { title: 'ISO/IEC 14496-15' },
                         { title: 'ISO/IEC 13818-1' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4683,7 +4694,8 @@ segment_002.ts
                     references: [
                         { title: 'ITU-T H.264' },
                         { title: 'ISO/IEC 14496-15' },
-                        { title: 'ISO/IEC 13818-1' }
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4741,7 +4753,8 @@ segment_002.ts
                     references: [
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
-                        { title: 'ISO/IEC 13818-1' }
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4781,7 +4794,8 @@ segment_002.ts
                     "overview": "AAC-LC audio in MPEG Transport Stream. Note the MIME type is video/mp2t even though this is audio — MPEG-TS is a multiplexing container that uses the video MIME type regardless of content. AAC in TS is carried as ADTS (Audio Data Transport Stream) frames within PES packets. This is the standard audio format for HLS MPEG-TS segments. The mediaCapabilities API may reject this test because the AudioConfiguration uses a video/ MIME type — CodecProbe guards against this by skipping API 3 for MPEG-TS audio entries.",
                     references: [
                         { title: 'ISO/IEC 14496-3' },
-                        { title: 'ISO/IEC 13818-1' }
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4813,7 +4827,8 @@ segment_002.ts
                     "overview": "Dolby Digital 5.1 surround sound in MPEG Transport Stream. AC-3 in TS is common in broadcast TV (ATSC, DVB) and HLS for Apple TV. The TS container carries AC-3 as a private stream within PES packets. For HLS, Apple requires AC-3/E-AC-3 audio to be declared in the master playlist with the AUDIO group-id and CODECS attribute. AC-3 5.1 in TS is the standard surround sound format for broadcast-origin HLS content — newer Atmos/spatial audio uses E-AC-3 JOC in fMP4 instead.",
                     references: [
                         { title: 'ETSI TS 102 366' },
-                        { title: 'ISO/IEC 13818-1' }
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4846,7 +4861,7 @@ segment_002.ts
                     platforms: {
                         apple: 'Apple supports AV1 CMAF on A15+ (iPhone 15+), M1+ Macs, and Apple TV 4K 3rd gen. cbcs encryption required for FairPlay. AV1 CMAF uses the same fMP4 infrastructure as HEVC CMAF — the only difference is the codec-specific boxes (av1C vs hvcC) in the init segment.',
                         lg: 'webOS 6.0+ supports AV1 CMAF with the MediaTek MT5895 SoC. The native CMAF parser reads the av1C box from the init segment. AV1 CMAF encryption: webOS 6+ supports cbcs, enabling unified CMAF AV1 segments for both Apple and LG TVs.',
-                        android: 'ExoPlayer supports AV1 CMAF on devices with hardware AV1 decode (Snapdragon 888+, Dimensity 9000+). Both cbcs and cenc encryption modes work on Android 12+. For Jellyfin, AV1 CMAF is the best future-proof option for new transcodes — royalty-free, excellent compression, growing hardware support.'
+                        android: 'ExoPlayer/Media3 supports AV1 CMAF on devices with hardware AV1 decode (Snapdragon 888+, Dimensity 9000+). Widevine DRM: cenc from API 19+, cbcs from API 25+ — but reliable cross-SoC cbcs needs Android 12+. Older devices (Android 10-11) have SoC-dependent cbcs support (Snapdragon 855+ works, older chips may not). MediaCodecList.findDecoderForFormat() with MIMETYPE_VIDEO_AV1 confirms hardware vs software (c2.* = Codec 2.0 hardware, OMX.google.* = software fallback). For Jellyfin, AV1 CMAF is the best future-proof option — royalty-free, growing hardware support.'
                     },
                     references: [
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
@@ -4855,7 +4870,9 @@ segment_002.ts
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -4888,7 +4905,9 @@ segment_002.ts
                         { title: 'ISO/IEC 14496-15' },
                         { title: 'ISO/IEC 23000-19' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -4942,7 +4961,8 @@ segment_002.ts
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -4996,7 +5016,8 @@ segment_002.ts
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -5053,7 +5074,8 @@ video_1080/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -5104,7 +5126,8 @@ audio_seg_2.m4s
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -5168,7 +5191,7 @@ h264_1080/playlist.m3u8`,
                     platforms: {
                         apple: 'AV1 hardware decode: iPhone 15+ (A15+ with AV1 decode block), iPad M1+, Mac M1+, Apple TV 4K 3rd gen (A15). Safari on older hardware does not support AV1 — no software fallback. In HLS, Apple treats AV1 like HEVC: VIDEO-RANGE=PQ for HDR, fMP4 segments with EXT-X-MAP. Apple TV+ started serving AV1 to capable devices in late 2023.',
                         lg: 'webOS AV1 support: webOS 6.0+ (2021 TVs with MediaTek MT5895 SoC) supports AV1 hardware decode up to 4K@60fps. Older webOS TVs have no AV1 support (no software fallback). webOS treats AV1 like any other fMP4 codec — the native pipeline reads the av01 sample entry from the init segment.',
-                        android: 'AV1 hardware decode varies widely: Snapdragon 888+ (2021), Dimensity 9000+ (2022), Samsung Exynos 2200+ (2022), Tensor G2+ (Pixel 7). Software AV1 decode via dav1d is available on Android 10+ but too slow for 4K. ExoPlayer uses MediaCodec for hardware AV1 and falls back to dav1d for lower resolutions. For Jellyfin, this means AV1 direct play works on flagship devices from 2021+ — older devices need HEVC or H.264 transcoding.'
+                        android: 'AV1 hardware decode varies widely: Snapdragon 888+ (2021), Dimensity 9000+ (2022), Exynos 2200+ (2022), Tensor G2+ (Pixel 7). Software AV1 via dav1d on Android 10+ but too slow for 4K. ExoPlayer/Media3 handles both HLS fMP4 and DASH for AV1 — it checks AV1ProfileMain10 via MediaCodecInfo.CodecCapabilities to distinguish hardware (c2.* prefix) from software (OMX.google.*) decoders. AV1 encoder mandatory from Android 14+. For Jellyfin, AV1 direct play works on 2021+ flagships — older devices need HEVC/H.264 transcoding.'
                     },
                     references: [
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
@@ -5178,7 +5201,8 @@ h264_1080/playlist.m3u8`,
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -5216,7 +5240,9 @@ h264_1080/playlist.m3u8`,
                         { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
                         { title: 'ISO/IEC 23000-19' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -5268,7 +5294,7 @@ h264_1080/playlist.m3u8`,
                         apple: 'Apple devices do not support DASH natively — Safari has no MSE-based DASH playback. Jellyfin web on Safari uses HLS exclusively. If DASH DV content must reach Apple, Jellyfin transcodes/remuxes to HLS with dvh1 CODECS signaling. Apple TV+ uses separate HLS manifests for DV content rather than DASH supplementalCodecs.',
                         dolby: 'Dolby\'s reference implementation uses supplementalCodecs as the canonical DASH DV signaling. The init segment must contain the dvcC box in the HEVC sample entry (stsd > hvc1/hev1 > dvcC). Dolby Vision Streams Within the ISO BMFF specification defines the box layout. Dolby mandates that the RPU NALUs appear as in-band SEI messages in every access unit — the DV enhancement is not stored separately.',
                         lg: 'webOS DASH support uses the native media pipeline, not a JS DASH player. The webOS media framework reads the MPD and init segments directly. For DV, webOS checks the dvcC box from the init segment, then queries Luna IPC getHdrCapabilities to confirm hardware DV support. webOS 6+ supports P8.1 via DASH. The race condition (getHdrCapabilities returning before Luna IPC completes) can cause false negatives on first DASH playback — retry or delayed detection is the workaround.',
-                        android: 'ExoPlayer parses supplementalCodecs from the DASH MPD since ExoPlayer 2.15+. When supplementalCodecs contains a DV tag, ExoPlayer checks if the device\'s MediaCodec supports the DV profile. Snapdragon 865+ and Dimensity 1000+ SoCs report DV capability via MediaCodecInfo. ExoPlayer then activates DV decoding by configuring the codec with the DV MIME type (video/dolby-vision) instead of video/hevc.'
+                        android: 'ExoPlayer/Media3 parses supplementalCodecs from the DASH MPD. When supplementalCodecs contains a DV tag, ExoPlayer checks MediaCodecInfo for the DV profile — the decoder name is typically "c2.dolby.dv_hevc.decoder" (Codec 2.0) or "OMX.dolby.hevc.decoder" (legacy). DASH containers supported: fMP4, WebM, Matroska (NOT MPEG-TS). Widevine DRM for encrypted DASH: cenc from API 19+, cbcs from API 25+. PlayReady SL2000 on Android TV only. ClearKey API 21+ (cenc only). Snapdragon 865+ and Dimensity 1000+ SoCs report DV capability. ExoPlayer activates DV by configuring MediaCodec with MIME type video/dolby-vision instead of video/hevc.'
                     },
                     references: [
                         { title: 'ETSI TS 103 572' },
@@ -5277,7 +5303,8 @@ h264_1080/playlist.m3u8`,
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             },
@@ -5340,7 +5367,7 @@ cmaf_hdr10/playlist.m3u8`,
                         apple: 'Apple requires cbcs encryption for CMAF DV content. The HLS playlist must declare VIDEO-RANGE=PQ and use dvh1 in CODECS. Apple\'s AVPlayer reads the dvcC box from the CMAF init segment to activate the DV rendering pipeline. For DRM content, Apple requires FairPlay Streaming with cbcs — cenc/ctr encrypted CMAF segments will fail with a decryption error on Apple devices.',
                         dolby: 'Dolby\'s CMAF DV specification requires the dvcC box in the init segment\'s sample entry (stsd > hvc1 > dvcC). The RPU NALUs must be present as in-band SEI NAL units in every CMAF fragment. For CMAF DV Profile 8.1, Dolby specifies that the base layer HEVC must be independently decodable — the DV RPU is enhancement-only. This is what makes P8.1 CMAF work: strip the RPU NALUs and you have valid HEVC.',
                         lg: 'webOS reads CMAF init segments natively to detect DV. The dvcC box triggers the DV firmware path via Luna IPC. webOS 6+ supports cbcs-encrypted CMAF (required for Apple-compatible unified segments). Pre-webOS 6 TVs (2020 and earlier) only support cenc/ctr encryption — these cannot play Apple-encrypted CMAF DV content and require separate cenc-encrypted segments or unencrypted fallback.',
-                        android: 'ExoPlayer handles CMAF DV by reading the dvcC box from the init segment. For DRM, ExoPlayer supports both cbcs and cenc/ctr on Android 12+ devices. On Android 10-11, cbcs support is SoC-dependent (Qualcomm Snapdragon 855+ supports it, older chips may not). This means Apple-encrypted CMAF DV works on newer Android but fails on older devices — Jellyfin should detect cbcs capability and fall back to cenc-encrypted segments when needed.'
+                        android: 'ExoPlayer/Media3 handles CMAF DV by reading the dvcC box from the init segment. For DRM, Widevine cbcs is available from API 25+ (Android 7.1) per ExoPlayer docs, but reliable cross-SoC cbcs needs Android 12+. On Android 10-11, cbcs is SoC-dependent (Snapdragon 855+ works, older chips may not). PlayReady SL2000 is Android TV only (cenc scheme). ClearKey API 21+ (cenc only). Apple-encrypted CMAF DV (cbcs) works on newer Android but fails on older devices — Jellyfin should detect cbcs capability and fall back to cenc-encrypted segments when needed.'
                     },
                     references: [
                         { title: 'ETSI TS 103 572' },
@@ -5348,7 +5375,9 @@ cmaf_hdr10/playlist.m3u8`,
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -5384,7 +5413,8 @@ cmaf_hdr10/playlist.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -5419,7 +5449,8 @@ cmaf_hdr10/playlist.m3u8`,
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
                         { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
                         { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' }
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 }
             }

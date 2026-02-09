@@ -2,6 +2,19 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.1.2] - 2026-02-09
+
+### Added
+
+- **ExoPlayer/Media3 references**: 30 ExoPlayer DASH and HLS reference links added across all 25 streaming entries. DASH entries link to `developer.android.com/media/media3/exoplayer/dash`, HLS entries to `.../hls`, CMAF entries get both.
+
+### Changed
+
+- **Android platform notes updated**: 5 streaming entries updated with ExoPlayer/Media3 specifics — Widevine cenc (API 19+) / cbcs (API 25+) levels, DASH container support (fMP4, WebM, Matroska, no MPEG-TS), MediaCodecList API, c2.* vs OMX.* decoder prefix distinction, AV1 encoder mandatory from Android 14+.
+- Reference count: 36 → 38 specifications
+
+---
+
 ## [3.1.1] - 2026-02-09
 
 ### Fixed

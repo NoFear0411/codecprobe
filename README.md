@@ -302,7 +302,7 @@ The `name` field must be unique — it's used for card matching in the UI.
 
 ## Technical References
 
-Every education entry in the codec database cites its sources. 36 specifications across 6 standards bodies are referenced inline — linked where freely available, cited by number for paywalled specs.
+Every education entry in the codec database cites its sources. 38 specifications across 6 standards bodies are referenced inline — linked where freely available, cited by number for paywalled specs.
 
 | Standards Body | Specifications |
 |---|---|
@@ -311,7 +311,7 @@ Every education entry in the codec database cites its sources. 36 specifications
 | **ETSI** | TS 102 114 (DTS), TS 102 366 (Dolby AC-3/E-AC-3), TS 103 572 (Dolby Vision) |
 | **IETF** | RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC) |
 | **Industry** | AV1 Bitstream & Decoding Process, AV1 ISOBMFF Binding, VP9 Bitstream & Decoding Process, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF Implementation Guidelines |
-| **Vendor** | [Apple HLS Authoring Spec](https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices), [webOS TV AV Formats](https://webostv.developer.lge.com/develop/specifications/video-audio-250), [Android Supported Media Formats](https://developer.android.com/media/platform/supported-formats) |
+| **Vendor** | [Apple HLS Authoring Spec](https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices), [webOS TV AV Formats](https://webostv.developer.lge.com/develop/specifications/video-audio-250), [Android Supported Media Formats](https://developer.android.com/media/platform/supported-formats), [Android ExoPlayer DASH](https://developer.android.com/media/media3/exoplayer/dash), [Android ExoPlayer HLS](https://developer.android.com/media/media3/exoplayer/hls) |
 
 ## Contributing
 
