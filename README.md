@@ -1,8 +1,10 @@
 # CodecProbe
 
-**Multi-API codec testing for media server enthusiasts**
+**Browser codec detection — three APIs, 256 tests, no guessing**
 
-CodecProbe tests what your browser can actually decode by querying three different browser APIs and comparing their responses. It exposes the discrepancies between what browsers claim to support and what the hardware can handle — discrepancies that cause playback failures in Jellyfin, Plex, and Emby.
+CodecProbe queries three browser APIs against 256 codec/container combinations and compares their responses side-by-side. The results reveal which codecs your device can actually decode, where the APIs disagree, and whether your media server needs to transcode or can direct-play.
+
+Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -15,14 +17,14 @@ CodecProbe tests what your browser can actually decode by querying three differe
 
 ## Why This Exists
 
-Browser codec detection is unreliable:
+The three browser codec APIs return different answers for the same codec string:
 
-- `canPlayType()` returns "maybe" for codecs the hardware can't decode
-- Safari hides Dolby Vision support from API responses entirely
-- webOS apps have async race conditions that break capability detection
-- `mediaCapabilities` is the most accurate API but rarely used
+- `canPlayType()` returns `"maybe"` for codecs without hardware decoders — it checks syntax, not capability
+- `MediaSource.isTypeSupported()` has stricter requirements than native `<video>` playback
+- `mediaCapabilities.decodingInfo()` is the only API that reports hardware decode, HDR transfer functions, and power efficiency — but most apps don't use it
+- The same codec string can return different results depending on the container, the API, and the device
 
-CodecProbe runs all three APIs side-by-side against 256 codec/container combinations so you can see what your device supports across every detection method.
+Media servers decide whether to transcode based on these API responses. When the APIs are wrong or incomplete, you get unnecessary transcoding or failed playback. CodecProbe makes the full picture visible.
 
 ## Real-World Issues This Catches
 
@@ -50,26 +52,28 @@ The same HEVC codec string returns supported in MP4 but unsupported in MKV on mo
 
 ### Three Decoder APIs
 
-- **`1` canPlayType()** — Codec string parsing against the browser's internal list
-  - Returns `"probably"`, `"maybe"`, or `""`
-  - Reliability: **Low** — returns "maybe" liberally, Safari hides DV entirely
-- **`2` MediaSource.isTypeSupported()** — MSE/streaming codec support check
-  - Returns `true` or `false`
-  - Reliability: **Medium** — stricter than canPlayType, but no hardware capability info
-- **`3` mediaCapabilities.decodingInfo()** — Hardware decode capability query
-  - Returns `{ supported, smooth, powerEfficient }` with HDR transfer function awareness
-  - Reliability: **High** — reflects actual hardware state, most accurate API
+Each codec is tested against all three APIs. Results are shown as numbered color-coded badges (**green** = supported, **yellow** = maybe/partial, **red** = unsupported) so disagreements are visible at a glance.
 
-Each API result is shown with a numbered color-coded badge (**green**/yellow/red) so you can spot inconsistencies at a glance.
+| Badge | API | Returns | What it actually checks |
+|-------|-----|---------|------------------------|
+| **1** | `canPlayType()` | `"probably"` / `"maybe"` / `""` | Codec string syntax against an internal list. No hardware awareness — `"maybe"` does not mean the device can decode it. |
+| **2** | `MediaSource.isTypeSupported()` | `true` / `false` | Whether the codec can be fed through MSE for adaptive streaming. Stricter than badge 1, but still no hardware info. |
+| **3** | `mediaCapabilities.decodingInfo()` | `{ supported, smooth, powerEfficient }` | Actual hardware decode capability, including HDR transfer function (`pq`/`hlg`) and color gamut (`rec2020`/`p3`). The most accurate API. |
+
+When badges disagree, that's the signal. A red **1** with a green **3** means the oldest API is wrong. A green **1** with a red **2** means native playback works but MSE streaming won't.
 
 ### DRM/EME Support
 
-- **Widevine** (Chrome/Android) — security level L1 (hardware) or L3 (software)
-- **PlayReady** (Edge/Xbox) — robustness levels
-- **FairPlay** (Safari/iOS) — streaming key system
-- **ClearKey** (W3C standard) — unencrypted key delivery
+Tests `requestMediaKeySystemAccess()` for encrypted content playback:
 
-Tests `requestMediaKeySystemAccess()` with persistent state and robustness detection.
+| Key System | Typical Platform | What CodecProbe Reports |
+|------------|------------------|-------------------------|
+| **Widevine** | Chrome, Android | Security level (L1 hardware / L3 software) |
+| **PlayReady** | Edge, Xbox | Robustness level |
+| **FairPlay** | Safari, iOS | Key system availability |
+| **ClearKey** | All (W3C standard) | Unencrypted key delivery support |
+
+Results include persistent state support and robustness strings. DRM detection runs in parallel with codec tests and times out gracefully if the key system is unavailable.
 
 ## Codec Coverage
 
@@ -124,18 +128,18 @@ All streaming tests use `type: 'media-source'` for proper MSE validation.
 
 ## Features
 
-- **Progressive testing** — cards render immediately, results fill in as tests complete
-- **Batched execution** — 10 codecs tested in parallel per batch with retry logic
-- **Search and filter** — filter by support level (all/supported/video/audio), search by name
-- **JSON export** — full results with device fingerprint for bug reports
-- **Three themes** — Dark OLED (default), Light, Retro Terminal with localStorage persistence
-- **Keyboard shortcuts** — `/` to focus search, `Esc` to clear
-- **Accessibility** — ARIA labels, skip links, screen reader announcements, reduced motion support
-- **UAParser.js v2.x** — accurate device detection with Client Hints API and iPad detection
+- **Progressive testing** — cards appear immediately with PENDING status, results fill in as each test completes
+- **Batched execution** — 10 codecs tested in parallel per batch, 2 retries with 1s timeout per test
+- **Search and filter** — filter by support level (all/supported/video/audio), search by codec name or description
+- **JSON export** — full results with device fingerprint, DRM info, and all three API responses per codec
+- **Three themes** — Dark OLED (default), Light, Retro Terminal — persisted in localStorage
+- **Keyboard shortcuts** — `/` to focus search, `Esc` to clear, standard navigation
+- **Accessibility** — ARIA labels, skip links, screen reader announcements, `prefers-reduced-motion` support
+- **Device detection** — UAParser.js v2.x with Client Hints API (Chromium) and iPad-specific detection via `withFeatureCheck()`
 - **Offline PWA** — service worker precaches all assets, works without network after first visit
-- **Zero runtime dependencies** — UAParser.js bundled at build time, no CDN requests
-- **Fluid responsive** — intrinsic CSS layout with `clamp()`/`min()`/`auto-fit`, no hardcoded breakpoints (webOS TV optimized)
-- **Education & references** — codec string breakdowns, platform notes, and cited spec references for 129 entries
+- **Zero runtime dependencies** — everything bundled at build time, no CDN or external requests
+- **Fluid layout** — CSS intrinsic sizing with `clamp()`/`min()`/`auto-fit`, no hardcoded breakpoints
+- **Education content** — codec string breakdowns, platform notes, and cited spec references for 131 entries across 38 specifications
 
 ## Understanding Results
 
@@ -146,50 +150,41 @@ All streaming tests use `type: 'media-source'` for proper MSE validation.
 | **SUPPORTED** (green) | All queried APIs confirm support |
 | **PROBABLY** (green) | Most APIs confirm, at least one disagrees |
 | **UNSUPPORTED** (gray) | No API reports support |
-| **FAILED** (purple) | Test failed after retries (timeout or API error) |
+| **FAILED** (purple) | Test threw an error or timed out after retries |
 
-### API Badges
+### Reading the Badges
 
-Each codec card shows numbered badges (1, 2, 3) for the three APIs:
-- **Green** — API reports supported/probably
-- **Yellow** — API reports partial/maybe
-- **Red** — API reports unsupported or error
+Each codec card shows three numbered badges matching the API table above. When they agree, the result is clear. When they disagree, click the card to expand API details — the response from each API is shown individually so you can see exactly which one differs and why.
 
-Mismatched badges reveal detection inconsistencies (e.g., Safari showing red on badge 1 but green on badge 3 for Dolby Vision).
+Common patterns:
+- **1** red, **3** green — `canPlayType()` doesn't recognize the codec string, but hardware decode is available
+- **1** green, **2** red — native `<video>` playback works, but the codec can't be used in MSE/adaptive streaming
+- **1** yellow — `"maybe"` response, which means the browser parsed the codec string but makes no guarantee about playback
 
-### Why Containers Matter
+## Platform-Specific Behavior
 
-The same codec produces different results in different containers. HEVC in MP4 may show supported while HEVC in MKV shows unsupported — this directly maps to whether your media server needs to remux or transcode.
-
-- **MP4** — broadest browser support, required for streaming
-- **MKV** — remux format for high-quality archives, limited browser support
-- **WebM** — Google's open container, Chrome/Firefox preferred
-- **MOV** — Apple QuickTime, Safari/macOS optimized
-- **fMP4/CMAF** — fragmented formats used by HLS and DASH
-
-## Platform Notes
+Codec support varies across platforms. These are factual observations from API responses, not judgments about platform quality.
 
 ### webOS (LG TVs)
 - Dolby Vision Profile 8.1 hardware decode on webOS 6+
 - webOS 25+ added MKV Dolby Vision support
 - Native DTS-HD passthrough to audio receivers
-- DV detection may fail on first load due to async race condition
 
 ### iOS / Safari
-- Dolby Vision Profile 5 hardware on A11+ (iPhone 8+)
-- `canPlayType()` never reports DV support — use `mediaCapabilities` instead
-- 500-nit displays tone-map HDR, `transferFunction: 'pq'` returns false
-- HLS requires `VIDEO-RANGE=PQ` attribute for HDR content
+- Dolby Vision Profile 5 hardware on A11+ chips (iPhone 8 and later)
+- `canPlayType()` returns `""` for DV codec strings — `mediaCapabilities` reflects actual support
+- Panels below 1000 nits: `transferFunction: 'pq'` returns `supported: false` (API reflects display capability, not SoC)
+- HLS HDR requires `VIDEO-RANGE=PQ` in the master playlist
 
 ### Android
 - Codec support varies by manufacturer, SoC, and Android version
-- Widevine level reported: L1 (hardware-backed) or L3 (software)
-- HEVC Main 10 requires Android 7.0+ with MediaCodec hardware decoder
+- Widevine level detected: L1 (hardware-backed) or L3 (software-only)
+- HEVC Main 10 requires Android 7.0+ with a MediaCodec hardware decoder
 
 ### Desktop Browsers
-- **Chrome/Edge** (Blink) — widest codec support
-- **Safari** (WebKit) — best HEVC/DV support, hidden from some APIs
-- **Firefox** (Gecko) — limited Dolby/DTS due to licensing
+- **Chrome/Edge** (Blink) — broadest codec and container coverage
+- **Safari** (WebKit) — strongest HEVC and Dolby Vision support; `canPlayType()` results differ from `mediaCapabilities` for DV strings
+- **Firefox** (Gecko) — Dolby and DTS codecs unavailable (requires proprietary licenses not included in the open-source media stack)
 
 ## Usage
 

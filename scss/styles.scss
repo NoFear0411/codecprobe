@@ -1139,10 +1139,11 @@ main#main-content {
     }
 
     p {
+        font-size: 0.85rem;
         color: var(--text-secondary);
         line-height: 1.6;
         margin-bottom: $spacing-sm;
-        word-wrap: break-word;  // Ensure text wraps
+        word-wrap: break-word;
         overflow-wrap: break-word;
     }
 }
