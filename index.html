@@ -57,9 +57,6 @@
 <body>
     <a href="#main-content" class="skip-link">Skip to results</a>
 
-    <!-- Theme Switcher - stays in same position -->
-    <div class="theme-switcher" id="theme-switcher" role="toolbar" aria-label="Theme selector"></div>
-
     <!-- NEW: Canvas Container -->
     <div class="canvas-container">
 
@@ -67,6 +64,7 @@
         <header class="device-header" id="device-header">
             <div class="device-header-top">
                 <h1>CodecProbe</h1>
+                <div class="theme-switcher" id="theme-switcher" role="toolbar" aria-label="Theme selector"></div>
                 <div class="subtitle">Multi-API codec testing for media server enthusiasts</div>
             </div>
 
@@ -118,32 +116,31 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>About</h3>
-                    <p>Tests what codecs your browser can actually play by comparing three different detection APIs. Built for Jellyfin/Plex/Emby users who need to know if their device supports HEVC, Dolby Vision, DTS, etc.</p>
+                    <p>CodecProbe queries three browser APIs to show what your device actually decodes. 254 codec/container combinations across HEVC, Dolby Vision, AV1, VP9, DTS, Dolby Audio, and more.</p>
+                    <p>Zero dependencies. No network requests. Runs entirely in your browser.</p>
                 </div>
 
                 <div class="footer-section">
                     <h3>Links</h3>
                     <ul class="footer-links">
-                        <li><a href="https://github.com/nofear0411/codecprobe" target="_blank" rel="noopener">GitHub</a></li>
-                        <li><a href="https://github.com/nofear0411/codecprobe/issues" target="_blank" rel="noopener">Issues</a></li>
-                        <li><a href="https://github.com/nofear0411/codecprobe/blob/main/README.md" target="_blank" rel="noopener">Docs</a></li>
+                        <li><a href="https://github.com/nofear0411/codecprobe" target="_blank" rel="noopener">Source on GitHub</a></li>
+                        <li><a href="https://github.com/nofear0411/codecprobe/issues" target="_blank" rel="noopener">Report a Bug</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-section">
-                    <h3>Requirements</h3>
-                    <p><strong>APIs Tested:</strong></p>
+                    <h3>APIs</h3>
                     <ul class="footer-links">
-                        <li>HTMLMediaElement.canPlayType() - All browsers</li>
-                        <li>MediaSource.isTypeSupported() - Chrome 23+, Safari 8+, Firefox 42+, Edge 12+</li>
-                        <li>navigator.mediaCapabilities.decodingInfo() - Chrome 66+, Safari 12.1+, Firefox 63+, Edge 79+</li>
+                        <li>canPlayType() &mdash; basic format detection</li>
+                        <li>isTypeSupported() &mdash; MSE/streaming support</li>
+                        <li>decodingInfo() &mdash; hardware capability + performance</li>
+                        <li>requestMediaKeySystemAccess() &mdash; DRM/EME (Widevine, PlayReady, FairPlay, ClearKey)</li>
                     </ul>
-                    <p><strong>DRM/EME Testing:</strong> Widevine, PlayReady, FairPlay, ClearKey</p>
                 </div>
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2025 CodecProbe • MIT License • UAParser.js (AGPL-3.0)</p>
+                <p>CodecProbe &mdash; MIT License &mdash; UAParser.js (AGPL-3.0)</p>
             </div>
         </footer>
 

@@ -110,6 +110,33 @@ function renderDeviceInfo(info) {
         </div>
     `;
 
+    // Platform flags — only show when detected
+    if (info.webOS) {
+        gridHTML += `
+        <div class="device-info-item highlight">
+            <div class="device-info-label">Platform</div>
+            <div class="device-info-value">webOS ${info.osVersion || ''}</div>
+        </div>`;
+    } else if (info.tvOS) {
+        gridHTML += `
+        <div class="device-info-item highlight">
+            <div class="device-info-label">Platform</div>
+            <div class="device-info-value">tvOS</div>
+        </div>`;
+    } else if (info.iOS) {
+        gridHTML += `
+        <div class="device-info-item highlight">
+            <div class="device-info-label">Platform</div>
+            <div class="device-info-value">iOS ${info.osVersion || ''}</div>
+        </div>`;
+    } else if (info.android) {
+        gridHTML += `
+        <div class="device-info-item highlight">
+            <div class="device-info-label">Platform</div>
+            <div class="device-info-value">Android ${info.osVersion || ''}</div>
+        </div>`;
+    }
+
     // DRM info
     if (info.drm) {
         if (info.drm.timedOut) {
@@ -130,22 +157,22 @@ function renderDeviceInfo(info) {
             if (supportedDRM.length > 0) {
                 gridHTML += `
                     <div class="device-info-item highlight">
-                        <div class="device-info-label">DRM/EME Support</div>
+                        <div class="device-info-label">DRM Key Systems</div>
                         <div class="device-info-value">${supportedDRM.join(', ')}</div>
                     </div>
                 `;
             } else {
                 gridHTML += `
                     <div class="device-info-item">
-                        <div class="device-info-label">DRM/EME Support</div>
-                        <div class="device-info-value" style="color: var(--text-dimmed);">None</div>
+                        <div class="device-info-label">DRM Key Systems</div>
+                        <div class="device-info-value" style="color: var(--text-secondary);">EME available, no key systems</div>
                     </div>
                 `;
             }
         } else {
             gridHTML += `
                 <div class="device-info-item">
-                    <div class="device-info-label">DRM/EME Support</div>
+                    <div class="device-info-label">DRM/EME</div>
                     <div class="device-info-value" style="color: var(--text-dimmed);">Not available</div>
                 </div>
             `;
@@ -1016,21 +1043,21 @@ function toggleAllCards(expand) {
         }
     });
 
-    // Update button state
+    // Update button label
     if (toggleBtn) {
-        const icon = toggleBtn.querySelector('svg');
-        const text = toggleBtn.querySelector('span');
+        const icon = toggleBtn.querySelector('.btn-icon');
+        const text = toggleBtn.querySelector('.btn-text');
 
         if (expand) {
             toggleBtn.setAttribute('aria-label', 'Collapse all codec cards');
-            toggleBtn.setAttribute('title', 'Collapse All (Ctrl+E)');
-            text.textContent = 'Collapse All';
-            icon.innerHTML = '<polyline points="17 11 12 6 7 11"></polyline><polyline points="17 18 12 13 7 18"></polyline>';
+            toggleBtn.setAttribute('data-expanded', 'true');
+            if (icon) icon.textContent = '⊖';
+            if (text) text.textContent = 'Collapse All';
         } else {
             toggleBtn.setAttribute('aria-label', 'Expand all codec cards');
-            toggleBtn.setAttribute('title', 'Expand All (Ctrl+E)');
-            text.textContent = 'Expand All';
-            icon.innerHTML = '<polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline>';
+            toggleBtn.setAttribute('data-expanded', 'false');
+            if (icon) icon.textContent = '⊕';
+            if (text) text.textContent = 'Expand All';
         }
     }
 }

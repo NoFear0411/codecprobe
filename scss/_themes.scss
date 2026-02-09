@@ -193,30 +193,17 @@
 // Theme Switcher UI
 // ============================================================================
 .theme-switcher {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
+    position: absolute;
+    top: 0;
+    right: 0;
     display: flex;
     gap: 8px;
-    background: var(--card);
+    background: var(--bg-secondary);
     padding: 8px;
     border-radius: 8px;
     border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-
-    @media (max-width: 768px) {
-        top: 10px;
-        right: 10px;
-        padding: 6px;
-        gap: 6px;
-        // REMOVED: transform: translateZ(0);
-        // REMOVED: will-change: transform;
-    }
 
     @media (max-width: 480px) {
-        top: 5px;
-        right: 5px;
         padding: 4px;
         gap: 4px;
     }

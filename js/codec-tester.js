@@ -112,7 +112,12 @@ async function testCodec(test, type) {
     }
 
     // ==================== TEST 3: mediaCapabilities ====================
-    if (API_METHODS.mediaCapabilities && test.mediaConfig) {
+    // Skip if audio contentType uses a video MIME (e.g. video/mp2t for TS audio)
+    // — the API rejects non-audio MIME types in AudioConfiguration
+    const audioContentType = test.mediaConfig?.audio?.contentType || '';
+    const invalidAudioMime = test.mediaConfig?.audio && audioContentType.startsWith('video/');
+
+    if (API_METHODS.mediaCapabilities && test.mediaConfig && !invalidAudioMime) {
         try {
             const config = JSON.parse(JSON.stringify(test.mediaConfig));
 
@@ -142,8 +147,13 @@ async function testCodec(test, type) {
             }
         }
 
-        // For audio codecs, also test with spatialRendering: true
-        if (type === 'audio' && test.mediaConfig.audio) {
+        // Only test spatial rendering for object-based audio formats
+        // EC-3 = Dolby Atmos (JOC), AC-4 = Dolby AC-4 IMS, dtsx = DTS:X, mhm1/mhm2 = MPEG-H 3D
+        const SPATIAL_CODEC_IDS = ['ec-3', 'ac-4', 'dtsx', 'mhm1', 'mhm2'];
+        const codecLower = test.codec.toLowerCase();
+        const supportsSpatial = SPATIAL_CODEC_IDS.some(id => codecLower.includes(id));
+
+        if (type === 'audio' && test.mediaConfig.audio && supportsSpatial) {
             const spatialConfig = JSON.parse(JSON.stringify(test.mediaConfig));
             spatialConfig.audio.spatialRendering = true;
 

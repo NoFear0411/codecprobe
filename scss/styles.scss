@@ -231,14 +231,14 @@ h1 {
     background: var(--bg-secondary);
     color: var(--text-secondary);
     border: 1px solid var(--border);
-    padding: $spacing-xs $spacing-md;
+    padding: $spacing-sm $spacing-lg;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    min-height: 40px;
-    min-width: 90px;
+    min-height: 48px;
+    min-width: 100px;
 
     &:hover,
     &:focus {
@@ -264,10 +264,10 @@ h1 {
     background: var(--bg-secondary);
     color: var(--text-secondary);
     border: 1px solid var(--border-light);
-    padding: $spacing-sm $spacing-md;
+    padding: $spacing-sm $spacing-lg;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
     font-weight: 600;
     min-height: 48px;
     display: inline-flex;
@@ -314,14 +314,12 @@ h1 {
     }
 }
 
-// Canvas Container - Unified Layout
+// Canvas Container - Full-width layout
 .canvas-container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: $spacing-md;
+    padding: $spacing-md $spacing-lg;
     gap: $spacing-xl;
 }
 
@@ -335,6 +333,7 @@ h1 {
 }
 
 .device-header-top {
+    position: relative;
     margin-bottom: $spacing-md;
 
     h1 {
@@ -421,14 +420,15 @@ h1 {
     display: inline-flex;
     align-items: center;
     gap: $spacing-xs;
-    padding: $spacing-xs $spacing-md;  // Reduced vertical padding
+    padding: $spacing-sm $spacing-lg;
     background: var(--card-hover);
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.85rem;  // Smaller font
-    font-weight: 500;  // Less bold
+    font-size: 0.95rem;
+    font-weight: 500;
+    min-height: 48px;
     transition: all 0.2s ease;
 
     &:hover {
@@ -441,7 +441,7 @@ h1 {
     }
 
     .btn-icon {
-        font-size: 1rem;  // Smaller icon
+        font-size: 1.1rem;
     }
 }
 
@@ -459,7 +459,8 @@ main#main-content {
     padding: $spacing-lg;
     border: 1px solid var(--border);
     margin-top: $spacing-xl;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
 }
 
 .footer-content {
@@ -471,14 +472,20 @@ main#main-content {
 
 .footer-section {
     flex: 1 1 250px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: $spacing-md;
 
     h3 {
         font-size: 0.85rem;
-        margin-bottom: $spacing-xs;
+        margin-bottom: $spacing-sm;
         color: var(--text-secondary);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        padding-bottom: $spacing-xs;
+        border-bottom: 1px solid var(--border);
     }
 
     p {
@@ -499,6 +506,9 @@ main#main-content {
 
     li {
         margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        line-height: 1.5;
     }
 
     a {
@@ -518,8 +528,8 @@ main#main-content {
     padding-top: $spacing-sm;
     border-top: 1px solid var(--border);
     text-align: center;
-    font-size: 0.75rem;
-    color: var(--text-dimmed);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
     line-height: 1.6;
 }
 

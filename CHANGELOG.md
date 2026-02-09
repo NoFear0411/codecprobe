@@ -2,6 +2,48 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [2.1.0] - 2026-02-09
+
+### Changed
+
+- **Support states reduced from 6 to 4**: SUPPORTED, PROBABLY, UNSUPPORTED, FAILED
+  - Removed MAYBE (canPlayType "maybe" now counts as a pass in API consensus)
+  - Removed ERROR (stuck PENDING cards marked FAILED instead)
+- **Section counters**: "X full / Y partial" replaced with "X / Y supported" format
+  - Shows testing progress: "3 supported (12 testing...)"
+  - Shows failures: "3 / 30 supported (2 failed)"
+- **Full-width layout**: Removed 1400px max-width, cards use full viewport
+- **Theme switcher**: Moved from fixed viewport overlay to header top-right corner
+- **Buttons enlarged**: 48px min-height, 0.95rem font for TV remote navigation
+- **Footer redesigned**: Sections boxed with card styling, heading separators, unified 0.85rem text
+- **DRM display**: Distinguishes "EME available, no key systems" from "EME not available"
+- **Export JSON**: Uses `supported`/`unsupported`/`failed` counts (removed `maybe`)
+
+### Added
+
+- **API availability indicators**: Green/red dots in device header for each of the 3 APIs
+- **Platform flags**: webOS, tvOS, iOS, Android shown in device info grid when detected
+- **Spatial audio gating**: API 3b test only runs for E-AC-3, AC-4, DTS:X, MPEG-H 3D Audio
+- **MPEG-TS audio guard**: mediaCapabilities skipped when audio contentType uses video/ MIME
+
+### Fixed
+
+- **Expand/Collapse button**: Was showing both states (wrong querySelector targeted icon span instead of .btn-text)
+- **Card hover overlap**: Added z-index on hover to prevent visual overlap with adjacent cards
+- **Console errors**: Eliminated "Invalid AudioConfiguration MIME type" for MPEG-TS audio entries
+- **Counter duplication**: Consolidated updateSectionCounts/updateAllSectionCounts into single helper
+- **Duplicate listener**: Removed expand/collapse handler in main.js (setupFilters already handles it)
+- **Stuck card cleanup**: Simplified to mark FAILED without verbose DOM manipulation
+
+### Removed
+
+- `.MAYBE` CSS state styles (18 lines)
+- `.ERROR` CSS state styles (26 lines)
+- API YES/NO items from device info grid (replaced by availability dots)
+- Redundant card state verification block in updateCardState
+
+---
+
 ## [2.0.0] - 2026-02-08
 
 ### Added
