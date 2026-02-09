@@ -1,213 +1,105 @@
-# GitHub Pages Setup Guide
+# Setup
 
-## Quick Deployment
+## Deploy to GitHub Pages
 
-### Method 1: Fork & Deploy (Easiest)
-1. Click "Fork" button on this repository
-2. Go to your forked repo's Settings
-3. Navigate to "Pages" in the left sidebar
-4. Under "Source", select `main` branch
-5. Click "Save"
-6. Wait 1-2 minutes for deployment
-7. Access at: `https://YOUR_USERNAME.github.io/codecprobe/`
+### Fork & Deploy
 
-### Method 2: New Repository
-1. Create a new repository on GitHub
-2. Clone this repository locally:
+1. Fork this repository
+2. Settings > Pages > Source: `main` branch > Save
+3. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
+
+### From Scratch
+
+1. Create a new repo on GitHub
+2. Clone and re-point the remote:
    ```bash
-   git clone https://github.com/ORIGINAL_OWNER/codecprobe.git
+   git clone https://github.com/nofear0411/codecprobe.git
    cd codecprobe
-   ```
-3. Change remote to your new repo:
-   ```bash
-   git remote set-url origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+   git remote set-url origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
    git push -u origin main
    ```
-4. Follow steps 2-7 from Method 1
+3. Enable Pages in Settings
 
-## Development Setup
+## Development
 
-### Install Dependencies
+### Install
+
 ```bash
 npm install
 ```
 
-This installs:
-- SCSS compiler (sass)
-- JavaScript minifier (terser)
-- Browser detection library (ua-parser-js)
-- Build tools
+Installs: sass, terser, ua-parser-js, npm-run-all.
 
-### Development Mode
+### Dev Mode
+
 ```bash
 npm run dev
 ```
 
-This starts:
-- Local server on `http://localhost:8000`
-- SCSS watcher (auto-compiles on changes)
+Starts a local server on `http://localhost:8000` with SCSS auto-compilation.
 
-### Build Everything
+### Build
+
 ```bash
 npm run build
 ```
 
-This runs:
-- CSS compilation (`scss/` → `css/styles.css`)
-- JavaScript minification (`js/` → `build/js/`)
-- UAParser.js bundling (`node_modules/` → `js/vendor/`)
+Compiles SCSS, minifies JS, bundles UAParser.js to `js/vendor/`, generates version manifest.
 
 ### Build CSS Only
+
 ```bash
 npm run build:css
 ```
 
-Compiles `scss/styles.scss` + `scss/_themes.scss` → `css/styles.css` (compressed)
+### Quick Test (No Build)
 
-## Local Testing (Without Building)
-
-If you just want to test without modifying styles:
-
-### Option 1: Python HTTP Server
 ```bash
-cd codecprobe
 python -m http.server 8000
-# Open http://localhost:8000
 ```
 
-### Option 2: Node.js HTTP Server
-```bash
-npm install -g http-server
-cd codecprobe
-http-server -p 8000
-# Open http://localhost:8000
-```
+Works for JS-only changes. SCSS changes need `npm run build:css`.
 
-### Option 3: VS Code Live Server
-1. Install "Live Server" extension
-2. Open project folder in VS Code
-3. Right-click `index.html` → "Open with Live Server"
+## CI/CD
 
-## GitHub Actions Build Process
+GitHub Actions (`.github/workflows/deploy.yml`) runs on push to main:
 
-The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that automatically:
-1. Installs Node.js dependencies (including ua-parser-js)
-2. Compiles SCSS to CSS
-3. Bundles UAParser.js to vendor directory
-4. Deploys to GitHub Pages
+1. `npm install`
+2. Compile SCSS
+3. Minify JS + bundle UAParser.js
+4. Generate version manifest
+5. Inject version parameters into HTML
+6. Deploy to GitHub Pages
 
-**This means:**
-- Compiled CSS and bundled vendor files are committed to git
-- GitHub Pages works without build step
-- CSS is built from SCSS source during development
-- UAParser.js is bundled at build time for offline capability
+Compiled CSS and bundled vendor files are committed to git so GitHub Pages works without a build step.
 
-## File Structure Requirements
+## File Structure
 
-For GitHub Pages to work, you MUST have:
-- `index.html` in the root directory
+Required for GitHub Pages:
+- `index.html` in root
 - All paths relative to root
-- No server-side code (PHP, etc.)
-- `package.json` for npm dependencies
-- SCSS source files in `scss/` directory
-- Compiled CSS in `css/` directory (committed to git)
-- Bundled UAParser.js in `js/vendor/` directory (committed to git)
+- `css/styles.css` committed (compiled)
+- `js/vendor/ua-parser.min.js` committed (bundled)
 
-## Customization
+## Custom Domain
 
-### Update Repository Links
-Edit `index.html` line 25:
-```html
-<a href="https://github.com/YOUR_USERNAME/codecprobe" target="_blank">GitHub</a>
-```
-
-### Update README Links
-Edit `README.md`:
-- Replace `nofear0411` with your GitHub username
-- Update demo link
-- Update contact information
-
-### Custom Domain (Optional)
-1. Purchase a domain
-2. Add `CNAME` file to repository root with your domain:
-   ```
-   codecdetector.yourdomain.com
-   ```
-3. Configure DNS with your domain provider:
-   - Type: `CNAME`
-   - Name: `codecdetector` (or `@` for apex domain)
-   - Value: `YOUR_USERNAME.github.io`
-4. Enable "Enforce HTTPS" in GitHub Pages settings
+1. Add `CNAME` file to root with your domain
+2. DNS: CNAME record pointing to `YOUR_USERNAME.github.io`
+3. Enable "Enforce HTTPS" in Pages settings
 
 ## Troubleshooting
 
-### Page Not Loading
-- Check that `index.html` exists in root
-- Verify GitHub Pages is enabled in Settings
-- Clear browser cache
-- Wait 5 minutes after enabling Pages
+**Page not loading**: Verify Pages is enabled, branch is `main`, files are pushed. Wait a few minutes after first enable.
 
-### 404 Error
-- Ensure branch is set to `main` (not `master`)
-- Check that files are committed and pushed
-- Verify URL is correct
+**404**: Check branch name (`main` not `master`), verify files are committed.
 
-### Codecs Not Testing
-- Open browser console (F12)
-- Check for JavaScript errors
-- Ensure all `.js` files loaded correctly
-- Try a different browser
+**Console errors**: Open F12, check all `.js` files loaded. Try a different browser.
 
-### Results Look Wrong
-- Some browsers deliberately hide codec support
-- Try on different device/browser
-- Export JSON and compare with known device
+## Pulling Updates
 
-## Browser Compatibility
-
-Minimum versions for full functionality:
-- Chrome/Edge: 88+
-- Firefox: 90+
-- Safari: 14+
-- Opera: 74+
-
-Older browsers may work with reduced functionality.
-
-## Security Notes
-
-- This tool runs entirely client-side
-- No data is sent to any server
-- No analytics or tracking
-- Safe to use on any device
-
-## Performance
-
-- Initial load: ~90 KB HTML/CSS/JS + 35 KB UAParser.js
-- Test duration: 2-5 seconds for 110+ codecs
-- Memory usage: < 50MB
-- No background processes
-- No external requests (UAParser bundled locally)
-
-## Updates
-
-To pull latest changes from upstream:
 ```bash
-git remote add upstream https://github.com/ORIGINAL_OWNER/codecprobe.git
+git remote add upstream https://github.com/nofear0411/codecprobe.git
 git fetch upstream
 git merge upstream/main
 git push origin main
 ```
-
-## Support
-
-If you encounter issues:
-1. Check this guide
-2. Search existing GitHub Issues
-3. Open a new Issue with:
-   - Browser/OS information
-   - Console errors (F12)
-   - Exported JSON results
-
----
-
-**Ready to Deploy?** Follow Method 1 above and you'll be live in minutes!
