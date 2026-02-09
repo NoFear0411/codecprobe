@@ -3,7 +3,7 @@
  * Cache-first for static assets, network-first for navigation
  */
 
-const CACHE_VERSION = '1770667987083';
+const CACHE_VERSION = '1770669933288';
 const CACHE_NAME = `codecprobe-v${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
@@ -20,7 +20,11 @@ const CORE_ASSETS = [
     './js/url-state.js',
     './js/vendor/ua-parser.min.js',
     './manifest.json',
-    './favicon.svg'
+    './icons/favicon.svg',
+    './icons/favicon.ico',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
+    './icons/icon-512-maskable.png'
 ];
 
 // Precache all core assets on install

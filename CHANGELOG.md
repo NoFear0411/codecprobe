@@ -2,18 +2,25 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
-## [3.1.4] - 2026-02-10
+## [3.1.5] - 2026-02-10
 
 ### Changed
 
 - **Card header compacted to 2 lines**: Status badge moved inline with codec name (right-aligned), summary and technical specs merged into a single line with `•` separators, container badge removed (already in name string), gear icon removed
 - **Playback type in specs**: Cards now show `File` or `MSE` at the end of the specs line to indicate native vs streaming test mode
+- **New favicon**: Play triangle + three result bars (green/yellow/red) replacing abstract vertical bars
+- **PWA icons**: Added 192px, 512px, and 512px maskable PNGs for mobile install prompts and splash screens
+- **Icons consolidated**: All icon files moved to `icons/` directory
+- **Page load optimized**: `defer` on ua-parser.min.js, `modulepreload` hints for all 8 modules to flatten critical request chain (~450ms est. savings)
+- **Contrast improved**: `--text-dimmed` bumped to pass WCAG AA 4.5:1 in dark OLED and retro terminal themes
+- **Heading order fixed**: Footer headings changed from `h3` to `h2` for sequential descending order
+- **theme-color aligned**: Meta tag and manifest both use `#0a0a0a`
 
 ### Removed
 
 - `.platform-badge` — duplicate container info already present in codec name
 - `.technical-specs` div and `⚙` gear icon — specs merged into summary line
-- Version bump to 3.1.4
+- Version bump to 3.1.5
 
 ---
 

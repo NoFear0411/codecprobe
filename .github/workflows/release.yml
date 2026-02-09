@@ -51,7 +51,8 @@ jobs:
           cp -r css deploy/
           cp -r build/js/* deploy/js/
           cp -r js/vendor deploy/js/
-          cp manifest.json favicon.* CNAME _headers deploy/
+          cp -r icons deploy/
+          cp manifest.json CNAME _headers deploy/
           cp .nojekyll deploy/
           cp sw.js LICENSE deploy/
 
