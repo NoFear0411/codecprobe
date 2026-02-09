@@ -682,6 +682,32 @@ sdr_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvh1.05.06",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC with hvc1-style parameter sets. In MKV, this codec string is declared in the CodecID/CodecPrivate fields. MKV stores DV RPU NALUs as BlockAdditions (side data) separate from the main HEVC NALUs — unlike MP4 which stores them inline. This storage difference is why remuxing MKV→fMP4 for HLS requires RPU re-injection into the HEVC bitstream."
+                            },
+                            {
+                                "token": "05",
+                                "meaning": "Profile 5 — single-layer IPT-PQ. Same DV profile as the MP4 variant. The MKV container adds BlockAdditionMapping entries with BlockAddIDType matching the dvcC configuration record."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps maximum."
+                            }
+                        ]
+                    },
+                    "overview": "webOS 25 (2025 LG TVs) added MKV Dolby Vision support. Prior webOS versions required DV content in MP4 containers — MKV DV files would play as standard HEVC (losing DV metadata) or fail entirely. The MKV container stores DV RPU in BlockAdditions, which webOS 25 can now parse natively. For Jellyfin/Plex streaming to pre-webOS 25 TVs, the server must remux MKV→fMP4 for HLS delivery, extracting RPU from BlockAdditions and injecting them inline into the HEVC NAL stream.",
+                    "platforms": {
+                        "lg": "webOS 25+ reads DV configuration from MKV CodecPrivate data and BlockAdditionMapping. The DV decoder initializes from the dvcC record stored in the MKV header. For local USB playback, the built-in player handles this natively. For web app playback (Jellyfin webOS app), MSE processes the MKV-remuxed fMP4 segments. The browser canPlayType for video/x-matroska with dvh1 codec strings returns varying results depending on webOS version — CodecProbe exposes this gap.",
+                        "apple": "Apple does not support MKV containers at all — Safari and AVPlayer reject video/x-matroska MIME types. DV P5 MKV files must be remuxed to MP4 or fMP4 for Apple playback.",
+                        "android": "ExoPlayer can play DV MKV files on devices with DV hardware (Pixel 6+, Shield TV). MediaCodec extracts the dvcC configuration from MKV CodecPrivate. The c2.dolby.dv_hevc.decoder handles the IPT-PQ decoding."
+                    }
                 }
             },
             // Profile 7 (Blu-ray dual layer)
@@ -736,6 +762,27 @@ sdr_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvhe.07.06",
+                        "parts": [
+                            {
+                                "token": "dvhe",
+                                "meaning": "DV HEVC with hev1-style in-band parameter sets. Profile 7 uses dvhe because the dual-layer structure benefits from per-sample parameter set signaling for the enhancement layer."
+                            },
+                            {
+                                "token": "07",
+                                "meaning": "Profile 7 — dual-layer HEVC. Base layer is HDR10-compatible (BT.2020 PQ), enhancement layer carries DV RPU and additional precision. In MKV, the EL is stored as a separate track or as BlockAdditions depending on the muxer."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps. UHD Blu-ray standard resolution."
+                            }
+                        ]
+                    },
+                    "overview": "Profile 7 MKV files are typically Blu-ray remuxes (disc rips). MKVToolNix stores the enhancement layer as a separate track linked to the base layer via TrackCombinePlanes. The EL can be MEL (Minimum Enhancement Layer, 1-3 Mbps) or FEL (Full Enhancement Layer, up to 50 Mbps). Browser support is zero — MSE cannot handle dual-track DV playback. Media server apps (Jellyfin, Plex) must either strip the EL and serve as P8 (losing DV precision) or transcode entirely."
                 }
             },
             // Profile 8.1 (HDR10 compatible)
@@ -819,6 +866,31 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvh1.08.06",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC, hvc1-style. In MKV, the codec string signals the same DV configuration as the MP4 variant. The dvcC record is stored in MKV CodecPrivate."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "Profile 8 — single-layer HEVC with backward-compatible BT.2020 PQ base layer. Sub-profile 8.1 (bl_signal_compatibility_id=1) means the base layer is HDR10-compatible. Non-DV players decode as standard HDR10."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps."
+                            }
+                        ]
+                    },
+                    "overview": "The most common DV profile in media libraries. MKV P8.1 files play as HDR10 on any HEVC-capable device, with DV enhancement on DV-capable devices. MKV stores the DV RPU in BlockAdditions (MKVToolNix v70+). When Jellyfin remuxes MKV→fMP4 for HLS streaming, FFmpeg extracts RPU from BlockAdditions and injects them inline. The m3u8 master playlist should signal CODECS=\"dvh1.08.06\" for DV-capable clients and CODECS=\"hvc1.2.4.L153.B0\" for HDR10 fallback — but Jellyfin currently signals only hvc1 for both, losing DV activation on client devices.",
+                    "platforms": {
+                        "lg": "webOS 6+ supports P8.1 MKV natively for local playback. For streaming via Jellyfin webOS app, the fMP4 HLS remux path applies. The m3u8 CODECS string determines whether webOS activates the DV or HDR10 decoder pipeline — wrong signaling means HDR10 playback despite DV data being present in the stream.",
+                        "android": "ExoPlayer reads the dvcC record from MKV CodecPrivate and activates the DV decoder if available. Devices without DV hardware fall back to HDR10 using the backward-compatible base layer — this fallback is the entire point of Profile 8."
+                    }
                 }
             },
             // Profile 8.4 (HLG compatible)
@@ -874,6 +946,23 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp4",
+                        "string": "hvc1.2.4.L153.B0, dvh1.05.07",
+                        "parts": [
+                            {
+                                "token": "hvc1.2.4.L153.B0",
+                                "meaning": "HEVC Main 10, Level 5.1. This is the base HEVC codec declaration. In a multi-codec string, it tells the player the minimum HEVC capability required."
+                            },
+                            {
+                                "token": "dvh1.05.07",
+                                "meaning": "DV Profile 5, Level 7 (3840x2160 @ 30fps). Listed as a second codec in the same string. This multi-codec declaration is an alternative way to signal that the MP4 track is both HEVC-decodable and DV-enhanced."
+                            }
+                        ]
+                    },
+                    "overview": "Multi-codec strings list both the HEVC base and DV enhancement in a single codecs attribute. This is distinct from DASH supplementalCodecs (which separates them into different XML attributes). The multi-codec approach tests whether the browser can parse and accept both codec identifiers simultaneously. In practice, Profile 5 has NO backward-compatible base — the hvc1 string here is misleading because P5 IPT-PQ cannot be correctly decoded as standard HEVC. This test entry exists to check browser behavior when confronted with a dual codec declaration for a non-backward-compatible DV profile."
                 }
             },
             // Profile 10 (AV1-based)
@@ -987,6 +1076,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp4",
+                        "string": "dvh1.08.09",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC, hvc1-style with out-of-band parameter sets. The dvh1 tag is the preferred tag for HLS streaming."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "Profile 8 — single-layer backward-compatible. Sub-profile 8.4 (bl_signal_compatibility_id=4) indicates the base layer uses HLG transfer function instead of PQ. HLG content is designed for live broadcast compatibility."
+                            },
+                            {
+                                "token": "09",
+                                "meaning": "Level 9 — 3840x2160 @ 60fps. Higher level than the PQ variant because HLG broadcast content often targets 50/60fps."
+                            }
+                        ]
+                    },
+                    "overview": "Profile 8.4 with the dvh1 tag. The difference from the dvhe variant (P8.4 dvhe) is parameter set storage only — dvh1 stores VPS/SPS/PPS in the sample entry, dvhe stores them in-band. For HLS delivery, dvh1 is preferred because out-of-band parameter sets allow the player to configure the decoder from the init segment before processing media segments. The HLG base layer means non-DV devices display HLG HDR (common on broadcast TVs) while DV devices apply the full Dolby Vision enhancement."
                 }
             },
             {
@@ -1005,6 +1115,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp4",
+                        "string": "dvhe.08.06",
+                        "parts": [
+                            {
+                                "token": "dvhe",
+                                "meaning": "DV HEVC, hev1-style with in-band parameter sets. The hev1 mapping means VPS/SPS/PPS are repeated in each sample. Some muxers (notably older FFmpeg versions) produce dvhe-tagged tracks by default."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "Profile 8 — single-layer backward-compatible. Sub-profile 8.1 (bl_signal_compatibility_id=1) = HDR10 base layer."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps."
+                            }
+                        ]
+                    },
+                    "overview": "dvhe.08.06 and dvh1.08.06 carry identical DV content — the only difference is HEVC parameter set storage. dvhe is less common in streaming because in-band parameter sets add overhead to every fMP4 segment. Apple HLS strongly prefers dvh1. Some browsers accept dvh1 but reject dvhe, or vice versa — this test entry exposes that inconsistency. When Jellyfin produces fMP4 HLS output with -tag:v dvh1, it forces the dvh1 tag regardless of the source container's original tag."
                 }
             },
             {
@@ -1088,6 +1219,23 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp4",
+                        "string": "hev1.2.4.L153.B0, dvh1.08.06",
+                        "parts": [
+                            {
+                                "token": "hev1.2.4.L153.B0",
+                                "meaning": "HEVC Main 10 Level 5.1, hev1-style (in-band parameter sets). The base layer codec declaration."
+                            },
+                            {
+                                "token": "dvh1.08.06",
+                                "meaning": "DV Profile 8.1, Level 6. The supplemental DV codec. Listed alongside the base HEVC codec to signal dual-decode capability."
+                            }
+                        ]
+                    },
+                    "overview": "Tests the hev1 base layer variant of the supplemental codec declaration. The hvc1 version (hvc1 + dvh1) is the more common pairing in production. Using hev1 as the base is less standard — most HLS and DASH implementations pair hvc1 with dvh1. This test checks if browsers treat hev1+dvh1 differently from hvc1+dvh1 in multi-codec parsing."
                 }
             },
             {
@@ -1106,6 +1254,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp4",
+                        "string": "dav1.10.01",
+                        "parts": [
+                            {
+                                "token": "dav1",
+                                "meaning": "Dolby Vision AV1. The \"da\" prefix marks DV, \"v1\" maps to av01 (AV1). Parallel to dvh1/dvhe for HEVC — dav1 is the AV1-specific DV codec tag. The dvcC box in the container carries dv_profile=10 with the AV1 base layer configuration."
+                            },
+                            {
+                                "token": "10",
+                                "meaning": "Profile 10 — AV1-based Dolby Vision. Single-layer, backward-compatible with AV1 HDR10. The base layer uses BT.2020 PQ (like P8.1 for HEVC), so non-DV AV1 decoders produce HDR10 output."
+                            },
+                            {
+                                "token": "01",
+                                "meaning": "Level 1 — HD resolution @ 24fps. AV1 DV levels differ from HEVC DV levels. Currently only a few levels are defined for Profile 10."
+                            }
+                        ]
+                    },
+                    "overview": "dav1 is the alternative codec tag for AV1-based Dolby Vision (Profile 10). The primary tag is dva1 (which maps to av01 like dav1 maps differently in some implementations). The distinction parallels dvh1/dvhe — dav1 and dva1 may differ in parameter set handling, though the AV1 bitstream format makes this less relevant than for HEVC. Testing both tags reveals which browsers implement each variant of the AV1 DV codec registry."
                 }
             },
             {
@@ -1124,6 +1293,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp4",
+                        "string": "dvh1.05.09",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC, hvc1-style."
+                            },
+                            {
+                                "token": "05",
+                                "meaning": "Profile 5 — single-layer IPT-PQ. Same non-backward-compatible profile as Level 6, but at a higher framerate capability."
+                            },
+                            {
+                                "token": "09",
+                                "meaning": "Level 9 — 3840x2160 @ 60fps. This doubles the decode throughput requirement compared to Level 6 (@ 24fps). DV Level 9 demands significantly more processing power — some devices that support P5 L6 cannot sustain P5 L9 in hardware."
+                            }
+                        ]
+                    },
+                    "overview": "Tests DV Profile 5 at the high-framerate Level 9. Most DV P5 content is 24fps film (Level 6), but gaming captures and sports content may target 60fps. The level increase from 06→09 roughly doubles the pixel throughput. Devices that report P5 L6 support may fail L9 — this test distinguishes between \"supports DV P5\" and \"supports DV P5 at high framerates.\" Apple devices generally support L9 on A15+ chips; earlier A11-A14 chips max out at L6-L7."
                 }
             },
             {
@@ -1142,6 +1332,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp4",
+                        "string": "dvh1.07.06",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC, hvc1-style. Profile 7 with the dvh1 tag (vs dvhe in the other P7 entry). The dvh1 tag indicates out-of-band parameter sets for the base layer."
+                            },
+                            {
+                                "token": "07",
+                                "meaning": "Profile 7 — dual-layer HEVC. MEL (Minimum Enhancement Layer) variant where the EL carries only RPU metadata and minimal reconstruction coefficients (~1-3 Mbps overhead)."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps."
+                            }
+                        ]
+                    },
+                    "overview": "Tests the dvh1 tag variant of Profile 7. The other P7 entry uses dvhe.07.06 — this tests dvh1.07.06. Some Blu-ray remux tools produce dvh1-tagged P7 tracks while others produce dvhe. The practical difference is minimal for local playback, but browser API responses may differ. Browser support for P7 is near-zero in either tag variant because MSE cannot handle dual-track playback."
                 }
             },
             {
@@ -1211,6 +1422,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/quicktime",
+                        "string": "dvh1.05.06",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC in QuickTime container. MOV and MP4 share the ISO BMFF structure, so the dvcC box and sample entry are identical. The MIME type difference (video/quicktime vs video/mp4) is the only distinction at the container level."
+                            },
+                            {
+                                "token": "05",
+                                "meaning": "Profile 5 — single-layer IPT-PQ."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps."
+                            }
+                        ]
+                    },
+                    "overview": "DV Profile 5 in Apple QuickTime container. MOV is Apple's native container format and predates MP4 (which is derived from MOV). Safari and Apple native apps may prefer MOV over MP4 for local playback. For DV specifically, the container format (MOV vs MP4) makes no difference to the DV decoder — the dvcC box, RPU NALUs, and HEVC bitstream are identical. This test checks whether browsers that support DV P5 in MP4 also accept the QuickTime MIME type."
                 }
             },
             {
@@ -1229,6 +1461,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/quicktime",
+                        "string": "dvh1.08.06",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC in QuickTime container."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "Profile 8.1 — HDR10-compatible base layer."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps."
+                            }
+                        ]
+                    },
+                    "overview": "DV Profile 8.1 in QuickTime/MOV container. iPhone camera recordings in Dolby Vision (iPhone 12+) are natively captured as MOV files with DV Profile 8.4 (HLG base). This test uses P8.1 (HDR10 base) in MOV — less common in practice but valid per the spec. The MOV container is relevant for iPhone-to-Mac workflows where files stay in Apple's ecosystem without remuxing to MP4."
                 }
             },
             // MKV DV coverage
@@ -1248,6 +1501,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvhe.08.09",
+                        "parts": [
+                            {
+                                "token": "dvhe",
+                                "meaning": "DV HEVC, hev1-style with in-band parameter sets. In MKV, the dvhe tag indicates the BlockAdditionMapping type for DV RPU storage."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "Profile 8 sub-profile 4 (bl_signal_compatibility_id=4) — HLG backward-compatible base layer. Non-DV players decode as HLG HDR."
+                            },
+                            {
+                                "token": "09",
+                                "meaning": "Level 9 — 3840x2160 @ 60fps. Higher level for broadcast-origin HLG content."
+                            }
+                        ]
+                    },
+                    "overview": "HLG-based DV Profile 8.4 in MKV container. This combination appears in broadcast recordings and some streaming rips where the source used HLG transfer function. The HLG base layer provides backward compatibility with broadcast HDR TVs (which widely support HLG), while the DV RPU adds dynamic metadata for scene-by-scene tone mapping on DV displays. Less common than P8.1 (HDR10 base) in media libraries."
                 }
             },
             // MKV Dolby Vision coverage
@@ -1267,6 +1541,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvhe.05.06",
+                        "parts": [
+                            {
+                                "token": "dvhe",
+                                "meaning": "DV HEVC, hev1-style. The dvhe tag in MKV indicates in-band parameter sets. Some MKV muxers default to dvhe when remuxing from sources that originally used hev1-style HEVC."
+                            },
+                            {
+                                "token": "05",
+                                "meaning": "Profile 5 — single-layer IPT-PQ."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps."
+                            }
+                        ]
+                    },
+                    "overview": "Tests the dvhe tag variant of DV Profile 5 in MKV. The dvh1 MKV variant tests whether webOS 25+ recognizes dvh1-tagged MKV DV — this entry tests the dvhe tag. Some browsers and devices may accept one tag but not the other for the same profile in MKV. The dvh1/dvhe distinction is especially important for Jellyfin remux: when the source MKV uses dvhe but the fMP4 output is tagged dvh1 (via -tag:v dvh1), the RPU content is identical — only the parameter set delivery changes."
                 }
             },
             {
@@ -1285,6 +1580,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvhe.08.06",
+                        "parts": [
+                            {
+                                "token": "dvhe",
+                                "meaning": "DV HEVC, hev1-style in MKV container."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "Profile 8.1 — HDR10-compatible base layer."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps."
+                            }
+                        ]
+                    },
+                    "overview": "P8.1 with dvhe tag in MKV. Tests the same DV profile as \"DV Profile 8.1 (MKV)\" (which uses dvh1) but with the alternate hev1-style tag. In practice, the DV decoder behavior is identical — the distinction only affects HEVC parameter set delivery. Comparing results between dvh1 and dvhe MKV entries reveals whether the browser's MKV parser treats these tags differently."
                 }
             },
             {
@@ -1301,6 +1617,27 @@ stream_hdr10.m3u8`,
                         bitrate: 20000000,
                         framerate: 24
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvh1.08.02",
+                        "parts": [
+                            {
+                                "token": "dvh1",
+                                "meaning": "DV HEVC, hvc1-style in MKV."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "Profile 8 sub-profile 2 (bl_signal_compatibility_id=2) — SDR backward-compatible base layer. Non-DV players decode as standard SDR BT.709. This is unique among P8 sub-profiles: the base layer is SDR, not HDR."
+                            },
+                            {
+                                "token": "02",
+                                "meaning": "Level 2 — 1280x720 @ 60fps. Lower level because SDR base content is typically lower resolution."
+                            }
+                        ]
+                    },
+                    "overview": "Profile 8.2 is the SDR-compatible DV variant. The base layer uses BT.709 SDR — completely standard definition color and transfer. The DV RPU carries metadata that allows DV displays to reconstruct a wider dynamic range image from the SDR base. This enables DV content delivery over SDR-only infrastructure (broadcast chains that strip HDR metadata). Rare in media libraries — mostly used in broadcast and cable TV applications."
                 }
             },
             {
@@ -1319,6 +1656,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dvav.09.06",
+                        "parts": [
+                            {
+                                "token": "dvav",
+                                "meaning": "Dolby Vision AVC (H.264-based). The \"dv\" prefix marks DV, \"av\" maps to AVC/H.264. This is the only DV profile based on AVC instead of HEVC or AV1."
+                            },
+                            {
+                                "token": "09",
+                                "meaning": "Profile 9 — AVC-based single-layer DV with backward-compatible SDR base layer (bl_signal_compatibility_id=2). The AVC base layer provides maximum device compatibility — virtually every device can decode H.264."
+                            },
+                            {
+                                "token": "06",
+                                "meaning": "Level 6 — 3840x2160 @ 24fps (constrained by AVC Level 5.1-5.2)."
+                            }
+                        ]
+                    },
+                    "overview": "DV Profile 9 in MKV uses AVC (H.264) as the base codec instead of HEVC. This provides the widest possible backward compatibility — any device that plays H.264 can show the SDR base layer. The DV RPU enhances the image on DV-capable displays. Profile 9 is rare: it sacrifices compression efficiency (AVC is ~50% less efficient than HEVC) for universal base-layer compatibility. Used in some early DV streaming experiments and cable TV deployments."
                 }
             },
             {
@@ -1337,6 +1695,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "dva1.10.01",
+                        "parts": [
+                            {
+                                "token": "dva1",
+                                "meaning": "Dolby Vision AV1, primary tag. dva1 is to AV1 what dvh1 is to HEVC — the DV codec tag for AV1-based content. The \"a1\" maps to AV1."
+                            },
+                            {
+                                "token": "10",
+                                "meaning": "Profile 10 — AV1-based single-layer DV with backward-compatible HDR10 base. The AV1 base layer uses BT.2020 PQ, providing HDR10 fallback on non-DV AV1 decoders."
+                            },
+                            {
+                                "token": "01",
+                                "meaning": "Level 1 — currently defined for HD resolution. AV1 DV level definitions are newer and less extensive than HEVC DV levels."
+                            }
+                        ]
+                    },
+                    "overview": "DV Profile 10 in MKV container using the dva1 tag. AV1-based DV is the newest DV profile, combining AV1's superior compression efficiency with DV dynamic metadata. The MKV container stores AV1 DV RPU similarly to HEVC DV — as BlockAdditions in modern MKVToolNix. Browser support depends on both AV1 decode capability and DV firmware — Chrome supports AV1 widely but DV activation requires platform-level DV hardware. Android TV devices with AV1 hardware decode (Chromecast with Google TV 4K) are early adopters."
                 }
             },
             {
@@ -1355,6 +1734,23 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/x-matroska",
+                        "string": "hvc1.2.4.L153.B0, dvh1.08.06",
+                        "parts": [
+                            {
+                                "token": "hvc1.2.4.L153.B0",
+                                "meaning": "HEVC Main 10, Level 5.1. The backward-compatible HDR10 base layer codec, declared first in the multi-codec string."
+                            },
+                            {
+                                "token": "dvh1.08.06",
+                                "meaning": "DV Profile 8.1, Level 6. The DV enhancement, listed as a supplemental codec. In MKV, this multi-codec string tests whether the browser's Matroska parser supports dual-codec declarations."
+                            }
+                        ]
+                    },
+                    "overview": "Multi-codec declaration of P8.1 + HEVC base layer in MKV container. This parallels the MP4 supplemental entries but in Matroska. The practical test: does the browser accept a dual-codec string for video/x-matroska? Most browsers parse the codec string left-to-right — some accept only the first codec, others parse both. This reveals whether MKV DV content can use supplemental codec signaling or must rely on the container-level dvcC record for DV detection."
                 }
             }
         ]
@@ -3098,7 +3494,7 @@ segment_1.m4s
 #EXTINF:10.0,
 segment_2.m4s
 #EXT-X-ENDLIST`,
-                            notes: 'Media playlist (.m3u8) references .m4s segment files. Each segment is a self-contained fMP4 with moof+mdat boxes. Requires separate init segment (init.mp4) with moov box. EXT-X-VERSION:6 enables fMP4 support (v5 and below use MPEG-TS).'
+                            notes: 'Media playlist (.m3u8) references .m4s segment files. Each segment is a self-contained fMP4 with moof+mdat boxes. Requires separate init segment (init.mp4) with moov box. EXT-X-VERSION:6 minimum per RFC 8216 Section 4.3.2.5 enables EXT-X-MAP for fMP4 init segments. Version 7 adds EXT-X-DATERANGE for SCTE-35 markers. Apple recommends Version 7 for all new fMP4 HLS deployments.'
                         },
                         dash: {
                             mpd: `<Period>
@@ -3205,7 +3601,7 @@ hevc_4k_hdr/playlist.m3u8
 
 #EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="hvc1.2.4.L120.B0",RESOLUTION=1920x1080,FRAME-RATE=24.000
 hevc_1080_sdr/playlist.m3u8`,
-                            notes: 'CMAF + HLS: EXT-X-VERSION:7 enables fMP4 (v6+) and EXT-X-MAP for init segments. VIDEO-RANGE=PQ signals HDR10/DV. Both variants share the same CMAF segment format — the CDN stores one set of fMP4 segments consumed by HLS and DASH players.'
+                            notes: 'CMAF + HLS: EXT-X-VERSION:7 per RFC 8216 — Version 6 (Section 4.3.2.5) enables EXT-X-MAP for fMP4 init segments, Version 7 adds EXT-X-DATERANGE. VIDEO-RANGE=PQ signals HDR10/DV to the player. CMAF\'s key benefit: one set of fMP4 segments serves both HLS and DASH — the CDN stores segments once, with different manifests (m3u8 vs MPD) pointing to the same media files.'
                         },
                         dash: {
                             mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0"
@@ -3305,6 +3701,31 @@ hevc_1080_sdr/playlist.m3u8`,
                         bitrate: 5000000,
                         framerate: 30
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/webm",
+                        "string": "vp09.00.21.08",
+                        "parts": [
+                            {
+                                "token": "vp09",
+                                "meaning": "VP9 codec in the full codec string format (vs bare \"vp9\"). The vp09 prefix enables profile/level/bitdepth specification."
+                            },
+                            {
+                                "token": "00",
+                                "meaning": "Profile 0 — 8-bit 4:2:0 YUV. The most widely supported VP9 profile."
+                            },
+                            {
+                                "token": "21",
+                                "meaning": "Level 2.1 — supports 1280x720 @ 60fps or 1920x1080 @ 30fps. Matches 1080p SDR content."
+                            },
+                            {
+                                "token": "08",
+                                "meaning": "8-bit color depth."
+                            }
+                        ]
+                    },
+                    "overview": "VP9 SDR in WebM container for DASH streaming. YouTube uses this exact configuration for 1080p SDR delivery — VP9 Profile 0 in WebM is the most widely deployed adaptive streaming codec on the web. MSE (MediaSource Extensions) has excellent VP9+WebM support in Chrome and Firefox. Safari does not support WebM containers, making this a Chrome/Firefox-only streaming path. For cross-browser DASH, MP4 containers with VP9 provide Safari compatibility."
                 }
             },
             {
@@ -3323,6 +3744,31 @@ hevc_1080_sdr/playlist.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/webm",
+                        "string": "av01.0.08M.10",
+                        "parts": [
+                            {
+                                "token": "av01",
+                                "meaning": "AV1 codec identifier."
+                            },
+                            {
+                                "token": "0",
+                                "meaning": "Profile 0 (Main) — 8 or 10-bit 4:2:0."
+                            },
+                            {
+                                "token": "08M",
+                                "meaning": "Level 4.0, Main tier. Supports 2048x1536 @ 30fps or 4096x2160 @ 30fps."
+                            },
+                            {
+                                "token": "10",
+                                "meaning": "10-bit color depth for HDR content."
+                            }
+                        ]
+                    },
+                    "overview": "AV1 HDR in WebM container for DASH. This tests AV1 HDR delivery in Google's preferred container format. YouTube serves AV1 HDR in WebM for Chrome — the same codec in MP4 containers targets Safari and TV platforms. The WebM container supports AV1 natively (unlike HEVC, which WebM does not support). For DASH MPD signaling, WebM AV1 uses the same codec string as MP4 AV1 — only the container MIME type changes. This test reveals whether MSE implementations support AV1 HDR specifically in WebM (some support AV1 SDR in WebM but not HDR)."
                 }
             },
             // Additional streaming formats
@@ -3441,6 +3887,37 @@ segment_002.ts
                         bitrate: 2000000,
                         framerate: 30
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp2t",
+                        "string": "avc1.42E01E",
+                        "parts": [
+                            {
+                                "token": "avc1",
+                                "meaning": "H.264/AVC codec."
+                            },
+                            {
+                                "token": "42",
+                                "meaning": "profile_idc = 66 = Baseline Profile. No B-frames, no CABAC — maximum device compatibility at the cost of compression efficiency."
+                            },
+                            {
+                                "token": "E0",
+                                "meaning": "Constraint flags: constraint_set0_flag=1, constraint_set1_flag=1 (Constrained Baseline). The E0 byte indicates this is Constrained Baseline, which is a proper subset of both Baseline and Main profiles."
+                            },
+                            {
+                                "token": "1E",
+                                "meaning": "level_idc = 30 = Level 3.0. Supports 720x576 @ 25fps or 720x480 @ 30fps. Targets mobile devices and low-bandwidth HLS."
+                            }
+                        ]
+                    },
+                    "overview": "The mobile-friendly HLS baseline. MPEG-TS with H.264 Constrained Baseline is the lowest common denominator for HLS streaming — supported by every HLS-capable device. Apple originally required this as a mandatory fallback in HLS master playlists (the \"MUST\" variant for cellular). No B-frames means lower latency, and no CABAC means simpler hardware decoders. Modern HLS has relaxed the Baseline requirement, but many CDNs still include a Baseline 720p variant for maximum reach.",
+                    "streaming": {
+                        "hls": {
+                            "m3u8": "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:10.000,\nseg0.ts\n#EXTINF:10.000,\nseg1.ts\n#EXT-X-ENDLIST",
+                            "notes": "MPEG-TS HLS uses EXT-X-VERSION:3 per RFC 8216 — no fMP4 features needed. Version 6+ enables EXT-X-MAP for fMP4 init segments (Section 4.3.2.5); TS playlists don't use EXT-X-MAP. Apple now recommends fMP4 (Version 7) over TS for new deployments, but TS Baseline 720p remains required for maximum device reach. Each .ts segment is self-contained with PAT/PMT tables — no separate init segment required."
+                        }
+                    }
                 }
             },
             {
@@ -3459,6 +3936,41 @@ segment_002.ts
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp2t",
+                        "string": "hvc1.2.4.L153.B0",
+                        "parts": [
+                            {
+                                "token": "hvc1",
+                                "meaning": "HEVC codec in MPEG Transport Stream. TS uses Annex B byte stream format for HEVC NALUs (start codes), unlike fMP4 which uses length-prefixed format. This is why FFmpeg uses -bsf:v hevc_mp4toannexb when outputting to MPEG-TS."
+                            },
+                            {
+                                "token": "2",
+                                "meaning": "profile_idc = 2 = Main 10 Profile. 10-bit depth for HDR content."
+                            },
+                            {
+                                "token": "4",
+                                "meaning": "Profile compatibility flags for Main 10."
+                            },
+                            {
+                                "token": "L153",
+                                "meaning": "Level 5.1 — supports 4096x2160 @ 60fps. The \"L\" prefix with level_idc*3 = 153."
+                            },
+                            {
+                                "token": "B0",
+                                "meaning": "Constraint indicator flags."
+                            }
+                        ]
+                    },
+                    "overview": "HEVC 4K HDR in MPEG Transport Stream. MPEG-TS was the original HLS segment format (before fMP4 was added in HLS version 7). HEVC in TS uses Annex B NAL unit format with start codes (0x00000001) — this is where the hevc_mp4toannexb BSF becomes necessary. For HLS, Apple now recommends fMP4 over TS for HEVC content because fMP4 supports the EXT-X-MAP init segment pattern needed for efficient adaptive bitrate switching. MPEG-TS HEVC HLS is still used by some IPTV systems and older streaming infrastructure.",
+                    "streaming": {
+                        "hls": {
+                            "m3u8": "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:6\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:6.006,\nseg0.ts\n#EXTINF:6.006,\nseg1.ts\n#EXT-X-ENDLIST",
+                            "notes": "HEVC in MPEG-TS for HLS. EXT-X-VERSION:3 per RFC 8216 — no EXT-X-MAP needed (that requires Version 6+, Section 4.3.2.5). Each TS segment is self-contained with PAT/PMT/PES headers. The HEVC stream uses Annex B format with start codes (0x00000001). For HDR10, HEVC SEI messages (mastering display color volume, content light level) must repeat in every TS segment for random access — unlike fMP4 where they live once in the init segment."
+                        }
+                    }
                 }
             },
             {
@@ -3474,6 +3986,27 @@ segment_002.ts
                         bitrate: 192000,
                         samplerate: 48000
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp2t",
+                        "string": "mp4a.40.2",
+                        "parts": [
+                            {
+                                "token": "mp4a",
+                                "meaning": "MPEG-4 Audio object type identifier. Used for all AAC variants in codec strings."
+                            },
+                            {
+                                "token": "40",
+                                "meaning": "ObjectTypeIndication = 0x40 = Audio ISO/IEC 14496-3 (MPEG-4 Audio)."
+                            },
+                            {
+                                "token": "2",
+                                "meaning": "AudioObjectType = 2 = AAC-LC (Low Complexity). The most common AAC profile."
+                            }
+                        ]
+                    },
+                    "overview": "AAC-LC audio in MPEG Transport Stream. Note the MIME type is video/mp2t even though this is audio — MPEG-TS is a multiplexing container that uses the video MIME type regardless of content. AAC in TS is carried as ADTS (Audio Data Transport Stream) frames within PES packets. This is the standard audio format for HLS MPEG-TS segments. The mediaCapabilities API may reject this test because the AudioConfiguration uses a video/ MIME type — CodecProbe guards against this by skipping API 3 for MPEG-TS audio entries."
                 }
             },
             {
@@ -3489,6 +4022,19 @@ segment_002.ts
                         bitrate: 640000,
                         samplerate: 48000
                     }
+                },
+                education: {
+                    "codecBreakdown": {
+                        "mime": "video/mp2t",
+                        "string": "ac-3",
+                        "parts": [
+                            {
+                                "token": "ac-3",
+                                "meaning": "Dolby Digital (AC-3) codec identifier. The hyphenated form \"ac-3\" is the IANA-registered codec string. Some implementations also accept \"ac3\" without the hyphen, but ac-3 is the standard form per RFC 6381."
+                            }
+                        ]
+                    },
+                    "overview": "Dolby Digital 5.1 surround sound in MPEG Transport Stream. AC-3 in TS is common in broadcast TV (ATSC, DVB) and HLS for Apple TV. The TS container carries AC-3 as a private stream within PES packets. For HLS, Apple requires AC-3/E-AC-3 audio to be declared in the master playlist with the AUDIO group-id and CODECS attribute. AC-3 5.1 in TS is the standard surround sound format for broadcast-origin HLS content — newer Atmos/spatial audio uses E-AC-3 JOC in fMP4 instead."
                 }
             },
             {
