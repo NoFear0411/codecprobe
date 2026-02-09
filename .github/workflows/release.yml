@@ -1,4 +1,4 @@
-name: Release
+name: Release & Deploy
 
 on:
   push:
@@ -11,17 +11,25 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+  deployments: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  release:
+  build:
     runs-on: ubuntu-latest
-    env:
-      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
+      - name: Set release tag
+        run: echo "RELEASE_TAG=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_ENV"
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.RELEASE_TAG }}
+          ref: ${{ inputs.tag || github.ref_name }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,6 +55,20 @@ jobs:
           cp .nojekyll deploy/
           cp sw.js LICENSE deploy/
 
+      - name: Report build sizes
+        run: |
+          echo "Build Size Report"
+          echo "=================="
+          du -sh deploy/css deploy/js deploy/index.html
+          echo ""
+          echo "Total deployment size:"
+          du -sh deploy
+
+      - name: Upload deploy artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'deploy'
+
       - name: Extract release notes from CHANGELOG
         run: |
           VERSION="${RELEASE_TAG#v}"
@@ -55,12 +77,76 @@ jobs:
             echo "No CHANGELOG entry found for ${VERSION}" > /tmp/release-notes.md
           fi
 
-      - name: Create release
+      - name: Zip deploy directory
+        run: cd deploy && zip -r ../codecprobe-${RELEASE_TAG}.zip . && cd ..
+
+      - name: Create or update release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cd deploy && zip -r ../codecprobe-${RELEASE_TAG}.zip . && cd ..
-          gh release create "${RELEASE_TAG}" \
-            "codecprobe-${RELEASE_TAG}.zip#CodecProbe ${RELEASE_TAG} (deployable)" \
-            --title "CodecProbe ${RELEASE_TAG}" \
-            --notes-file /tmp/release-notes.md
+          if gh release view "${RELEASE_TAG}" &>/dev/null; then
+            gh release upload "${RELEASE_TAG}" \
+              "codecprobe-${RELEASE_TAG}.zip#CodecProbe ${RELEASE_TAG} (deployable)" \
+              --clobber
+            gh release edit "${RELEASE_TAG}" \
+              --title "CodecProbe ${RELEASE_TAG}" \
+              --notes-file /tmp/release-notes.md
+          else
+            gh release create "${RELEASE_TAG}" \
+              "codecprobe-${RELEASE_TAG}.zip#CodecProbe ${RELEASE_TAG} (deployable)" \
+              --title "CodecProbe ${RELEASE_TAG}" \
+              --notes-file /tmp/release-notes.md
+          fi
+
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  cleanup:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune old deployments (keep last 3)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: deployments } = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              environment: 'github-pages',
+              per_page: 100
+            });
+
+            // Each deploy creates 2 entries — keep 6 (3 deploys)
+            const stale = deployments.slice(6);
+            if (stale.length === 0) {
+              console.log('Nothing to prune');
+              return;
+            }
+
+            console.log(`Pruning ${stale.length} old deployment entries...`);
+            for (const d of stale) {
+              await github.rest.repos.createDeploymentStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: d.id,
+                state: 'inactive',
+                description: 'Pruned by CI'
+              });
+              await github.rest.repos.deleteDeployment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: d.id
+              });
+              console.log(`  Deleted ${d.id} (${d.sha.slice(0, 7)})`);
+            }
