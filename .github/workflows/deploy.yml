@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  deployments: write
 
 concurrency:
   group: "pages"
@@ -80,3 +81,42 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  cleanup:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prune old deployments (keep last 3)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: deployments } = await github.rest.repos.listDeployments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              environment: 'github-pages',
+              per_page: 100
+            });
+
+            // Each deploy creates 2 entries — keep 6 (3 deploys)
+            const stale = deployments.slice(6);
+            if (stale.length === 0) {
+              console.log('Nothing to prune');
+              return;
+            }
+
+            console.log(`Pruning ${stale.length} old deployment entries...`);
+            for (const d of stale) {
+              await github.rest.repos.createDeploymentStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: d.id,
+                state: 'inactive',
+                description: 'Pruned by CI'
+              });
+              await github.rest.repos.deleteDeployment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: d.id
+              });
+              console.log(`  Deleted ${d.id} (${d.sha.slice(0, 7)})`);
+            }
