@@ -26,27 +26,25 @@ CodecProbe runs all three APIs side-by-side against 256 codec/container combinat
 
 ## Real-World Issues This Catches
 
-### webOS (LG TVs) — Race Condition
+### API Disagreement on Dolby Vision
 
-The Jellyfin webOS app calls `getSupportedHdrProfiles()` before the Luna IPC `getHdrCapabilities` call completes, returning an empty array. Dolby Vision randomly works or fails depending on timing.
+`canPlayType()` returns `""` for all Dolby Vision codec strings on Safari, even on devices with DV hardware. Badge 1 shows red while badge 3 shows green — `mediaCapabilities` with `transferFunction: 'pq'` reveals the actual HDR support that `canPlayType()` hides.
 
-CodecProbe shows `mediaCapabilities` accurately reflecting hardware state while `canPlayType()` returns inconsistent results.
+Media server apps that rely solely on `canPlayType()` will incorrectly decide to transcode DV content. CodecProbe makes this mismatch visible.
 
-### iOS/Safari — Hidden Dolby Vision
+### HDR Reporting vs. Display Capability
 
-Safari's `canPlayType()` returns `""` for all Dolby Vision codec strings, even on A11+ chips with DV hardware. This is intentional behavior (privacy/DRM).
+A device can have HDR decode hardware but a display that cannot render PQ content. iPad panels below 1000 nits return `supported: false` for `transferFunction: 'pq'` even with DV Profile 5 hardware — the API correctly reflects the display limitation, not the SoC capability.
 
-CodecProbe shows `mediaCapabilities` with `transferFunction: 'pq'` revealing actual PQ/HDR support.
+This is why the same codec string shows different `mediaCapabilities` results on devices with identical chips but different displays.
 
-### iPad — Green Screen on DV Content
+### Container Support vs. Codec Support
 
-iPad A16 has DV Profile 5 hardware but a 500-nit display. When servers send HEVC with DV RPU NALUs without proper signaling, VideoToolbox decodes IPT-PQ as BT.2020, producing a green tint.
+The same HEVC codec string returns supported in MP4 but unsupported in MKV on most browsers. This directly maps to whether a media server needs to remux (fast container swap) or transcode (slow re-encode). CodecProbe tests each codec across multiple containers so you can see exactly which combinations your device handles.
 
-CodecProbe shows `transferFunction: 'pq'` returning `supported: false` on 500-nit panels.
+### MSE vs. Native Playback Gaps
 
-### webOS 25 — DTS Detection Change
-
-webOS v25 changed the DTS detection path. The `canPlayDts()` check stops at `< 23`, causing false negatives on newer firmware.
+`MediaSource.isTypeSupported()` (badge 2) can disagree with `canPlayType()` (badge 1) for the same codec string. MSE has stricter requirements — a codec may work in a `<video>` element but fail in adaptive streaming. CodecProbe surfaces these gaps, which matter for HLS/DASH playback in media server web clients.
 
 ## What It Tests
 
@@ -227,72 +225,98 @@ npm run dev        # Dev server + SCSS file watcher
 codecprobe/
 ├── index.html                 # Single-page application
 ├── sw.js                      # Service worker (offline PWA)
-├── css/
-│   └── styles.css             # Compiled from SCSS (all themes)
+├── css/styles.css             # Compiled from SCSS (all themes)
 ├── scss/
 │   ├── styles.scss            # Main stylesheet
 │   └── _themes.scss           # Theme definitions
 ├── js/
-│   ├── codec-database.js      # 254 codec test definitions
+│   ├── codec-database.js      # 256 codec tests · 131 education entries · 14 groups
 │   ├── codec-tester.js        # Three-API testing with retry logic
 │   ├── device-detection.js    # UAParser.js v2.x integration
 │   ├── drm-detection.js       # DRM/EME system testing
-│   ├── ui-renderer.js         # Card rendering, filters, search
-│   ├── theme-manager.js       # Theme switching
+│   ├── ui-renderer.js         # Card rendering, filters, search, education panel
+│   ├── theme-manager.js       # Theme switching (Dark OLED / Light / Retro Terminal)
 │   ├── url-state.js           # URL state management
 │   ├── main.js                # Initialization orchestrator
 │   └── vendor/
 │       └── ua-parser.min.js   # Bundled UAParser.js v2.0.9
+├── scripts/
+│   ├── db-tool.mjs            # Database CLI — add, inspect, inject, patch, verify
+│   └── lib/
+│       ├── reader.mjs         # Database import and query functions
+│       └── writer.mjs         # Source formatter, inject/replace/add operations
 ├── BUILD.md                   # Build system documentation
 ├── CLAUDE.md                  # AI assistant context
 └── README.md
 ```
 
-## Adding Codecs
+## Database CLI
 
-Add entries to `js/codec-database.js`:
+The codec database is managed through `scripts/db-tool.mjs` — a CLI that handles validation, formatting, and source-level insertion. No manual editing of `codec-database.js` required.
 
-```javascript
-{
-    name: "Codec Variant (Container)",        // Must be unique across all entries
-    codec: 'video/mp4; codecs="codec-string"',
-    container: "MP4",
-    info: "Short description",
-    mediaConfig: {
-        type: 'file',                         // 'file' or 'media-source'
-        video: {
-            contentType: 'video/mp4; codecs="codec-string"',
-            width: 3840,
-            height: 2160,
-            bitrate: 25000000,
-            framerate: 24,
-            transferFunction: 'pq',           // Optional: 'pq' or 'hlg'
-            colorGamut: 'rec2020'             // Optional: 'rec2020' or 'p3'
-        }
-    }
-}
+```bash
+node scripts/db-tool.mjs <command> [args]
 ```
 
-Use `type: 'media-source'` for streaming format tests (HLS/DASH/CMAF).
+| Command | Description |
+|---------|-------------|
+| `stats` | Group counts and education coverage with completion percentages |
+| `list <group> [--missing\|--complete]` | List entries, filter by education status |
+| `show <group> <name>` | Full entry details as JSON |
+| `add <file> [--group <key>]` | Add new test entries with validation and auto group detection |
+| `scaffold <group>` | Generate education template with pre-filled MIME, tokens, and spec refs |
+| `inject <group> <file>` | Add education content to entries that lack it |
+| `patch <group> <file>` | Deep-merge updates into existing education |
+| `verify` | Syntax + import + structure check |
 
-The `name` field must be unique — it's used for card matching in the UI.
+All write commands (`add`, `inject`, `patch`) support `--dry-run` and run syntax verification before writing.
+
+### Adding new codec entries
+
+The `add` command validates every field before touching the database:
+
+- **MIME type** checked against 16 known types (`video/mp4`, `audio/x-matroska`, etc.)
+- **Container** checked against 15 known values (`MP4`, `MKV`, `WebM`, `fMP4`, etc.)
+- **Name uniqueness** verified across all 14 groups
+- **contentType** must match the codec field exactly
+- **Dimensions, bitrate, framerate** must be positive numbers
+- **transferFunction** and **colorGamut** must be valid enum values if provided
+
+Group detection is automatic from the codec string — `hvc1.*` routes to `video_hevc`, `av01.*` to `video_av1`, `ec-3` to `audio_dolby`, etc. Override with `--group <key>` when needed.
+
+### Adding education content
+
+```bash
+# 1. Generate a template for all entries missing education
+node scripts/db-tool.mjs scaffold video_av1 > /tmp/av1-edu.mjs
+
+# 2. Edit the file — fill in token meanings and overviews
+
+# 3. Preview what will change
+node scripts/db-tool.mjs inject video_av1 /tmp/av1-edu.mjs --dry-run
+
+# 4. Inject into the database
+node scripts/db-tool.mjs inject video_av1 /tmp/av1-edu.mjs
+```
+
+The `scaffold` command pre-fills MIME types, codec string tokens, and spec references based on the group — you only need to write the human content (token meanings, overviews, platform notes).
 
 ## Known Limitations
 
-**Browser-imposed:**
-- Safari hides DV support from `canPlayType()` intentionally
-- Firefox lacks Dolby and DTS codec support (licensing)
-- Chrome's MSE codec support differs from `<video>` element support
+**What the APIs report vs. reality:**
+- `canPlayType()` returns "maybe" for codecs without hardware decoders — it checks codec string syntax, not capability
+- Safari's `canPlayType()` returns `""` for Dolby Vision codec strings, even on devices with DV hardware. `mediaCapabilities` reveals the actual support
+- Firefox does not expose Dolby or DTS codecs — these require proprietary licenses not included in the browser's media stack
+- Chrome's `MediaSource.isTypeSupported()` results can differ from `<video>` element support because MSE has stricter codec requirements
 
-**Platform-specific:**
-- webOS async race condition can cause false negatives on first load
-- iOS hardware capabilities exceed what APIs report
-- Android support varies by OEM, SoC, and firmware version
+**Platform-specific behavior:**
+- iOS: Hardware capabilities exceed what APIs report. 500-nit iPad panels return `supported: false` for `transferFunction: 'pq'` even with DV Profile 5 hardware
+- Android: Codec support varies across manufacturers, SoCs, and firmware versions — the same codec string can produce different results on different devices
 
 **Scope:**
-- Tests API responses, not actual file playback
-- Supported codecs still require properly encoded source files
-- DRM tests check key system availability, not content license acquisition
+- Tests API responses, not actual file playback — "supported" means the API says yes, not that a specific file will play
+- DRM tests check `requestMediaKeySystemAccess()` availability, not whether a license server will issue keys
+- `mediaCapabilities` reports `smooth` and `powerEfficient` booleans but this tool does not benchmark actual decode performance
 
 ## Dependencies
 
@@ -317,13 +341,120 @@ Every education entry in the codec database cites its sources. 38 specifications
 
 Pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-Areas that benefit from contributions:
-- **Codec database** — new entries with verified codec strings, education content, and spec references
+### Adding new codec/container tests
+
+Create a `.mjs` file exporting an array of entries, then use the CLI to validate and insert:
+
+```javascript
+// new-entries.mjs — video entry
+export default [
+    {
+        name: "HEVC Main 10 (HDR10 4K WebM)",
+        codec: 'video/webm; codecs="hvc1.2.4.L153.B0"',
+        container: "WebM",
+        info: "10-bit HDR10",
+        mediaConfig: {
+            type: 'file',
+            video: {
+                contentType: 'video/webm; codecs="hvc1.2.4.L153.B0"',
+                width: 3840,
+                height: 2160,
+                bitrate: 25000000,
+                framerate: 24,
+                transferFunction: 'pq',
+                colorGamut: 'rec2020'
+            }
+        }
+    }
+];
+```
+
+```javascript
+// new-entries.mjs — audio entry
+export default [
+    {
+        name: "Opus 5.1 (WebM)",
+        codec: 'audio/webm; codecs="opus"',
+        container: "WebM",
+        info: "5.1 surround",
+        mediaConfig: {
+            type: 'file',
+            audio: {
+                contentType: 'audio/webm; codecs="opus"',
+                channels: 6,
+                bitrate: 256000,
+                samplerate: 48000
+            }
+        }
+    }
+];
+```
+
+```bash
+node scripts/db-tool.mjs add new-entries.mjs --dry-run  # preview
+node scripts/db-tool.mjs add new-entries.mjs             # write to database
+node scripts/db-tool.mjs verify                          # confirm integrity
+```
+
+The tool auto-detects the target group from the codec string (`hvc1` → `video_hevc`, `opus` → `audio_lossless`, etc.). Use `--group <key>` to override. Validation catches malformed fields before they reach the database.
+
+### Adding education content
+
+Generate a scaffold, fill in the content, inject:
+
+```bash
+node scripts/db-tool.mjs scaffold audio_dts > /tmp/dts-edu.mjs
+```
+
+The scaffold pre-fills MIME types, tokenized codec strings, and spec references. You fill in the `meaning` and `overview` fields:
+
+```javascript
+// dts-edu.mjs (scaffold output, edited)
+export default {
+    "DTS-HD Master Audio (MKV)": {
+        codecBreakdown: {
+            mime: 'audio/x-matroska',
+            string: 'dtsl',
+            parts: [
+                { token: 'dtsl', meaning: 'DTS Lossless tag per ETSI TS 102 114. Bit-identical to studio master.' }
+            ]
+        },
+        overview: 'DTS-HD MA in Matroska. Lossless decode requires a DTS-HD MA licensed decoder.',
+        references: [
+            { title: 'ETSI TS 102 114' }
+        ]
+    }
+};
+```
+
+```bash
+node scripts/db-tool.mjs inject audio_dts /tmp/dts-edu.mjs
+```
+
+To update existing education (add platform notes, new references):
+
+```javascript
+// dts-patch.mjs
+export default {
+    "DTS-HD Master Audio (MKV)": {
+        platforms: {
+            android: 'DTS passthrough via AudioTrack ENCODING_DTS_HD on supported hardware.'
+        }
+    }
+};
+```
+
+```bash
+node scripts/db-tool.mjs patch audio_dts /tmp/dts-patch.mjs
+```
+
+### Other contributions
+
 - **Platform quirks** — document browser/device-specific behavior you've encountered
 - **Bug fixes** — edge cases in detection, rendering, or export
 - **UI/UX** — accessibility, responsive layout, theme improvements
 
-The codec database (`js/codec-database.js`) is the core of the project. If you have a device that reports unexpected results, [open an issue](https://github.com/nofear0411/codecprobe/issues) with your exported JSON — it helps expand coverage for everyone.
+If you have a device that reports unexpected results, [open an issue](https://github.com/nofear0411/codecprobe/issues) with your exported JSON — it helps expand coverage for everyone.
 
 ## License
 
