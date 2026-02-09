@@ -193,36 +193,15 @@
 // Theme Switcher UI
 // ============================================================================
 .theme-switcher {
-    position: absolute;
-    top: 0;
-    right: 0;
     display: flex;
-    gap: 8px;
-    background: var(--bg-secondary);
-    padding: 8px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-
-    @media (max-width: 480px) {
-        padding: 4px;
-        gap: 4px;
-    }
+    gap: clamp(4px, 1vw, 8px);
+    flex-shrink: 0;
 }
 
 .theme-switcher-btn {
-    width: 36px;
-    height: 36px;
+    width: clamp(24px, 4vw, 36px);
+    height: clamp(24px, 4vw, 36px);
     border: 2px solid var(--border);
-
-    @media (max-width: 768px) {
-        width: 32px;
-        height: 32px;
-    }
-
-    @media (max-width: 480px) {
-        width: 28px;
-        height: 28px;
-    }
     border-radius: 6px;
     cursor: pointer;
     transition: all 0.2s;

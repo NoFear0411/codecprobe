@@ -2,6 +2,42 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [2.3.0] - 2026-02-09
+
+### Changed
+
+- **Fluid responsive layout**: Replaced hardcoded `768px`/`480px` breakpoints with intrinsic CSS (`clamp()`, `min()`, `flex-wrap`, `auto-fit/minmax`)
+  - Layout reflows based on available space, not device model
+  - Body, canvas container, device header, controls, grid, footer all use fluid sizing
+- **Theme switcher**: Removed `position: absolute` floating box with background/border — now inline flex row in header alongside title
+  - Button sizes scale from 24px to 36px via `clamp(24px, 4vw, 36px)`
+- **Controls section**: Search container uses `min(100%, 300px)` flex-basis (was `400px` — wider than phones)
+  - Filter/action buttons: removed `min-width: 100px`, fluid padding/font-size/height via `clamp()`
+  - Filter/action groups: `flex: 1 1 auto` lets them share rows or wrap naturally
+- **Results grid**: Card minimum reduced from 500px to 400px — allows 2-column layout on tablets
+- **Device header**: Flex row layout for h1 + theme switcher, subtitle drops to full width via `flex-basis: 100%`
+- **Device info grid**: `minmax(min(100%, 180px), 1fr)` prevents overflow on narrow viewports (was `200px`)
+- **Footer sections**: `flex: 1 1 min(100%, 250px)` prevents horizontal overflow
+
+### Removed
+
+- Layout rules from `@media (max-width: 768px)`: `flex-direction: column`, `grid-template-columns: 1fr`, `width: 100%` overrides — all handled by intrinsic sizing
+- Layout rules from `@media (max-width: 480px)`: body padding, h1 font-size overrides — handled by `clamp()` in base styles
+- Fixed `min-width: 250px` on search input, `min-width: 100px` on filter buttons
+- Three nested `@media` blocks inside `_themes.scss` (theme switcher button sizes)
+
+### Fixed
+
+- **Touch device hover jank**: `.codec-item` hover transform wrapped in `@media (hover: hover)` — only fires with mouse/trackpad, not on touch screens
+
+### Kept Unchanged
+
+- `@media (max-width: 768px)` and `480px` API readability tweaks (font sizes, padding)
+- webOS TV styles (`1280px–1920px`)
+- `prefers-contrast: high` and `prefers-reduced-motion: reduce`
+
+---
+
 ## [2.2.0] - 2026-02-09
 
 ### Changed

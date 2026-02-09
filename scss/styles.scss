@@ -56,7 +56,7 @@ body {
     background: var(--bg);
     color: var(--text);
     font-family: $font-stack;
-    padding: $spacing-lg;
+    padding: clamp(4px, 1vw, 20px);
     line-height: 1.6;
     min-height: 100vh;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -150,13 +150,13 @@ h1 {
 
 .device-info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
     gap: $spacing-xs;
 }
 
 .device-info-item {
     @include card;
-    padding: $spacing-sm $spacing-md;
+    padding: clamp(6px, 1vw, 10px) clamp(8px, 1.5vw, 14px);
     border-left: 2px solid var(--border-light);
     transition: all 0.2s ease;
 
@@ -203,7 +203,6 @@ h1 {
 
 .search-input {
     flex: 1;
-    min-width: 250px;
     background: var(--bg-secondary);
     border: 2px solid var(--border);
     color: var(--text);
@@ -212,9 +211,7 @@ h1 {
     font-size: 1rem;
     outline: none;
     transition: all 0.2s ease;
-
-    // webOS: larger input for remote control
-    min-height: 48px;
+    min-height: clamp(40px, 5vw, 48px);
 
     &:focus {
         border-color: var(--border-light);
@@ -231,14 +228,14 @@ h1 {
     background: var(--bg-secondary);
     color: var(--text-secondary);
     border: 1px solid var(--border);
-    padding: $spacing-sm $spacing-lg;
+    padding: clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
     font-weight: 500;
     transition: all 0.2s ease;
-    min-height: 48px;
-    min-width: 100px;
+    min-height: clamp(36px, 5vw, 48px);
+    min-width: 0;
 
     &:hover,
     &:focus {
@@ -264,12 +261,12 @@ h1 {
     background: var(--bg-secondary);
     color: var(--text-secondary);
     border: 1px solid var(--border-light);
-    padding: $spacing-sm $spacing-lg;
+    padding: clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
     font-weight: 600;
-    min-height: 48px;
+    min-height: clamp(36px, 5vw, 48px);
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -319,36 +316,41 @@ h1 {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: $spacing-md $spacing-lg;
-    gap: $spacing-xl;
+    padding: clamp(4px, 1vw, 14px) clamp(4px, 1.5vw, 20px);
+    gap: clamp(12px, 2vw, 28px);
 }
 
 // Device Header Section
 .device-header {
     background: var(--card);
-    border-radius: 12px;
-    padding: $spacing-lg;
+    border-radius: clamp(6px, 1vw, 12px);
+    padding: clamp(10px, 2vw, 20px);
     border: 2px solid var(--border);
     box-shadow: var(--shadow);
 }
 
 .device-header-top {
-    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: clamp(4px, 1vw, 8px);
     margin-bottom: $spacing-md;
 
     h1 {
-        margin-bottom: $spacing-xs;
+        margin-bottom: 0;
     }
 
     .subtitle {
+        flex-basis: 100%;
         color: var(--text-secondary);
     }
 }
 
 .device-info-summary {
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
     color: var(--text-secondary);
-    padding: $spacing-sm;
+    padding: clamp(6px, 1vw, 10px);
     background: var(--bg-secondary);
     border-radius: 6px;
     margin-bottom: $spacing-md;
@@ -399,14 +401,14 @@ h1 {
     gap: $spacing-md;
     align-items: center;
     background: var(--card);
-    padding: $spacing-lg;
+    padding: clamp(10px, 2vw, 20px);
     border-radius: 12px;
     border: 2px solid var(--border);
     box-shadow: var(--shadow);
 }
 
 .search-container {
-    flex: 2 1 400px;  // Increased flex-grow to take more space
+    flex: 1 1 min(100%, 300px);
 }
 
 .filter-group,
@@ -414,21 +416,22 @@ h1 {
     display: flex;
     gap: $spacing-xs;
     flex-wrap: wrap;
+    flex: 1 1 auto;
 }
 
 .action-btn {
     display: inline-flex;
     align-items: center;
     gap: $spacing-xs;
-    padding: $spacing-sm $spacing-lg;
+    padding: clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);
     background: var(--card-hover);
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
     font-weight: 500;
-    min-height: 48px;
+    min-height: clamp(36px, 5vw, 48px);
     transition: all 0.2s ease;
 
     &:hover {
@@ -456,7 +459,7 @@ main#main-content {
 .site-footer {
     background: var(--bg-secondary);
     border-radius: 8px;
-    padding: $spacing-lg;
+    padding: clamp(10px, 2vw, 20px);
     border: 1px solid var(--border);
     margin-top: $spacing-xl;
     font-size: 0.85rem;
@@ -466,12 +469,12 @@ main#main-content {
 .footer-content {
     display: flex;
     flex-wrap: wrap;
-    gap: $spacing-xl;
+    gap: clamp(10px, 2vw, 28px);
     margin-bottom: $spacing-md;
 }
 
 .footer-section {
-    flex: 1 1 250px;
+    flex: 1 1 min(100%, 250px);
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -537,14 +540,14 @@ main#main-content {
 // Results Grid
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-    gap: $spacing-md;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+    gap: clamp(8px, 1.5vw, 14px);
     margin-bottom: $spacing-lg;
 }
 
 .section {
     @include card;
-    padding: $spacing-md $spacing-lg;
+    padding: clamp(8px, 1.5vw, 14px) clamp(10px, 2vw, 20px);
     box-shadow: var(--shadow);
     // REMOVED: overflow: hidden;  // This was causing truncation
 }
@@ -589,9 +592,12 @@ main#main-content {
 
     &:hover {
         background: var(--card-hover);
-        transform: translateX(4px) translateY(-2px);
         box-shadow: var(--shadow);
         z-index: 1;
+
+        @media (hover: hover) {
+            transform: translateX(4px) translateY(-2px);
+        }
 
         .codec-chevron {
             opacity: 1;
@@ -1385,39 +1391,6 @@ main#main-content {
 }
 
 @media (max-width: 768px) {
-    .canvas-container {
-        padding: $spacing-sm;
-        gap: $spacing-md;
-    }
-
-    .controls-section {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .filter-group,
-    .action-group {
-        justify-content: center;
-    }
-
-    .grid {
-        grid-template-columns: 1fr;
-    }
-
-    .filter-bar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .export-btn {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    .device-info {
-        grid-template-columns: 1fr;
-    }
-
     .api-results {
         font-size: 0.8rem;
         padding: $spacing-xs;
@@ -1438,45 +1411,34 @@ main#main-content {
 }
 
 @media (max-width: 480px) {
-    body {
+    .api-results {
+        font-size: 0.75rem;
+        margin-top: $spacing-sm;
         padding: $spacing-sm;
     }
 
-    h1 {
-        font-size: 1.25rem;
-        letter-spacing: 0.1em;
-    }
-
-    .api-results {
-        font-size: 0.75rem;  // Changed from 0.85rem (less crowding)
-        margin-top: $spacing-sm;  // Increased from xs
-        padding: $spacing-sm;  // Increased from xs (was 6px, now 10px)
-    }
-
     .api-test-header {
-        // REMOVE flex-wrap - keep inline layout
-        gap: 6px;  // Increased from 4px
+        gap: 6px;
     }
 
     .api-number {
         font-size: 0.7rem;
         min-width: 24px;
         height: 24px;
-        flex-shrink: 0;  // Prevent badge squishing
+        flex-shrink: 0;
     }
 
     .api-name {
-        font-size: 0.75rem;  // Reduced from 0.8rem
-        // REMOVE: flex: 1 1 100%;  // Don't force new line
+        font-size: 0.75rem;
     }
 
     .capability-grid {
-        gap: 4px;  // Increased from 2px
+        gap: 4px;
     }
 
     .capability-label,
     .response-value {
-        font-size: 0.7rem;  // Reduced from 0.75rem
+        font-size: 0.7rem;
     }
 
     .config-json {

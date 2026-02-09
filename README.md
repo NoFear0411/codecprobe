@@ -131,7 +131,7 @@ All streaming tests use `type: 'media-source'` for proper MSE validation.
 - **Accessibility** — ARIA labels, skip links, screen reader announcements, reduced motion support
 - **UAParser.js v2.x** — accurate device detection with Client Hints API and iPad detection
 - **Zero runtime dependencies** — UAParser.js bundled at build time, no CDN requests
-- **Responsive** — mobile, tablet, desktop, and TV layouts (webOS optimized)
+- **Fluid responsive** — intrinsic CSS layout with `clamp()`/`min()`/`auto-fit`, no hardcoded breakpoints (webOS TV optimized)
 
 ## Understanding Results
 

@@ -1,6 +1,6 @@
 {
   "name": "codecprobe",
-  "version": "1.0.0",
+  "version": "2.3.0",
   "description": "Multi-API codec testing for media server enthusiasts",
   "main": "index.html",
   "scripts": {
