@@ -129,3 +129,8 @@ function logNotableFindings(results, deviceInfo) {
 
 // ES modules execute after DOM parsing (like defer), so DOMContentLoaded is guaranteed
 initialize();
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+        .catch(err => console.warn('SW registration failed:', err));
+}

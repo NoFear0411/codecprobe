@@ -162,8 +162,32 @@ function generateVersionManifest() {
     return manifest;
 }
 
+/**
+ * Inject build timestamp into service worker cache version.
+ * Replaces either the __BUILD_TIMESTAMP__ placeholder or a previously injected timestamp.
+ */
+function injectSWVersion(manifest) {
+    const swPath = path.join(__dirname, 'sw.js');
+    if (!fs.existsSync(swPath)) {
+        console.log('\n⚠️  sw.js not found, skipping SW version injection');
+        return;
+    }
+
+    const swContent = fs.readFileSync(swPath, 'utf8');
+    const updated = swContent.replace(
+        /const CACHE_VERSION = '([^']+)';/,
+        `const CACHE_VERSION = '${manifest.timestamp}';`
+    );
+    fs.writeFileSync(swPath, updated, 'utf8');
+
+    console.log(`\n🔧 Injected SW cache version: codecprobe-v${manifest.timestamp}`);
+}
+
 buildFiles()
-    .then(() => generateVersionManifest())
+    .then(() => {
+        const manifest = generateVersionManifest();
+        injectSWVersion(manifest);
+    })
     .catch(error => {
         console.error('Build failed:', error);
         process.exit(1);

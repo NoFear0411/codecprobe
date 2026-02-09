@@ -257,8 +257,7 @@ CodecProbe uses UAParser.js v2.x (AGPL-3.0). Since CodecProbe is open-source (MI
 - Firefox limited Dolby/DTS support (licensing)
 
 **Intentional choices**:
-- No service worker yet (planned for offline support)
-- No result caching (tests are fast enough)
+- No result caching (tests are fast enough, fresh results every time)
 - No Web Workers (tests don't block UI significantly)
 - DRM tests inline (non-blocking with timeout)
 
@@ -282,9 +281,8 @@ Avoid over-engineering. Only add features if they solve real user problems:
 - ✅ URL state management (done)
 - ✅ Dynamic API badges (done)
 - ✅ UAParser v2.x integration (done)
-- ⏳ PWA service worker for offline use
-- ⏳ Result caching in localStorage
-- ⏳ Progress indicator during testing
+- ✅ Progress indicator during testing (done)
+- ✅ PWA service worker for offline use (done)
 
 ## Documentation Standards
 
