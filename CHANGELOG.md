@@ -2,6 +2,26 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.1.1] - 2026-02-09
+
+### Fixed
+
+- **MIME Type label wrapping**: Replaced `word-break: break-all` with `overflow-wrap: anywhere` on `.codec-string` and added `flex-shrink: 0` on the label — "MIME Type:" no longer breaks mid-word on narrow cards
+- **Broken reference URLs**: LG webOS links updated from dead `supported-media-formats` to split pages (`video-audio-250`); Android links updated from `MediaCodec` API reference to `supported-formats` spec page. 52 references fixed across 26 education entries.
+
+### Added
+
+- **HEVC education content**: All 14 remaining HEVC entries now have codec string breakdowns, overviews, and spec references (23/23 complete)
+- **2 niche Dolby Vision entries**: `dvc1.05.06` (deprecated FourCC) and `dvhp.05.06` (OMAF/VR) with full education content
+
+### Changed
+
+- **README overhaul**: Technical References table fixed (was broken markdown), Three Decoder APIs section reformatted as structured bullet lists, Contributing section expanded with database contribution call-to-action and issue link
+- Updated reference titles: "webOS TV Developer Guide" → "webOS TV AV Formats", "Android MediaCodec Reference" → "Android Supported Media Formats"
+- Test count: 254 → 256, education entries: 115 → 129
+
+---
+
 ## [3.1.0] - 2026-02-09
 
 ### Added
@@ -13,7 +33,7 @@ All notable changes to CodecProbe will be documented in this file.
   - **ETSI**: TS 102 114 (DTS), TS 102 366 (Dolby AC-3/E-AC-3), TS 103 572 (Dolby Vision)
   - **IETF**: RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC)
   - **Industry**: AV1 Bitstream Spec, AV1 ISOBMFF Binding, VP9 Bitstream Spec, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF IOP, Dolby Vision HLS/DASH specs
-  - **Vendor**: Apple HLS Authoring Spec, webOS TV Developer Guide, Android MediaCodec Reference
+  - **Vendor**: Apple HLS Authoring Spec, webOS TV AV Formats, Android Supported Media Formats
 - **Codec database ASCII table index**: Developer-facing TOC at the top of `codec-database.js` with box-drawing tables covering group index (test counts, line numbers, containers, education/platform coverage), codec variants tested, container coverage matrix, and referenced specifications by standards body. Stripped by Terser in production builds — zero runtime cost.
 
 ---

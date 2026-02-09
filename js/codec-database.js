@@ -1,13 +1,13 @@
 /**
- * Codec Test Database — 254 tests · 14 groups · 17 MIME types · 115 education entries
+ * Codec Test Database — 256 tests · 14 groups · 17 MIME types · 129 education entries
  *
  * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
  * │ VIDEO CODECS                                                                   142 tests total   │
  * ├────────────────────┬───────┬────────┬──────────────┬──────────────────────────────┬──────────────┤
  * │ Group              │ Tests │   Line │ Category     │ Containers                   │ Edu / Platf. │
  * ├────────────────────┼───────┼────────┼──────────────┼──────────────────────────────┼──────────────┤
- * │ video_hevc         │    23 │     17 │ HEVC/H.265   │ MP4 · MKV · MOV              │  9 │ A L G   │
- * │ video_dolby_vision │    31 │    659 │ Dolby Vision │ MP4 · MKV · MOV              │ 31 │ A L G   │
+ * │ video_hevc         │    23 │     17 │ HEVC/H.265   │ MP4 · MKV · MOV              │ 23 │ A L G   │
+ * │ video_dolby_vision │    33 │    659 │ Dolby Vision │ MP4 · MKV · MOV              │ 33 │ A L G   │
  * │ video_av1          │    26 │   1932 │ AV1          │ MP4 · MKV · WebM · MOV       │ 10 │ A L G   │
  * │ video_vp9          │    20 │   2595 │ VP9          │ WebM · MP4 · MKV             │  6 │ A L G   │
  * │ video_avc          │    20 │   3063 │ AVC/H.264    │ MP4 · MKV · MOV · WebM       │ 10 │         │
@@ -74,8 +74,8 @@
  * │                │ Dolby Vision HLS/DASH Specs · DASH-IF Interop Points                            │
  * │                │ Vorbis I Spec (Xiph.Org) · Theora Spec (Xiph.Org)                               │
  * │ Vendor         │ Apple HLS Authoring Spec (developer.apple.com)                                  │
- * │                │ webOS TV Developer Guide (webostv.developer.lge.com)                            │
- * │                │ Android MediaCodec Reference (developer.android.com)                            │
+ * │                │ webOS TV AV Formats (webostv.developer.lge.com)                                │
+ * │                │ Android Supported Media Formats (developer.android.com)                        │
  * └────────────────┴─────────────────────────────────────────────────────────────────────────────────┘
  */
 
@@ -123,8 +123,8 @@ export const codecDatabase = {
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -142,7 +142,25 @@ export const codecDatabase = {
                         bitrate: 5000000,
                         framerate: 24
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hvc1.1.6.L93.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC with parameter sets in the sample entry (hvcC box). Even in MKV, the codec string uses the MP4/ISOBMFF naming convention — the Matroska parser maps this to its own CodecPrivate element.' },
+                                { token: '1', meaning: 'Main Profile (profile_idc=1). 8-bit 4:2:0 — the baseline SDR profile.' },
+                                { token: '6', meaning: 'Profile compatibility flags. Bits 1+2 set = backward-compatible with Main and Main 10 decoders.' },
+                                { token: 'L93', meaning: 'Level 3.1, Main Tier. 93 = 3.1 × 30. Max 1280×720@30fps or 1920×1080@30fps, 10 Mbps peak.' },
+                                { token: 'B0', meaning: 'General constraint indicator flags — no additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main Profile in MKV (Matroska) container. MKV is the standard remux format for Blu-ray and media server libraries, but browser support for video/x-matroska is limited. Desktop browsers typically reject the MIME type regardless of HEVC capability. Android Chrome often accepts it because codec negotiation passes through the OS-level MediaCodec API, which handles Matroska natively. This entry isolates the container-support question from codec support — the same hvc1.1.6.L93.B0 string in MP4 may return supported while MKV returns unsupported.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             // HDR10 variants
             {
@@ -204,8 +222,8 @@ sdr_1080p.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -225,7 +243,26 @@ sdr_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hvc1.2.4.L153.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry. In MKV, the hvcC-equivalent data lives in the CodecPrivate element of the Matroska track header.' },
+                                { token: '2', meaning: 'Main 10 Profile (profile_idc=2). 10-bit 4:2:0 — required for HDR10 (PQ transfer function needs 10-bit to avoid banding).' },
+                                { token: '4', meaning: 'Profile compatibility: bit 2 set = Main 10 compatible decoders only.' },
+                                { token: 'L153', meaning: 'Level 5.1, Main Tier. 153 = 5.1 × 30. Max 3840×2160@60fps, 40 Mbps peak.' },
+                                { token: 'B0', meaning: 'No additional constraints beyond Main 10 Profile.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 HDR10 in MKV — the standard format for 4K HDR Blu-ray remuxes. MKV carries the PQ transfer function and BT.2020 color primaries in the Colour element of the Matroska track header. The challenge for browsers is dual: they must parse the Matroska container AND support HDR10 tone mapping. Most browsers that support HEVC HDR10 in MP4 do not support the same content in MKV because the Matroska parser is missing, not the codec.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' },
+                            { title: 'SMPTE ST 2084' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (hev1 tag)",
@@ -266,8 +303,8 @@ sdr_1080p.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -300,8 +337,8 @@ sdr_1080p.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -322,7 +359,26 @@ sdr_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/mp4',
+                            string: 'hvc1.2.4.L153.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry (hvcC box).' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0. Required for the wide color volume of 4K HDR content.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'L153', meaning: 'Level 5.1, Main Tier. 153 = 5.1 × 30. The minimum level for 4K@60fps — doubles the decode rate of Level 5.0 (30fps cap). Peak bitrate 40 Mbps.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 at Level 5.1 targeting 4K 60fps content. Level 5.1 is the key differentiator — it doubles the maximum decode rate from Level 5.0 (which caps at 4K@30fps). This matters for high frame rate content like sports broadcasts and gaming captures. Hardware decode at 4K60 requires a capable fixed-function decoder — software decode cannot sustain this throughput. The mediaConfig includes PQ transfer function, testing whether the device can combine high frame rate with HDR.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' },
+                            { title: 'SMPTE ST 2084' }
+                        ]
+                    }
             },
             // 8K variants
             {
@@ -364,8 +420,8 @@ sdr_1080p.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -406,8 +462,8 @@ sdr_1080p.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -425,7 +481,26 @@ sdr_1080p.m3u8`,
                         bitrate: 5000000,
                         framerate: 30
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/quicktime',
+                            string: 'hvc1.1.6.L120.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry. MOV (QuickTime) was the original container for hvcC — the ISOBMFF spec inherited the structure from QuickTime.' },
+                                { token: '1', meaning: 'Main Profile — 8-bit 4:2:0 SDR.' },
+                                { token: '6', meaning: 'Profile compatibility: Main + Main 10 backward-compatible.' },
+                                { token: 'L120', meaning: 'Level 4.0, Main Tier. 120 = 4.0 × 30. Max 2048×1080@30fps, 12 Mbps peak. The standard 1080p level for SDR content.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main Profile in QuickTime MOV container. MOV is Apple\'s native container format and predates MP4 — the ISO BMFF spec (ISO/IEC 14496-12) is directly derived from QuickTime\'s atom structure. Safari accesses video/quicktime through AVFoundation, the same framework that handles MP4. Most non-Apple browsers do not register a handler for video/quicktime at all, making this a Safari/WebKit-specific test.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' },
+                            { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (HLG MOV)",
@@ -443,7 +518,26 @@ sdr_1080p.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020'
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/quicktime',
+                            string: 'hvc1.2.4.L153.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0, required for HLG.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'L153', meaning: 'Level 5.1, Main Tier. 4K capable at up to 60fps.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 with HLG (Hybrid Log-Gamma) in QuickTime MOV. HLG is the backward-compatible HDR transfer function — designed so SDR displays can show a reasonable image without tone mapping. Unlike PQ (used by HDR10), HLG uses a relative luminance model. Apple supports HLG in their camera pipeline (iPhone 12+ shoots HLG natively), making MOV the natural container for HLG camera output. The video/quicktime MIME with HLG transfer function tests the intersection of Apple\'s container support and HDR capability.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ARIB STD-B67' },
+                            { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        ]
+                    }
             },
             // Additional HEVC levels and profiles
             {
@@ -460,7 +554,25 @@ sdr_1080p.m3u8`,
                         bitrate: 15000000,
                         framerate: 30
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/mp4',
+                            string: 'hvc1.1.6.L150.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry (hvcC box).' },
+                                { token: '1', meaning: 'Main Profile — 8-bit 4:2:0. SDR-only, no HDR metadata.' },
+                                { token: '6', meaning: 'Profile compatibility: Main + Main 10 backward-compatible.' },
+                                { token: 'L150', meaning: 'Level 5.0, Main Tier. 150 = 5.0 × 30. Max 3840×2160@30fps, 25 Mbps peak. The base 4K level.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main Profile at Level 5.0 for 4K SDR content. Main Profile (8-bit) at 4K is uncommon in practice — most 4K content uses Main 10 even for SDR because 10-bit encoding reduces banding in gradients regardless of HDR status. This entry tests whether the browser\'s HEVC decoder reports support for 4K resolution in 8-bit mode, which some implementations skip in favor of mandatory 10-bit at Level 5.0+.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main (SDR 1080p60 Level 4.1)",
@@ -476,7 +588,25 @@ sdr_1080p.m3u8`,
                         bitrate: 8000000,
                         framerate: 60
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/mp4',
+                            string: 'hvc1.1.6.L123.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '1', meaning: 'Main Profile — 8-bit 4:2:0 SDR.' },
+                                { token: '6', meaning: 'Profile compatibility: Main + Main 10 backward-compatible.' },
+                                { token: 'L123', meaning: 'Level 4.1, Main Tier. 123 = 4.1 × 30. Max 2048×1080@60fps, 20 Mbps peak. The 1080p@60fps level.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main Profile at Level 4.1 for 1080p 60fps content. Level 4.1 doubles the frame rate ceiling of Level 4.0 (30fps → 60fps at 1080p). This is the target level for high frame rate 1080p streaming — gaming content, sports, and screen recordings. The distinction between Level 4.0 and 4.1 matters: some older hardware decoders support 4.0 but not 4.1, meaning they handle 1080p@30fps but not 1080p@60fps.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (SDR 1080p Level 4.0)",
@@ -492,7 +622,25 @@ sdr_1080p.m3u8`,
                         bitrate: 6000000,
                         framerate: 30
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/mp4',
+                            string: 'hvc1.2.4.L120.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'L120', meaning: 'Level 4.0, Main Tier. 120 = 4.0 × 30. Max 2048×1080@30fps, 12 Mbps peak.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 at Level 4.0 for 1080p SDR content using 10-bit encoding. This combination — 10-bit depth without HDR — is increasingly common because 10-bit encoding reduces banding artifacts in gradients (skies, fog, dark scenes) even when the source and display are SDR. Streaming services like Netflix encode SDR content in 10-bit HEVC for quality reasons. This entry tests whether the browser reports Main 10 support at 1080p without requiring HDR transfer functions.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (hev1 4K MKV)",
@@ -510,7 +658,25 @@ sdr_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hev1.2.4.L153.B0',
+                            parts: [
+                                { token: 'hev1', meaning: 'HEVC with parameter sets carried in-band (Annex B start codes). Unlike hvc1 where SPS/PPS/VPS are in the container header, hev1 repeats them in the bitstream at each random access point. Chrome/Android parse both; Safari/webOS require hvc1.' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'L153', meaning: 'Level 5.1, Main Tier. 4K@60fps capable, 40 Mbps peak.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC using the hev1 tag in MKV — a double compatibility challenge. The hev1 FourCC signals in-band parameter sets (SPS/PPS/VPS in the bitstream rather than the container header), and the MKV container adds its own parsing requirement. Safari rejects hev1 even in MP4 because AVFoundation reads codec configuration from the sample description, not the NAL stream. In MKV, the hev1 vs hvc1 distinction is less meaningful because Matroska stores the CodecPrivate data regardless, but the codec string still triggers different code paths in browser MIME matching.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (4K High Tier)",
@@ -551,8 +717,8 @@ sdr_1080p.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -593,8 +759,8 @@ sdr_1080p.m3u8`,
                         { title: 'ISO/IEC 23008-2' },
                         { title: 'ISO/IEC 14496-15 Annex E' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -650,7 +816,25 @@ sdr_1080p.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020'
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hvc1.2.4.L153.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0, required for HLG.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'L153', meaning: 'Level 5.1, Main Tier. 4K capable.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 with HLG HDR in MKV container. HLG (Hybrid Log-Gamma) uses a scene-referred signal — it is backward-compatible with SDR displays that simply clip the highlights. MKV carries the HLG transfer characteristics (ID 18 per ITU-T H.273) in the Colour element. This combination tests three layers of support: MKV container parsing, HEVC Main 10 decode, and HLG transfer function handling. Most browsers fail at the first layer (MKV support).',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ARIB STD-B67' }
+                        ]
+                    }
             },
             // MKV container coverage
             {
@@ -667,7 +851,25 @@ sdr_1080p.m3u8`,
                         bitrate: 15000000,
                         framerate: 30
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hvc1.1.6.L150.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '1', meaning: 'Main Profile — 8-bit 4:2:0 SDR.' },
+                                { token: '6', meaning: 'Profile compatibility: Main + Main 10.' },
+                                { token: 'L150', meaning: 'Level 5.0, Main Tier. 150 = 5.0 × 30. Max 3840×2160@30fps, 25 Mbps peak.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main Profile 4K SDR in MKV. An uncommon combination in practice — 4K content is almost always encoded with Main 10 Profile for the banding reduction, even for SDR sources. This entry tests the edge case of 8-bit 4K HEVC in Matroska, which some hardware decoders may handle differently than 10-bit because the memory bandwidth requirement is lower (8-bit vs 10-bit surfaces).',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (8K MKV)",
@@ -685,7 +887,25 @@ sdr_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hvc1.2.4.L183.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'L183', meaning: 'Level 6.1, Main Tier. 183 = 6.1 × 30. Max 7680×4320@60fps, 120 Mbps peak. The 8K broadcast level.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 at 8K resolution in MKV. Level 6.1 supports 7680×4320@60fps with a 120 Mbps bitrate cap. This is a forward-looking test — 8K HEVC decode requires dedicated hardware (Samsung 8K TVs use a custom MFC decoder). No current browser has both MKV support and 8K HEVC Level 6.x capability. The entry is useful for identifying false positives where a browser reports Level 6.1 support based on codec string parsing without actual hardware verification.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (SDR 1080p MKV)",
@@ -701,7 +921,25 @@ sdr_1080p.m3u8`,
                         bitrate: 6000000,
                         framerate: 30
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hvc1.2.4.L120.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'L120', meaning: 'Level 4.0, Main Tier. 120 = 4.0 × 30. Max 2048×1080@30fps, 12 Mbps peak.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 at 1080p SDR in MKV. This is the most common format for HEVC remuxes of streaming content — 10-bit encoding in Matroska at 1080p. Media servers like Jellyfin and Plex frequently need to decide whether to direct-play or transcode this combination based on the client\'s MKV and Main 10 support. A browser reporting unsupported here while supporting the same codec in MP4 tells the server to remux to MP4 rather than transcode.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             },
             {
                 name: "HEVC Main 10 (4K High Tier MKV)",
@@ -719,7 +957,25 @@ sdr_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
-                }
+                },
+                    education: {
+                        codecBreakdown: {
+                            mime: 'video/x-matroska',
+                            string: 'hvc1.2.4.H153.B0',
+                            parts: [
+                                { token: 'hvc1', meaning: 'HEVC, parameter sets in sample entry.' },
+                                { token: '2', meaning: 'Main 10 Profile — 10-bit 4:2:0.' },
+                                { token: '4', meaning: 'Profile compatibility: Main 10 decoders.' },
+                                { token: 'H153', meaning: 'Level 5.1, HIGH Tier. H prefix = High Tier (vs L for Main Tier). Same resolution/framerate limits as Main Tier Level 5.1, but the peak bitrate cap is raised from 40 Mbps to 160 Mbps — designed for high-bitrate Blu-ray remuxes.' },
+                                { token: 'B0', meaning: 'No additional constraints.' }
+                            ]
+                        },
+                        overview: 'HEVC Main 10 High Tier in MKV — the target format for 4K UHD Blu-ray remuxes. High Tier quadruples the peak bitrate limit compared to Main Tier at the same level (160 Mbps vs 40 Mbps at Level 5.1). UHD Blu-ray discs commonly hit 80-100 Mbps peaks in complex scenes. Some hardware decoders report Level 5.1 support but only for Main Tier — the High Tier bitrate exceeds their buffer model. Combined with the MKV container, this is a demanding test that few browsers pass.',
+                        references: [
+                            { title: 'ITU-T H.265' },
+                            { title: 'ISO/IEC 14496-15 Annex E' }
+                        ]
+                    }
             }
         ]
     },
@@ -765,8 +1021,8 @@ sdr_1080p.m3u8`,
                     references: [
                         { title: 'ETSI TS 103 572' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -887,8 +1143,8 @@ sdr_1080p.m3u8`,
                     references: [
                         { title: 'ETSI TS 103 572' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -1002,8 +1258,8 @@ stream_hdr10.m3u8`,
                         { title: 'Dolby Vision Streams Within the HTTP Live Streaming', url: 'https://professionalsupport.dolby.com/s/article/Dolby-Vision-Streams-Within-the-HTTP-Live-Streaming' },
                         { title: 'Dolby Vision Streams Within the MPEG-DASH', url: 'https://professionalsupport.dolby.com/s/article/Dolby-Vision-Streams-Within-the-MPEG-DASH' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -1090,8 +1346,8 @@ stream_hdr10.m3u8`,
                     references: [
                         { title: 'ETSI TS 103 572' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -1171,8 +1427,8 @@ stream_hdr10.m3u8`,
                     references: [
                         { title: 'ETSI TS 103 572' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -1394,8 +1650,8 @@ stream_hdr10.m3u8`,
                     references: [
                         { title: 'ETSI TS 103 572' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -1993,6 +2249,75 @@ stream_hdr10.m3u8`,
                         { title: 'ETSI TS 103 572' }
                     ]
                 }
+            },
+            {
+                name: "DV Profile 5 (dvc1 deprecated)",
+                codec: 'video/mp4; codecs="dvc1.05.06"',
+                container: "MP4",
+                info: "Early deprecated FourCC for DV Profile 5",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="dvc1.05.06"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 25000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp4',
+                        string: 'dvc1.05.06',
+                        parts: [
+                            { token: 'dvc1', meaning: 'Dolby Vision HEVC — early deprecated FourCC from pre-standardization era (2017–2018). Predates the dvh1 (HVCC) / dvhe (Annex B) split that became the official naming convention.' },
+                            { token: '05', meaning: 'Profile 5 — proprietary IPTPQc2 color space, no HDR10 fallback. Without the RPU metadata (NAL 62), colors render as unwatchable green/purple.' },
+                            { token: '06', meaning: 'Level 06 — max 3840×2160@24fps, 36 Mbps peak bitrate.' }
+                        ]
+                    },
+                    overview: "A deprecated FourCC for Dolby Vision Profile 5 from early implementations before Dolby finalized the dvh1/dvhe naming convention. The dvc1 tag appeared in prototype hardware and some 2017-era test content but was never widely adopted. No modern browser, player, or TV firmware recognizes this tag — it universally returns unsupported. Included to verify that browsers cleanly reject unknown codec tags rather than crashing or returning false positives.",
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'Dolby Vision Streams Within the ISO BMFF' }
+                    ]
+                }
+            },
+            {
+                name: "DV Profile 5 (dvhp OMAF/VR)",
+                codec: 'video/mp4; codecs="dvhp.05.06"',
+                container: "MP4",
+                info: "Dolby Vision in OMAF (VR/360°)",
+                mediaConfig: {
+                    type: 'file',
+                    video: {
+                        contentType: 'video/mp4; codecs="dvhp.05.06"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 40000000,
+                        framerate: 30,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp4',
+                        string: 'dvhp.05.06',
+                        parts: [
+                            { token: 'dvhp', meaning: 'Dolby Vision HEVC for OMAF — Omnidirectional Media Format (ISO/IEC 23090-2). The "p" distinguishes this from standard dvh1/dvhe by signaling the sample entry includes projection and rotation metadata for VR/360° content.' },
+                            { token: '05', meaning: 'Profile 5 — proprietary IPTPQc2 color space. In VR contexts, the per-pixel IPTPQc2 reshaping is critical because VR headsets have non-uniform brightness across the lens.' },
+                            { token: '06', meaning: 'Level 06 — max 3840×2160@24fps. VR content often uses higher bitrates (40+ Mbps) due to equirectangular projection overhead.' }
+                        ]
+                    },
+                    overview: "Dolby Vision carried in OMAF (Omnidirectional Media Format) for VR and 360° video. The dvhp FourCC signals DV-HEVC within ISO/IEC 23090-2 containers where the sample entry includes spatial metadata (projection type, rotation, region-of-interest) alongside the DV RPU. This is distinct from standard dvh1 because OMAF parsers expect additional boxes in the sample description. Extremely niche — limited to high-end VR production pipelines and Meta Quest Pro-class devices. No browser supports this tag.",
+                    references: [
+                        { title: 'ETSI TS 103 572' },
+                        { title: 'ISO/IEC 23090-2' },
+                        { title: 'Dolby Vision Streams Within the ISO BMFF' }
+                    ]
+                }
             }
         ]
     },
@@ -2026,8 +2351,8 @@ stream_hdr10.m3u8`,
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
                         { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 },
                 mediaConfig: {
@@ -2083,8 +2408,8 @@ stream_hdr10.m3u8`,
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
                         { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 },
                 mediaConfig: {
@@ -2569,8 +2894,8 @@ stream_hdr10.m3u8`,
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
                         { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 },
                 mediaConfig: {
@@ -2686,8 +3011,8 @@ stream_hdr10.m3u8`,
                         { title: 'VP9 Bitstream & Decoding Process Spec' },
                         { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 },
                 mediaConfig: {
@@ -2764,8 +3089,8 @@ stream_hdr10.m3u8`,
                         { title: 'VP9 Bitstream & Decoding Process Spec' },
                         { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 },
                 mediaConfig: {
@@ -3894,8 +4219,8 @@ segment_2.m4s
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -4017,8 +4342,8 @@ hevc_1080_sdr/playlist.m3u8`,
                         { title: 'ISO/IEC 23000-19' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -4529,8 +4854,8 @@ segment_002.ts
                         { title: 'ISO/IEC 23000-19' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -4727,8 +5052,8 @@ video_1080/playlist.m3u8`,
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -4852,8 +5177,8 @@ h264_1080/playlist.m3u8`,
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
                         { title: 'ISO/IEC 23009-1' },
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -4951,8 +5276,8 @@ h264_1080/playlist.m3u8`,
                         { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },
@@ -5022,8 +5347,8 @@ cmaf_hdr10/playlist.m3u8`,
                         { title: 'ISO/IEC 23000-19' },
                         { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV Developer Guide', url: 'https://webostv.developer.lge.com/develop/specifications/supported-media-formats' },
-                        { title: 'Android MediaCodec Reference', url: 'https://developer.android.com/reference/android/media/MediaCodec' }
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
                     ]
                 }
             },

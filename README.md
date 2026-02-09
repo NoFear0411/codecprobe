@@ -22,7 +22,7 @@ Browser codec detection is unreliable:
 - webOS apps have async race conditions that break capability detection
 - `mediaCapabilities` is the most accurate API but rarely used
 
-CodecProbe runs all three APIs side-by-side against 254 codec/container combinations so you can see what your device supports across every detection method.
+CodecProbe runs all three APIs side-by-side against 256 codec/container combinations so you can see what your device supports across every detection method.
 
 ## Real-World Issues This Catches
 
@@ -52,13 +52,17 @@ webOS v25 changed the DTS detection path. The `canPlayDts()` check stops at `< 2
 
 ### Three Decoder APIs
 
-| API | What It Does | Reliability |
-|-----|-------------|-------------|
-| `canPlayType()` | Codec string parsing against browser's internal list | Low — returns "maybe" liberally |
-| `MediaSource.isTypeSupported()` | MSE/streaming codec support | Medium — stricter, but no hardware info |
-| `mediaCapabilities.decodingInfo()` | Hardware decode capability, smoothness, power efficiency | High — reflects actual hardware state |
+- **`1` canPlayType()** — Codec string parsing against the browser's internal list
+  - Returns `"probably"`, `"maybe"`, or `""`
+  - Reliability: **Low** — returns "maybe" liberally, Safari hides DV entirely
+- **`2` MediaSource.isTypeSupported()** — MSE/streaming codec support check
+  - Returns `true` or `false`
+  - Reliability: **Medium** — stricter than canPlayType, but no hardware capability info
+- **`3` mediaCapabilities.decodingInfo()** — Hardware decode capability query
+  - Returns `{ supported, smooth, powerEfficient }` with HDR transfer function awareness
+  - Reliability: **High** — reflects actual hardware state, most accurate API
 
-Each API result is shown with a color-coded badge (green/yellow/red) so you can spot inconsistencies at a glance.
+Each API result is shown with a numbered color-coded badge (**green**/yellow/red) so you can spot inconsistencies at a glance.
 
 ### DRM/EME Support
 
@@ -71,7 +75,7 @@ Tests `requestMediaKeySystemAccess()` with persistent state and robustness detec
 
 ## Codec Coverage
 
-**254 test entries** across 14 codec groups and 17 container MIME types.
+**256 test entries** across 14 codec groups and 17 container MIME types.
 
 ### Video (142 tests)
 
@@ -133,7 +137,7 @@ All streaming tests use `type: 'media-source'` for proper MSE validation.
 - **Offline PWA** — service worker precaches all assets, works without network after first visit
 - **Zero runtime dependencies** — UAParser.js bundled at build time, no CDN requests
 - **Fluid responsive** — intrinsic CSS layout with `clamp()`/`min()`/`auto-fit`, no hardcoded breakpoints (webOS TV optimized)
-- **Education & references** — codec string breakdowns, platform notes, and cited spec references for 115 entries
+- **Education & references** — codec string breakdowns, platform notes, and cited spec references for 129 entries
 
 ## Understanding Results
 
@@ -299,30 +303,32 @@ The `name` field must be unique — it's used for card matching in the UI.
 ## Technical References
 
 Every education entry in the codec database cites its sources. 36 specifications across 6 standards bodies are referenced inline — linked where freely available, cited by number for paywalled specs.
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Standards Body | Specifications                                                                                                                                                                                     |
-|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **ITU-T**      | H.264 (AVC), H.265 (HEVC), H.266 (VVC)                                                                                                                                                             |
-| **ISO/IEC**    | 14496-3 (AAC), 14496-15 (codec packaging), 23008-2 (HEVC), 23008-3 (MPEG-H 3D Audio), 23091-2 (AV1 registration), 23094-1 (VVC), 23000-19 (CMAF), 23009-1 (DASH), 13818-1 (MPEG-TS), 11172-3 (MP3) |
-| **ETSI**       | TS 102 114 (DTS), TS 102 366 (Dolby AC-3/E-AC-3), TS 103 572 (Dolby Vision)                                                                                                                        |
-| **IETF**       | RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC)                                                                                                                                   |
-| **Industry**   | AV1 Bitstream & Decoding Process, AV1 ISOBMFF Binding, VP9 Bitstream & Decoding Process, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF Implementation Guidelines                            |
-| **Vendor**     | Apple HLS Authoring Specification, webOS TV Developer Guide, Android MediaCodec Reference                                                                                                          |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
+| Standards Body | Specifications |
+|---|---|
+| **ITU-T** | H.264 (AVC), H.265 (HEVC), H.266 (VVC) |
+| **ISO/IEC** | 14496-3 (AAC), 14496-15 (codec packaging), 23008-2 (HEVC), 23008-3 (MPEG-H 3D Audio), 23091-2 (AV1 registration), 23094-1 (VVC), 23000-19 (CMAF), 23009-1 (DASH), 13818-1 (MPEG-TS), 11172-3 (MP3) |
+| **ETSI** | TS 102 114 (DTS), TS 102 366 (Dolby AC-3/E-AC-3), TS 103 572 (Dolby Vision) |
+| **IETF** | RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC) |
+| **Industry** | AV1 Bitstream & Decoding Process, AV1 ISOBMFF Binding, VP9 Bitstream & Decoding Process, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF Implementation Guidelines |
+| **Vendor** | [Apple HLS Authoring Spec](https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices), [webOS TV AV Formats](https://webostv.developer.lge.com/develop/specifications/video-audio-250), [Android Supported Media Formats](https://developer.android.com/media/platform/supported-formats) |
+
 ## Contributing
 
 Pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 Areas that benefit from contributions:
-- New codec entries with verified codec strings
-- Platform-specific quirk documentation
-- Bug fixes for edge cases
-- UI/UX improvements
+- **Codec database** — new entries with verified codec strings, education content, and spec references
+- **Platform quirks** — document browser/device-specific behavior you've encountered
+- **Bug fixes** — edge cases in detection, rendering, or export
+- **UI/UX** — accessibility, responsive layout, theme improvements
+
+The codec database (`js/codec-database.js`) is the core of the project. If you have a device that reports unexpected results, [open an issue](https://github.com/nofear0411/codecprobe/issues) with your exported JSON — it helps expand coverage for everyone.
 
 ## License
 
 AGPL-3.0-or-later — see [LICENSE](LICENSE).
 
-This means if you modify CodecProbe and make it available over a network, you must share your source code under the same license. This protects the community-built codec database.
+If you modify CodecProbe and make it available over a network, you must share your source code under the same license. This protects the community-built codec database.
 
 UAParser.js v2.x is bundled under the same AGPL-3.0 license.

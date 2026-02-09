@@ -3,6 +3,7 @@ node_modules/
 .vscode/
 .idea/
 package-lock.json
+docs/*.txt
 
 # Claude Code
 .claude/
