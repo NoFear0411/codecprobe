@@ -485,7 +485,7 @@ h1 {
 // Main Content Area
 main#main-content {
     flex: 1;
-    min-height: 400px;
+    min-height: 100vh;
 }
 
 // Footer
@@ -1364,11 +1364,9 @@ main#main-content {
 .UNSUPPORTED {
     border-left-color: var(--red);
     background: var(--card);
-    opacity: 0.7;
 
     &:hover {
         background: var(--card-hover);
-        opacity: 0.9;
     }
 
     .status-badge {
@@ -1378,7 +1376,7 @@ main#main-content {
 
     .codec-name,
     .codec-summary {
-        color: var(--text-dimmed);
+        color: var(--text-secondary);
     }
 
     .api-results {
@@ -1390,12 +1388,10 @@ main#main-content {
 .FAILED {
     border-left-color: $purple;
     background: var(--card);
-    opacity: 0.7;
     cursor: default;
 
     &:hover {
         background: var(--card-hover);
-        opacity: 0.85;
     }
 
     .status-badge {
@@ -1411,7 +1407,7 @@ main#main-content {
 
     .codec-name,
     .codec-summary {
-        color: var(--text-dimmed);
+        color: var(--text-secondary);
     }
 
     .api-results {
@@ -1423,12 +1419,15 @@ main#main-content {
 .PENDING {
     border-left-color: var(--border);
     background: var(--card);
-    opacity: 0.6;
     cursor: default;
+
+    .codec-name,
+    .codec-summary {
+        color: var(--text-secondary);
+    }
 
     &:hover {
         background: var(--card-hover);
-        opacity: 0.8;
     }
 
     .status-badge {
