@@ -34,15 +34,15 @@ Variables: `$accent`, `$blue`, `$yellow`, `$red`, `$spacing-xs` through `$spacin
 
 Mixins: `@include card`, `@include card-hover`.
 
-## JS Build Process (`build.js`)
+## JS Build Process (`scripts/build.js`)
 
 1. Reads all `.js` ES modules from `js/`
 2. Minifies with Terser (`module: true`, strips `console.log`/`console.debug`, preserves `console.warn`/`console.error`)
 3. Outputs to `build/js/`
-4. Copies `ua-parser.min.js` to `js/vendor/`
-5. Generates `build/version-manifest.json` with MD5 hashes of 10 files
+4. Bundles `ua-parser.min.js` to `build/js/vendor/` and `js/vendor/`
+5. Generates `build/version-manifest.json` with MD5 hashes (dynamic file list)
 
-## Version Injection (`inject-versions.js`)
+## Version Injection (`scripts/inject-versions.js`)
 
 1. Appends `?v=abc123` to asset references in `index.html` (CSS, JS entry point, vendor)
 2. Appends `?v=abc123` to ES module `import` paths in `build/js/*.js`

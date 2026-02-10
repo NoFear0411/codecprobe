@@ -12,8 +12,8 @@ CodecProbe is a browser-based codec testing tool for media server users. It test
 
 ```
 js/
-├── main.js              - Entry point, imports all modules
-├── codec-database.js    - 254 codec test definitions
+├── main.js              - Entry point, imports all modules, PWA install prompt
+├── codec-database.js    - 256 codec test definitions (131 with education)
 ├── device-detection.js  - UAParser.js v2.x integration (← drm-detection)
 ├── drm-detection.js     - DRM/EME system testing (leaf)
 ├── codec-tester.js      - Multi-API testing logic (← codec-database)
@@ -24,9 +24,9 @@ js/
     └── ua-parser.min.js - Bundled UAParser.js v2.0.9 (35.3 KB, non-module global)
 ```
 
-All JS files use ES module syntax (`import`/`export`). `index.html` loads ua-parser.min.js as a regular script (global), then `main.js` as `type="module"`. The browser resolves all other imports from main.js.
+All JS files use ES module syntax (`import`/`export`). `index.html` loads ua-parser.min.js as a regular `defer` script (global), then `main.js` as `type="module"`. Eight `<link rel="modulepreload">` hints flatten the import chain so all modules download in parallel.
 
-**Data flow**: main.js → detect device (async UAParser) → detect DRM → run tests → render results
+**Data flow**: main.js → detect device (async UAParser) → show iOS install hint if applicable → detect DRM → run tests → render results
 
 ### State Management
 
@@ -53,6 +53,12 @@ Test results structure:
     }
 }
 ```
+
+### PWA Install
+
+`main.js` handles two install paths:
+- **Chrome/Edge (Android + desktop)**: Captures `beforeinstallprompt` event, shows an "Install" button in the header. Registered at module top-level (before `initialize()`) because the browser can fire the event early.
+- **iOS/iPadOS (Safari)**: No `beforeinstallprompt` exists in WebKit. After `detectDeviceInfo()` resolves, checks `deviceInfo.iOS` (from UAParser.js — handles iPadOS-as-desktop) and shows a manual "Add to Home Screen" hint. Dismissible with localStorage persistence.
 
 ## Domain Knowledge
 
@@ -196,7 +202,7 @@ CSS lives in `scss/styles.scss` (compiled to `css/styles.css`). Uses CSS custom 
 --red: #ff4444      /* Red (unsupported) */
 ```
 
-Grid layout is auto-fit with min 500px columns. Responsive breakpoints at 768px and 480px.
+Grid layout is auto-fit with min 500px columns. No media query breakpoints — only capability queries remain.
 
 ### Testing Changes
 
@@ -216,18 +222,23 @@ python -m http.server 8000
 
 **Build process**:
 - `npm run build:css` - Compile SCSS to CSS
-- `npm run build:js` - Minify JS + bundle UAParser
+- `npm run build:js` - Minify JS + bundle UAParser (`scripts/build.js`)
 - `npm run build` - Both
+- `npm run build:deploy` - Build + inject version hashes (`scripts/inject-versions.js`)
+
+**Build scripts** live in `scripts/`:
+- `scripts/build.js` - Terser minification, UAParser bundling, version manifest, SW cache version injection
+- `scripts/inject-versions.js` - Appends `?v=hash` to asset references in HTML and ES module import paths in built JS
 
 ## Dependencies
 
 **Runtime**: Zero external dependencies
 - UAParser.js v2.x is bundled in `/js/vendor/` (AGPL-3.0 license, ~35.3 KB minified)
-- Installed via npm, bundled at build time
+- Installed via npm as devDependency, bundled at build time to both `build/js/vendor/` and `js/vendor/`
 - Uses advanced features: `withFeatureCheck()` (iPad detection) + `withClientHints()` (Chrome accuracy)
 - No external network requests required
 
-**Development**: sass, terser, ua-parser-js (build tools only)
+**Development**: sass, terser, ua-parser-js, npm-run-all (build tools only)
 
 ## License
 
@@ -243,10 +254,20 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 
 ## Performance
 
-- 254 codecs tested in ~3-6 seconds
+- 256 codecs tested in ~3-6 seconds
 - mediaCapabilities tests are async (rate-limited by browser)
 - Progressive rendering: PENDING cards appear instantly, update as tests complete
 - UAParser.js detection is async (uses Client Hints API on Chromium)
+- `<link rel="modulepreload">` for all 8 modules (flattens critical chain)
+- `defer` on ua-parser vendor script (non-render-blocking)
+
+## Service Worker
+
+`sw.js` at root. Cache-first for static assets, network-first for navigation.
+- `CACHE_VERSION` injected by build script (timestamp-based)
+- `CORE_ASSETS` precaches all JS, CSS, icons, manifest
+- `caches.match(request, { ignoreSearch: true })` — versioned URLs (`?v=hash`) match precached unversioned entries
+- Old caches deleted on activate via prefix matching
 
 ## Known Issues
 
@@ -272,6 +293,10 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 
 Theme switching handled by `theme-manager.js` with localStorage persistence.
 
+## CSS Pitfall: `hidden` attribute
+
+Any element using the HTML `hidden` attribute must have `&[hidden] { display: none; }` in its SCSS if the base style sets `display: flex/block/grid/etc.` The user-agent stylesheet applies `display: none` without `!important`, so author CSS overrides it.
+
 ## Future Enhancements
 
 Avoid over-engineering. Only add features if they solve real user problems:
@@ -283,23 +308,25 @@ Avoid over-engineering. Only add features if they solve real user problems:
 - ✅ UAParser v2.x integration (done)
 - ✅ Progress indicator during testing (done)
 - ✅ PWA service worker for offline use (done)
+- ✅ PWA install prompt (done)
+- ✅ Social preview / OG image (done)
 
 ## Documentation Standards
 
 **README.md**: User-facing documentation
-**SETUP.md**: Deployment guide
+**docs/SETUP.md**: Deployment guide
 **CLAUDE.md**: This file - for AI assistants working on the codebase
 **CONTRIBUTING.md**: Contributor guidelines
-**BUILD.md**: Build system documentation
+**docs/BUILD.md**: Build system documentation
 **CHANGELOG.md**: Version history
 
 Keep docs focused and practical. No generic "best practices" sections.
 
 ## Tested Codecs Summary
 
-**Video (142 tests)**: HEVC, Dolby Vision (P4/5/7/8.1/8.2/8.4/9/10 + supplemental), AV1, VP9, H.264/AVC, VVC/H.266, VP8, MPEG-4 Part 2, H.263, Theora
-**Audio (87 tests)**: Dolby (AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS (Core/Express/HD/MA/Lossless/X), lossless (FLAC/ALAC/Opus/PCM), standard (AAC-LC/HE/xHE/ELD/LD/MP3/Vorbis), MPEG-H 3D Audio
-**Containers (17 MIME types)**: MP4, MKV, WebM, MOV, MPEG-TS, 3GP, OGG, fMP4, CMAF, FLAC, WAV, AIFF, AAC, MP3
+**Video (144 tests)**: HEVC (23), Dolby Vision (33, P4/5/7/8.1/8.2/8.4/9/10 + supplemental), AV1 (26), VP9 (20), H.264/AVC (20), VVC/H.266 (8), VP8 (5), Legacy (9, MPEG-4 Part 2/H.263/Theora)
+**Audio (87 tests)**: Dolby (17, AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS (15, Core/Express/HD/MA/Lossless/X), Lossless (27, FLAC/ALAC/Opus/PCM), Standard (24, AAC-LC/HE/xHE/ELD/LD/MP3/Vorbis), MPEG-H 3D Audio (4)
 **Streaming (25 tests)**: HLS fMP4, DASH, CMAF, MPEG-TS
+**Containers (17 MIME types)**: MP4, MKV, WebM, MOV, MPEG-TS, 3GP, OGG, fMP4, CMAF, FLAC, WAV, AIFF, AAC, MP3
 
-**Total**: 254 codec/container combinations across 14 groups and 17 MIME types, validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.
+**Total**: 256 codec/container combinations across 14 groups and 17 MIME types, validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.

@@ -12,10 +12,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const manifestPath = path.join(__dirname, 'build', 'version-manifest.json');
-const htmlPath = path.join(__dirname, 'index.html');
-const outputPath = path.join(__dirname, 'deploy', 'index.html');
-const buildJsDir = path.join(__dirname, 'build', 'js');
+const ROOT = path.join(__dirname, '..');
+const manifestPath = path.join(ROOT, 'build', 'version-manifest.json');
+const htmlPath = path.join(ROOT, 'index.html');
+const outputPath = path.join(ROOT, 'deploy', 'index.html');
+const buildJsDir = path.join(ROOT, 'build', 'js');
 
 if (!fs.existsSync(manifestPath)) {
     console.error('version-manifest.json not found. Run npm run build first.');
@@ -29,26 +30,32 @@ console.log('Injecting version hashes...');
 
 let replacedCount = 0;
 
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // 1. Version HTML asset references
 Object.entries(manifest.hashes).forEach(([file, hash]) => {
+    const escaped = escapeRegex(file);
+
     // CSS
-    const cssPattern = new RegExp(`href="css/${file}"`, 'g');
+    const cssPattern = new RegExp(`href="css/${escaped}"`, 'g');
     const cssMatches = html.match(cssPattern);
     if (cssMatches) {
         html = html.replace(cssPattern, `href="css/${file}?v=${hash}"`);
         replacedCount += cssMatches.length;
     }
 
-    // JS (entry point)
-    const jsPattern = new RegExp(`src="js/${file}"`, 'g');
+    // JS (script src + modulepreload href)
+    const jsPattern = new RegExp(`((?:src|href)="js/)${escaped}"`, 'g');
     const jsMatches = html.match(jsPattern);
     if (jsMatches) {
-        html = html.replace(jsPattern, `src="js/${file}?v=${hash}"`);
+        html = html.replace(jsPattern, `$1${file}?v=${hash}"`);
         replacedCount += jsMatches.length;
     }
 
     // Vendor
-    const vendorPattern = new RegExp(`src="js/vendor/${file}"`, 'g');
+    const vendorPattern = new RegExp(`src="js/vendor/${escaped}"`, 'g');
     const vendorMatches = html.match(vendorPattern);
     if (vendorMatches) {
         html = html.replace(vendorPattern, `src="js/vendor/${file}?v=${hash}"`);
@@ -68,7 +75,7 @@ if (fs.existsSync(buildJsDir)) {
         Object.entries(manifest.hashes).forEach(([targetFile, hash]) => {
             // Match: from './codec-database.js' or from"./codec-database.js"
             const importPattern = new RegExp(
-                `(from\\s*['"]\\.\\/)(${targetFile.replace('.', '\\.')})(['"])`,
+                `(from\\s*['"]\\.\\/)(${escapeRegex(targetFile)})(['"])`,
                 'g'
             );
             const newContent = content.replace(importPattern, `$1$2?v=${hash}$3`);
@@ -85,8 +92,25 @@ if (fs.existsSync(buildJsDir)) {
     });
 }
 
+// 3. Inject semantic version into HTML footer and Schema.org
+if (manifest.version) {
+    // Footer: <span id="app-version">v...</span>
+    html = html.replace(
+        /(<span id="app-version">)v[^<]+(<\/span>)/,
+        `$1v${manifest.version}$2`
+    );
+
+    // Schema.org JSON-LD: "softwareVersion": "..."
+    html = html.replace(
+        /"softwareVersion":\s*"[^"]+"/,
+        `"softwareVersion": "${manifest.version}"`
+    );
+
+    console.log(`Injected app version: v${manifest.version}`);
+}
+
 // Ensure deploy directory exists
-const deployDir = path.join(__dirname, 'deploy');
+const deployDir = path.join(ROOT, 'deploy');
 if (!fs.existsSync(deployDir)) {
     fs.mkdirSync(deployDir, { recursive: true });
 }

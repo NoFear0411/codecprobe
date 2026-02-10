@@ -43,15 +43,14 @@ jobs:
         run: npm run build
 
       - name: Inject version hashes
-        run: node inject-versions.js
+        run: node scripts/inject-versions.js
 
       - name: Prepare deploy directory
         run: |
           mkdir -p deploy/js
           cp -r css deploy/
           cp -r build/js/* deploy/js/
-          cp -r js/vendor deploy/js/
-          cp -r icons deploy/
+          cp -r icons screenshots deploy/
           cp manifest.json CNAME _headers deploy/
           cp .nojekyll deploy/
           cp sw.js LICENSE deploy/

@@ -2,6 +2,34 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.2.0] - 2026-02-10
+
+### Added
+
+- **PWA install prompt**: Chromium browsers (Chrome, Edge, Samsung Internet) get a header "Install" button via `beforeinstallprompt`. iOS/iPadOS gets a dismissible "Add to Home Screen" hint with share icon, detected via UAParser.js `deviceInfo.iOS` (handles iPadOS-as-desktop). Both paths fail gracefully in webviews, incognito mode, and unsupported browsers.
+- **Security headers**: CSP (`script-src 'self'`, `default-src 'none'`, `frame-ancestors 'none'`), Permissions-Policy (camera, microphone, geolocation, payment, USB, bluetooth, accelerometer, gyroscope disabled), X-Content-Type-Options, X-Frame-Options, Referrer-Policy, COOP added to `_headers`. Applied via Cloudflare Transform Rules (GitHub Pages ignores `_headers`).
+- **Semantic version injection**: Build reads version from `package.json` (single source of truth) and injects into SW cache name (`codecprobe-v3.2.0`), version manifest, HTML footer, and Schema.org `softwareVersion`. Replaces opaque `Date.now()` timestamps.
+- **Footer version display**: `<span id="app-version">` in footer shows current version, replaced at deploy time by `inject-versions.js`
+- **PWA manifest screenshots**: 3 theme screenshots (dark, light, retro) for richer install UI on Android/desktop
+- **192px maskable icon**: Fills adaptive icon grid on Android home screens
+- **OG image**: 1200x630 social preview image for link sharing
+- **Schema.org enriched**: `softwareVersion`, `url`, `screenshot`, `license` fields added to JSON-LD
+
+### Changed
+
+- **File reorganization**: `build.js` → `scripts/build.js`, `inject-versions.js` → `scripts/inject-versions.js`, `BUILD.md` → `docs/BUILD.md`, `SETUP.md` → `docs/SETUP.md`
+- **Release workflow**: Updated paths for scripts/ directory, screenshots copied to deploy, removed redundant vendor copy
+- **HTML head cleanup**: Added `color-scheme: dark light`, `apple-mobile-web-app-title`, proper `sizes` on apple-touch-icon and favicon.ico, removed duplicate Twitter meta tags (falls back to OG), removed `keywords` meta (ignored by search engines since 2009)
+- **Retro terminal theme**: Simplified switcher button styling — border-only instead of background tint
+- **Manifest**: Added `id: "/"` for stable PWA identity across URL changes
+
+### Removed
+
+- `css/styles.css.map` — source maps excluded from repo (added `css/*.map` to `.gitignore`)
+- `keywords` meta tag
+
+---
+
 ## [3.1.5] - 2026-02-10
 
 ### Changed

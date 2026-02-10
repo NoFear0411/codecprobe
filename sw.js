@@ -3,7 +3,7 @@
  * Cache-first for static assets, network-first for navigation
  */
 
-const CACHE_VERSION = '1770670946012';
+const CACHE_VERSION = '3.2.0';
 const CACHE_NAME = `codecprobe-v${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
@@ -23,6 +23,7 @@ const CORE_ASSETS = [
     './icons/favicon.svg',
     './icons/favicon.ico',
     './icons/icon-192.png',
+    './icons/icon-192-maskable.png',
     './icons/icon-512.png',
     './icons/icon-512-maskable.png'
 ];
@@ -71,8 +72,9 @@ self.addEventListener('fetch', (event) => {
     }
 
     // Static assets — cache first, network fallback
+    // ignoreSearch: versioned URLs (?v=hash) match precached unversioned entries
     event.respondWith(
-        caches.match(request)
+        caches.match(request, { ignoreSearch: true })
             .then(cached => {
                 if (cached) return cached;
                 return fetch(request).then(response => {

@@ -247,14 +247,8 @@
 }
 
 // Retro terminal theme switcher
-.theme-retro-terminal .theme-switcher {
-    background: rgba(0, 255, 0, 0.05);
-    border-color: var(--border);
-    box-shadow: var(--glow);
-}
-
 .theme-retro-terminal .theme-switcher-btn {
-    background-color: rgba(0, 255, 0, 0.1);
+    border-color: rgba(0, 255, 0, 0.3);
 
     &:hover {
         box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);

@@ -8,12 +8,16 @@ const fs = require('fs');
 const path = require('path');
 const { minify } = require('terser');
 
-const JS_DIR = './js';
-const BUILD_DIR = './build/js';
+const ROOT = path.join(__dirname, '..');
+const JS_DIR = path.join(ROOT, 'js');
+const BUILD_DIR = path.join(ROOT, 'build', 'js');
+
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+const appVersion = pkg.version;
 
 // Ensure build directory exists
-if (!fs.existsSync('./build')) {
-    fs.mkdirSync('./build');
+if (!fs.existsSync(path.join(ROOT, 'build'))) {
+    fs.mkdirSync(path.join(ROOT, 'build'));
 }
 if (!fs.existsSync(BUILD_DIR)) {
     fs.mkdirSync(BUILD_DIR, { recursive: true });
@@ -81,19 +85,18 @@ async function buildFiles() {
     console.log('─'.repeat(70));
     console.log(`\n✅ Production build complete! Saved ${formatBytes(totalSaved)} across ${jsFiles.length} files.\n`);
 
-    // Bundle UAParser.js
+    // Bundle UAParser.js to build output + source vendor (dev server uses source)
     console.log('📦 Bundling UAParser.js...');
-    const uaParserSource = fs.readFileSync('./node_modules/ua-parser-js/dist/ua-parser.min.js', 'utf8');
-    const vendorDir = './js/vendor';
-    const uaParserDest = path.join(vendorDir, 'ua-parser.min.js');
-
-    if (!fs.existsSync(vendorDir)) {
-        fs.mkdirSync(vendorDir, { recursive: true });
-    }
-
-    fs.writeFileSync(uaParserDest, uaParserSource);
+    const uaParserSource = fs.readFileSync(path.join(ROOT, 'node_modules/ua-parser-js/dist/ua-parser.min.js'), 'utf8');
     const uaParserSize = Buffer.byteLength(uaParserSource, 'utf8');
-    console.log(`  ✓ Copied ua-parser.min.js (${formatBytes(uaParserSize)}) to js/vendor/\n`);
+
+    for (const dir of [path.join(ROOT, 'build/js/vendor'), path.join(ROOT, 'js/vendor')]) {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        fs.writeFileSync(path.join(dir, 'ua-parser.min.js'), uaParserSource);
+    }
+    console.log(`  ✓ Bundled ua-parser.min.js (${formatBytes(uaParserSize)})\n`);
 }
 
 function formatBytes(bytes) {
@@ -116,37 +119,41 @@ function generateFileHash(filePath) {
  */
 function generateVersionManifest() {
     const manifest = {
+        version: appVersion,
         timestamp: Date.now(),
         hashes: {}
     };
 
     console.log('\n📝 Generating version manifest...');
 
-    // Hash built JS files
-    const jsFiles = ['main.js', 'codec-tester.js', 'ui-renderer.js', 'codec-database.js',
-                     'device-detection.js', 'drm-detection.js', 'theme-manager.js', 'url-state.js'];
-
-    jsFiles.forEach(file => {
-        const filePath = path.join(__dirname, 'build', 'js', file);
-        if (fs.existsSync(filePath)) {
-            manifest.hashes[file] = generateFileHash(filePath);
-        }
-    });
+    // Hash built JS files (read from build output, not hardcoded)
+    const builtJsDir = path.join(ROOT, 'build', 'js');
+    if (fs.existsSync(builtJsDir)) {
+        fs.readdirSync(builtJsDir)
+            .filter(f => f.endsWith('.js'))
+            .forEach(file => {
+                manifest.hashes[file] = generateFileHash(path.join(builtJsDir, file));
+            });
+    }
 
     // Hash CSS
-    const cssPath = path.join(__dirname, 'css', 'styles.css');
+    const cssPath = path.join(ROOT, 'css', 'styles.css');
     if (fs.existsSync(cssPath)) {
         manifest.hashes['styles.css'] = generateFileHash(cssPath);
     }
 
     // Hash vendor files
-    const vendorPath = path.join(__dirname, 'js', 'vendor', 'ua-parser.min.js');
-    if (fs.existsSync(vendorPath)) {
-        manifest.hashes['ua-parser.min.js'] = generateFileHash(vendorPath);
+    const builtVendorDir = path.join(ROOT, 'build', 'js', 'vendor');
+    if (fs.existsSync(builtVendorDir)) {
+        fs.readdirSync(builtVendorDir)
+            .filter(f => f.endsWith('.js'))
+            .forEach(file => {
+                manifest.hashes[file] = generateFileHash(path.join(builtVendorDir, file));
+            });
     }
 
     // Ensure build directory exists
-    const buildDir = path.join(__dirname, 'build');
+    const buildDir = path.join(ROOT, 'build');
     if (!fs.existsSync(buildDir)) {
         fs.mkdirSync(buildDir, { recursive: true });
     }
@@ -163,11 +170,11 @@ function generateVersionManifest() {
 }
 
 /**
- * Inject build timestamp into service worker cache version.
- * Replaces either the __BUILD_TIMESTAMP__ placeholder or a previously injected timestamp.
+ * Inject semantic version into service worker cache version.
+ * Replaces either the placeholder or a previously injected version string.
  */
-function injectSWVersion(manifest) {
-    const swPath = path.join(__dirname, 'sw.js');
+function injectSWVersion() {
+    const swPath = path.join(ROOT, 'sw.js');
     if (!fs.existsSync(swPath)) {
         console.log('\n⚠️  sw.js not found, skipping SW version injection');
         return;
@@ -176,17 +183,17 @@ function injectSWVersion(manifest) {
     const swContent = fs.readFileSync(swPath, 'utf8');
     const updated = swContent.replace(
         /const CACHE_VERSION = '([^']+)';/,
-        `const CACHE_VERSION = '${manifest.timestamp}';`
+        `const CACHE_VERSION = '${appVersion}';`
     );
     fs.writeFileSync(swPath, updated, 'utf8');
 
-    console.log(`\n🔧 Injected SW cache version: codecprobe-v${manifest.timestamp}`);
+    console.log(`\n🔧 Injected SW cache version: codecprobe-v${appVersion}`);
 }
 
 buildFiles()
     .then(() => {
         const manifest = generateVersionManifest();
-        injectSWVersion(manifest);
+        injectSWVersion();
     })
     .catch(error => {
         console.error('Build failed:', error);

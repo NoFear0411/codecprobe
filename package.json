@@ -1,6 +1,6 @@
 {
   "name": "codecprobe",
-  "version": "3.1.5",
+  "version": "3.2.0",
   "description": "Multi-API codec testing for media server enthusiasts",
   "main": "index.html",
   "scripts": {
@@ -8,18 +8,16 @@
     "serve:node": "npx http-server -p 8000 -c-1",
     "watch:css": "sass --watch scss:css --style compressed",
     "build:css": "sass scss:css --style compressed",
-    "build:js": "node build.js",
+    "build:js": "node scripts/build.js",
     "build": "npm run build:css && npm run build:js",
-    "build:deploy": "npm run build && node inject-versions.js",
+    "build:deploy": "npm run build && node scripts/inject-versions.js",
     "dev": "npm-run-all --parallel serve watch:css"
-  },
-  "dependencies": {
-    "ua-parser-js": "^2.0.9"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
     "sass": "^1.70.0",
-    "terser": "^5.46.0"
+    "terser": "^5.46.0",
+    "ua-parser-js": "^2.0.9"
   },
   "keywords": [
     "codec",
@@ -42,5 +40,5 @@
   "bugs": {
     "url": "https://github.com/nofear0411/codecprobe/issues"
   },
-  "homepage": "https://nofear0411.github.io/codecprobe/"
+  "homepage": "https://codecprobe.dev"
 }

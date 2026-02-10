@@ -27,10 +27,40 @@
       "purpose": "any"
     },
     {
+      "src": "icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "icons/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "id": "/",
+  "screenshots": [
+    {
+      "src": "screenshots/screenshot-dark.png",
+      "sizes": "2560x1237",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dark OLED theme — codec results grid"
+    },
+    {
+      "src": "screenshots/screenshot-light.png",
+      "sizes": "2560x1237",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Light theme — codec results grid"
+    },
+    {
+      "src": "screenshots/screenshot-retro.png",
+      "sizes": "2560x1237",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Retro terminal theme — codec results grid"
     }
   ],
   "categories": ["utilities", "multimedia"]

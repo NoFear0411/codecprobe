@@ -27,6 +27,7 @@ async function initialize() {
 
     const deviceInfo = await detectDeviceInfo();
     renderDeviceInfo(deviceInfo);
+    showIOSInstallHint(deviceInfo);
 
     try {
         const drmInfo = await detectDRMSupport();
@@ -125,6 +126,61 @@ function logNotableFindings(results, deviceInfo) {
     }
 
     console.log('Notable:', findings.join(' | '));
+}
+
+// PWA install prompt — must register early, before browser fires the event
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('install-btn');
+    if (btn) btn.hidden = false;
+});
+
+window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    const btn = document.getElementById('install-btn');
+    if (btn) btn.hidden = true;
+});
+
+const installBtn = document.getElementById('install-btn');
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('Install prompt:', outcome);
+        deferredPrompt = null;
+        installBtn.hidden = true;
+    });
+}
+
+/**
+ * iOS/iPadOS install hint — WebKit has no beforeinstallprompt,
+ * so show a manual "Add to Home Screen" hint.
+ * Uses UAParser.js deviceInfo (iOS flag handles iPadOS-as-desktop).
+ */
+function showIOSInstallHint(deviceInfo) {
+    if (!deviceInfo.iOS) return;
+
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+        navigator.standalone;
+    if (isStandalone) return;
+    if (localStorage.getItem('ios-install-dismissed')) return;
+
+    const hint = document.getElementById('ios-install-hint');
+    if (!hint) return;
+
+    hint.hidden = false;
+
+    const dismissBtn = document.getElementById('dismiss-ios-hint');
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+            hint.hidden = true;
+            localStorage.setItem('ios-install-dismissed', '1');
+        });
+    }
 }
 
 // ES modules execute after DOM parsing (like defer), so DOMContentLoaded is guaranteed

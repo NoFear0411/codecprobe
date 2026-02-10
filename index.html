@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="dark light">
     <meta name="description" content="Test browser codec support using canPlayType, MediaSource, and mediaCapabilities APIs. Check Dolby Vision, HEVC, AV1, DTS compatibility for Jellyfin, Plex, Emby.">
-    <meta name="keywords" content="codec test, HDR, Dolby Vision, HEVC, AV1, DTS, media capabilities, jellyfin, plex, emby, browser codec support">
     <title>CodecProbe - Multi-API Codec Testing for Media Server Enthusiasts</title>
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
-    <link rel="alternate icon" href="icons/favicon.ico">
-    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="alternate icon" type="image/x-icon" sizes="48x48" href="icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a0a0a">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="CodecProbe">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <!-- Open Graph / Social Media -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="CodecProbe - Multi-API Codec Testing">
     <meta property="og:description" content="Test browser codec support using three different APIs. Check Dolby Vision, HEVC, AV1, and DTS compatibility for your media server.">
     <meta property="og:url" content="https://codecprobe.dev">
     <meta property="og:site_name" content="CodecProbe">
+    <meta property="og:image" content="https://codecprobe.dev/screenshots/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
 
-    <!-- Twitter Card -->
+    <!-- Twitter/X falls back to OG tags for title/description/image -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CodecProbe - Multi-API Codec Testing">
-    <meta name="twitter:description" content="Test browser codec support for Jellyfin, Plex, Emby. Check HEVC, Dolby Vision, AV1, DTS compatibility.">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://codecprobe.dev">
@@ -39,14 +41,18 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "CodecProbe",
+      "url": "https://codecprobe.dev",
       "applicationCategory": "MultimediaApplication",
-      "operatingSystem": "Any (Web Browser)",
+      "operatingSystem": "Windows, macOS, Linux, Android, iOS",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
-      "description": "Browser codec testing tool using canPlayType, MediaSource, and mediaCapabilities APIs"
+      "softwareVersion": "3.2.0",
+      "description": "Browser codec testing tool using canPlayType, MediaSource, and mediaCapabilities APIs",
+      "screenshot": "https://codecprobe.dev/screenshots/og-image.png",
+      "license": "https://www.gnu.org/licenses/agpl-3.0.html"
     }
     </script>
 
@@ -67,14 +73,26 @@
 <body>
     <a href="#main-content" class="skip-link">Skip to results</a>
 
-    <!-- NEW: Canvas Container -->
+    <!-- iOS install hint (shown via JS for Safari users) -->
+    <div id="ios-install-hint" class="ios-install-hint" hidden>
+        <span>To install: tap <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> then <strong>Add to Home Screen</strong></span>
+        <button class="dismiss-btn" id="dismiss-ios-hint" aria-label="Dismiss">&times;</button>
+    </div>
+
+    <!-- Canvas Container -->
     <div class="canvas-container">
 
         <!-- Section 1: Device Information Header -->
         <header class="device-header" id="device-header">
             <div class="device-header-top">
                 <h1>CodecProbe</h1>
-                <div class="theme-switcher" id="theme-switcher" role="toolbar" aria-label="Theme selector"></div>
+                <div class="header-actions">
+                    <button id="install-btn" class="install-btn" hidden aria-label="Install CodecProbe app">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Install
+                    </button>
+                    <div class="theme-switcher" id="theme-switcher" role="toolbar" aria-label="Theme selector"></div>
+                </div>
                 <div class="subtitle">Multi-API codec testing for media server enthusiasts</div>
             </div>
 
@@ -150,7 +168,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>CodecProbe &mdash; AGPL-3.0 License</p>
+                <p>CodecProbe <span id="app-version">v3.2.0</span> &mdash; AGPL-3.0 License</p>
             </div>
         </footer>
 

@@ -12,6 +12,7 @@ claude-*.json
 
 # Build outputs (SCSS compiles to CSS)
 # Keep css/styles.css committed for zero-config deployment
+css/*.map
 
 # OS
 .DS_Store

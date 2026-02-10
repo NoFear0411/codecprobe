@@ -220,6 +220,7 @@ npm run dev        # Dev server + SCSS file watcher
 codecprobe/
 ├── index.html                 # Single-page application
 ├── sw.js                      # Service worker (offline PWA)
+├── manifest.json              # PWA manifest
 ├── css/styles.css             # Compiled from SCSS (all themes)
 ├── scss/
 │   ├── styles.scss            # Main stylesheet
@@ -232,15 +233,21 @@ codecprobe/
 │   ├── ui-renderer.js         # Card rendering, filters, search, education panel
 │   ├── theme-manager.js       # Theme switching (Dark OLED / Light / Retro Terminal)
 │   ├── url-state.js           # URL state management
-│   ├── main.js                # Initialization orchestrator
+│   ├── main.js                # Initialization orchestrator + PWA install
 │   └── vendor/
 │       └── ua-parser.min.js   # Bundled UAParser.js v2.0.9
+├── icons/                     # Favicons + PWA icons (any + maskable)
+├── screenshots/               # OG image + PWA install screenshots
 ├── scripts/
+│   ├── build.js               # Terser minification + UAParser bundling
+│   ├── inject-versions.js     # Cache-busting version hashes for deploy
 │   ├── db-tool.mjs            # Database CLI — add, inspect, inject, patch, verify
 │   └── lib/
 │       ├── reader.mjs         # Database import and query functions
 │       └── writer.mjs         # Source formatter, inject/replace/add operations
-├── BUILD.md                   # Build system documentation
+├── docs/
+│   ├── BUILD.md               # Build system documentation
+│   └── SETUP.md               # Deployment guide
 ├── CLAUDE.md                  # AI assistant context
 └── README.md
 ```
