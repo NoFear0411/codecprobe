@@ -2,6 +2,16 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.3.0] - 2026-02-10
+
+### Changed
+
+- **Streaming group consolidated**: Eliminated the separate `streaming_hls` group (25 entries). 7 unique entries (MPEG-TS, SDR HEVC, VP9 P2 HDR) moved to their codec groups; 18 duplicate-codec entries merged (education preserved into main entries). Codec groups now contain all container variants (MP4, MKV, WebM, MPEG-TS) for that codec.
+- **Element selection**: `canPlayType()` element now based on MIME prefix (`video/` → `<video>`) instead of group type. Fixes MPEG-TS audio entries (`video/mp2t`) that moved to `audio_` groups.
+- **Database**: 256 → 238 entries, 14 → 13 groups. Education merged from streaming entries into 7 main codec entries (streaming manifests, platform notes).
+
+---
+
 ## [3.2.1] - 2026-02-10
 
 ### Changed

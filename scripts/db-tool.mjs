@@ -48,7 +48,6 @@ const GROUP_REFS = {
     audio_lossless:      [],
     audio_standard:      [],
     audio_mpeg_h:        [{ title: 'ISO/IEC 23008-3' }],
-    streaming_hls:       [{ title: 'RFC 8216' }],
 };
 
 const CODEC_TAG_REFS = {
@@ -252,9 +251,6 @@ const MIME_TO_GROUP = {
 };
 
 function detectGroup(entry) {
-    // Streaming entries (media-source type) go to streaming group
-    if (entry.mediaConfig?.type === 'media-source') return 'streaming_hls';
-
     const { mime, string } = parseCodecField(entry.codec);
     const tag = string ? string.split('.')[0] : '';
 

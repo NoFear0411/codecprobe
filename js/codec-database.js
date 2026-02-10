@@ -1,31 +1,27 @@
 /**
- * Codec Test Database — 256 tests · 14 groups · 17 MIME types · 129 education entries
+ * Codec Test Database — 238 tests · 13 groups · 17 MIME types · 115 education entries
  *
  * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
- * │ VIDEO CODECS                                                                   142 tests total   │
+ * │ VIDEO CODECS                                                                   149 tests total   │
  * ├────────────────────┬───────┬────────┬──────────────┬──────────────────────────────┬──────────────┤
  * │ Group              │ Tests │   Line │ Category     │ Containers                   │ Edu / Platf. │
  * ├────────────────────┼───────┼────────┼──────────────┼──────────────────────────────┼──────────────┤
- * │ video_hevc         │    23 │     17 │ HEVC/H.265   │ MP4 · MKV · MOV              │ 23 │ A L G   │
- * │ video_dolby_vision │    33 │    659 │ Dolby Vision │ MP4 · MKV · MOV              │ 33 │ A L G   │
- * │ video_av1          │    26 │   1932 │ AV1          │ MP4 · MKV · WebM · MOV       │ 10 │ A L G   │
- * │ video_vp9          │    20 │   2595 │ VP9          │ WebM · MP4 · MKV             │  6 │ A L G   │
- * │ video_avc          │    20 │   3063 │ AVC/H.264    │ MP4 · MKV · MOV · WebM       │ 10 │         │
- * │ video_vvc          │     8 │   3566 │ VVC/H.266    │ MP4 · MKV                    │  3 │         │
- * │ video_vp8          │     5 │   6536 │ VP8          │ WebM · MKV                   │  1 │         │
- * │ video_legacy       │     9 │   6636 │ Legacy       │ OGG · MP4 · MKV · 3GP        │  4 │         │
+ * │ video_hevc         │    25 │     86 │ HEVC/H.265   │ MP4 · MKV · MOV · MPEG-TS    │ 25 │ A L G   │
+ * │ video_dolby_vision │    33 │   1073 │ Dolby Vision │ MP4 · MKV · MOV              │ 33 │ A L G   │
+ * │ video_av1          │    26 │   2415 │ AV1          │ MP4 · MKV · WebM · MOV       │ 11 │ A L G   │
+ * │ video_vp9          │    21 │   3131 │ VP9          │ WebM · MP4 · MKV             │  7 │ A L G   │
+ * │ video_avc          │    22 │   3645 │ AVC/H.264    │ MP4 · MKV · MOV · WebM · TS  │ 13 │ G       │
+ * │ video_vvc          │     8 │   4307 │ VVC/H.266    │ MP4 · MKV                    │  3 │         │
+ * │ video_vp8          │     5 │   6123 │ VP8          │ WebM · MKV                   │  1 │         │
+ * │ video_legacy       │     9 │   6223 │ Legacy       │ OGG · MP4 · MKV · 3GP        │  4 │         │
  * ├────────────────────┴───────┴────────┴──────────────┴──────────────────────────────┴──────────────┤
- * │ STREAMING FORMATS                                                                25 tests total  │
+ * │ AUDIO CODECS                                                                    89 tests total   │
  * ├────────────────────┬───────┬────────┬──────────────┬──────────────────────────────┬──────────────┤
- * │ streaming_hls      │    25 │   3764 │ HLS/DASH     │ fMP4 · CMAF · MPEG-TS · DASH │ 25 │ A L G   │
- * ├────────────────────┴───────┴────────┴──────────────┴──────────────────────────────┴──────────────┤
- * │ AUDIO CODECS                                                                    87 tests total   │
- * ├────────────────────┬───────┬────────┬──────────────┬──────────────────────────────┬──────────────┤
- * │ audio_dolby        │    17 │   5038 │ Dolby Audio  │ MP4 · MKV · MOV · fMP4       │  4 │         │
- * │ audio_dts          │    15 │   5361 │ DTS Audio    │ MP4 · MKV · fMP4             │  2 │         │
- * │ audio_lossless     │    27 │   5624 │ Lossless     │ MKV·MP4·FLAC·WAV·AIFF·OGG…   │  4 │         │
- * │ audio_standard     │    24 │   6093 │ Standard     │ MP4·MKV·AAC·MP3·OGG·MOV…     │  5 │         │
- * │ audio_mpeg_h       │     4 │   6845 │ MPEG-H 3D    │ MP4 · MKV                    │  1 │         │
+ * │ audio_dolby        │    18 │   4504 │ Dolby Audio  │ MP4 · MKV · MOV · MPEG-TS    │  5 │ A L G   │
+ * │ audio_dts          │    15 │   4889 │ DTS Audio    │ MP4 · MKV · fMP4             │  2 │         │
+ * │ audio_lossless     │    27 │   5152 │ Lossless     │ MKV·MP4·FLAC·WAV·AIFF·OGG…   │  4 │         │
+ * │ audio_standard     │    25 │   5621 │ Standard     │ MP4·MKV·AAC·MP3·OGG·MOV·TS   │  6 │ G       │
+ * │ audio_mpeg_h       │     4 │   6432 │ MPEG-H 3D    │ MP4 · MKV                    │  1 │         │
  * └────────────────────┴───────┴────────┴──────────────┴──────────────────────────────┴──────────────┘
  *   Platforms: A = Apple (Safari/iOS/tvOS)  L = LG (webOS)  G = Android (Chrome/ExoPlayer)
  *
@@ -36,7 +32,7 @@
  * │ Dolby Vision     │ Profiles 4/5/7/8.1/8.2/8.4/9/10 · dvh1/dvhe/dva1/dav1 · Supplemental RPU      │
  * │ AV1              │ Main/High/Professional · 8/10/12-bit · HDR10/HLG · L4.0–L6.1                  │
  * │ VP9              │ Profiles 0/2/3 · 8/10/12-bit · HDR · L1.0–L6.1                                │
- * │ AVC/H.264        │ Baseline/Main/High · L3.0–L5.1 · 4:2:0 8-bit                                  │
+ * │ AVC/H.264        │ Baseline/Main/High/High10 · L3.0–L5.1 · 4:2:0 8/10-bit · MPEG-TS              │
  * │ VVC/H.266        │ Main 10 (vvc1/vvi1) · L3.1–L6.2 · 4K–8K                                       │
  * │ VP8              │ 720p/1080p · WebM/MKV                                                         │
  * │ Legacy           │ Theora (OGG) · MPEG-4 Part 2 (mp4v) · H.263 (3GP)                             │
@@ -46,8 +42,6 @@
  * │ Lossless         │ FLAC (2ch/5.1/CD/Hi-Res) · ALAC · Opus · PCM 16/24-bit 44.1–192kHz            │
  * │ Standard         │ AAC-LC · HE-AAC v1/v2 · xHE-AAC · AAC-ELD · AAC-LD · MP3 · Vorbis             │
  * │ MPEG-H 3D        │ Baseline/LC profiles · Levels 1–5 · mhm1/mhm2                                 │
- * ├──────────────────┼───────────────────────────────────────────────────────────────────────────────┤
- * │ Streaming        │ HLS fMP4 · DASH · CMAF · MPEG-TS │ HEVC/H.264/AV1/VP9/DV/EAC3/AAC             │
  * └──────────────────┴───────────────────────────────────────────────────────────────────────────────┘
  *
  * ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -977,6 +971,95 @@ sdr_1080p.m3u8`,
                             { title: 'ISO/IEC 14496-15 Annex E' }
                         ]
                     }
+            },
+            // MPEG-TS container
+            {
+                name: "HEVC Main 10 (4K HDR MPEG-TS)",
+                codec: 'video/mp2t; codecs="hvc1.2.4.L153.B0"',
+                container: "MPEG-TS",
+                info: "HEVC in transport stream",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp2t; codecs="hvc1.2.4.L153.B0"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 25000000,
+                        framerate: 24,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp2t',
+                        string: 'hvc1.2.4.L153.B0',
+                        parts: [
+                            { token: 'hvc1', meaning: 'HEVC codec in MPEG Transport Stream. TS uses Annex B byte stream format for HEVC NALUs (start codes), unlike fMP4 which uses length-prefixed format. This is why FFmpeg uses -bsf:v hevc_mp4toannexb when outputting to MPEG-TS' },
+                            { token: '2', meaning: 'profile_idc = 2 = Main 10 Profile. 10-bit depth for HDR content' },
+                            { token: '4', meaning: 'Profile compatibility flags for Main 10' },
+                            { token: 'L153', meaning: 'Level 5.1 — supports 4096x2160 @ 60fps. The "L" prefix with level_idc*3 = 153' },
+                            { token: 'B0', meaning: 'Constraint indicator flags' }
+                        ]
+                    },
+                    overview: "HEVC 4K HDR in MPEG Transport Stream. MPEG-TS was the original HLS segment format (before fMP4 was added in HLS version 7). HEVC in TS uses Annex B NAL unit format with start codes (0x00000001) — this is where the hevc_mp4toannexb BSF becomes necessary. For HLS, Apple now recommends fMP4 over TS for HEVC content because fMP4 supports the EXT-X-MAP init segment pattern needed for efficient adaptive bitrate switching. MPEG-TS HEVC HLS is still used by some IPTV systems and older streaming infrastructure.",
+                    streaming: {
+                        hls: {
+                            m3u8: '#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:6\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:6.006,\nseg0.ts\n#EXTINF:6.006,\nseg1.ts\n#EXT-X-ENDLIST',
+                            notes: 'HEVC in MPEG-TS for HLS. EXT-X-VERSION:3 per RFC 8216 — no EXT-X-MAP needed (that requires Version 6+, Section 4.3.2.5). Each TS segment is self-contained with PAT/PMT/PES headers. The HEVC stream uses Annex B format with start codes (0x00000001). For HDR10, HEVC SEI messages (mastering display color volume, content light level) must repeat in every TS segment for random access — unlike fMP4 where they live once in the init segment.'
+                        }
+                    },
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HEVC in MPEG-TS for HLS streaming. HEVC hardware decode requires Android 5.0+ with MediaCodec HEVCProfileMain10HDR10 for HDR content. MPEG-TS carries HEVC via stream type 0x24 (ITU-T H.265). ExoPlayer extracts HEVC NALUs from PES packets. Note: MPEG-TS is supported in HLS and progressive playback but NOT in DASH.'
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
+                    ]
+                }
+            },
+            // SDR streaming variant
+            {
+                name: "HEVC Main (SDR 1080p Level 4.0)",
+                codec: 'video/mp4; codecs="hvc1.1.6.L120.B0"',
+                container: "MP4",
+                info: "SDR HEVC Level 4.0",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp4; codecs="hvc1.1.6.L120.B0"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 5000000,
+                        framerate: 24
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp4',
+                        string: 'hvc1.1.6.L120.B0',
+                        parts: [
+                            { token: 'hvc1', meaning: 'HEVC with parameter sets in sample entry. Apple HLS mandates hvc1 over hev1' },
+                            { token: '1', meaning: 'Main Profile (profile_idc=1). 8-bit 4:2:0 SDR — no HDR metadata' },
+                            { token: '6', meaning: 'Profile compatibility: Main + Main 10 backward-compatible' },
+                            { token: 'L120', meaning: 'Level 4.0, Main Tier. 120 = 4.0 x 30. Supports 1080p@60fps or 2K@30fps. Max bitrate 12 Mbps Main Tier' },
+                            { token: 'B0', meaning: 'No additional constraint flags' }
+                        ]
+                    },
+                    overview: "SDR HEVC via HLS fills the gap between H.264 (universal but lower compression) and HEVC HDR (higher quality but requires HDR display). For 1080p SDR content, HEVC Main Profile offers ~40% bitrate savings over H.264 High Profile at equivalent quality\n\nThis is the variant Apple TV+ uses for SDR catalog content on HEVC-capable devices. No VIDEO-RANGE attribute is needed in the HLS manifest (SDR is the default). The absence of transferFunction and colorGamut in mediaConfig means the browser's mediaCapabilities API evaluates this as pure SDR — no HDR pipeline activation, no tone mapping overhead",
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HEVC SDR in HLS fMP4. HEVC hardware decode on Android 5.0+ via MediaCodec. SDR HEVC uses HEVCProfileMain (8-bit) or HEVCProfileMain10 (10-bit SDR for banding reduction). ExoPlayer reads hvc1 CODECS from the HLS playlist. Widevine DRM: cenc (API 19+), cbcs (API 25+). HLS HEVC is common for Jellyfin/Plex direct play to Android clients — avoids transcoding when the device has HEVC hardware decode.'
+                    },
+                    references: [
+                        { title: 'ISO/IEC 23008-2' },
+                        { title: 'ISO/IEC 14496-15 Annex E' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
+                    ]
+                }
             }
         ]
     },
@@ -2400,6 +2483,34 @@ stream_hdr10.m3u8`,
                         ]
                     },
                     overview: 'HDR10 signaling in AV1 differs from HEVC: the codec string itself does not encode transfer function or color gamut. Instead, HDR metadata lives in the AV1 bitstream OBU (color_config in sequence_header) and in the mediaCapabilities API request via transferFunction and colorGamut parameters. The same codec string "av01.0.08M.10" is used for both SDR 10-bit and HDR10 — the browser distinguishes them based on the mediaConfig properties.',
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:7
+#EXT-X-INDEPENDENT-SEGMENTS
+
+#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
+av1_4k_hdr/playlist.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="hvc1.2.4.L153.B0",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
+hevc_4k_hdr/playlist.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="avc1.640028",RESOLUTION=1920x1080,FRAME-RATE=24.000
+h264_1080/playlist.m3u8`,
+                            notes: 'AV1 HLS with codec fallback ladder: AV1 at lower bandwidth than HEVC for the same resolution (compression advantage). AV1-capable devices select the first variant. Non-AV1 devices fall through to HEVC, then H.264. VIDEO-RANGE=PQ on both AV1 and HEVC variants signals HDR. Apple requires AV1 hardware decode (A15+ chip, M1+ Mac) — older devices skip the AV1 variant automatically.'
+                        },
+                        dash: {
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10"
+    segmentAlignment="true">
+  <SegmentTemplate timescale="24000"
+    initialization="av1_4k/init.mp4"
+    media="av1_4k/seg_$Number$.m4s"/>
+  <Representation id="av1_4k" bandwidth="15000000"
+    width="3840" height="2160" frameRate="24000/1000"/>
+</AdaptationSet>`,
+                            notes: 'DASH AV1: Standard AdaptationSet with AV1 codec string. DASH players (Shaka, dash.js, ExoPlayer) check device AV1 capability via MSE isTypeSupported before selecting this AdaptationSet. If AV1 is unsupported, the player falls back to an HEVC or H.264 AdaptationSet in the same Period.'
+                        }
+                    },
                     platforms: {
                         apple: 'AV1 HDR10 decode on A17 Pro+ and M3+. Safari passes transferFunction:"pq" to mediaCapabilities correctly. QuickTime/MOV container support for AV1 HDR added in macOS Sonoma.',
                         android: 'HDR10 AV1 requires hardware decoder with HDR10 profile support. Check MediaCodecInfo.CodecCapabilities for HDR10 profile flag. Not all AV1-capable SoCs support the HDR10 profile.',
@@ -2408,9 +2519,13 @@ stream_hdr10.m3u8`,
                     references: [
                         { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
                         { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
                         { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
                         { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 },
                 mediaConfig: {
@@ -2460,6 +2575,27 @@ stream_hdr10.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020'
                     }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/webm',
+                        string: 'av01.0.08M.10',
+                        parts: [
+                            { token: 'av01', meaning: 'AV1 codec identifier' },
+                            { token: '0', meaning: 'Profile 0 (Main) — 8 or 10-bit 4:2:0' },
+                            { token: '08M', meaning: 'Level 4.0, Main tier. Supports 2048x1536 @ 30fps or 4096x2160 @ 30fps' },
+                            { token: '10', meaning: '10-bit color depth for HDR content' }
+                        ]
+                    },
+                    overview: "AV1 HDR in WebM container. This tests AV1 HDR delivery in Google's preferred container format. YouTube serves AV1 HDR in WebM for Chrome — the same codec in MP4 containers targets Safari and TV platforms. The WebM container supports AV1 natively (unlike HEVC, which WebM does not support). For DASH MPD signaling, WebM AV1 uses the same codec string as MP4 AV1 — only the container MIME type changes. This test reveals whether MSE implementations support AV1 HDR specifically in WebM (some support AV1 SDR in WebM but not HDR).",
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AV1 DASH in WebM containers — uses Matroska-based segments instead of ISO BMFF. Same hardware requirements as AV1 in fMP4 (Snapdragon 888+, Dimensity 9000+). WebM AV1 DASH is less common than fMP4 AV1 DASH in production but YouTube uses it. ExoPlayer handles both container formats transparently. No DRM for WebM containers in DASH — Widevine requires fMP4.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
+                    ]
                 }
             },
             // High profile/tier
@@ -3266,9 +3402,13 @@ stream_hdr10.m3u8`,
                         ]
                     },
                     overview: 'This tests the same Profile 0 capability as bare "vp9" but using the explicit vp09.PP.LL.DD format. Some browsers handle the two forms differently — canPlayType may return "probably" for bare "vp9" but "maybe" or empty for "vp09.00.21.08" in WebM, because the ISOBMFF binding form was not part of the original WebM specification. This discrepancy reveals whether the browser treats the two strings as equivalent or applies different parsing logic.',
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports VP9 Profile 0 DASH in WebM. VP9 Profile 0 (8-bit SDR) is hardware-decoded on virtually all Android devices from 2015+ (Snapdragon 800+ era). YouTube serves VP9 SDR as the default adaptive format on Android Chrome. ExoPlayer automatically adapts between VP9 Representations in the DASH MPD based on bandwidth and device capability.'
+                    },
                     references: [
                         { title: 'VP9 Bitstream & Decoding Process Spec' },
-                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
                     ]
                 },
                 mediaConfig: {
@@ -3450,6 +3590,48 @@ stream_hdr10.m3u8`,
                         colorGamut: 'rec2020'
                     }
                 }
+            },
+            // DASH WebM container
+            {
+                name: "VP9 Profile 2 (4K HDR WebM)",
+                codec: 'video/webm; codecs="vp09.02.10.10"',
+                container: "WebM",
+                info: "10-bit HDR WebM DASH",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/webm; codecs="vp09.02.10.10"',
+                        width: 3840,
+                        height: 2160,
+                        bitrate: 20000000,
+                        framerate: 60,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020'
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/webm',
+                        string: 'vp09.02.10.10',
+                        parts: [
+                            { token: 'vp09', meaning: 'VP9 with full profile/level/depth string' },
+                            { token: '02', meaning: 'Profile 2: 10-bit 4:2:0 HDR capable' },
+                            { token: '10', meaning: 'Level 1.0: Covers up to 4K@30fps in VP9 level numbering' },
+                            { token: '10', meaning: '10-bit depth: Required for PQ/HLG HDR' }
+                        ]
+                    },
+                    overview: "VP9 HDR via DASH in WebM container is the YouTube legacy HDR format. Before AV1 hardware decode became widespread (2021+), VP9 Profile 2 was the only royalty-free way to stream 4K HDR. YouTube still serves VP9 HDR to devices that lack AV1 hardware decode\n\nThe WebM container in DASH uses Matroska-based segments (not ISO BMFF). This means VP9 WebM DASH and VP9 MP4 DASH have different segment formats despite carrying the same codec. Chrome supports both, Firefox supports both, Safari supports neither (no VP9). For Jellyfin, VP9 DASH is useful for Chrome/Firefox clients without HEVC support",
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports VP9 DASH in WebM containers. VP9 Profile 2 (10-bit HDR) hardware decode on Snapdragon 835+ (2017), Exynos 9810+ (2018). YouTube uses VP9 DASH as the primary 4K HDR format on Android. ExoPlayer checks VP9Profile2 via MediaCodecInfo.CodecCapabilities for HDR capability. DASH supports WebM segments natively — Matroska-based, not ISO BMFF. Widevine DRM: cenc (API 19+), cbcs (API 25+).'
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream & Decoding Process Spec' },
+                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
+                    ]
+                }
             }
         ]
     },
@@ -3485,9 +3667,32 @@ stream_hdr10.m3u8`,
                         ]
                     },
                     overview: "AVC codec strings are 6 hex characters — three bytes concatenated: profile_idc + constraint_flags + level_idc. Unlike AV1/VP9 (dot-separated decimal), AVC uses raw hex from the SPS NAL unit\n\nHigh Profile is the de facto standard for 1080p content. Netflix, YouTube, and Apple HLS all mandate High for HD streams. Baseline is reserved for low-latency videoconferencing and legacy mobile\n\nEvery browser and hardware decoder shipping since ~2012 supports High Profile Level 5.1. It's the safest codec string for maximum compatibility — if this fails, the device can't play H.264 at all",
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:7
+#EXT-X-TARGETDURATION:6
+#EXT-X-MAP:URI="init_h264.mp4"
+
+#EXTINF:6.006,
+seg_h264_0.m4s
+#EXTINF:6.006,
+seg_h264_1.m4s
+#EXTINF:6.006,
+seg_h264_2.m4s
+#EXT-X-ENDLIST`,
+                            notes: 'H.264 HLS fMP4 media playlist: EXT-X-MAP references the init segment (moov box with avcC configuration). 6-second segments are the Apple-recommended duration for VOD. This playlist is referenced from the master playlist as the lowest-capability variant — players that cannot handle HEVC or AV1 variants select this one.'
+                        }
+                    },
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HLS fMP4 with H.264 on all Android versions. H.264 Baseline/Main/High profiles are universally hardware-decoded — MediaCodecList reports AVC decoders on every Android device since 3.0. Widevine DRM: cenc (API 19+), cbcs (API 25+). HLS is the most reliable streaming format on Android for H.264 content. ExoPlayer uses chunkless preparation by default (reads codec info from the multivariant playlist CODECS attribute without downloading media segments).'
+                    },
                     references: [
                         { title: 'ITU-T H.264' },
-                        { title: 'ISO/IEC 14496-15' }
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -3706,6 +3911,46 @@ stream_hdr10.m3u8`,
                         bitrate: 5000000,
                         framerate: 30
                     }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp4',
+                        string: 'avc1.640028',
+                        parts: [
+                            { token: 'avc1', meaning: 'AVC/H.264 in ISO BMFF. For DASH, the codec string is declared in the MPD AdaptationSet codecs= attribute' },
+                            { token: '64', meaning: 'profile_idc 0x64 = High Profile. Standard for 1080p streaming' },
+                            { token: '00', meaning: 'constraint_set flags: no additional constraints' },
+                            { token: '28', meaning: 'level_idc 0x28 = Level 4.0. Supports 1080p@30fps, max bitrate 20 Mbps' }
+                        ]
+                    },
+                    overview: "H.264 DASH is the universal baseline for adaptive streaming. Every MSE-capable browser supports H.264 in fMP4 via DASH — it's the one codec+container+protocol combination guaranteed to work everywhere. YouTube originally used H.264 DASH before migrating to VP9 and AV1\n\nFor Jellyfin/Plex, H.264 DASH is the safe fallback when the client doesn't support HEVC or AV1. DASH manifest generation is straightforward: one AdaptationSet with multiple Representations at different bitrates/resolutions. The Shaka Packager (Google's DASH/HLS tool) generates H.264 DASH from any H.264 source with zero transcoding (just remuxing to fMP4)",
+                    streaming: {
+                        dash: {
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="avc1.640028"
+    segmentAlignment="true">
+  <SegmentTemplate timescale="30000"
+    initialization="h264_1080/init.mp4"
+    media="h264_1080/seg_$Number$.m4s"/>
+  <Representation id="1080p" bandwidth="5000000"
+    width="1920" height="1080" frameRate="30000/1000"/>
+  <Representation id="720p" bandwidth="2500000"
+    width="1280" height="720" frameRate="30000/1000"/>
+  <Representation id="480p" bandwidth="1000000"
+    width="854" height="480" frameRate="30000/1000"/>
+</AdaptationSet>`,
+                            notes: 'H.264 DASH ABR ladder: Multiple Representations in one AdaptationSet. The DASH player (Shaka/dash.js) switches between Representations based on network bandwidth. All Representations share the same SegmentTemplate — only the init segment and segment content differ per resolution. segmentAlignment=true enables seamless switching between quality levels.'
+                        }
+                    },
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports H.264 DASH in fMP4 containers. H.264 is universally hardware-decoded on Android — MediaCodec reports AVC decoders on every device. Widevine DRM: cenc (API 19+), cbcs (API 25+). ClearKey API 21+ (cenc only). PlayReady SL2000 on Android TV only. ExoPlayer automatically adapts between Representations based on bandwidth. DASH H.264 is the safest streaming choice for maximum Android device compatibility.'
+                    },
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'ISO/IEC 23009-1' },
+                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
+                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
+                    ]
                 }
             },
             {
@@ -3953,6 +4198,102 @@ stream_hdr10.m3u8`,
                         { title: 'ISO/IEC 14496-15' }
                     ]
                 }
+            },
+            // MPEG-TS container
+            {
+                name: "H.264 High (1080p MPEG-TS)",
+                codec: 'video/mp2t; codecs="avc1.640028"',
+                container: "MPEG-TS",
+                info: "Legacy HLS transport stream",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp2t; codecs="avc1.640028"',
+                        width: 1920,
+                        height: 1080,
+                        bitrate: 5000000,
+                        framerate: 30
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        string: 'avc1.640028',
+                        parts: [
+                            { token: 'avc1.640028', meaning: 'H.264 High L4.0: Standard H.264 codec string inside an MPEG Transport Stream container (video/mp2t). The codec string is identical regardless of container — what changes is the MIME type and the segment structure' }
+                        ]
+                    },
+                    overview: "MPEG-TS (MPEG Transport Stream, ISO/IEC 13818-1) was the original HLS container. When Apple introduced HLS in 2009, it chose MPEG-TS because it was already used in DVB broadcasting and supported mid-stream joining (no init segment needed — each .ts segment is self-contained)\n\nHLS versions 1-6 used .ts segments exclusively. HLS v7 (2017) added fMP4 support via the EXT-X-MAP tag. Apple now recommends fMP4 for new content (better seek precision, smaller overhead, CMAF compatibility) but MPEG-TS remains in production for backwards compatibility with older Apple TVs and iOS devices\n\nMSE support for video/mp2t is browser-specific: Safari supports it natively (required for HLS playback). Chrome supports it via the MSE Transmuxer (converts TS→fMP4 client-side). Firefox has limited TS support. For Jellyfin/Plex, this means H.264 in TS streams may work in Safari but need remuxing to fMP4 for Chrome",
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:10
+#EXT-X-MEDIA-SEQUENCE:0
+
+#EXTINF:10.0,
+segment_000.ts
+#EXTINF:10.0,
+segment_001.ts
+#EXTINF:10.0,
+segment_002.ts
+#EXT-X-ENDLIST`,
+                            notes: 'Legacy MPEG-TS HLS: VERSION:3 (no fMP4 support needed). Each .ts segment is self-contained — no separate init segment required (unlike fMP4 which needs EXT-X-MAP). The MPEG-TS container includes PAT/PMT tables and PES headers in every segment, making segments joinable mid-stream but adding ~5% overhead vs fMP4. Jellyfin generates TS segments by default for HLS transcoding because ffmpeg TS muxing is faster than fMP4 muxing.'
+                        }
+                    },
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports HLS with MPEG-TS segments — the legacy HLS container format. H.264 in MPEG-TS is universally supported on Android. ExoPlayer extracts H.264 NALUs from the MPEG-TS PES packets and feeds them to MediaCodec. AES-128 encryption supported for MPEG-TS HLS. CEA-608/708 closed captions extracted from the H.264 SEI messages. Note: MPEG-TS is NOT supported in DASH on ExoPlayer — only in HLS.'
+                    },
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
+                    ]
+                }
+            },
+            {
+                name: "H.264 Baseline (720p MPEG-TS)",
+                codec: 'video/mp2t; codecs="avc1.42E01E"',
+                container: "MPEG-TS",
+                info: "Baseline TS for mobile HLS",
+                mediaConfig: {
+                    type: 'media-source',
+                    video: {
+                        contentType: 'video/mp2t; codecs="avc1.42E01E"',
+                        width: 1280,
+                        height: 720,
+                        bitrate: 2000000,
+                        framerate: 30
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp2t',
+                        string: 'avc1.42E01E',
+                        parts: [
+                            { token: 'avc1', meaning: 'H.264/AVC codec' },
+                            { token: '42', meaning: 'profile_idc = 66 = Baseline Profile. No B-frames, no CABAC — maximum device compatibility at the cost of compression efficiency' },
+                            { token: 'E0', meaning: 'Constraint flags: constraint_set0_flag=1, constraint_set1_flag=1 (Constrained Baseline). The E0 byte indicates this is Constrained Baseline, which is a proper subset of both Baseline and Main profiles' },
+                            { token: '1E', meaning: 'level_idc = 30 = Level 3.0. Supports 720x576 @ 25fps or 720x480 @ 30fps. Targets mobile devices and low-bandwidth HLS' }
+                        ]
+                    },
+                    overview: "The mobile-friendly HLS baseline. MPEG-TS with H.264 Constrained Baseline is the lowest common denominator for HLS streaming — supported by every HLS-capable device. Apple originally required this as a mandatory fallback in HLS master playlists (the \"MUST\" variant for cellular). No B-frames means lower latency, and no CABAC means simpler hardware decoders. Modern HLS has relaxed the Baseline requirement, but many CDNs still include a Baseline 720p variant for maximum reach.",
+                    streaming: {
+                        hls: {
+                            m3u8: '#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:10.000,\nseg0.ts\n#EXTINF:10.000,\nseg1.ts\n#EXT-X-ENDLIST',
+                            notes: 'MPEG-TS HLS uses EXT-X-VERSION:3 per RFC 8216 — no fMP4 features needed. Version 6+ enables EXT-X-MAP for fMP4 init segments (Section 4.3.2.5); TS playlists don\'t use EXT-X-MAP. Apple now recommends fMP4 (Version 7) over TS for new deployments, but TS Baseline 720p remains required for maximum device reach. Each .ts segment is self-contained with PAT/PMT tables — no separate init segment required.'
+                        }
+                    },
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports H.264 Baseline Profile in MPEG-TS HLS. Baseline Profile is the most compatible H.264 variant — hardware decode available on every Android device since Android 3.0 (API 11). Mobile HLS streams commonly use Baseline for maximum device compatibility. ExoPlayer handles the MPEG-TS demux internally and supports AES-128 encryption.'
+                    },
+                    references: [
+                        { title: 'ITU-T H.264' },
+                        { title: 'ISO/IEC 14496-15' },
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
+                    ]
+                }
             }
         ]
     },
@@ -4152,1365 +4493,6 @@ stream_hdr10.m3u8`,
             }
         ]
     },
-
-    // ==================== STREAMING FORMATS ====================
-
-    streaming_hls: {
-        category: "HLS/DASH Streaming",
-        tests: [
-            // HLS fMP4 with HEVC
-            {
-                name: "HLS fMP4 HEVC (4K HDR)",
-                codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
-                container: "fMP4",
-                info: "Apple HLS fragmented",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 25000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    overview: 'HLS (HTTP Live Streaming) with fragmented MP4 (fMP4) containers enables adaptive bitrate streaming for HEVC content. Unlike traditional MP4, fMP4 splits video into small segments (typically 2-10 seconds) allowing real-time streaming and bitrate adaptation. This test uses type: "media-source" to verify MSE (Media Source Extensions) API support, which Jellyfin/Plex/Emby require for in-browser transcoding and direct play.',
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:6
-#EXT-X-TARGETDURATION:10
-#EXT-X-MEDIA-SEQUENCE:0
-
-#EXTINF:10.0,
-segment_0.m4s
-#EXTINF:10.0,
-segment_1.m4s
-#EXTINF:10.0,
-segment_2.m4s
-#EXT-X-ENDLIST`,
-                            notes: 'Media playlist (.m3u8) references .m4s segment files. Each segment is a self-contained fMP4 with moof+mdat boxes. Requires separate init segment (init.mp4) with moov box. EXT-X-VERSION:6 minimum per RFC 8216 Section 4.3.2.5 enables EXT-X-MAP for fMP4 init segments. Version 7 adds EXT-X-DATERANGE for SCTE-35 markers. Apple recommends Version 7 for all new fMP4 HLS deployments.'
-                        },
-                        dash: {
-                            mpd: `<Period>
-  <AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0" segmentAlignment="true">
-    <SegmentTemplate timescale="1000" initialization="init.mp4" media="segment_$Number$.m4s" startNumber="0">
-      <SegmentTimeline>
-        <S t="0" d="10000" r="2"/>
-      </SegmentTimeline>
-    </SegmentTemplate>
-    <Representation bandwidth="25000000" width="3840" height="2160"/>
-  </AdaptationSet>
-</Period>`,
-                            notes: 'DASH uses same fMP4 container as HLS (CMAF-compatible). SegmentTemplate with initialization specifies init segment, media template for numbered segments. timescale="1000" means milliseconds. DASH has better multi-codec support than HLS but less Apple ecosystem integration.'
-                        }
-                    },
-                    platforms: {
-                        apple: 'Safari/WebKit has native HLS support with fMP4 since iOS 10+/macOS 10.12+. MSE API support added in iOS 17.1+/macOS Sonoma for web apps. Native HLS playback (via video.src) bypasses MSE and uses system decoder, offering better battery efficiency. Web apps using MSE (like Jellyfin web) require iOS 17.1+.',
-                        lg: 'webOS supports MSE + HLS fMP4 since webOS 3.0. Native media pipeline handles segment concatenation. Jellyfin app uses webOS Luna API (getAppInfo, mediacodec) for direct hardware decoding. Race condition in early app launch may cause false negatives in codec detection.',
-                        android: 'Chrome on Android supports MSE + fMP4 since Android 7.0. ExoPlayer/Media3 supports HLS with fMP4 and MPEG-TS containers, including Apple Low-Latency HLS. DRM: Widevine cenc (API 19+), cbcs (API 25+) — L1 required for HD/4K protected content, L3 is SD-capped. Hardware HEVC decoding requires MediaCodec with HEVCProfileMain10HDR10 for HDR content. MediaCodecList.findDecoderForFormat() is the programmatic way to check device-specific codec support.'
-                    },
-                    references: [
-                        { title: 'ISO/IEC 23008-2' },
-                        { title: 'ISO/IEC 14496-15 Annex E' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
-                }
-            },
-            // HLS fMP4 with AVC
-            {
-                name: "HLS fMP4 H.264 (1080p)",
-                codec: 'video/mp4; codecs="avc1.640033"',
-                container: "fMP4",
-                info: "HLS baseline",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="avc1.640033"',
-                        width: 1920,
-                        height: 1080,
-                        bitrate: 5000000,
-                        framerate: 30
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'avc1.640033',
-                        parts: [
-                            { token: 'avc1', meaning: 'AVC/H.264 in ISO BMFF. For HLS fMP4, the same codec string as file-based H.264 — the delivery changes from single MP4 to fragmented segments' },
-                            { token: '64', meaning: 'profile_idc 0x64 = High Profile' },
-                            { token: '00', meaning: 'constraint_set flags: no additional constraints' },
-                            { token: '33', meaning: 'level_idc 0x33 = Level 5.1. Supports up to 4K@30fps, though this test targets 1080p@30fps (level headroom for high bitrates)' }
-                        ]
-                    },
-                    overview: "H.264 in HLS fMP4 is the universal fallback — every HLS-capable device supports it. Apple's HLS Authoring Specification requires at least one H.264 variant in every adaptive bitrate stream for backward compatibility with older Apple TVs, iPads, and third-party players\n\nfMP4 H.264 replaced MPEG-TS H.264 as Apple's preferred HLS container starting with HLS v7 (2017). The advantages: lower per-segment overhead (fMP4 headers are smaller than TS headers), byte-range addressing for trick play, CMAF compatibility for unified HLS/DASH delivery, and more precise seeking (sample-accurate vs PES-packet-accurate)\n\nFor Jellyfin/Plex, H.264 fMP4 is the safest transcode target when the client's HEVC/AV1 capability is unknown. Every MSE-capable browser can play H.264 fMP4 via Media Source Extensions",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:7
-#EXT-X-TARGETDURATION:6
-#EXT-X-MAP:URI="init_h264.mp4"
-
-#EXTINF:6.006,
-seg_h264_0.m4s
-#EXTINF:6.006,
-seg_h264_1.m4s
-#EXTINF:6.006,
-seg_h264_2.m4s
-#EXT-X-ENDLIST`,
-                            notes: 'H.264 HLS fMP4 media playlist: EXT-X-MAP references the init segment (moov box with avcC configuration). 6-second segments are the Apple-recommended duration for VOD. This playlist is referenced from the master playlist as the lowest-capability variant — players that cannot handle HEVC or AV1 variants select this one.'
-                        }
-                    },
-                    references: [
-                        { title: 'ITU-T H.264' },
-                        { title: 'ISO/IEC 14496-15' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports HLS fMP4 with H.264 on all Android versions. H.264 Baseline/Main/High profiles are universally hardware-decoded — MediaCodecList reports AVC decoders on every Android device since 3.0. Widevine DRM: cenc (API 19+), cbcs (API 25+). HLS is the most reliable streaming format on Android for H.264 content. ExoPlayer uses chunkless preparation by default (reads codec info from the multivariant playlist CODECS attribute without downloading media segments).'
-                    }
-                }
-            },
-            // CMAF (Common Media Application Format)
-            {
-                name: "CMAF HEVC (4K)",
-                codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
-                container: "CMAF",
-                info: "HLS/DASH unified",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 20000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        string: "hvc1.2.4.L153.B0",
-                        parts: [
-                            { token: "hvc1.2.4.L153.B0", meaning: "HEVC Main 10 L5.1: Same HEVC codec string as regular MP4 — CMAF doesn't change the codec, only the container constraints. CMAF (ISO/IEC 23000-19) is a profile of fMP4 that both HLS and DASH can consume from the same encoded segments" }
-                        ]
-                    },
-                    overview: "CMAF solved the 'encode twice' problem. Before CMAF, HLS required MPEG-TS segments and DASH required fMP4 segments — CDNs had to store two copies of every video. CMAF defines a single fMP4 segment format that both HLS (via EXT-X-MAP) and DASH (via SegmentTemplate) can reference directly\n\nThe key CMAF constraints: fragmented MP4 only (no regular MP4), single-track fragments (video and audio in separate tracks), common encryption (CENC with cbcs mode). These restrictions ensure interop between Apple's HLS stack and DASH players like dash.js/Shaka\n\nThis test uses type: 'media-source' because CMAF segments are consumed via MSE (Media Source Extensions). The browser never sees a 'CMAF' MIME type — it's video/mp4 with fMP4 segments. The 'CMAF' container label here is informational — what matters is MSE support for HEVC fMP4",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:7
-#EXT-X-INDEPENDENT-SEGMENTS
-
-#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="hvc1.2.4.L153.B0",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
-hevc_4k_hdr/playlist.m3u8
-
-#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="hvc1.2.4.L120.B0",RESOLUTION=1920x1080,FRAME-RATE=24.000
-hevc_1080_sdr/playlist.m3u8`,
-                            notes: 'CMAF + HLS: EXT-X-VERSION:7 per RFC 8216 — Version 6 (Section 4.3.2.5) enables EXT-X-MAP for fMP4 init segments, Version 7 adds EXT-X-DATERANGE. VIDEO-RANGE=PQ signals HDR10/DV to the player. CMAF\'s key benefit: one set of fMP4 segments serves both HLS and DASH — the CDN stores segments once, with different manifests (m3u8 vs MPD) pointing to the same media files.'
-                        },
-                        dash: {
-                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0"
-    segmentAlignment="true" subsegmentAlignment="true">
-  <SegmentTemplate timescale="24000"
-    initialization="init_hevc_4k.mp4"
-    media="seg_hevc_4k_$Number$.m4s"/>
-  <Representation id="hevc_4k" bandwidth="20000000"
-    width="3840" height="2160" frameRate="24000/1000"/>
-</AdaptationSet>`,
-                            notes: 'CMAF + DASH: Same init.mp4 and .m4s segments as HLS. subsegmentAlignment=true enables low-latency chunked transfer. The CMAF guarantee: identical fMP4 atoms between HLS and DASH — byte-for-byte the same segments on the CDN.'
-                        }
-                    },
-                    platforms: {
-                        apple: 'Apple adopted CMAF for HLS starting with HLS v7 (iOS 11, macOS High Sierra). Apple mandates cbcs encryption mode (AES-CBC with subsample patterns) — not cenc/ctr mode. This is the single biggest CMAF interop pain point: content encrypted with cenc/ctr for DASH will not play on Apple devices without re-encrypting. Apple also requires specific fMP4 brands (cmfc in the ftyp box), single-track fragments (video and audio in separate moof/mdat pairs), and EXT-X-MAP in the media playlist pointing to the init segment. The Apple HLS Authoring Specification adds constraints beyond ISO 23000-19: Apple mandates I-frame-only playlists (EXT-X-I-FRAME-STREAM-INF) for trick play, and VIDEO-RANGE=PQ/HLG for HDR signaling.',
-                        dolby: 'Dolby\'s CMAF requirements center on DV metadata delivery. For CMAF DV Profile 8.1, the dvcC (Dolby Vision Codec Configuration) box must be present in the init segment\'s HEVC sample entry. The RPU NALUs are in-band (in each moof/mdat fragment). For dual-layer DV (Profile 7), Dolby specifies track group signaling via the trgr box — both the BL and EL tracks reference the same track group. Dolby\'s "Bitstreams Within the ISO Base Media File Format" specification defines these CMAF constraints. The key difference from plain HEVC CMAF: the init segment\'s stsd box contains additional DV config boxes that Apple, LG, and Android DV stacks each parse differently.',
-                        lg: 'webOS 4.0+ (2019 TVs) supports CMAF playback. webOS reads the init segment natively — the dvcC box in the sample entry triggers DV decoding at the firmware level via the Luna media pipeline. Unlike browsers that rely on MSE + JS codec detection, webOS\' native CMAF parser bypasses web APIs entirely. webOS 6+ added cbcs encryption support (required for Apple-compatible CMAF). Before webOS 6, only cenc/ctr was supported — meaning pre-2021 LG TVs cannot play Apple-encrypted CMAF content. webOS 25+ improved CMAF chunk boundary handling for low-latency streaming (LL-HLS/LL-DASH with chunked transfer encoding).',
-                        android: 'Android\'s CMAF support depends on the player layer. ExoPlayer (used by Jellyfin/Kodi Android) handles CMAF natively with both cbcs and cenc/ctr modes since ExoPlayer 2.12+. The underlying MediaCodec API doesn\'t know about CMAF — ExoPlayer demuxes fMP4 and feeds NALUs to the hardware decoder. For DV CMAF, ExoPlayer reads the dvcC box from the init segment and activates the DV decoder path if the SoC supports it (Snapdragon 865+, Dimensity 1000+). Android 12+ added platform-level cbcs support, fixing compatibility with Apple-encrypted CMAF on older ExoPlayer versions.'
-                    },
-                    references: [
-                        { title: 'ISO/IEC 23008-2' },
-                        { title: 'ISO/IEC 14496-15 Annex E' },
-                        { title: 'ISO/IEC 23000-19' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
-                }
-            },
-            // DASH with AV1
-            {
-                name: "DASH AV1 (4K HDR)",
-                codec: 'video/mp4; codecs="av01.0.08M.10"',
-                container: "DASH",
-                info: "MPEG-DASH",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="av01.0.08M.10"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 15000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'av01.0.08M.10',
-                        parts: [
-                            { token: 'av01', meaning: 'AV1 in ISO BMFF for DASH delivery' },
-                            { token: '0', meaning: 'Main Profile: 4:2:0 chroma subsampling' },
-                            { token: '08M', meaning: 'Level 4.0 Main Tier. 4K@30fps capable. M = Main Tier bitrate limits' },
-                            { token: '10', meaning: '10-bit: Required for HDR10 PQ transfer function' }
-                        ]
-                    },
-                    overview: "AV1 DASH with HDR10 is the format YouTube and Netflix use for 4K HDR on non-Apple devices. AV1's royalty-free status means no per-stream licensing fees — a major factor at YouTube/Netflix scale (billions of streams per day)\n\nDASH HDR signaling for AV1 uses SupplementalProperty with CICP codes, same as HEVC DASH. The AV1 bitstream also carries HDR metadata internally (OBU metadata with HDR_CLL and HDR_MDCV), but DASH players rely on the MPD properties for initial HDR pipeline activation before parsing the first segment",
-                    references: [
-                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
-                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports DASH with AV1 in fMP4 containers. Hardware AV1 decode: Snapdragon 888+ (2021), Dimensity 9000+ (2022), Exynos 2200+ (2022), Tensor G2+ (Pixel 7). Software fallback via dav1d on Android 10+ but too slow for 4K. Widevine DRM: cenc (API 19+), cbcs (API 25+). ExoPlayer checks AV1ProfileMain10 via MediaCodecInfo for HDR10 capability. DASH containers supported: fMP4, WebM, Matroska (NOT MPEG-TS). Ultra low-latency CMAF also supported for live DASH.'
-                    }
-                }
-            },
-            // DASH with VP9
-            {
-                name: "DASH VP9 (4K HDR)",
-                codec: 'video/webm; codecs="vp09.02.10.10"',
-                container: "DASH",
-                info: "WebM DASH",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/webm; codecs="vp09.02.10.10"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 20000000,
-                        framerate: 60,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/webm',
-                        string: 'vp09.02.10.10',
-                        parts: [
-                            { token: 'vp09', meaning: 'VP9 with full profile/level/depth string' },
-                            { token: '02', meaning: 'Profile 2: 10-bit 4:2:0 HDR capable' },
-                            { token: '10', meaning: 'Level 1.0: Covers up to 4K@30fps in VP9 level numbering' },
-                            { token: '10', meaning: '10-bit depth: Required for PQ/HLG HDR' }
-                        ]
-                    },
-                    overview: "VP9 HDR via DASH in WebM container is the YouTube legacy HDR format. Before AV1 hardware decode became widespread (2021+), VP9 Profile 2 was the only royalty-free way to stream 4K HDR. YouTube still serves VP9 HDR to devices that lack AV1 hardware decode\n\nThe WebM container in DASH uses Matroska-based segments (not ISO BMFF). This means VP9 WebM DASH and VP9 MP4 DASH have different segment formats despite carrying the same codec. Chrome supports both, Firefox supports both, Safari supports neither (no VP9). For Jellyfin, VP9 DASH is useful for Chrome/Firefox clients without HEVC support",
-                    references: [
-                        { title: 'VP9 Bitstream & Decoding Process Spec' },
-                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports VP9 DASH in WebM containers. VP9 Profile 2 (10-bit HDR) hardware decode on Snapdragon 835+ (2017), Exynos 9810+ (2018). YouTube uses VP9 DASH as the primary 4K HDR format on Android. ExoPlayer checks VP9Profile2 via MediaCodecInfo.CodecCapabilities for HDR capability. DASH supports WebM segments natively — Matroska-based, not ISO BMFF. Widevine DRM: cenc (API 19+), cbcs (API 25+).'
-                    }
-                }
-            },
-            {
-                name: "DASH VP9 (SDR 1080p WebM)",
-                codec: 'video/webm; codecs="vp09.00.21.08"',
-                container: "DASH",
-                info: "SDR VP9 streaming",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/webm; codecs="vp09.00.21.08"',
-                        width: 1920,
-                        height: 1080,
-                        bitrate: 5000000,
-                        framerate: 30
-                    }
-                },
-                education: {
-                    "codecBreakdown": {
-                        "mime": "video/webm",
-                        "string": "vp09.00.21.08",
-                        "parts": [
-                            {
-                                "token": "vp09",
-                                "meaning": "VP9 codec in the full codec string format (vs bare \"vp9\"). The vp09 prefix enables profile/level/bitdepth specification."
-                            },
-                            {
-                                "token": "00",
-                                "meaning": "Profile 0 — 8-bit 4:2:0 YUV. The most widely supported VP9 profile."
-                            },
-                            {
-                                "token": "21",
-                                "meaning": "Level 2.1 — supports 1280x720 @ 60fps or 1920x1080 @ 30fps. Matches 1080p SDR content."
-                            },
-                            {
-                                "token": "08",
-                                "meaning": "8-bit color depth."
-                            }
-                        ]
-                    },
-                    "overview": "VP9 SDR in WebM container for DASH streaming. YouTube uses this exact configuration for 1080p SDR delivery — VP9 Profile 0 in WebM is the most widely deployed adaptive streaming codec on the web. MSE (MediaSource Extensions) has excellent VP9+WebM support in Chrome and Firefox. Safari does not support WebM containers, making this a Chrome/Firefox-only streaming path. For cross-browser DASH, MP4 containers with VP9 provide Safari compatibility.",
-                    references: [
-                        { title: 'VP9 Bitstream & Decoding Process Spec' },
-                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports VP9 Profile 0 DASH in WebM. VP9 Profile 0 (8-bit SDR) is hardware-decoded on virtually all Android devices from 2015+ (Snapdragon 800+ era). YouTube serves VP9 SDR as the default adaptive format on Android Chrome. ExoPlayer automatically adapts between VP9 Representations in the DASH MPD based on bandwidth and device capability.'
-                    }
-                }
-            },
-            {
-                name: "DASH AV1 (4K HDR WebM)",
-                codec: 'video/webm; codecs="av01.0.08M.10"',
-                container: "DASH",
-                info: "AV1 in WebM container via DASH",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/webm; codecs="av01.0.08M.10"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 15000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    "codecBreakdown": {
-                        "mime": "video/webm",
-                        "string": "av01.0.08M.10",
-                        "parts": [
-                            {
-                                "token": "av01",
-                                "meaning": "AV1 codec identifier."
-                            },
-                            {
-                                "token": "0",
-                                "meaning": "Profile 0 (Main) — 8 or 10-bit 4:2:0."
-                            },
-                            {
-                                "token": "08M",
-                                "meaning": "Level 4.0, Main tier. Supports 2048x1536 @ 30fps or 4096x2160 @ 30fps."
-                            },
-                            {
-                                "token": "10",
-                                "meaning": "10-bit color depth for HDR content."
-                            }
-                        ]
-                    },
-                    "overview": "AV1 HDR in WebM container for DASH. This tests AV1 HDR delivery in Google's preferred container format. YouTube serves AV1 HDR in WebM for Chrome — the same codec in MP4 containers targets Safari and TV platforms. The WebM container supports AV1 natively (unlike HEVC, which WebM does not support). For DASH MPD signaling, WebM AV1 uses the same codec string as MP4 AV1 — only the container MIME type changes. This test reveals whether MSE implementations support AV1 HDR specifically in WebM (some support AV1 SDR in WebM but not HDR).",
-                    references: [
-                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
-                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports AV1 DASH in WebM containers — uses Matroska-based segments instead of ISO BMFF. Same hardware requirements as AV1 in fMP4 (Snapdragon 888+, Dimensity 9000+). WebM AV1 DASH is less common than fMP4 AV1 DASH in production but YouTube uses it. ExoPlayer handles both container formats transparently. No DRM for WebM containers in DASH — Widevine requires fMP4.'
-                    }
-                }
-            },
-            // Additional streaming formats
-            {
-                name: "HLS fMP4 Dolby Vision P8.1",
-                codec: 'video/mp4; codecs="dvh1.08.06"',
-                container: "fMP4",
-                info: "DV streaming via HLS",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="dvh1.08.06"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 20000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        string: "dvh1.08.06",
-                        parts: [
-                            { token: "dvh1", meaning: "DV HEVC tag: Dolby Vision HEVC with in-band RPU NALUs. For HLS streaming, dvh1 is required (not dvhe) because fMP4 segments must carry the DV metadata in-band — there's no init-segment-only path for RPU delivery" },
-                            { token: "08", meaning: "profile: Profile 8 = HEVC single-layer with backward-compatible base layer. The dominant streaming profile: plays as HDR10 on non-DV devices, with DV enhancement on DV-capable displays" },
-                            { token: "06", meaning: "level: Level 6 = 4K@60fps max. DV levels map loosely to resolution/framerate: 01=HD, 04=4K@24, 06=4K@60, 09=8K@24" }
-                        ]
-                    },
-                    overview: "Apple HLS signaling: Uses VIDEO-RANGE=PQ in the EXT-X-STREAM-INF tag, CODECS=\"dvh1.08.06\", and REQ-VIDEO-LAYOUT for dual-layer. Apple requires the Dolby Vision codec string in the HLS manifest — if the manifest says hvc1 instead of dvh1, Apple devices decode as HDR10 only (ignoring DV RPU NALUs even if present in the stream)\n\nDolby's reference signaling: Dolby specifies supplemental_codecs in DASH MPD (e.g., supplementalCodecs=\"dvh1.08.06\" alongside codecs=\"hvc1.2.4.L153.B0\"). This lets non-DV players use the HEVC base layer while DV players activate enhancement. HLS has no supplemental_codecs equivalent — Apple uses the CODECS field directly\n\nLG webOS signaling: webOS uses a proprietary DV detection path via Luna IPC getHdrCapabilities. The browser's canPlayType may not reflect DV support — webOS checks firmware-level DV flags separate from web API results. webOS 6+ supports DV Profile 8.1 in MP4/MKV, webOS 25+ added MKV DV Profile 7. The Luna call is async, causing the race condition where early codec detection returns false negatives\n\nThe practical split: Apple devices need dvh1 in HLS manifests. Android/TV devices using ExoPlayer/Shaka interpret supplemental_codecs from DASH. LG webOS bypasses web APIs entirely for DV. Netflix uses separate manifests per platform — one HLS for Apple, one DASH for Android/TV. Jellyfin/Plex must replicate this: serving dvh1 manifests to Apple clients and hvc1+supplemental to DASH clients",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:7
-#EXT-X-INDEPENDENT-SEGMENTS
-
-#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="dvh1.08.06",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
-dv_p81_4k/playlist.m3u8
-
-#EXT-X-STREAM-INF:BANDWIDTH=12000000,CODECS="hvc1.2.4.L153.B0",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
-hdr10_4k/playlist.m3u8
-
-#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="avc1.640028",RESOLUTION=1920x1080,FRAME-RATE=24.000
-sdr_1080/playlist.m3u8`,
-                            notes: 'Apple HLS DV signaling: The DV variant uses CODECS="dvh1.08.06" — Apple devices select this when they detect DV capability. Non-DV devices fall back to the hvc1 (HDR10) or avc1 (SDR) variants. VIDEO-RANGE=PQ is required for Apple to activate the HDR pipeline. Note: no SUPPLEMENTAL-CODECS here — Apple uses separate variant streams, not codec supplementation.'
-                        },
-                        dash: {
-                            mpd: `<AdaptationSet mimeType="video/mp4"
-    codecs="hvc1.2.4.L153.B0"
-    supplementalCodecs="dvh1.08.06"
-    segmentAlignment="true">
-  <SegmentTemplate timescale="24000"
-    initialization="init_dv_p81.mp4"
-    media="seg_dv_p81_$Number$.m4s"/>
-  <Representation id="dv_4k" bandwidth="20000000"
-    width="3840" height="2160"/>
-</AdaptationSet>`,
-                            notes: 'DASH DV signaling: codecs= declares the HEVC base layer (backward-compatible HDR10). supplementalCodecs= declares the DV enhancement. Non-DV players read codecs= only and play HEVC. DV players activate both. This is one AdaptationSet serving both audiences — unlike HLS which needs separate variant streams.'
-                        }
-                    },
-                    references: [
-                        { title: 'ETSI TS 103 572' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 reads the dvh1 codec string from the HLS playlist CODECS attribute and checks MediaCodecInfo for Dolby Vision support. The DV decoder name is typically c2.dolby.dv_hevc.decoder (Codec 2.0) or OMX.dolby.hevc.decoder. Requires Dolby-licensed SoC: Snapdragon 865+ (2020), Dimensity 1000+ (2020). Widevine L1 required for protected DV content. ExoPlayer supports Apple LL-HLS for DV streams.'
-                    }
-                }
-            },
-            {
-                name: "HLS MPEG-TS H.264 (1080p)",
-                codec: 'video/mp2t; codecs="avc1.640028"',
-                container: "MPEG-TS",
-                info: "Legacy HLS transport stream",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp2t; codecs="avc1.640028"',
-                        width: 1920,
-                        height: 1080,
-                        bitrate: 5000000,
-                        framerate: 30
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        string: "avc1.640028",
-                        parts: [
-                            { token: "avc1.640028", meaning: "H.264 High L4.0: Standard H.264 codec string inside an MPEG Transport Stream container (video/mp2t). The codec string is identical regardless of container — what changes is the MIME type and the segment structure" }
-                        ]
-                    },
-                    overview: "MPEG-TS (MPEG Transport Stream, ISO/IEC 13818-1) was the original HLS container. When Apple introduced HLS in 2009, it chose MPEG-TS because it was already used in DVB broadcasting and supported mid-stream joining (no init segment needed — each .ts segment is self-contained)\n\nHLS versions 1-6 used .ts segments exclusively. HLS v7 (2017) added fMP4 support via the EXT-X-MAP tag. Apple now recommends fMP4 for new content (better seek precision, smaller overhead, CMAF compatibility) but MPEG-TS remains in production for backwards compatibility with older Apple TVs and iOS devices\n\nMSE support for video/mp2t is browser-specific: Safari supports it natively (required for HLS playback). Chrome supports it via the MSE Transmuxer (converts TS→fMP4 client-side). Firefox has limited TS support. For Jellyfin/Plex, this means H.264 in TS streams may work in Safari but need remuxing to fMP4 for Chrome",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:10
-#EXT-X-MEDIA-SEQUENCE:0
-
-#EXTINF:10.0,
-segment_000.ts
-#EXTINF:10.0,
-segment_001.ts
-#EXTINF:10.0,
-segment_002.ts
-#EXT-X-ENDLIST`,
-                            notes: 'Legacy MPEG-TS HLS: VERSION:3 (no fMP4 support needed). Each .ts segment is self-contained — no separate init segment required (unlike fMP4 which needs EXT-X-MAP). The MPEG-TS container includes PAT/PMT tables and PES headers in every segment, making segments joinable mid-stream but adding ~5% overhead vs fMP4. Jellyfin generates TS segments by default for HLS transcoding because ffmpeg TS muxing is faster than fMP4 muxing.'
-                        }
-                    },
-                    references: [
-                        { title: 'ITU-T H.264' },
-                        { title: 'ISO/IEC 14496-15' },
-                        { title: 'ISO/IEC 13818-1' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports HLS with MPEG-TS segments — the legacy HLS container format. H.264 in MPEG-TS is universally supported on Android. ExoPlayer extracts H.264 NALUs from the MPEG-TS PES packets and feeds them to MediaCodec. AES-128 encryption supported for MPEG-TS HLS. CEA-608/708 closed captions extracted from the H.264 SEI messages. Note: MPEG-TS is NOT supported in DASH on ExoPlayer — only in HLS.'
-                    }
-                }
-            },
-            {
-                name: "HLS MPEG-TS H.264 (720p Baseline)",
-                codec: 'video/mp2t; codecs="avc1.42E01E"',
-                container: "MPEG-TS",
-                info: "Baseline TS for mobile HLS",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp2t; codecs="avc1.42E01E"',
-                        width: 1280,
-                        height: 720,
-                        bitrate: 2000000,
-                        framerate: 30
-                    }
-                },
-                education: {
-                    "codecBreakdown": {
-                        "mime": "video/mp2t",
-                        "string": "avc1.42E01E",
-                        "parts": [
-                            {
-                                "token": "avc1",
-                                "meaning": "H.264/AVC codec."
-                            },
-                            {
-                                "token": "42",
-                                "meaning": "profile_idc = 66 = Baseline Profile. No B-frames, no CABAC — maximum device compatibility at the cost of compression efficiency."
-                            },
-                            {
-                                "token": "E0",
-                                "meaning": "Constraint flags: constraint_set0_flag=1, constraint_set1_flag=1 (Constrained Baseline). The E0 byte indicates this is Constrained Baseline, which is a proper subset of both Baseline and Main profiles."
-                            },
-                            {
-                                "token": "1E",
-                                "meaning": "level_idc = 30 = Level 3.0. Supports 720x576 @ 25fps or 720x480 @ 30fps. Targets mobile devices and low-bandwidth HLS."
-                            }
-                        ]
-                    },
-                    "overview": "The mobile-friendly HLS baseline. MPEG-TS with H.264 Constrained Baseline is the lowest common denominator for HLS streaming — supported by every HLS-capable device. Apple originally required this as a mandatory fallback in HLS master playlists (the \"MUST\" variant for cellular). No B-frames means lower latency, and no CABAC means simpler hardware decoders. Modern HLS has relaxed the Baseline requirement, but many CDNs still include a Baseline 720p variant for maximum reach.",
-                    "streaming": {
-                        "hls": {
-                            "m3u8": "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:10\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:10.000,\nseg0.ts\n#EXTINF:10.000,\nseg1.ts\n#EXT-X-ENDLIST",
-                            "notes": "MPEG-TS HLS uses EXT-X-VERSION:3 per RFC 8216 — no fMP4 features needed. Version 6+ enables EXT-X-MAP for fMP4 init segments (Section 4.3.2.5); TS playlists don't use EXT-X-MAP. Apple now recommends fMP4 (Version 7) over TS for new deployments, but TS Baseline 720p remains required for maximum device reach. Each .ts segment is self-contained with PAT/PMT tables — no separate init segment required."
-                        }
-                    },
-                    references: [
-                        { title: 'ITU-T H.264' },
-                        { title: 'ISO/IEC 14496-15' },
-                        { title: 'ISO/IEC 13818-1' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports H.264 Baseline Profile in MPEG-TS HLS. Baseline Profile is the most compatible H.264 variant — hardware decode available on every Android device since Android 3.0 (API 11). Mobile HLS streams commonly use Baseline for maximum device compatibility. ExoPlayer handles the MPEG-TS demux internally and supports AES-128 encryption.'
-                    }
-                }
-            },
-            {
-                name: "MPEG-TS HEVC (4K HDR)",
-                codec: 'video/mp2t; codecs="hvc1.2.4.L153.B0"',
-                container: "MPEG-TS",
-                info: "HEVC in transport stream",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp2t; codecs="hvc1.2.4.L153.B0"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 25000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    "codecBreakdown": {
-                        "mime": "video/mp2t",
-                        "string": "hvc1.2.4.L153.B0",
-                        "parts": [
-                            {
-                                "token": "hvc1",
-                                "meaning": "HEVC codec in MPEG Transport Stream. TS uses Annex B byte stream format for HEVC NALUs (start codes), unlike fMP4 which uses length-prefixed format. This is why FFmpeg uses -bsf:v hevc_mp4toannexb when outputting to MPEG-TS."
-                            },
-                            {
-                                "token": "2",
-                                "meaning": "profile_idc = 2 = Main 10 Profile. 10-bit depth for HDR content."
-                            },
-                            {
-                                "token": "4",
-                                "meaning": "Profile compatibility flags for Main 10."
-                            },
-                            {
-                                "token": "L153",
-                                "meaning": "Level 5.1 — supports 4096x2160 @ 60fps. The \"L\" prefix with level_idc*3 = 153."
-                            },
-                            {
-                                "token": "B0",
-                                "meaning": "Constraint indicator flags."
-                            }
-                        ]
-                    },
-                    "overview": "HEVC 4K HDR in MPEG Transport Stream. MPEG-TS was the original HLS segment format (before fMP4 was added in HLS version 7). HEVC in TS uses Annex B NAL unit format with start codes (0x00000001) — this is where the hevc_mp4toannexb BSF becomes necessary. For HLS, Apple now recommends fMP4 over TS for HEVC content because fMP4 supports the EXT-X-MAP init segment pattern needed for efficient adaptive bitrate switching. MPEG-TS HEVC HLS is still used by some IPTV systems and older streaming infrastructure.",
-                    "streaming": {
-                        "hls": {
-                            "m3u8": "#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:6\n#EXT-X-MEDIA-SEQUENCE:0\n#EXTINF:6.006,\nseg0.ts\n#EXTINF:6.006,\nseg1.ts\n#EXT-X-ENDLIST",
-                            "notes": "HEVC in MPEG-TS for HLS. EXT-X-VERSION:3 per RFC 8216 — no EXT-X-MAP needed (that requires Version 6+, Section 4.3.2.5). Each TS segment is self-contained with PAT/PMT/PES headers. The HEVC stream uses Annex B format with start codes (0x00000001). For HDR10, HEVC SEI messages (mastering display color volume, content light level) must repeat in every TS segment for random access — unlike fMP4 where they live once in the init segment."
-                        }
-                    },
-                    references: [
-                        { title: 'ISO/IEC 23008-2' },
-                        { title: 'ISO/IEC 14496-15 Annex E' },
-                        { title: 'ISO/IEC 13818-1' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports HEVC in MPEG-TS for HLS streaming. HEVC hardware decode requires Android 5.0+ with MediaCodec HEVCProfileMain10HDR10 for HDR content. MPEG-TS carries HEVC via stream type 0x24 (ITU-T H.265). ExoPlayer extracts HEVC NALUs from PES packets. Note: MPEG-TS is supported in HLS and progressive playback but NOT in DASH.'
-                    }
-                }
-            },
-            {
-                name: "MPEG-TS AAC (Stereo)",
-                codec: 'video/mp2t; codecs="mp4a.40.2"',
-                container: "MPEG-TS",
-                info: "AAC audio in TS",
-                mediaConfig: {
-                    type: 'media-source',
-                    audio: {
-                        contentType: 'video/mp2t; codecs="mp4a.40.2"',
-                        channels: 2,
-                        bitrate: 192000,
-                        samplerate: 48000
-                    }
-                },
-                education: {
-                    "codecBreakdown": {
-                        "mime": "video/mp2t",
-                        "string": "mp4a.40.2",
-                        "parts": [
-                            {
-                                "token": "mp4a",
-                                "meaning": "MPEG-4 Audio object type identifier. Used for all AAC variants in codec strings."
-                            },
-                            {
-                                "token": "40",
-                                "meaning": "ObjectTypeIndication = 0x40 = Audio ISO/IEC 14496-3 (MPEG-4 Audio)."
-                            },
-                            {
-                                "token": "2",
-                                "meaning": "AudioObjectType = 2 = AAC-LC (Low Complexity). The most common AAC profile."
-                            }
-                        ]
-                    },
-                    "overview": "AAC-LC audio in MPEG Transport Stream. Note the MIME type is video/mp2t even though this is audio — MPEG-TS is a multiplexing container that uses the video MIME type regardless of content. AAC in TS is carried as ADTS (Audio Data Transport Stream) frames within PES packets. This is the standard audio format for HLS MPEG-TS segments. The mediaCapabilities API may reject this test because the AudioConfiguration uses a video/ MIME type — CodecProbe guards against this by skipping API 3 for MPEG-TS audio entries.",
-                    references: [
-                        { title: 'ISO/IEC 14496-3' },
-                        { title: 'ISO/IEC 13818-1' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports AAC in MPEG-TS for HLS audio segments. AAC-LC is universally decoded on Android (hardware + software). MPEG-TS audio-only HLS is common for radio/podcast live streams. ExoPlayer extracts ADTS-framed AAC from the MPEG-TS PES packets. In HLS, AAC MPEG-TS segments are the fallback when fMP4 is not available.'
-                    }
-                }
-            },
-            {
-                name: "MPEG-TS AC-3 (5.1)",
-                codec: 'video/mp2t; codecs="ac-3"',
-                container: "MPEG-TS",
-                info: "Dolby Digital in TS",
-                mediaConfig: {
-                    type: 'media-source',
-                    audio: {
-                        contentType: 'video/mp2t; codecs="ac-3"',
-                        channels: 6,
-                        bitrate: 640000,
-                        samplerate: 48000
-                    }
-                },
-                education: {
-                    "codecBreakdown": {
-                        "mime": "video/mp2t",
-                        "string": "ac-3",
-                        "parts": [
-                            {
-                                "token": "ac-3",
-                                "meaning": "Dolby Digital (AC-3) codec identifier. The hyphenated form \"ac-3\" is the IANA-registered codec string. Some implementations also accept \"ac3\" without the hyphen, but ac-3 is the standard form per RFC 6381."
-                            }
-                        ]
-                    },
-                    "overview": "Dolby Digital 5.1 surround sound in MPEG Transport Stream. AC-3 in TS is common in broadcast TV (ATSC, DVB) and HLS for Apple TV. The TS container carries AC-3 as a private stream within PES packets. For HLS, Apple requires AC-3/E-AC-3 audio to be declared in the master playlist with the AUDIO group-id and CODECS attribute. AC-3 5.1 in TS is the standard surround sound format for broadcast-origin HLS content — newer Atmos/spatial audio uses E-AC-3 JOC in fMP4 instead.",
-                    references: [
-                        { title: 'ETSI TS 102 366' },
-                        { title: 'ISO/IEC 13818-1' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports AC-3 (Dolby Digital) in MPEG-TS for HLS. AC-3 decode requires hardware support from the SoC audio DSP — most Snapdragon 600+ series include it. Android TV devices (Shield, Chromecast) support AC-3 passthrough via HDMI to AVRs. ExoPlayer detects AC-3 capability via MediaCodecInfo. MPEG-TS AC-3 is common in broadcast-origin HLS streams.'
-                    }
-                }
-            },
-            {
-                name: "CMAF AV1 (4K HDR)",
-                codec: 'video/mp4; codecs="av01.0.08M.10"',
-                container: "CMAF",
-                info: "AV1 HLS/DASH unified",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="av01.0.08M.10"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 15000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'av01.0.08M.10',
-                        parts: [
-                            { token: 'av01.0.08M.10', meaning: 'AV1 Main Profile L4.0 10-bit: Same codec string as regular AV1 in MP4. CMAF wraps AV1 in fMP4 segments consumable by both HLS and DASH. The av1C box in the init segment contains the AV1 codec configuration record (OBU sequence header)' }
-                        ]
-                    },
-                    overview: "CMAF AV1 is the newest CMAF codec combination — standardized in 2020 by MPEG with AV1 in ISOBMFF (ISO/IEC 14496-12 Amd 2). AV1's royalty-free status makes it attractive for CMAF deployments where HEVC licensing costs are a concern\n\nThe CMAF AV1 profile requires the av1C configuration box in the init segment and AV1 temporal unit (TU) aligned fragments. AV1 Film Grain synthesis (if present) is signaled in the sequence header inside av1C — this is relevant because Film Grain can impact decode performance on some hardware decoders\n\nFor CMAF encryption, AV1 uses the same cbcs/cenc scheme as HEVC CMAF. The subsample encryption patterns differ though: AV1 OBUs have different NAL unit boundaries than HEVC, so the encryption byte ranges are codec-specific. Players must handle AV1 subsample mapping per CENC spec Annex G",
-                    platforms: {
-                        apple: 'Apple supports AV1 CMAF on A15+ (iPhone 15+), M1+ Macs, and Apple TV 4K 3rd gen. cbcs encryption required for FairPlay. AV1 CMAF uses the same fMP4 infrastructure as HEVC CMAF — the only difference is the codec-specific boxes (av1C vs hvcC) in the init segment.',
-                        lg: 'webOS 6.0+ supports AV1 CMAF with the MediaTek MT5895 SoC. The native CMAF parser reads the av1C box from the init segment. AV1 CMAF encryption: webOS 6+ supports cbcs, enabling unified CMAF AV1 segments for both Apple and LG TVs.',
-                        android: 'ExoPlayer/Media3 supports AV1 CMAF on devices with hardware AV1 decode (Snapdragon 888+, Dimensity 9000+). Widevine DRM: cenc from API 19+, cbcs from API 25+ — but reliable cross-SoC cbcs needs Android 12+. Older devices (Android 10-11) have SoC-dependent cbcs support (Snapdragon 855+ works, older chips may not). MediaCodecList.findDecoderForFormat() with MIMETYPE_VIDEO_AV1 confirms hardware vs software (c2.* = Codec 2.0 hardware, OMX.google.* = software fallback). For Jellyfin, AV1 CMAF is the best future-proof option — royalty-free, growing hardware support.'
-                    },
-                    references: [
-                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
-                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
-                        { title: 'ISO/IEC 23000-19' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
-                }
-            },
-            {
-                name: "CMAF H.264 (1080p)",
-                codec: 'video/mp4; codecs="avc1.640028"',
-                container: "CMAF",
-                info: "H.264 HLS/DASH unified",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="avc1.640028"',
-                        width: 1920,
-                        height: 1080,
-                        bitrate: 5000000,
-                        framerate: 30
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'avc1.640028',
-                        parts: [
-                            { token: 'avc1.640028', meaning: 'H.264 High L4.0 in CMAF: Same codec string as regular H.264, wrapped in CMAF-compliant fMP4 segments. CMAF H.264 is the absolute lowest common denominator for unified streaming — every HLS and DASH player in existence supports it' }
-                        ]
-                    },
-                    overview: "CMAF H.264 is the fallback-of-fallbacks. When HEVC CMAF fails (no hardware decode), AV1 CMAF fails (too new), DV CMAF fails (no DV support) — H.264 CMAF always works. The CMAF spec (ISO/IEC 23000-19) defines H.264 as the mandatory baseline codec\n\nThe practical value of CMAF H.264: a single set of H.264 fMP4 segments serves as the universal fallback for both HLS and DASH ABR ladders. CDN storage for the H.264 tier is shared across all client types. For Jellyfin, this means the transcode target for maximum compatibility (H.264 CMAF fMP4) produces segments usable by every client — Apple via HLS, Android/TV via DASH, desktop browsers via either",
-                    references: [
-                        { title: 'ITU-T H.264' },
-                        { title: 'ISO/IEC 14496-15' },
-                        { title: 'ISO/IEC 23000-19' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports H.264 CMAF in both HLS and DASH contexts. H.264 in CMAF uses fMP4 segments with avcC configuration in the init segment. Universal hardware decode on Android. Widevine DRM: cenc (API 19+), cbcs (API 25+). CMAF H.264 is the broadest-compatible streaming format — works across Apple, Android, LG, and all browser engines.'
-                    }
-                }
-            },
-            {
-                name: "DASH H.264 (1080p)",
-                codec: 'video/mp4; codecs="avc1.640028"',
-                container: "DASH",
-                info: "H.264 MPEG-DASH",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="avc1.640028"',
-                        width: 1920,
-                        height: 1080,
-                        bitrate: 5000000,
-                        framerate: 30
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'avc1.640028',
-                        parts: [
-                            { token: 'avc1', meaning: 'AVC/H.264 in ISO BMFF. For DASH, the codec string is declared in the MPD AdaptationSet codecs= attribute' },
-                            { token: '64', meaning: 'profile_idc 0x64 = High Profile. Standard for 1080p streaming' },
-                            { token: '00', meaning: 'constraint_set flags: no additional constraints' },
-                            { token: '28', meaning: 'level_idc 0x28 = Level 4.0. Supports 1080p@30fps, max bitrate 20 Mbps' }
-                        ]
-                    },
-                    overview: "H.264 DASH is the universal baseline for adaptive streaming. Every MSE-capable browser supports H.264 in fMP4 via DASH — it's the one codec+container+protocol combination guaranteed to work everywhere. YouTube originally used H.264 DASH before migrating to VP9 and AV1\n\nFor Jellyfin/Plex, H.264 DASH is the safe fallback when the client doesn't support HEVC or AV1. DASH manifest generation is straightforward: one AdaptationSet with multiple Representations at different bitrates/resolutions. The Shaka Packager (Google's DASH/HLS tool) generates H.264 DASH from any H.264 source with zero transcoding (just remuxing to fMP4)",
-                    streaming: {
-                        dash: {
-                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="avc1.640028"
-    segmentAlignment="true">
-  <SegmentTemplate timescale="30000"
-    initialization="h264_1080/init.mp4"
-    media="h264_1080/seg_$Number$.m4s"/>
-  <Representation id="1080p" bandwidth="5000000"
-    width="1920" height="1080" frameRate="30000/1000"/>
-  <Representation id="720p" bandwidth="2500000"
-    width="1280" height="720" frameRate="30000/1000"/>
-  <Representation id="480p" bandwidth="1000000"
-    width="854" height="480" frameRate="30000/1000"/>
-</AdaptationSet>`,
-                            notes: 'H.264 DASH ABR ladder: Multiple Representations in one AdaptationSet. The DASH player (Shaka/dash.js) switches between Representations based on network bandwidth. All Representations share the same SegmentTemplate — only the init segment and segment content differ per resolution. segmentAlignment=true enables seamless switching between quality levels.'
-                        }
-                    },
-                    references: [
-                        { title: 'ITU-T H.264' },
-                        { title: 'ISO/IEC 14496-15' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports H.264 DASH in fMP4 containers. H.264 is universally hardware-decoded on Android — MediaCodec reports AVC decoders on every device. Widevine DRM: cenc (API 19+), cbcs (API 25+). ClearKey API 21+ (cenc only). PlayReady SL2000 on Android TV only. ExoPlayer automatically adapts between Representations based on bandwidth. DASH H.264 is the safest streaming choice for maximum Android device compatibility.'
-                    }
-                }
-            },
-            {
-                name: "DASH HEVC (4K HDR)",
-                codec: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
-                container: "DASH",
-                info: "HEVC MPEG-DASH",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="hvc1.2.4.L153.B0"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 25000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'hvc1.2.4.L153.B0',
-                        parts: [
-                            { token: 'hvc1', meaning: 'HEVC in ISO BMFF. For DASH streaming, same codec string as file-based HEVC — the container is fMP4 segments instead of a single MP4 file' },
-                            { token: '2.4.L153.B0', meaning: 'Main 10 Profile, Level 5.1, Main Tier. Standard 4K HDR HEVC for DASH delivery. PQ transfer function and BT.2020 gamut signaled in mediaConfig, not in the codec string' }
-                        ]
-                    },
-                    overview: "HEVC DASH is the primary 4K HDR streaming format for non-Apple platforms. Netflix uses HEVC DASH for Android, smart TVs, and game consoles. The DASH MPD signals HDR via supplementary properties: urn:mpeg:mpegB:cicp:TransferCharacteristics (16=PQ, 18=HLG) and urn:mpeg:mpegB:cicp:ColourPrimaries (9=BT.2020)\n\nUnlike HLS where Apple's VIDEO-RANGE attribute is the only HDR signal, DASH has multiple ways to declare HDR: CICP properties, ContentProtection elements, and codec-specific boxes. This flexibility is both a strength (more expressive) and a weakness (more ways to get it wrong). The DASH-IF IOP v5.0 guidelines standardize the recommended signaling patterns",
-                    streaming: {
-                        dash: {
-                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0"
-    segmentAlignment="true">
-  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
-  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <SegmentTemplate timescale="24000"
-    initialization="hevc_4k/init.mp4"
-    media="hevc_4k/seg_$Number$.m4s"/>
-  <Representation id="4k_hdr" bandwidth="25000000"
-    width="3840" height="2160" frameRate="24000/1000"/>
-  <Representation id="1080_hdr" bandwidth="10000000"
-    width="1920" height="1080" frameRate="24000/1000"/>
-</AdaptationSet>`,
-                            notes: 'DASH HEVC HDR signaling: SupplementalProperty with CICP codes — TransferCharacteristics=16 (PQ/ST.2084) and ColourPrimaries=9 (BT.2020). DASH players use these to activate the HDR rendering pipeline. Without CICP properties, some players display HDR content in SDR mode (washed out colors).'
-                        }
-                    },
-                    references: [
-                        { title: 'ISO/IEC 23008-2' },
-                        { title: 'ISO/IEC 14496-15 Annex E' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports HEVC DASH in fMP4 containers. HEVC hardware decode: Android 5.0+ via MediaCodec. HDR10 requires HEVCProfileMain10HDR10 — check via MediaCodecInfo.CodecCapabilities. Widevine L1 required for protected 4K HDR content (L3 is SD-capped). DASH HEVC uses the same fMP4 segments as HLS — CMAF-compatible when authored correctly. DASH containers: fMP4, WebM, Matroska (NOT MPEG-TS).'
-                    }
-                }
-            },
-            {
-                name: "HLS fMP4 E-AC-3",
-                codec: 'audio/mp4; codecs="ec-3"',
-                container: "fMP4",
-                info: "DD+ audio streaming",
-                mediaConfig: {
-                    type: 'media-source',
-                    audio: {
-                        contentType: 'audio/mp4; codecs="ec-3"',
-                        channels: 6,
-                        bitrate: 384000,
-                        samplerate: 48000
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'audio/mp4',
-                        string: 'ec-3',
-                        parts: [
-                            { token: 'ec-3', meaning: 'E-AC-3 (Enhanced AC-3, Dolby Digital Plus) in fMP4 for streaming. The codec tag is identical to non-streaming E-AC-3 — what changes is the container (fMP4 segments instead of continuous MP4) and the delivery method (MSE via Media Source Extensions)' }
-                        ]
-                    },
-                    overview: "E-AC-3 is the dominant surround sound codec for streaming. Netflix, Disney+, Apple TV+, and Amazon all use E-AC-3 as their primary 5.1 audio track. The fMP4 container wraps E-AC-3 frames in moof/mdat atoms, enabling adaptive audio streaming alongside video segments\n\nFor HLS, E-AC-3 audio is declared as an alternate audio rendition via EXT-X-MEDIA with GROUP-ID. The video playlist references this audio group. This separation allows the player to switch audio tracks (stereo AAC vs 5.1 E-AC-3) without re-downloading video segments\n\nDolby Atmos (JOC — Joint Object Coding) is signaled as a special E-AC-3 substream. The codec tag stays ec-3 but the bitstream contains additional object metadata. The HLS manifest signals Atmos via CHANNELS=\"16/JOC\" in the EXT-X-MEDIA tag. Devices that don't support Atmos decode the 7.1 bed layer, falling back gracefully",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:7
-#EXT-X-INDEPENDENT-SEGMENTS
-
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="surround",NAME="English 5.1",DEFAULT=YES,CHANNELS="6",URI="audio_eac3/playlist.m3u8",CODECS="ec-3"
-
-#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="stereo",NAME="English Stereo",DEFAULT=YES,CHANNELS="2",URI="audio_aac/playlist.m3u8",CODECS="mp4a.40.2"
-
-#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,ec-3",AUDIO="surround",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
-video_4k/playlist.m3u8
-
-#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="avc1.640028,mp4a.40.2",AUDIO="stereo",RESOLUTION=1920x1080
-video_1080/playlist.m3u8`,
-                            notes: 'HLS audio renditions: EXT-X-MEDIA declares audio tracks as separate groups. The STREAM-INF AUDIO= attribute selects which group plays with each video variant. CODECS includes both video and audio codec strings. CHANNELS="6" signals 5.1. For Atmos, Apple requires CHANNELS="16/JOC" — devices that support JOC get object audio, others fall back to 7.1 bed.'
-                        }
-                    },
-                    platforms: {
-                        apple: 'Apple devices decode E-AC-3 in hardware on iPhone 7+, iPad Pro 2017+, Apple TV 4K, and all Macs with T2/Apple Silicon. Safari reports E-AC-3 support via mediaCapabilities. For Atmos, Apple requires AirPods Pro/Max, HomePod, or HDMI passthrough to an Atmos-capable receiver. Apple mandates the CHANNELS="16/JOC" attribute in HLS for Atmos signaling — without it, even capable devices won\'t activate the Atmos decoder.',
-                        lg: 'webOS has native E-AC-3 decode in all models since webOS 1.0 (2014). Atmos decode added in webOS 4.0+ (2019) via eARC or optical passthrough. webOS reports E-AC-3 support through its native media pipeline but may not expose it via browser canPlayType — the Jellyfin webOS app bypasses browser APIs and queries Luna IPC for audio codec support directly.',
-                        android: 'E-AC-3 decode on Android requires hardware support from the SoC audio DSP. Most Snapdragon 600+ series chips include E-AC-3 decode. Android TV devices (Shield, Chromecast) support E-AC-3 passthrough via HDMI to AVRs. ExoPlayer detects E-AC-3 capability via MediaCodecInfo and falls back to AAC stereo when unavailable.'
-                    },
-                    references: [
-                        { title: 'ETSI TS 102 366' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
-                }
-            },
-            {
-                name: "HLS fMP4 AAC",
-                codec: 'audio/mp4; codecs="mp4a.40.2"',
-                container: "fMP4",
-                info: "AAC audio streaming",
-                mediaConfig: {
-                    type: 'media-source',
-                    audio: {
-                        contentType: 'audio/mp4; codecs="mp4a.40.2"',
-                        channels: 2,
-                        bitrate: 192000,
-                        samplerate: 48000
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'audio/mp4',
-                        string: 'mp4a.40.2',
-                        parts: [
-                            { token: 'mp4a', meaning: 'MPEG-4 Audio in ISO BMFF container. The mp4a tag covers all MPEG-4 audio profiles — the .40.2 suffix specifies which one' },
-                            { token: '40', meaning: 'objectTypeIndication 0x40 = Audio ISO/IEC 14496-3. This identifies the bitstream as MPEG-4 Audio (AAC family)' },
-                            { token: '2', meaning: 'audioObjectType 2 = AAC-LC (Low Complexity). The universal streaming audio codec — every device that plays audio supports AAC-LC' }
-                        ]
-                    },
-                    overview: "AAC-LC in fMP4 is the mandatory baseline audio for both HLS and DASH. Apple requires at least one AAC stereo rendition in every HLS stream as a universal fallback. Even when E-AC-3 5.1 or Atmos is the primary audio, AAC-LC stereo must be available for devices without surround decode\n\nIn fMP4 streaming, AAC frames are wrapped in moof/mdat atoms just like video segments. Audio segments are typically shorter than video (1-2 seconds vs 2-10 seconds) to enable faster audio switching and reduce latency. The init segment contains the AudioSpecificConfig in the esds box, which the decoder uses to configure itself\n\nFor CMAF, AAC-LC is the only universally supported audio codec across all platforms. E-AC-3 requires licensing (Dolby), Opus requires container support (not all platforms support Opus in fMP4), but AAC-LC works everywhere — making it the safe fallback for any streaming pipeline",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:7
-#EXT-X-TARGETDURATION:4
-#EXT-X-MAP:URI="init_aac.mp4"
-
-#EXTINF:3.968,
-audio_seg_0.m4s
-#EXTINF:3.968,
-audio_seg_1.m4s
-#EXTINF:3.968,
-audio_seg_2.m4s
-#EXT-X-ENDLIST`,
-                            notes: 'AAC media playlist: EXT-X-MAP points to the init segment containing the esds box with AudioSpecificConfig. Shorter segments (4s) than video enable faster track switching. This is a media playlist — the master playlist references it via EXT-X-MEDIA with GROUP-ID for audio rendition selection.'
-                        }
-                    },
-                    references: [
-                        { title: 'ISO/IEC 14496-3' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports AAC in HLS fMP4 segments. AAC-LC is universally hardware-decoded on Android. ExoPlayer reads the CODECS attribute (mp4a.40.2) from the HLS playlist for chunkless preparation. Widevine DRM supported for encrypted audio segments. Apple LL-HLS supported for low-latency audio streaming. AAC fMP4 HLS is the standard audio format for all major streaming services on Android.'
-                    }
-                }
-            },
-            {
-                name: "HLS fMP4 AV1 (4K HDR)",
-                codec: 'video/mp4; codecs="av01.0.08M.10"',
-                container: "fMP4",
-                info: "AV1 via HLS",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="av01.0.08M.10"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 15000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'av01.0.08M.10',
-                        parts: [
-                            { token: 'av01', meaning: 'AV1 codec in ISO BMFF (MP4/fMP4). The av01 tag is used for both file-based and streaming AV1 — the container type (file vs media-source) determines the delivery method' },
-                            { token: '0', meaning: 'Main Profile: 8-bit and 10-bit 4:2:0. The most widely supported AV1 profile for streaming' },
-                            { token: '08M', meaning: 'Level 4.0 Main Tier. Supports 4K@30fps or 1080p@60fps. M = Main Tier (vs H for High Tier). Sufficient for most 4K streaming content' },
-                            { token: '10', meaning: '10-bit depth. Required for HDR10 (PQ transfer) and wide color gamut (BT.2020). The transferFunction and colorGamut in mediaConfig signal HDR — the codec string itself just declares bit depth' }
-                        ]
-                    },
-                    overview: "AV1 in HLS is relatively new — Apple added AV1 HLS support in iOS 16 and macOS Ventura (2022). Before that, AV1 was DASH-only for streaming. Apple's AV1 HLS uses the same fMP4 container as HEVC HLS, making the transition straightforward for CDN infrastructure\n\nAV1 offers roughly 30% better compression than HEVC at the same quality, with no patent licensing fees (AV1 is royalty-free via the Alliance for Open Media). This makes it attractive for services paying HEVC/MPEG-LA licensing. Netflix, YouTube, and Disney+ use AV1 for bandwidth savings on supported devices\n\nThe tradeoff: AV1 encode times are significantly slower than HEVC (5-10x slower for software encoding). Hardware AV1 encoders (Intel Arc, NVIDIA RTX 40+, AMD RDNA 3) close the gap but aren't yet ubiquitous. For Jellyfin/Plex, AV1 transcoding on-the-fly is impractical without hardware encoders — pre-encoded AV1 libraries with HEVC fallback is the practical approach",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:7
-#EXT-X-INDEPENDENT-SEGMENTS
-
-#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
-av1_4k_hdr/playlist.m3u8
-
-#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="hvc1.2.4.L153.B0",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
-hevc_4k_hdr/playlist.m3u8
-
-#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="avc1.640028",RESOLUTION=1920x1080,FRAME-RATE=24.000
-h264_1080/playlist.m3u8`,
-                            notes: 'AV1 HLS with codec fallback ladder: AV1 at lower bandwidth than HEVC for the same resolution (compression advantage). AV1-capable devices select the first variant. Non-AV1 devices fall through to HEVC, then H.264. VIDEO-RANGE=PQ on both AV1 and HEVC variants signals HDR. Apple requires AV1 hardware decode (A15+ chip, M1+ Mac) — older devices skip the AV1 variant automatically.'
-                        },
-                        dash: {
-                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10"
-    segmentAlignment="true">
-  <SegmentTemplate timescale="24000"
-    initialization="av1_4k/init.mp4"
-    media="av1_4k/seg_$Number$.m4s"/>
-  <Representation id="av1_4k" bandwidth="15000000"
-    width="3840" height="2160" frameRate="24000/1000"/>
-</AdaptationSet>`,
-                            notes: 'DASH AV1: Standard AdaptationSet with AV1 codec string. DASH players (Shaka, dash.js, ExoPlayer) check device AV1 capability via MSE isTypeSupported before selecting this AdaptationSet. If AV1 is unsupported, the player falls back to an HEVC or H.264 AdaptationSet in the same Period.'
-                        }
-                    },
-                    platforms: {
-                        apple: 'AV1 hardware decode: iPhone 15+ (A15+ with AV1 decode block), iPad M1+, Mac M1+, Apple TV 4K 3rd gen (A15). Safari on older hardware does not support AV1 — no software fallback. In HLS, Apple treats AV1 like HEVC: VIDEO-RANGE=PQ for HDR, fMP4 segments with EXT-X-MAP. Apple TV+ started serving AV1 to capable devices in late 2023.',
-                        lg: 'webOS AV1 support: webOS 6.0+ (2021 TVs with MediaTek MT5895 SoC) supports AV1 hardware decode up to 4K@60fps. Older webOS TVs have no AV1 support (no software fallback). webOS treats AV1 like any other fMP4 codec — the native pipeline reads the av01 sample entry from the init segment.',
-                        android: 'AV1 hardware decode varies widely: Snapdragon 888+ (2021), Dimensity 9000+ (2022), Exynos 2200+ (2022), Tensor G2+ (Pixel 7). Software AV1 via dav1d on Android 10+ but too slow for 4K. ExoPlayer/Media3 handles both HLS fMP4 and DASH for AV1 — it checks AV1ProfileMain10 via MediaCodecInfo.CodecCapabilities to distinguish hardware (c2.* prefix) from software (OMX.google.*) decoders. AV1 encoder mandatory from Android 14+. For Jellyfin, AV1 direct play works on 2021+ flagships — older devices need HEVC/H.264 transcoding.'
-                    },
-                    references: [
-                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
-                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
-                }
-            },
-            {
-                name: "CMAF VP9 (4K HDR)",
-                codec: 'video/webm; codecs="vp09.02.10.10"',
-                container: "CMAF",
-                info: "VP9 HLS/DASH unified",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/webm; codecs="vp09.02.10.10"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 20000000,
-                        framerate: 60,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/webm',
-                        string: 'vp09.02.10.10',
-                        parts: [
-                            { token: 'vp09', meaning: 'VP9 codec with full codec string (vs bare "vp9" tag). The vp09 prefix signals that profile, level, and bit depth follow in dot-separated fields' },
-                            { token: '02', meaning: 'Profile 2: 10-bit 4:2:0. Required for HDR10/HLG VP9 content' },
-                            { token: '10', meaning: 'Level 1.0 (10 in decimal). Note: VP9 levels are confusingly numbered — Level 1.0 actually covers 4K@30fps' },
-                            { token: '10', meaning: '10-bit depth. Enables PQ/HLG transfer functions and BT.2020 wide color gamut' }
-                        ]
-                    },
-                    overview: "VP9 in CMAF is an unusual combination. VP9 was designed for the WebM container (Matroska-based), not ISO BMFF. Putting VP9 in fMP4 requires the VP Codec ISO Media File Format Binding specification (Google/WebM Project), which maps VP9 codec configuration to the vpcC box in the MP4 sample entry\n\nIn practice, VP9 CMAF is primarily used by YouTube for DASH delivery in MP4 containers (as opposed to WebM). The CMAF profile for VP9 uses the same fMP4 structure as HEVC/AV1 CMAF but with VP9-specific init segment boxes. Apple HLS does not support VP9 in any container — Safari has no VP9 decode. This limits VP9 CMAF to DASH-only deployments or Chrome/Firefox HLS implementations\n\nFor media servers, VP9 CMAF is niche — AV1 is the preferred royalty-free codec for new CMAF content, and HEVC CMAF has broader platform support. VP9 CMAF exists mainly for YouTube backward compatibility",
-                    references: [
-                        { title: 'VP9 Bitstream & Decoding Process Spec' },
-                        { title: 'VP9 Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
-                        { title: 'ISO/IEC 23000-19' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports VP9 CMAF for both HLS and DASH delivery. VP9 Profile 2 (10-bit HDR) hardware decode on Snapdragon 835+ (2017). VP9 CMAF uses WebM-based segments — not ISO BMFF fMP4. This means VP9 CMAF has different segment format than HEVC/AV1 CMAF. Chrome and Firefox support VP9 CMAF; Safari does not (no VP9). Widevine DRM works with VP9 CMAF on Android.'
-                    }
-                }
-            },
-            {
-                name: "DASH DV Profile 8.1 (Streaming)",
-                codec: 'video/mp4; codecs="dvh1.08.06"',
-                container: "DASH",
-                info: "DV via MPEG-DASH",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="dvh1.08.06"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 25000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        string: "dvh1.08.06",
-                        parts: [
-                            { token: "dvh1", meaning: "DV HEVC tag: Same DV Profile 8.1 string as HLS — the codec doesn't change between streaming protocols, only the manifest signaling differs" },
-                            { token: "08", meaning: "profile: Profile 8 = single-layer backward-compatible HEVC" },
-                            { token: "06", meaning: "level: Level 6 = 4K@60fps" }
-                        ]
-                    },
-                    overview: "DASH uses supplementalCodecs in the MPD AdaptationSet: codecs=\"hvc1.2.4.L153.B0\" supplementalCodecs=\"dvh1.08.06\". The base codecs field declares HEVC (for backward compatibility); supplementalCodecs declares the DV enhancement. Non-DV players ignore supplementalCodecs and play HEVC. DV players use both\n\nThis dual-signaling is DASH's advantage over HLS for DV content. One manifest serves both DV and non-DV clients without platform-specific variants. HLS must choose: either dvh1 in CODECS (breaks non-DV players) or hvc1 in CODECS (DV players miss the enhancement on Apple devices)\n\nShaka Player and dash.js both support supplementalCodecs parsing. ExoPlayer (Android) reads it for DV activation. The DASH-IF Implementation Guidelines (IOP v5.0+) define the supplementalCodecs signaling. For Jellyfin, DASH with supplementalCodecs is the most compatible path for serving DV to mixed device populations",
-                    streaming: {
-                        dash: {
-                            mpd: `<AdaptationSet mimeType="video/mp4"
-    codecs="hvc1.2.4.L153.B0"
-    supplementalCodecs="dvh1.08.06"
-    segmentAlignment="true">
-  <SegmentTemplate timescale="24000"
-    initialization="init_dv_p81.mp4"
-    media="seg_dv_$Number$.m4s"/>
-  <Representation id="dv_4k" bandwidth="25000000"
-    width="3840" height="2160" frameRate="24000/1000"/>
-  <Representation id="dv_1080" bandwidth="8000000"
-    width="1920" height="1080" frameRate="24000/1000"/>
-</AdaptationSet>`,
-                            notes: 'DASH-IF IOP v5.0+ defines supplementalCodecs for backward-compatible codec layering. Non-DV players read codecs= (HEVC base) and ignore supplementalCodecs=. DV players activate both layers. Multiple Representations provide adaptive bitrate without manifest duplication. The init segment (init_dv_p81.mp4) contains the dvcC box that triggers DV decoding on capable devices.'
-                        }
-                    },
-                    platforms: {
-                        apple: 'Apple devices do not support DASH natively — Safari has no MSE-based DASH playback. Jellyfin web on Safari uses HLS exclusively. If DASH DV content must reach Apple, Jellyfin transcodes/remuxes to HLS with dvh1 CODECS signaling. Apple TV+ uses separate HLS manifests for DV content rather than DASH supplementalCodecs.',
-                        dolby: 'Dolby\'s reference implementation uses supplementalCodecs as the canonical DASH DV signaling. The init segment must contain the dvcC box in the HEVC sample entry (stsd > hvc1/hev1 > dvcC). Dolby Vision Streams Within the ISO BMFF specification defines the box layout. Dolby mandates that the RPU NALUs appear as in-band SEI messages in every access unit — the DV enhancement is not stored separately.',
-                        lg: 'webOS DASH support uses the native media pipeline, not a JS DASH player. The webOS media framework reads the MPD and init segments directly. For DV, webOS checks the dvcC box from the init segment, then queries Luna IPC getHdrCapabilities to confirm hardware DV support. webOS 6+ supports P8.1 via DASH. The race condition (getHdrCapabilities returning before Luna IPC completes) can cause false negatives on first DASH playback — retry or delayed detection is the workaround.',
-                        android: 'ExoPlayer/Media3 parses supplementalCodecs from the DASH MPD. When supplementalCodecs contains a DV tag, ExoPlayer checks MediaCodecInfo for the DV profile — the decoder name is typically "c2.dolby.dv_hevc.decoder" (Codec 2.0) or "OMX.dolby.hevc.decoder" (legacy). DASH containers supported: fMP4, WebM, Matroska (NOT MPEG-TS). Widevine DRM for encrypted DASH: cenc from API 19+, cbcs from API 25+. PlayReady SL2000 on Android TV only. ClearKey API 21+ (cenc only). Snapdragon 865+ and Dimensity 1000+ SoCs report DV capability. ExoPlayer activates DV by configuring MediaCodec with MIME type video/dolby-vision instead of video/hevc.'
-                    },
-                    references: [
-                        { title: 'ETSI TS 103 572' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ]
-                }
-            },
-            {
-                name: "CMAF DV Profile 8.1 (4K)",
-                codec: 'video/mp4; codecs="dvh1.08.06"',
-                container: "CMAF",
-                info: "DV HLS/DASH unified",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="dvh1.08.06"',
-                        width: 3840,
-                        height: 2160,
-                        bitrate: 25000000,
-                        framerate: 24,
-                        transferFunction: 'pq',
-                        colorGamut: 'rec2020'
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'dvh1.08.06',
-                        parts: [
-                            { token: 'dvh1', meaning: 'DV HEVC tag with in-band RPU NALUs. In CMAF, the fMP4 init segment contains both the HEVC sample entry (hvc1) and the DV config box (dvcC) — the dvh1 codec string signals that the stream carries DV enhancement data' },
-                            { token: '08', meaning: 'Profile 8: Single-layer backward-compatible HEVC. The CMAF segment data is identical whether consumed by a DV or non-DV player — the RPU NALUs are ignored by HEVC-only decoders' },
-                            { token: '06', meaning: 'Level 6: 4K@60fps. DV levels in CMAF follow the same constraints as regular DV — the container format does not change the level capabilities' }
-                        ]
-                    },
-                    overview: "CMAF DV Profile 8.1 is the holy grail of streaming DV — one set of segments serving HLS (Apple), DASH (Android/TV), and both DV and non-DV devices simultaneously. The same init.mp4 + .m4s segments sit on the CDN, referenced by both HLS playlists and DASH MPDs\n\nThe catch: the manifest signaling differs. HLS uses CODECS=\"dvh1.08.06\" with VIDEO-RANGE=PQ to signal DV. DASH uses supplementalCodecs=\"dvh1.08.06\" alongside codecs=\"hvc1.2.4.L153.B0\". The CMAF segments themselves are byte-for-byte identical — only the manifests change per platform\n\nEncryption is the real divergence point. Apple mandates cbcs mode for CMAF DRM. Most DASH deployments use cenc/ctr. To serve both from the same segments, content must be encrypted with cbcs (Apple-compatible) and DASH players must support cbcs decryption. Android 12+ and recent Widevine CDMs support cbcs, but older Android devices do not — forcing dual-encrypted segments for universal reach",
-                    streaming: {
-                        hls: {
-                            m3u8: `#EXTM3U
-#EXT-X-VERSION:7
-#EXT-X-INDEPENDENT-SEGMENTS
-
-#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvh1.08.06",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
-cmaf_dv/playlist.m3u8
-
-#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="hvc1.2.4.L153.B0",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=24.000
-cmaf_hdr10/playlist.m3u8`,
-                            notes: 'HLS pointing to CMAF segments: The media playlists reference the same .m4s segments as DASH. DV variant uses CODECS="dvh1.08.06" — Apple devices select this variant. HDR10 fallback uses CODECS="hvc1..." for non-DV Apple devices. Both playlists point to the same CMAF segment files on disk — zero storage duplication.'
-                        },
-                        dash: {
-                            mpd: `<AdaptationSet mimeType="video/mp4"
-    codecs="hvc1.2.4.L153.B0"
-    supplementalCodecs="dvh1.08.06"
-    segmentAlignment="true" subsegmentAlignment="true">
-  <SegmentTemplate timescale="24000"
-    initialization="cmaf_dv/init.mp4"
-    media="cmaf_dv/seg_$Number$.m4s"/>
-  <Representation id="dv_4k" bandwidth="25000000"
-    width="3840" height="2160"/>
-</AdaptationSet>`,
-                            notes: 'DASH pointing to the same CMAF segments as HLS. The init.mp4 and seg_*.m4s paths are identical to what HLS references. supplementalCodecs signals DV enhancement. subsegmentAlignment=true enables byte-range addressing and low-latency chunked transfer.'
-                        }
-                    },
-                    platforms: {
-                        apple: 'Apple requires cbcs encryption for CMAF DV content. The HLS playlist must declare VIDEO-RANGE=PQ and use dvh1 in CODECS. Apple\'s AVPlayer reads the dvcC box from the CMAF init segment to activate the DV rendering pipeline. For DRM content, Apple requires FairPlay Streaming with cbcs — cenc/ctr encrypted CMAF segments will fail with a decryption error on Apple devices.',
-                        dolby: 'Dolby\'s CMAF DV specification requires the dvcC box in the init segment\'s sample entry (stsd > hvc1 > dvcC). The RPU NALUs must be present as in-band SEI NAL units in every CMAF fragment. For CMAF DV Profile 8.1, Dolby specifies that the base layer HEVC must be independently decodable — the DV RPU is enhancement-only. This is what makes P8.1 CMAF work: strip the RPU NALUs and you have valid HEVC.',
-                        lg: 'webOS reads CMAF init segments natively to detect DV. The dvcC box triggers the DV firmware path via Luna IPC. webOS 6+ supports cbcs-encrypted CMAF (required for Apple-compatible unified segments). Pre-webOS 6 TVs (2020 and earlier) only support cenc/ctr encryption — these cannot play Apple-encrypted CMAF DV content and require separate cenc-encrypted segments or unencrypted fallback.',
-                        android: 'ExoPlayer/Media3 handles CMAF DV by reading the dvcC box from the init segment. For DRM, Widevine cbcs is available from API 25+ (Android 7.1) per ExoPlayer docs, but reliable cross-SoC cbcs needs Android 12+. On Android 10-11, cbcs is SoC-dependent (Snapdragon 855+ works, older chips may not). PlayReady SL2000 is Android TV only (cenc scheme). ClearKey API 21+ (cenc only). Apple-encrypted CMAF DV (cbcs) works on newer Android but fails on older devices — Jellyfin should detect cbcs capability and fall back to cenc-encrypted segments when needed.'
-                    },
-                    references: [
-                        { title: 'ETSI TS 103 572' },
-                        { title: 'ISO/IEC 23000-19' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
-                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ]
-                }
-            },
-            {
-                name: "HLS fMP4 HEVC (SDR 1080p)",
-                codec: 'video/mp4; codecs="hvc1.1.6.L120.B0"',
-                container: "fMP4",
-                info: "SDR HEVC via HLS",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="hvc1.1.6.L120.B0"',
-                        width: 1920,
-                        height: 1080,
-                        bitrate: 5000000,
-                        framerate: 24
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'hvc1.1.6.L120.B0',
-                        parts: [
-                            { token: 'hvc1', meaning: 'HEVC with parameter sets in sample entry. Apple HLS mandates hvc1 over hev1' },
-                            { token: '1', meaning: 'Main Profile (profile_idc=1). 8-bit 4:2:0 SDR — no HDR metadata' },
-                            { token: '6', meaning: 'Profile compatibility: Main + Main 10 backward-compatible' },
-                            { token: 'L120', meaning: 'Level 4.0, Main Tier. 120 = 4.0 x 30. Supports 1080p@60fps or 2K@30fps. Max bitrate 12 Mbps Main Tier' },
-                            { token: 'B0', meaning: 'No additional constraint flags' }
-                        ]
-                    },
-                    overview: "SDR HEVC via HLS fills the gap between H.264 (universal but lower compression) and HEVC HDR (higher quality but requires HDR display). For 1080p SDR content, HEVC Main Profile offers ~40% bitrate savings over H.264 High Profile at equivalent quality\n\nThis is the variant Apple TV+ uses for SDR catalog content on HEVC-capable devices. No VIDEO-RANGE attribute is needed in the HLS manifest (SDR is the default). The absence of transferFunction and colorGamut in mediaConfig means the browser's mediaCapabilities API evaluates this as pure SDR — no HDR pipeline activation, no tone mapping overhead",
-                    references: [
-                        { title: 'ISO/IEC 23008-2' },
-                        { title: 'ISO/IEC 14496-15 Annex E' },
-                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
-                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
-                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports HEVC SDR in HLS fMP4. HEVC hardware decode on Android 5.0+ via MediaCodec. SDR HEVC uses HEVCProfileMain (8-bit) or HEVCProfileMain10 (10-bit SDR for banding reduction). ExoPlayer reads hvc1 CODECS from the HLS playlist. Widevine DRM: cenc (API 19+), cbcs (API 25+). HLS HEVC is common for Jellyfin/Plex direct play to Android clients — avoids transcoding when the device has HEVC hardware decode.'
-                    }
-                }
-            },
-            {
-                name: "DASH AV1 (SDR 1080p)",
-                codec: 'video/mp4; codecs="av01.0.05M.08"',
-                container: "DASH",
-                info: "SDR AV1 streaming",
-                mediaConfig: {
-                    type: 'media-source',
-                    video: {
-                        contentType: 'video/mp4; codecs="av01.0.05M.08"',
-                        width: 1920,
-                        height: 1080,
-                        bitrate: 4000000,
-                        framerate: 30
-                    }
-                },
-                education: {
-                    codecBreakdown: {
-                        mime: 'video/mp4',
-                        string: 'av01.0.05M.08',
-                        parts: [
-                            { token: 'av01', meaning: 'AV1 in ISO BMFF' },
-                            { token: '0', meaning: 'Main Profile: 8-bit and 10-bit 4:2:0' },
-                            { token: '05M', meaning: 'Level 3.1 Main Tier. Supports 1080p@30fps. M = Main Tier. Lower level than 4K variant (08M) — matching the 1080p resolution target' },
-                            { token: '08', meaning: '8-bit depth. SDR content — no HDR metadata, no wide color gamut. Standard BT.709 color space' }
-                        ]
-                    },
-                    overview: "SDR AV1 at 1080p is YouTube's default delivery codec for Chrome users. At 4 Mbps, AV1 SDR 1080p matches the visual quality of H.264 at 6-8 Mbps — a significant bandwidth saving at scale. Netflix uses SDR AV1 for mobile device streaming where bandwidth is constrained\n\nThe 08 bit depth (8-bit) distinguishes this from HDR AV1 (which uses 10). 8-bit AV1 is slightly faster to decode than 10-bit because there's no bit-depth upconversion. On devices with AV1 hardware decode, this difference is negligible. On software decode (dav1d), 8-bit 1080p is roughly 20% faster than 10-bit — enough to make the difference between real-time and stuttering on older mobile SoCs",
-                    references: [
-                        { title: 'AV1 Bitstream & Decoding Process Spec', url: 'https://aomediacodec.github.io/av1-spec/' },
-                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
-                        { title: 'ISO/IEC 23009-1' },
-                        { title: 'DASH-IF IOP', url: 'https://dashif.org/guidelines/' },
-                        { title: 'Android ExoPlayer DASH', url: 'https://developer.android.com/media/media3/exoplayer/dash' }
-                    ],
-                    platforms: {
-                        android: 'ExoPlayer/Media3 supports AV1 SDR DASH in fMP4. AV1 hardware decode: Snapdragon 888+ (2021), Dimensity 9000+ (2022). Software AV1 via dav1d on Android 10+ — adequate for 1080p SDR on mid-range devices. AV1 encoder mandatory from Android 14+ (decoder from Android 10+). ExoPlayer uses MediaCodecList.findDecoderForFormat() with MIMETYPE_VIDEO_AV1 to check support. DASH AV1 SDR is YouTube default for non-HDR content on AV1-capable devices.'
-                    }
-                }
-            }
-        ]
-    },
-
     // ==================== AUDIO CODECS ====================
 
     audio_dolby: {
@@ -5584,8 +4566,36 @@ cmaf_hdr10/playlist.m3u8`,
                         ]
                     },
                     overview: "E-AC-3 is the mandatory Dolby audio format for streaming services. Netflix, Disney+, Apple TV+, and Amazon all deliver Dolby Atmos over E-AC-3 JOC in fMP4 containers. The typical streaming Atmos bitrate is 768 kbps — vastly more efficient than TrueHD's 18+ Mbps lossless path on Blu-ray\n\nDolby Atmos in E-AC-3 uses Joint Object Coding: the 7.1 bed channels carry the spatial audio foundation, and additional metadata describes object positions. A non-Atmos decoder plays the 7.1 bed normally. An Atmos renderer uses the object metadata to place sounds in 3D space. Same bitstream, two decode paths\n\nThe E-AC-3 codec string 'ec-3' is identical whether the content is stereo, 5.1, 7.1, or Atmos. The browser's codec detection can't distinguish these — it reports E-AC-3 support generically. CodecProbe's API 3b spatial audio test (spatialRendering: true in mediaCapabilities) is the only way to detect Atmos rendering capability",
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:7
+#EXT-X-INDEPENDENT-SEGMENTS
+
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="surround",NAME="English 5.1",DEFAULT=YES,CHANNELS="6",URI="audio_eac3/playlist.m3u8",CODECS="ec-3"
+
+#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="stereo",NAME="English Stereo",DEFAULT=YES,CHANNELS="2",URI="audio_aac/playlist.m3u8",CODECS="mp4a.40.2"
+
+#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,ec-3",AUDIO="surround",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+video_4k/playlist.m3u8
+
+#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="avc1.640028,mp4a.40.2",AUDIO="stereo",RESOLUTION=1920x1080
+video_1080/playlist.m3u8`,
+                            notes: 'HLS audio renditions: EXT-X-MEDIA declares audio tracks as separate groups. The STREAM-INF AUDIO= attribute selects which group plays with each video variant. CODECS includes both video and audio codec strings. CHANNELS="6" signals 5.1. For Atmos, Apple requires CHANNELS="16/JOC" — devices that support JOC get object audio, others fall back to 7.1 bed.'
+                        }
+                    },
+                    platforms: {
+                        apple: 'Apple devices decode E-AC-3 in hardware on iPhone 7+, iPad Pro 2017+, Apple TV 4K, and all Macs with T2/Apple Silicon. Safari reports E-AC-3 support via mediaCapabilities. For Atmos, Apple requires AirPods Pro/Max, HomePod, or HDMI passthrough to an Atmos-capable receiver. Apple mandates the CHANNELS="16/JOC" attribute in HLS for Atmos signaling — without it, even capable devices won\'t activate the Atmos decoder.',
+                        lg: 'webOS has native E-AC-3 decode in all models since webOS 1.0 (2014). Atmos decode added in webOS 4.0+ (2019) via eARC or optical passthrough. webOS reports E-AC-3 support through its native media pipeline but may not expose it via browser canPlayType — the Jellyfin webOS app bypasses browser APIs and queries Luna IPC for audio codec support directly.',
+                        android: 'E-AC-3 decode on Android requires hardware support from the SoC audio DSP. Most Snapdragon 600+ series chips include E-AC-3 decode. Android TV devices (Shield, Chromecast) support E-AC-3 passthrough via HDMI to AVRs. ExoPlayer detects E-AC-3 capability via MediaCodecInfo and falls back to AAC stereo when unavailable.'
+                    },
                     references: [
-                        { title: 'ETSI TS 102 366' }
+                        { title: 'ETSI TS 102 366' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'webOS TV AV Formats', url: 'https://webostv.developer.lge.com/develop/specifications/video-audio-250' },
+                        { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -5831,6 +4841,40 @@ cmaf_hdr10/playlist.m3u8`,
                         bitrate: 256000,
                         samplerate: 48000
                     }
+                }
+            },
+            // MPEG-TS container
+            {
+                name: "Dolby Digital (AC-3 MPEG-TS)",
+                codec: 'video/mp2t; codecs="ac-3"',
+                container: "MPEG-TS",
+                info: "Dolby Digital in TS",
+                mediaConfig: {
+                    type: 'media-source',
+                    audio: {
+                        contentType: 'video/mp2t; codecs="ac-3"',
+                        channels: 6,
+                        bitrate: 640000,
+                        samplerate: 48000
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp2t',
+                        string: 'ac-3',
+                        parts: [
+                            { token: 'ac-3', meaning: 'Dolby Digital (AC-3) codec identifier. The hyphenated form "ac-3" is the IANA-registered codec string. Some implementations also accept "ac3" without the hyphen, but ac-3 is the standard form per RFC 6381' }
+                        ]
+                    },
+                    overview: "Dolby Digital 5.1 surround sound in MPEG Transport Stream. AC-3 in TS is common in broadcast TV (ATSC, DVB) and HLS for Apple TV. The TS container carries AC-3 as a private stream within PES packets. For HLS, Apple requires AC-3/E-AC-3 audio to be declared in the master playlist with the AUDIO group-id and CODECS attribute. AC-3 5.1 in TS is the standard surround sound format for broadcast-origin HLS content — newer Atmos/spatial audio uses E-AC-3 JOC in fMP4 instead.",
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AC-3 (Dolby Digital) in MPEG-TS for HLS. AC-3 decode requires hardware support from the SoC audio DSP — most Snapdragon 600+ series include it. Android TV devices (Shield, Chromecast) support AC-3 passthrough via HDMI to AVRs. ExoPlayer detects AC-3 capability via MediaCodecInfo. MPEG-TS AC-3 is common in broadcast-origin HLS streams.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 102 366' },
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
+                    ]
                 }
             }
         ]
@@ -6597,8 +5641,31 @@ cmaf_hdr10/playlist.m3u8`,
                         ]
                     },
                     overview: "The mp4a.40.X numbering comes from ISO/IEC 14496-1 (Systems) and 14496-3 (Audio). The audioObjectType (third field) maps directly to the AOT table in 14496-3: 1=AAC Main, 2=AAC-LC, 3=AAC-SSR, 4=AAC-LTP, 5=SBR (HE-AAC), 29=PS (HE-AAC v2), 42=USAC (xHE-AAC). These are decimal, not hex\n\nAAC-LC at 192 kbps stereo is the de facto standard for streaming audio. YouTube, Spotify (on mobile), Apple Music (lossy tier), and every HLS/DASH stream use AAC-LC as the baseline audio codec. It's the audio equivalent of H.264 High Profile — the universal format every device handles\n\nEvery browser supports AAC-LC: Chrome, Firefox (since 22, via platform decoders), Safari, Edge. It's the only lossy audio codec with truly universal browser support (Opus is close but Safari added it later). For Jellyfin/Plex, AAC-LC is the safe fallback when the client can't handle the original audio codec",
+                    streaming: {
+                        hls: {
+                            m3u8: `#EXTM3U
+#EXT-X-VERSION:7
+#EXT-X-TARGETDURATION:4
+#EXT-X-MAP:URI="init_aac.mp4"
+
+#EXTINF:3.968,
+audio_seg_0.m4s
+#EXTINF:3.968,
+audio_seg_1.m4s
+#EXTINF:3.968,
+audio_seg_2.m4s
+#EXT-X-ENDLIST`,
+                            notes: 'AAC media playlist: EXT-X-MAP points to the init segment containing the esds box with AudioSpecificConfig. Shorter segments (4s) than video enable faster track switching. This is a media playlist — the master playlist references it via EXT-X-MEDIA with GROUP-ID for audio rendition selection.'
+                        }
+                    },
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AAC in HLS fMP4 segments. AAC-LC is universally hardware-decoded on Android. ExoPlayer reads the CODECS attribute (mp4a.40.2) from the HLS playlist for chunkless preparation. Widevine DRM supported for encrypted audio segments. Apple LL-HLS supported for low-latency audio streaming. AAC fMP4 HLS is the standard audio format for all major streaming services on Android.'
+                    },
                     references: [
-                        { title: 'ISO/IEC 14496-3' }
+                        { title: 'ISO/IEC 14496-3' },
+                        { title: 'RFC 8216', url: 'https://datatracker.ietf.org/doc/html/rfc8216' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
                     ]
                 }
             },
@@ -7004,6 +6071,42 @@ cmaf_hdr10/playlist.m3u8`,
                         bitrate: 384000,
                         samplerate: 48000
                     }
+                }
+            },
+            // MPEG-TS container
+            {
+                name: "AAC-LC (MPEG-TS)",
+                codec: 'video/mp2t; codecs="mp4a.40.2"',
+                container: "MPEG-TS",
+                info: "AAC audio in TS",
+                mediaConfig: {
+                    type: 'media-source',
+                    audio: {
+                        contentType: 'video/mp2t; codecs="mp4a.40.2"',
+                        channels: 2,
+                        bitrate: 192000,
+                        samplerate: 48000
+                    }
+                },
+                education: {
+                    codecBreakdown: {
+                        mime: 'video/mp2t',
+                        string: 'mp4a.40.2',
+                        parts: [
+                            { token: 'mp4a', meaning: 'MPEG-4 Audio object type identifier. Used for all AAC variants in codec strings' },
+                            { token: '40', meaning: 'ObjectTypeIndication = 0x40 = Audio ISO/IEC 14496-3 (MPEG-4 Audio)' },
+                            { token: '2', meaning: 'AudioObjectType = 2 = AAC-LC (Low Complexity). The most common AAC profile' }
+                        ]
+                    },
+                    overview: "AAC-LC audio in MPEG Transport Stream. Note the MIME type is video/mp2t even though this is audio — MPEG-TS is a multiplexing container that uses the video MIME type regardless of content. AAC in TS is carried as ADTS (Audio Data Transport Stream) frames within PES packets. This is the standard audio format for HLS MPEG-TS segments. The mediaCapabilities API may reject this test because the AudioConfiguration uses a video/ MIME type — CodecProbe guards against this by skipping API 3 for MPEG-TS audio entries.",
+                    platforms: {
+                        android: 'ExoPlayer/Media3 supports AAC in MPEG-TS for HLS audio segments. AAC-LC is universally decoded on Android (hardware + software). MPEG-TS audio-only HLS is common for radio/podcast live streams. ExoPlayer extracts ADTS-framed AAC from the MPEG-TS PES packets. In HLS, AAC MPEG-TS segments are the fallback when fMP4 is not available.'
+                    },
+                    references: [
+                        { title: 'ISO/IEC 14496-3' },
+                        { title: 'ISO/IEC 13818-1' },
+                        { title: 'Android ExoPlayer HLS', url: 'https://developer.android.com/media/media3/exoplayer/hls' }
+                    ]
                 }
             }
         ]

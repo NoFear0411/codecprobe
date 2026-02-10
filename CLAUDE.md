@@ -13,7 +13,7 @@ CodecProbe is a browser-based codec testing tool for media server users. It test
 ```
 js/
 ├── main.js              - Entry point, imports all modules, PWA install prompt
-├── codec-database.js    - 256 codec test definitions (131 with education)
+├── codec-database.js    - 238 codec test definitions (115 with education)
 ├── device-detection.js  - UAParser.js v2.x integration (← drm-detection)
 ├── drm-detection.js     - DRM/EME system testing (leaf)
 ├── codec-tester.js      - Multi-API testing logic (← codec-database)
@@ -264,7 +264,7 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 
 ## Performance
 
-- 256 codecs tested in ~3-6 seconds
+- 238 codecs tested in ~3-6 seconds
 - mediaCapabilities tests are async (rate-limited by browser)
 - Progressive rendering: PENDING cards appear instantly, update as tests complete
 - UAParser.js detection is async (uses Client Hints API on Chromium)
@@ -342,9 +342,8 @@ Keep docs focused and practical. No generic "best practices" sections.
 
 ## Tested Codecs Summary
 
-**Video (144 tests)**: HEVC (23), Dolby Vision (33, P4/5/7/8.1/8.2/8.4/9/10 + supplemental), AV1 (26), VP9 (20), H.264/AVC (20), VVC/H.266 (8), VP8 (5), Legacy (9, MPEG-4 Part 2/H.263/Theora)
-**Audio (87 tests)**: Dolby (17, AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS (15, Core/Express/HD/MA/Lossless/X), Lossless (27, FLAC/ALAC/Opus/PCM), Standard (24, AAC-LC/HE/xHE/ELD/LD/MP3/Vorbis), MPEG-H 3D Audio (4)
-**Streaming (25 tests)**: HLS fMP4, DASH, CMAF, MPEG-TS
+**Video (149 tests)**: HEVC (25), Dolby Vision (33, P4/5/7/8.1/8.2/8.4/9/10 + supplemental), AV1 (26), VP9 (21), H.264/AVC (22), VVC/H.266 (8), VP8 (5), Legacy (9, MPEG-4 Part 2/H.263/Theora)
+**Audio (89 tests)**: Dolby (18, AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS (15, Core/Express/HD/MA/Lossless/X), Lossless (27, FLAC/ALAC/Opus/PCM), Standard (25, AAC-LC/HE/xHE/ELD/LD/MP3/Vorbis), MPEG-H 3D Audio (4)
 **Containers (17 MIME types)**: MP4, MKV, WebM, MOV, MPEG-TS, 3GP, OGG, fMP4, CMAF, FLAC, WAV, AIFF, AAC, MP3
 
-**Total**: 256 codec/container combinations across 14 groups and 17 MIME types, validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.
+**Total**: 238 codec/container combinations across 13 groups and 17 MIME types, validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.
