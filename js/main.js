@@ -49,7 +49,7 @@ async function initialize() {
     try {
         const results = await runCodecTests((groupKey, codecResult) => {
             updateCardState(groupKey, codecResult);
-        });
+        }, deviceInfo.drm);
 
         state.testResults = results;
 
