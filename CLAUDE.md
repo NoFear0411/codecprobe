@@ -244,11 +244,21 @@ python -m http.server 8000
 
 CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also AGPL-3.0). This means modifications must be shared under the same license, including network use (Section 13). UAParser is bundled at build time in `js/vendor/`.
 
-## Security Notes
+## Security
 
-- All HTML is template-generated from codec database (no user input)
-- innerHTML usage is safe (internal data only)
-- Export function creates client-side JSON blob
+**Headers** (deployed via Cloudflare Transform Rules; `_headers` file for CF Pages/Netlify portability):
+- CSP: `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
+- Permissions-Policy: camera, microphone, geolocation, payment, usb, bluetooth, accelerometer, gyroscope disabled. `encrypted-media` left at default (DRM detection needs it).
+- X-Content-Type-Options: nosniff, X-Frame-Options: DENY, Referrer-Policy: strict-origin-when-cross-origin, COOP: same-origin
+- COEP skipped (no SharedArrayBuffer benefit, fragile if external resources added)
+- HSTS skipped (.dev preloaded, Cloudflare handles it)
+- `style-src 'unsafe-inline'` required — 14 inline style locations (1 HTML, 4 templates, 9 element.style in JS)
+- GitHub Pages ignores `_headers` — all headers set in Cloudflare dashboard
+
+**App-level**:
+- All HTML template-generated from codec database (no user input)
+- innerHTML usage safe (internal data only)
+- Export creates client-side JSON blob
 - No analytics, no external requests, no cookies
 - UAParser.js bundled locally (no CDN)
 
@@ -264,10 +274,18 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 ## Service Worker
 
 `sw.js` at root. Cache-first for static assets, network-first for navigation.
-- `CACHE_VERSION` injected by build script (timestamp-based)
+- `CACHE_VERSION` injected by build script from `package.json` version (e.g. `3.2.0`)
+- Cache name: `codecprobe-v${CACHE_VERSION}` (was opaque timestamp before v3.2.0)
 - `CORE_ASSETS` precaches all JS, CSS, icons, manifest
 - `caches.match(request, { ignoreSearch: true })` — versioned URLs (`?v=hash`) match precached unversioned entries
 - Old caches deleted on activate via prefix matching
+
+## Version Management
+
+`package.json` version is the single source of truth. Build pipeline propagates it:
+1. `scripts/build.js` reads `pkg.version` → injects into `sw.js` CACHE_VERSION + `build/version-manifest.json`
+2. `scripts/inject-versions.js` reads manifest → replaces `<span id="app-version">` + Schema.org `softwareVersion` in deploy HTML
+3. File content hashes (`?v=abc123`) for cache-busting are separate and unchanged
 
 ## Known Issues
 

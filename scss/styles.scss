@@ -901,11 +901,7 @@ main#main-content {
     }
 }
 
-// API details toggle — checkbox hack (no JS, no breakpoints)
-.api-toggle-checkbox {
-    display: none;
-}
-
+// API details toggle — native <details>/<summary>
 .api-toggle-label {
     display: flex;
     align-items: center;
@@ -914,6 +910,11 @@ main#main-content {
     padding: $spacing-xs $spacing-sm;
     border-radius: 4px;
     transition: background 0.2s ease;
+    list-style: none;
+
+    &::-webkit-details-marker {
+        display: none;
+    }
 
     &:hover {
         background: var(--bg-secondary);
@@ -944,17 +945,11 @@ main#main-content {
 }
 
 .api-toggle-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease-in-out;
+    padding-top: $spacing-xs;
 }
 
-// Expand content + burger→X animation when checked
-.api-toggle-checkbox:checked ~ .api-toggle-content {
-    max-height: 1500px;
-}
-
-.api-toggle-checkbox:checked ~ .api-toggle-label {
+// Burger→X animation when details is open
+details[open] > .api-toggle-label {
     .api-toggle-burger span:nth-child(1) {
         transform: translateY(5px) rotate(45deg);
     }
@@ -982,16 +977,19 @@ main#main-content {
     &:has(.api-number.success):hover {
         border-left-color: var(--accent);
         background: rgba(0, 255, 136, 0.05);
+        background: color-mix(in srgb, var(--accent) 5%, transparent);
     }
 
     &:has(.api-number.partial):hover {
         border-left-color: var(--yellow);
         background: rgba(255, 215, 0, 0.05);
+        background: color-mix(in srgb, var(--yellow) 5%, transparent);
     }
 
     &:has(.api-number.fail):hover {
         border-left-color: var(--red);
         background: rgba(255, 68, 68, 0.05);
+        background: color-mix(in srgb, var(--red) 5%, transparent);
     }
 }
 

@@ -192,15 +192,11 @@ export function renderDeviceInfo(info) {
  * @returns {string} HTML string
  */
 function formatApiResults(codec) {
-    const safeId = codec.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-    const toggleId = `api-${safeId}`;
-
-    let html = '<div class="api-results">';
-    html += `<input type="checkbox" id="${toggleId}" class="api-toggle-checkbox">`;
-    html += `<label for="${toggleId}" class="api-toggle-label">`;
+    let html = '<details class="api-results">';
+    html += '<summary class="api-toggle-label">';
     html += '<span class="api-section-title">API Test Results</span>';
     html += '<span class="api-toggle-burger"><span></span><span></span><span></span></span>';
-    html += '</label>';
+    html += '</summary>';
     html += '<div class="api-toggle-content">';
 
     // API 1: canPlayType
@@ -334,7 +330,7 @@ function formatApiResults(codec) {
     }
 
     html += '</div>'; // close api-toggle-content
-    html += '</div>'; // close api-results
+    html += '</details>'; // close api-results
     return html;
 }
 
@@ -762,16 +758,11 @@ function attachCopyHandler(container) {
 
 /**
  * Prevent API toggle clicks from bubbling to card expand/collapse handler.
- * The checkbox hack label click would otherwise toggle the card.
  */
 function attachApiToggleHandler(container) {
-    const label = container.querySelector('.api-toggle-label');
-    if (label) {
-        label.addEventListener('click', (e) => e.stopPropagation());
-    }
-    const checkbox = container.querySelector('.api-toggle-checkbox');
-    if (checkbox) {
-        checkbox.addEventListener('click', (e) => e.stopPropagation());
+    const summary = container.querySelector('.api-toggle-label');
+    if (summary) {
+        summary.addEventListener('click', (e) => e.stopPropagation());
     }
 }
 

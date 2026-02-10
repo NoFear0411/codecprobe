@@ -2,6 +2,22 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [3.2.1] - 2026-02-10
+
+### Changed
+
+- **`<search>` element**: Search container uses semantic `<search>` element instead of `<div>` for assistive technology landmark
+- **`<details>`/`<summary>` for API toggle**: Replaced checkbox hack with native disclosure element — removes ID coordination, adds built-in keyboard/a11y support, simplifies JS handler
+- **`color-mix()` progressive enhancement**: API test block hover tints use theme-aware `color-mix(in srgb, ...)` with `rgba()` fallback for older browsers
+- **Docs**: Expanded CLAUDE.md security section, added version management docs, fixed deploy badge URL
+
+### Removed
+
+- `.api-toggle-checkbox` CSS class and all `<input type="checkbox">` elements from API toggle
+- `max-height` animation hack for API toggle content (native `<details>` handles disclosure)
+
+---
+
 ## [3.2.0] - 2026-02-10
 
 ### Added
