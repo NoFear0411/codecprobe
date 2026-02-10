@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Codec Database v2
  *
@@ -134,63 +135,65 @@ export function buildMime(codecString, container, type) {
  * Video: "3840x2160 @ 24fps, 25 Mbps, 10-bit 4:2:0, HDR10 PQ BT.2020, Main Tier"
  * Audio: "5.1 @ 48 kHz, 640 kbps, 24-bit, Spatial"
  *
- * @param {Object} scenario
- * @param {string} type - 'video' or 'audio'
+ * @param {VideoScenario | AudioScenario} scenario
+ * @param {MediaType} type
  * @returns {string}
  */
 export function buildInfo(scenario, type) {
     const parts = [];
 
     if (type === 'video') {
-        if (scenario.width && scenario.height) {
-            parts.push(`${scenario.width}x${scenario.height}`);
+        const vs = /** @type {VideoScenario} */ (scenario);
+        if (vs.width && vs.height) {
+            parts.push(`${vs.width}x${vs.height}`);
         }
-        if (scenario.framerate) {
-            parts.push(`@ ${scenario.framerate}fps`);
+        if (vs.framerate) {
+            parts.push(`@ ${vs.framerate}fps`);
         }
-        if (scenario.bitrate) {
-            const mbps = scenario.bitrate / 1_000_000;
+        if (vs.bitrate) {
+            const mbps = vs.bitrate / 1_000_000;
             parts.push(`${mbps % 1 === 0 ? mbps : mbps.toFixed(1)} Mbps`);
         }
-        if (scenario.bitDepth) {
-            const chroma = scenario.chromaSubsampling || '4:2:0';
-            parts.push(`${scenario.bitDepth}-bit ${chroma}`);
+        if (vs.bitDepth) {
+            const chroma = vs.chromaSubsampling || '4:2:0';
+            parts.push(`${vs.bitDepth}-bit ${chroma}`);
         }
-        if (scenario.hdrFormat) {
+        if (vs.hdrFormat) {
             const hdrLabels = {
                 hdr10: 'HDR10',
                 hdr10plus: 'HDR10+',
                 hlg: 'HLG'
             };
-            parts.push(hdrLabels[scenario.hdrFormat] || scenario.hdrFormat);
+            parts.push(hdrLabels[vs.hdrFormat] || vs.hdrFormat);
         }
-        if (scenario.transferFunction && scenario.transferFunction !== 'srgb') {
-            parts.push(scenario.transferFunction.toUpperCase());
+        if (vs.transferFunction && vs.transferFunction !== 'srgb') {
+            parts.push(vs.transferFunction.toUpperCase());
         }
-        if (scenario.colorGamut && scenario.colorGamut !== 'srgb') {
+        if (vs.colorGamut && vs.colorGamut !== 'srgb') {
             const gamutLabels = { rec2020: 'BT.2020', p3: 'Display P3' };
-            parts.push(gamutLabels[scenario.colorGamut] || scenario.colorGamut);
+            parts.push(gamutLabels[vs.colorGamut] || vs.colorGamut);
         }
-        if (scenario.tier) {
+        if (vs.tier) {
             const tierLabels = { main: 'Main Tier', high: 'High Tier' };
-            parts.push(tierLabels[scenario.tier] || scenario.tier);
+            parts.push(tierLabels[vs.tier] || vs.tier);
         }
     } else {
-        if (scenario.channels) {
+        const as = /** @type {AudioScenario} */ (scenario);
+        if (as.channels) {
             const channelMap = { 1: 'Mono', 2: 'Stereo', 6: '5.1', 8: '7.1' };
-            parts.push(channelMap[scenario.channels] || `${scenario.channels}ch`);
+            parts.push(channelMap[as.channels] || `${as.channels}ch`);
         }
-        if (scenario.samplerate) {
-            parts.push(`@ ${scenario.samplerate / 1000} kHz`);
+        if (as.samplerate) {
+            parts.push(`@ ${as.samplerate / 1000} kHz`);
         }
-        if (scenario.bitrate) {
-            const kbps = scenario.bitrate / 1000;
+        if (as.bitrate) {
+            const kbps = as.bitrate / 1000;
             parts.push(`${kbps % 1 === 0 ? kbps : kbps.toFixed(1)} kbps`);
         }
-        if (scenario.bitDepth) {
-            parts.push(`${scenario.bitDepth}-bit`);
+        if (as.bitDepth) {
+            parts.push(`${as.bitDepth}-bit`);
         }
-        if (scenario.spatial) {
+        if (as.spatial) {
             parts.push('Spatial');
         }
     }
@@ -211,34 +214,36 @@ export function buildInfo(scenario, type) {
  * Display-only scenario fields (bitDepth, chromaSubsampling, tier, hdrFormat)
  * are NOT included — those are encoded in the codec string itself.
  *
- * @param {Object} scenario
+ * @param {VideoScenario | AudioScenario} scenario
  * @param {string} mime - Full MIME string from buildMime()
- * @param {string} type - 'video' or 'audio'
- * @returns {Object} Config object — caller sets .type to 'file' or 'media-source'
+ * @param {MediaType} type
+ * @returns {{ video?: Object, audio?: Object }} Config object — caller sets .type to 'file' or 'media-source'
  */
 export function buildMediaConfig(scenario, mime, type) {
     const config = {};
 
     if (type === 'video') {
+        const vs = /** @type {VideoScenario} */ (scenario);
         config.video = {
             contentType: mime,
-            width: scenario.width || 1920,
-            height: scenario.height || 1080,
-            bitrate: scenario.bitrate || 5_000_000,
-            framerate: scenario.framerate || 24
+            width: vs.width || 1920,
+            height: vs.height || 1080,
+            bitrate: vs.bitrate || 5_000_000,
+            framerate: vs.framerate || 24
         };
-        if (scenario.transferFunction) {
-            config.video.transferFunction = scenario.transferFunction;
+        if (vs.transferFunction) {
+            config.video.transferFunction = vs.transferFunction;
         }
-        if (scenario.colorGamut) {
-            config.video.colorGamut = scenario.colorGamut;
+        if (vs.colorGamut) {
+            config.video.colorGamut = vs.colorGamut;
         }
     } else {
+        const as = /** @type {AudioScenario} */ (scenario);
         config.audio = {
             contentType: mime,
-            channels: String(scenario.channels || 2),
-            bitrate: scenario.bitrate || 128_000,
-            samplerate: scenario.samplerate || 48_000
+            channels: String(as.channels || 2),
+            bitrate: as.bitrate || 128_000,
+            samplerate: as.samplerate || 48_000
         };
     }
 
@@ -249,19 +254,21 @@ export function buildMediaConfig(scenario, mime, type) {
 // ==================== TYPE DEFINITIONS ====================
 
 /**
- * @typedef {Object} CodecRecord
- * @property {string} codec - Bare codec string (e.g. 'hvc1.2.4.L153.B0')
- *   Multi-codec for supplemental DV: 'hvc1.2.4.L153.B0, dvh1.08.06'
- * @property {string} name - Descriptive card title
- *   Video:  '{Resolution} {HDR} — {Profile} ({Tag})'
- *   Audio:  '{Codec} {Quality} {Channels} {Bitrate} ({Technology})'
- *   DV:     '{Resolution} DV P{N} — {Tag} {Description}'
- * @property {Object} containers
- * @property {string[]} containers.file - File playback containers (e.g. ['mp4', 'mkv', 'mov'])
- * @property {string[]} [containers.stream] - Stream containers (e.g. ['fmp4', 'hls', 'dash'])
- * @property {string[]} [flags] - UI labels: 'nonstandard', 'deprecated', 'film-grain'
- * @property {VideoScenario|AudioScenario} scenario
- * @property {Education} [education] - Populated incrementally
+ * @typedef {'video' | 'audio'} MediaType
+ */
+
+/**
+ * @typedef {'nonstandard' | 'deprecated' | 'film-grain'} CodecFlag
+ */
+
+/**
+ * @typedef {'widevine' | 'playready' | 'fairplay' | 'clearkey'} DRMSystemKey
+ */
+
+/**
+ * @typedef {Object} ContainerMap
+ * @property {string[]} file - File playback containers (e.g. ['mp4', 'mkv', 'mov'])
+ * @property {string[]} [stream] - Stream containers (e.g. ['fmp4', 'hls', 'dash'])
  */
 
 /**
@@ -270,52 +277,99 @@ export function buildMediaConfig(scenario, mime, type) {
  * @property {number} height
  * @property {number} bitrate - In bps
  * @property {number} framerate
- * @property {number} [bitDepth] - 8, 10, or 12
- * @property {string} [chromaSubsampling] - '4:2:0', '4:2:2', or '4:4:4'
- * @property {string} [tier] - 'main' or 'high'
- * @property {string} [transferFunction] - 'pq', 'hlg', 'srgb' (mediaCapabilities API param)
- * @property {string} [colorGamut] - 'rec2020', 'p3', 'srgb' (mediaCapabilities API param)
- * @property {string} [hdrFormat] - 'hdr10', 'hdr10plus', 'hlg' (display metadata)
- * @property {string[]} [drm] - Systems to test: 'widevine', 'playready', 'fairplay', 'clearkey'
+ * @property {8 | 10 | 12} [bitDepth]
+ * @property {'4:2:0' | '4:2:2' | '4:4:4'} [chromaSubsampling]
+ * @property {'main' | 'high'} [tier]
+ * @property {'pq' | 'hlg' | 'srgb'} [transferFunction] - mediaCapabilities API param
+ * @property {'rec2020' | 'p3' | 'srgb'} [colorGamut] - mediaCapabilities API param
+ * @property {'hdr10' | 'hdr10plus' | 'hlg'} [hdrFormat] - Display metadata label
+ * @property {DRMSystemKey[]} [drm] - Systems to test per-codec
  */
 
 /**
  * @typedef {Object} AudioScenario
- * @property {number} channels - 1, 2, 6, 8
+ * @property {1 | 2 | 6 | 8} channels
  * @property {number} bitrate - In bps
  * @property {number} samplerate - In Hz
- * @property {number} [bitDepth] - 16, 24, 32
+ * @property {16 | 24 | 32} [bitDepth]
  * @property {boolean} [spatial] - Object/spatial audio capable
- * @property {string[]} [drm] - Systems to test
+ * @property {DRMSystemKey[]} [drm] - Systems to test per-codec
+ */
+
+/**
+ * @typedef {Object} BreakdownToken
+ * @property {string} token - Single token from the codec string
+ * @property {string} meaning - What this token encodes
+ */
+
+/**
+ * @typedef {Object} ObjectAudio
+ * @property {string} base - Base channel bed (e.g. '7.1')
+ * @property {string} technology - Tech name (e.g. 'JOC', 'DTS:X', 'IMS')
+ * @property {number} maxObjects - Max simultaneous audio objects
+ * @property {string} rendering - Rendering method description
+ * @property {number} bitrate - Object audio bitrate in bps
+ */
+
+/**
+ * @typedef {Object} DVConfig
+ * @property {number} profile - DOVIDecoderConfigurationRecord dv_profile
+ * @property {number} level - dv_level
+ * @property {boolean} rpuPresent - Reference Processing Unit present
+ * @property {boolean} elPresent - Enhancement Layer present
+ * @property {boolean} blPresent - Base Layer present
+ * @property {number} blSignalCompat - BL signal compatibility ID
+ */
+
+/**
+ * @typedef {Object} StreamingVariantHLS
+ * @property {string} signal - Signaling method name
+ * @property {string} m3u8 - HLS manifest snippet
+ * @property {string} notes
+ */
+
+/**
+ * @typedef {Object} StreamingVariantDASH
+ * @property {string} signal - Signaling method name
+ * @property {string} mpd - DASH manifest snippet
+ * @property {string} notes
+ */
+
+/**
+ * @typedef {Object} Reference
+ * @property {string} title
+ * @property {string} [url]
  */
 
 /**
  * @typedef {Object} Education
- * @property {Array<{token: string, meaning: string}>} breakdown - Codec string token-by-token
+ * @property {BreakdownToken[]} breakdown - Codec string token-by-token
  * @property {string} overview - Short, precise description of this codec test
- * @property {Object} [objectAudio] - Object-based audio metadata (Atmos JOC, DTS:X, AC-4 IMS, MPEG-H)
- * @property {string} objectAudio.base - Base channel bed (e.g. '7.1')
- * @property {string} objectAudio.technology - Tech name (e.g. 'JOC', 'DTS:X', 'IMS')
- * @property {number} objectAudio.maxObjects - Max simultaneous audio objects
- * @property {string} objectAudio.rendering - Rendering method description
- * @property {number} objectAudio.bitrate - Object audio bitrate in bps
- * @property {Object} [dvConfig] - DOVIDecoderConfigurationRecord (dvcC/dvvC box)
- * @property {number} dvConfig.profile
- * @property {number} dvConfig.level
- * @property {boolean} dvConfig.rpuPresent - Reference Processing Unit
- * @property {boolean} dvConfig.elPresent - Enhancement Layer
- * @property {boolean} dvConfig.blPresent - Base Layer
- * @property {number} dvConfig.blSignalCompat - BL signal compatibility ID
- * @property {Object} [platforms] - Platform-specific behavior notes
- * @property {string} [platforms.apple]
- * @property {string} [platforms.lg]
- * @property {string} [platforms.android]
- * @property {Object} [streaming] - Streaming manifest signaling variations
- * @property {Array<{signal: string, m3u8: string, notes: string}>} [streaming.hls]
- * @property {Array<{signal: string, mpd: string, notes: string}>} [streaming.dash]
- * @property {Object} [containerNotes] - Per-container quirks (e.g. { mkv: '...' })
- * @property {Object} [drm] - Per-DRM-system notes (e.g. { widevine: '...' })
- * @property {Array<{title: string, url: string}>} [references] - Spec citations
+ * @property {ObjectAudio} [objectAudio] - Object-based audio metadata
+ * @property {DVConfig} [dvConfig] - DOVIDecoderConfigurationRecord (dvcC/dvvC box)
+ * @property {Record<string, string>} [platforms] - Platform-specific behavior notes
+ * @property {{ hls?: StreamingVariantHLS[], dash?: StreamingVariantDASH[] }} [streaming]
+ * @property {Record<string, string>} [containerNotes] - Per-container quirks
+ * @property {Record<string, string>} [drm] - Per-DRM-system notes
+ * @property {Reference[]} [references] - Spec citations
+ */
+
+/**
+ * @typedef {Object} CodecRecord
+ * @property {string} codec - Bare codec string (e.g. 'hvc1.2.4.L153.B0')
+ * @property {string} name - Descriptive card title
+ * @property {ContainerMap} containers
+ * @property {VideoScenario | AudioScenario} scenario
+ * @property {CodecFlag[]} [flags]
+ * @property {Education} [education]
+ */
+
+/**
+ * @typedef {Object} CodecGroup
+ * @property {string} category - Display name (e.g. 'HEVC/H.265')
+ * @property {MediaType} type
+ * @property {string} description - Group summary for UI tooltips
+ * @property {CodecRecord[]} codecs
  */
 
 
@@ -328,6 +382,7 @@ export function buildMediaConfig(scenario, mime, type) {
  * The UI uses this for section placement — MPEG-TS audio (video/mp2t MIME)
  * belongs in audio sections because the group type is 'audio'.
  */
+/** @type {Record<string, CodecGroup>} */
 export const codecSource = {
 
     // ── VIDEO: Base codec standard ───────────────────────────

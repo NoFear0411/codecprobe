@@ -5,6 +5,17 @@
  * - Widevine (Google - Chrome/Android)
  * - PlayReady (Microsoft - Edge/Xbox)
  * - FairPlay (Apple - Safari/iOS)
+ *
+ * @typedef {Object} DRMSystemResult
+ * @property {string} name
+ * @property {string} vendor
+ * @property {boolean} supported
+ * @property {Object | null} details
+ *
+ * @typedef {Object} DRMInfo
+ * @property {boolean} emeAvailable
+ * @property {Record<string, DRMSystemResult>} systems
+ * @property {boolean} timedOut
  */
 
 export const DRM_SYSTEMS = {

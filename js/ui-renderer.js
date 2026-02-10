@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * UI Renderer Module
  *
@@ -7,21 +8,27 @@
  * Security note: All innerHTML usage renders content from the internal
  * codec database and device detection APIs — never from user input.
  * External text (codec strings, education) is escaped via escapeHtml().
+ *
+ * @typedef {import('./codec-database-v2.js').CodecRecord} CodecRecord
+ * @typedef {import('./codec-database-v2.js').Education} Education
+ * @typedef {import('./codec-database-v2.js').CodecFlag} CodecFlag
+ * @typedef {import('./codec-tester.js').CodecTestResult} CodecTestResult
+ * @typedef {import('./codec-tester.js').TestResults} TestResults
+ * @typedef {import('./codec-tester.js').ContainerTestResult} ContainerTestResult
  */
 
 import { codecSource, buildMime, buildInfo, buildMediaConfig, CONTAINER_DISPLAY, STREAM_CONTAINERS } from './codec-database-v2.js';
 import { updateURLState } from './url-state.js';
 import { detectDeviceInfo } from './device-detection.js';
 
+/** @type {{ currentFilter: string, testResults: TestResults | null, searchQuery: string }} */
 export const state = {
     currentFilter: 'all',
     testResults: null,
     searchQuery: ''
 };
 
-/**
- * Announce message to screen readers
- */
+/** @param {string} message */
 export function announceToScreenReader(message) {
     const announcer = document.getElementById('sr-announcements');
     if (announcer) {
@@ -188,6 +195,9 @@ function escapeHtml(text) {
  * Format per-container test results as a table with badges.
  * Each container gets its own row with badges 1, 2, 3.
  * All content from internal codec database and API results.
+ *
+ * @param {CodecTestResult} codec
+ * @returns {string}
  */
 function formatContainerResults(codec) {
     const containers = codec.containers;
@@ -363,6 +373,10 @@ function buildCopyText(codec) {
  * breakdown[] is a flat array (not wrapped in codecBreakdown).
  * streaming uses arrays of signaling variants (not single objects).
  * All text content escaped via escapeHtml().
+ *
+ * @param {Education} education
+ * @param {string} codecString
+ * @returns {string}
  */
 function formatEducationContent(education, codecString) {
     let html = '';
@@ -623,6 +637,10 @@ function formatFlags(flags) {
 /**
  * Generate details section HTML for a codec card.
  * All content from internal codec database — safe for innerHTML.
+ *
+ * @param {CodecTestResult} codec
+ * @param {boolean} isPending
+ * @returns {string}
  */
 function createDetailsHTML(codec, isPending) {
     if (isPending) {
@@ -697,6 +715,11 @@ function attachApiToggleHandler(container) {
  * Create a codec card DOM element.
  * One card = one codec record with all container results inside.
  * Content from internal codec database — safe for innerHTML.
+ *
+ * @param {CodecTestResult} codec
+ * @param {string} groupKey
+ * @param {boolean} isPending
+ * @returns {HTMLDivElement}
  */
 function createCardElement(codec, groupKey, isPending) {
     const item = document.createElement('div');
@@ -788,7 +811,7 @@ export function renderPendingCards() {
         section.appendChild(sectionHeader);
 
         for (const record of group.codecs) {
-            const pendingCodec = { ...record, type: group.type };
+            const pendingCodec = /** @type {CodecTestResult} */ ({ ...record, type: group.type, containers: {}, drm: null, support: 'unsupported' });
             section.appendChild(createCardElement(pendingCodec, groupKey, true));
         }
 
@@ -799,10 +822,14 @@ export function renderPendingCards() {
 
 // ==================== PROGRESSIVE UPDATE ====================
 
+/**
+ * @param {string} groupKey
+ * @param {CodecTestResult} codecResult
+ */
 export function updateCardState(groupKey, codecResult) {
     const grid = document.getElementById('codec-grid');
     const allCards = grid.querySelectorAll(`.codec-item[data-group="${groupKey}"]`);
-    const card = Array.from(allCards).find(c => c.dataset.name === codecResult.name);
+    const card = /** @type {HTMLElement | undefined} */ (Array.from(allCards).find(c => /** @type {HTMLElement} */ (c).dataset.name === codecResult.name));
 
     if (!card) {
         console.error('[UI] Card not found:', codecResult.name);
@@ -883,6 +910,7 @@ export function updateAllSectionCounts() {
 
 // ==================== RENDER RESULTS (filter/search) ====================
 
+/** @param {TestResults} results */
 export function renderResults(results) {
     state.testResults = results;
     const grid = document.getElementById('codec-grid');
@@ -1010,7 +1038,7 @@ export function setupFilters() {
                 });
                 btn.classList.add('active');
                 btn.setAttribute('aria-pressed', 'true');
-                state.currentFilter = btn.dataset.filter;
+                state.currentFilter = /** @type {HTMLElement} */ (btn).dataset.filter || 'all';
                 updateURLState(state.currentFilter, state.searchQuery);
                 if (state.testResults) renderResults(state.testResults);
             }
@@ -1019,16 +1047,16 @@ export function setupFilters() {
         btn.addEventListener('keydown', handleActivation);
     });
 
-    const searchInput = document.getElementById('search-input');
+    const searchInput = /** @type {HTMLInputElement | null} */ (document.getElementById('search-input'));
     if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            state.searchQuery = e.target.value;
+        searchInput.addEventListener('input', () => {
+            state.searchQuery = searchInput.value;
             updateURLState(state.currentFilter, state.searchQuery);
             if (state.testResults) renderResults(state.testResults);
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === '/' && e.target.tagName !== 'INPUT') {
+            if (e.key === '/' && /** @type {HTMLElement} */ (e.target).tagName !== 'INPUT') {
                 e.preventDefault();
                 searchInput.focus();
             }

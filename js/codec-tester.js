@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * Codec Testing Module
  *
@@ -8,6 +9,68 @@
  *   4  — requestMediaKeySystemAccess()            (per codec, conditional on device DRM)
  *
  * Spatial audio tested automatically for codecs with scenario.spatial = true.
+ *
+ * @typedef {import('./codec-database-v2.js').CodecRecord} CodecRecord
+ * @typedef {import('./codec-database-v2.js').MediaType} MediaType
+ * @typedef {import('./codec-database-v2.js').VideoScenario} VideoScenario
+ * @typedef {import('./codec-database-v2.js').AudioScenario} AudioScenario
+ */
+
+/**
+ * @typedef {Object} MediaCapResult
+ * @property {boolean} supported
+ * @property {boolean} [smooth]
+ * @property {boolean} [powerEfficient]
+ * @property {string} [error]
+ */
+
+/**
+ * @typedef {Object} ContainerTestResult
+ * @property {string} mime - Full MIME string tested
+ * @property {string} mode - 'file' or 'media-source'
+ * @property {string} [canPlayType] - 'probably', 'maybe', 'unsupported', or 'error'
+ * @property {string} [isTypeSupported] - 'probably', 'unsupported', or 'error'
+ * @property {MediaCapResult} [mediaCapabilities]
+ * @property {MediaCapResult} [spatial]
+ */
+
+/**
+ * @typedef {Object} DRMTestResult
+ * @property {boolean} supported
+ * @property {string} [keySystem]
+ * @property {string} [robustness]
+ * @property {string} [persistentState]
+ * @property {string} [reason]
+ */
+
+/**
+ * @typedef {Object} CodecTestResult
+ * @property {string} codec - Bare codec string
+ * @property {string} name
+ * @property {MediaType} type
+ * @property {string[]} flags
+ * @property {VideoScenario | AudioScenario} scenario
+ * @property {import('./codec-database-v2.js').Education | null} education
+ * @property {Record<string, ContainerTestResult>} containers
+ * @property {Record<string, DRMTestResult> | null} drm
+ * @property {'supported' | 'probably' | 'unsupported' | 'failed'} support
+ * @property {string} [error]
+ */
+
+/**
+ * @typedef {Object} TestResultGroup
+ * @property {string} category
+ * @property {MediaType} type
+ * @property {CodecTestResult[]} codecs
+ */
+
+/**
+ * @typedef {Object} TestResults
+ * @property {number} supported
+ * @property {number} unsupported
+ * @property {number} failed
+ * @property {Record<string, TestResultGroup>} tests
+ * @property {number} [testDuration] - ms
  */
 
 import {
@@ -36,11 +99,11 @@ const SPATIAL_CODEC_IDS = ['ec-3', 'ac-4', 'dtsx', 'mhm1', 'mhm2'];
  * Test a single MIME string against APIs 1, 2, and 3.
  *
  * @param {string} mime - Full MIME string
- * @param {string} type - 'video' or 'audio'
- * @param {string} mcType - 'file' or 'media-source' for mediaCapabilities
- * @param {Object} scenario - Scenario parameters for building mediaConfig
+ * @param {MediaType} type
+ * @param {'file' | 'media-source'} mcType
+ * @param {VideoScenario | AudioScenario} scenario
  * @param {boolean} testSpatial - Whether to test spatialRendering
- * @returns {Promise<Object>} Container test result
+ * @returns {Promise<ContainerTestResult>}
  */
 async function testContainer(mime, type, mcType, scenario, testSpatial) {
     const element = mime.startsWith('video/') ? video : audio;
@@ -76,7 +139,7 @@ async function testContainer(mime, type, mcType, scenario, testSpatial) {
     const skipMC = type === 'audio' && mime.startsWith('video/');
 
     if (API_METHODS.mediaCapabilities && !skipMC) {
-        const config = buildMediaConfig(scenario, mime, type);
+        const config = /** @type {MediaDecodingConfiguration} */ (buildMediaConfig(scenario, mime, type));
         config.type = mcType;
 
         try {
@@ -127,9 +190,9 @@ async function testContainer(mime, type, mcType, scenario, testSpatial) {
  * Test a specific DRM key system with a specific codec MIME string.
  *
  * @param {string} mime - Full MIME string for the codec
- * @param {string} type - 'video' or 'audio'
+ * @param {MediaType} type
  * @param {string} keySystem - Key system ID (e.g. 'com.widevine.alpha')
- * @returns {Promise<Object>} DRM test result
+ * @returns {Promise<DRMTestResult>}
  */
 async function testCodecDRM(mime, type, keySystem) {
     if (!navigator.requestMediaKeySystemAccess) {
@@ -140,11 +203,12 @@ async function testCodecDRM(mime, type, keySystem) {
         ? { videoCapabilities: [{ contentType: mime }] }
         : { audioCapabilities: [{ contentType: mime }] };
 
+    /** @type {MediaKeySystemConfiguration} */
     const config = {
         initDataTypes: ['cenc', 'keyids'],
         ...capabilities,
-        distinctiveIdentifier: 'optional',
-        persistentState: 'optional'
+        distinctiveIdentifier: /** @type {MediaKeysRequirement} */ ('optional'),
+        persistentState: /** @type {MediaKeysRequirement} */ ('optional')
     };
 
     try {
@@ -178,13 +242,14 @@ async function testCodecDRM(mime, type, keySystem) {
 /**
  * Test a single codec record across all its containers and DRM systems.
  *
- * @param {Object} record - CodecRecord from codecSource
- * @param {string} groupType - 'video' or 'audio' from group.type
- * @param {Object|null} deviceDRM - Device DRM results from detectDRMSupport()
- * @returns {Promise<Object>} Full codec test result
+ * @param {CodecRecord} record
+ * @param {MediaType} groupType
+ * @param {import('./drm-detection.js').DRMInfo | null} deviceDRM
+ * @returns {Promise<CodecTestResult>}
  */
 async function testCodecRecord(record, groupType, deviceDRM) {
-    const isSpatial = groupType === 'audio' && record.scenario?.spatial;
+    const isSpatial = groupType === 'audio' && /** @type {AudioScenario} */ (record.scenario)?.spatial;
+    /** @type {CodecTestResult} */
     const result = {
         codec: record.codec,
         name: record.name,
@@ -245,8 +310,8 @@ async function testCodecRecord(record, groupType, deviceDRM) {
  * Determine overall support level from per-container results.
  * Best container wins — if any container has full API consensus, the codec is supported.
  *
- * @param {Object} result - Codec test result with containers
- * @returns {string} 'supported', 'probably', 'unsupported', or 'failed'
+ * @param {CodecTestResult} result
+ * @returns {'supported' | 'probably' | 'unsupported' | 'failed'}
  */
 function determineOverallSupport(result) {
     const containerResults = Object.values(result.containers);
@@ -294,12 +359,12 @@ function determineOverallSupport(result) {
 /**
  * Test codec record with retry logic.
  *
- * @param {Object} record - CodecRecord from codecSource
- * @param {string} groupType - 'video' or 'audio'
- * @param {Object|null} deviceDRM - Device DRM results
- * @param {number} maxRetries - Max retry attempts (default 2)
- * @param {number} timeout - Timeout per attempt in ms (default 2000)
- * @returns {Promise<Object>} Test result or failed result
+ * @param {CodecRecord} record
+ * @param {MediaType} groupType
+ * @param {import('./drm-detection.js').DRMInfo | null} deviceDRM
+ * @param {number} [maxRetries=2]
+ * @param {number} [timeout=2000] - ms per attempt
+ * @returns {Promise<CodecTestResult>}
  */
 export async function testCodecWithRetry(record, groupType, deviceDRM, maxRetries = 2, timeout = 2000) {
     let lastError = null;
@@ -324,7 +389,8 @@ export async function testCodecWithRetry(record, groupType, deviceDRM, maxRetrie
     console.error(`[TEST] All ${maxRetries} attempts failed for ${record.name}`);
 
     const failMsg = lastError?.message || `Test failed after ${maxRetries} retries`;
-    return {
+    /** @type {CodecTestResult} */
+    const failResult = {
         codec: record.codec,
         name: record.name,
         type: groupType,
@@ -336,6 +402,7 @@ export async function testCodecWithRetry(record, groupType, deviceDRM, maxRetrie
         support: 'failed',
         error: failMsg
     };
+    return failResult;
 }
 
 
@@ -355,9 +422,9 @@ export const BATCH_CONFIG = {
 /**
  * Run codec tests in batches with progressive updates.
  *
- * @param {Function|null} onProgress - Callback: (groupKey, codecResult) per completed record
- * @param {Object|null} deviceDRM - Device DRM results from detectDRMSupport()
- * @returns {Promise<Object>} Aggregated test results
+ * @param {((groupKey: string, codecResult: CodecTestResult) => void) | null} onProgress
+ * @param {import('./drm-detection.js').DRMInfo | null} deviceDRM
+ * @returns {Promise<TestResults>}
  */
 export async function runCodecTests(onProgress = null, deviceDRM = null) {
     const results = {
