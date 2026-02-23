@@ -1975,7 +1975,734 @@ hevc_still.m3u8`,
         category: 'VP9',
         type: 'video',
         description: 'Profiles 0–3. Levels 1.0–6.1. 8-bit and 10-bit. 4:2:0, 4:2:2, 4:4:4. SDR and HDR10.',
-        codecs: []
+        codecs: [
+            // ── vp9 ──
+
+            {
+                codec: 'vp9',
+                name: 'VP9 Legacy (bare)',
+                containers: {
+                    file: ['webm'],
+                    stream: ['dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 5_000_000,
+                },
+                    {
+                        name: '4K SDR',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 30,
+                        bitrate: 15_000_000,
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'vp9', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.00.10.08 ──
+
+            {
+                codec: 'vp09.00.10.08',
+                name: 'VP9 Profile 0 SD',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 5_000_000,
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '00', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.00.21.08 ──
+
+            {
+                codec: 'vp09.00.21.08',
+                name: 'VP9 Profile 0 480p',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '480p SDR',
+                    width: 854,
+                    height: 480,
+                    framerate: 30,
+                    bitrate: 2_000_000,
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '00', meaning: '' },
+                        { token: '21', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.00.31.08 ──
+
+            {
+                codec: 'vp09.00.31.08',
+                name: 'VP9 Profile 0 720p',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '720p SDR',
+                    width: 1280,
+                    height: 720,
+                    framerate: 30,
+                    bitrate: 5_000_000,
+                },
+                    {
+                        name: '4K SDR',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 30,
+                        bitrate: 15_000_000,
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '00', meaning: '' },
+                        { token: '31', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.00.40.08 ──
+
+            {
+                codec: 'vp09.00.40.08',
+                name: 'VP9 Profile 0 1080p',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 8_000_000,
+                },
+                    {
+                        name: '1080p60 SDR',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 60,
+                        bitrate: 12_000_000,
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '00', meaning: '' },
+                        { token: '40', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.00.50.08 ──
+
+            {
+                codec: 'vp09.00.50.08',
+                name: 'VP9 Profile 0 4K',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K SDR',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 15_000_000,
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '00', meaning: '' },
+                        { token: '50', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.01.10.08 ──
+
+            {
+                codec: 'vp09.01.10.08',
+                name: 'VP9 Profile 1 SD',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p 4:2:2',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 8_000_000,
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '01', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.01.40.08 ──
+
+            {
+                codec: 'vp09.01.40.08',
+                name: 'VP9 Profile 1 1080p',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p 4:2:2',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 8_000_000,
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '01', meaning: '' },
+                        { token: '40', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.10.10 ──
+
+            {
+                codec: 'vp09.02.10.10',
+                name: 'VP9 Profile 2 SD',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 24,
+                    bitrate: 15_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '10', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.10.10.01.09.16.09.01 ──
+
+            {
+                codec: 'vp09.02.10.10.01.09.16.09.01',
+                name: 'VP9 Profile 2 HDR10 (full range)',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 60,
+                    bitrate: 20_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '01', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '16', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '01', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.10.10.01.09.18.09.01 ──
+
+            {
+                codec: 'vp09.02.10.10.01.09.18.09.01',
+                name: 'VP9 Profile 2 HLG (full range)',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HLG',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 60,
+                    bitrate: 20_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'hlg',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hlg',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '01', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '18', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '01', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.31.10 ──
+
+            {
+                codec: 'vp09.02.31.10',
+                name: 'VP9 Profile 2 720p SDR',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K SDR 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 20_000_000,
+                    bitDepth: 10,
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '31', meaning: '' },
+                        { token: '10', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.50.10 ──
+
+            {
+                codec: 'vp09.02.50.10',
+                name: 'VP9 Profile 2 4K HDR',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 30fps',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 20_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '4K HLG 30fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 30,
+                        bitrate: 20_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'hlg',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hlg',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '50', meaning: '' },
+                        { token: '10', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.50.10.01.09.16.09.00 ──
+
+            {
+                codec: 'vp09.02.50.10.01.09.16.09.00',
+                name: 'VP9 Profile 2 4K HDR10 (limited)',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 30fps',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 20_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '50', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '01', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '16', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '00', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.50.10.01.09.18.09.00 ──
+
+            {
+                codec: 'vp09.02.50.10.01.09.18.09.00',
+                name: 'VP9 Profile 2 4K HLG (limited)',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HLG 30fps',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 20_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'hlg',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hlg',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '50', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '01', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '18', meaning: '' },
+                        { token: '09', meaning: '' },
+                        { token: '00', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.51.10 ──
+
+            {
+                codec: 'vp09.02.51.10',
+                name: 'VP9 Profile 2 4K60 HDR',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 60fps',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 60,
+                    bitrate: 40_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '4K HLG 60fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 60,
+                        bitrate: 40_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'hlg',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hlg',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '51', meaning: '' },
+                        { token: '10', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.02.50.12 ──
+
+            {
+                codec: 'vp09.02.50.12',
+                name: 'VP9 Profile 2 4K 12-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K 12-bit HDR',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 25_000_000,
+                    bitDepth: 12,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '02', meaning: '' },
+                        { token: '50', meaning: '' },
+                        { token: '12', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.03.10.10 ──
+
+            {
+                codec: 'vp09.03.10.10',
+                name: 'VP9 Profile 3 SD',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p 4:4:4 HDR',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 10_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '03', meaning: '' },
+                        { token: '10', meaning: '' },
+                        { token: '10', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.03.50.10 ──
+
+            {
+                codec: 'vp09.03.50.10',
+                name: 'VP9 Profile 3 4K',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K 4:4:4 HDR',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 25_000_000,
+                    bitDepth: 10,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '03', meaning: '' },
+                        { token: '50', meaning: '' },
+                        { token: '10', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            },
+            // ── vp09.00.60.08 ──
+
+            {
+                codec: 'vp09.00.60.08',
+                name: 'VP9 Profile 0 8K',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '8K SDR',
+                    width: 7680,
+                    height: 4320,
+                    framerate: 30,
+                    bitrate: 80_000_000,
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: '' },
+                        { token: '00', meaning: '' },
+                        { token: '60', meaning: '' },
+                        { token: '08', meaning: '' }
+                    ],
+                    overview: '',
+                    platforms: {},
+                    streaming: {},
+                    containerNotes: {},
+                    references: []
+                }
+            }
+        ]
     },
     video_avc: {
         category: 'AVC/H.264',
