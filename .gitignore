@@ -38,3 +38,7 @@ coverage/
 *.tmp
 *.swp
 *~
+
+# Scratch / working files
+hevc_codec_strings_*.txt
+docs/new_codecs
