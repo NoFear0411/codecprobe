@@ -3,7 +3,7 @@
  * Cache-first for static assets, network-first for navigation
  */
 
-const CACHE_VERSION = '3.2.1';
+const CACHE_VERSION = '4.0.0';
 const CACHE_NAME = `codecprobe-v${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
@@ -11,7 +11,7 @@ const CORE_ASSETS = [
     './index.html',
     './css/styles.css',
     './js/main.js',
-    './js/codec-database.js',
+    './js/codec-database-v2.js',
     './js/codec-tester.js',
     './js/ui-renderer.js',
     './js/device-detection.js',

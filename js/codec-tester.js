@@ -8,7 +8,7 @@
  *   3  — mediaCapabilities.decodingInfo()         (per container, file or media-source)
  *   4  — requestMediaKeySystemAccess()            (per codec, conditional on device DRM)
  *
- * Spatial audio tested automatically for codecs with scenario.spatial = true.
+ * Spatial audio tested automatically for codecs with any scenario.spatial = true.
  *
  * @typedef {import('./codec-database-v2.js').CodecRecord} CodecRecord
  * @typedef {import('./codec-database-v2.js').MediaType} MediaType
@@ -25,13 +25,18 @@
  */
 
 /**
+ * @typedef {Object} ScenarioResult
+ * @property {MediaCapResult} mediaCapabilities
+ * @property {MediaCapResult} [spatial]
+ */
+
+/**
  * @typedef {Object} ContainerTestResult
  * @property {string} mime - Full MIME string tested
  * @property {string} mode - 'file' or 'media-source'
  * @property {string} [canPlayType] - 'probably', 'maybe', 'unsupported', or 'error'
  * @property {string} [isTypeSupported] - 'probably', 'unsupported', or 'error'
- * @property {MediaCapResult} [mediaCapabilities]
- * @property {MediaCapResult} [spatial]
+ * @property {Record<string, ScenarioResult>} scenarios - API 3 results keyed by scenario name
  */
 
 /**
@@ -49,7 +54,7 @@
  * @property {string} name
  * @property {MediaType} type
  * @property {string[]} flags
- * @property {VideoScenario | AudioScenario} scenario
+ * @property {(VideoScenario | AudioScenario)[]} scenarios
  * @property {import('./codec-database-v2.js').Education | null} education
  * @property {Record<string, ContainerTestResult>} containers
  * @property {Record<string, DRMTestResult> | null} drm
@@ -93,32 +98,27 @@ console.log('APIs:', Object.entries(API_METHODS).filter(([,v]) => v).map(([k]) =
 const SPATIAL_CODEC_IDS = ['ec-3', 'ac-4', 'dtsx', 'mhm1', 'mhm2'];
 
 
-// ==================== SINGLE CONTAINER TEST ====================
+// ==================== CONTAINER-LEVEL APIs (1 + 2) ====================
 
 /**
- * Test a single MIME string against APIs 1, 2, and 3.
+ * Test a MIME string against APIs 1 (canPlayType) and 2 (isTypeSupported).
+ * These depend only on the MIME string, not on scenario parameters.
  *
  * @param {string} mime - Full MIME string
- * @param {MediaType} type
- * @param {'file' | 'media-source'} mcType
- * @param {VideoScenario | AudioScenario} scenario
- * @param {boolean} testSpatial - Whether to test spatialRendering
- * @returns {Promise<ContainerTestResult>}
+ * @returns {{ canPlayType?: string, isTypeSupported?: string }}
  */
-async function testContainer(mime, type, mcType, scenario, testSpatial) {
+function testContainerAPIs(mime) {
     const element = mime.startsWith('video/') ? video : audio;
-    const result = {
-        mime,
-        mode: mcType
-    };
+    /** @type {{ canPlayType?: string, isTypeSupported?: string }} */
+    const apis = {};
 
     // ── Test 1: canPlayType ──
     if (API_METHODS.canPlayType) {
         try {
             const canPlay = element.canPlayType(mime) || '';
-            result.canPlayType = canPlay === '' ? 'unsupported' : canPlay;
+            apis.canPlayType = canPlay === '' ? 'unsupported' : canPlay;
         } catch (e) {
-            result.canPlayType = 'error';
+            apis.canPlayType = 'error';
             console.error(`canPlayType error for ${mime}:`, e);
         }
     }
@@ -126,58 +126,78 @@ async function testContainer(mime, type, mcType, scenario, testSpatial) {
     // ── Test 2: isTypeSupported ──
     if (API_METHODS.isTypeSupported) {
         try {
-            result.isTypeSupported = MediaSource.isTypeSupported(mime) ? 'probably' : 'unsupported';
+            apis.isTypeSupported = MediaSource.isTypeSupported(mime) ? 'probably' : 'unsupported';
         } catch (e) {
-            result.isTypeSupported = 'error';
+            apis.isTypeSupported = 'error';
             console.error(`isTypeSupported error for ${mime}:`, e);
         }
     }
 
-    // ── Test 3: mediaCapabilities ──
+    return apis;
+}
+
+
+// ==================== SCENARIO-LEVEL API (3) ====================
+
+/**
+ * Test a single scenario against API 3 (mediaCapabilities.decodingInfo).
+ * Scenario parameters (width, height, framerate, HDR) affect the result.
+ *
+ * @param {VideoScenario | AudioScenario} scenario
+ * @param {string} mime - Full MIME string
+ * @param {MediaType} type
+ * @param {'file' | 'media-source'} mcType
+ * @param {boolean} testSpatial - Whether to test spatialRendering
+ * @returns {Promise<ScenarioResult | null>} null if API unavailable or skipped
+ */
+async function testScenarioCapabilities(scenario, mime, type, mcType, testSpatial) {
     // Skip if audio contentType uses a video MIME (e.g. MPEG-TS audio = video/mp2t)
     // — the API rejects non-audio MIME types in AudioConfiguration
     const skipMC = type === 'audio' && mime.startsWith('video/');
 
-    if (API_METHODS.mediaCapabilities && !skipMC) {
-        const config = /** @type {MediaDecodingConfiguration} */ (buildMediaConfig(scenario, mime, type));
-        config.type = mcType;
+    if (!API_METHODS.mediaCapabilities || skipMC) return null;
 
-        try {
-            const capResult = await Promise.race([
-                navigator.mediaCapabilities.decodingInfo(config),
-                new Promise((_, reject) => setTimeout(() => reject(new Error('mediaCapabilities timeout')), 800))
-            ]);
+    const config = /** @type {MediaDecodingConfiguration} */ (buildMediaConfig(scenario, mime, type));
+    config.type = mcType;
 
-            result.mediaCapabilities = {
-                supported: capResult.supported,
-                smooth: capResult.smooth,
-                powerEfficient: capResult.powerEfficient
-            };
+    /** @type {ScenarioResult} */
+    const result = { mediaCapabilities: { supported: false } };
 
-            // Spatial audio sub-test
-            if (testSpatial && config.audio) {
-                const spatialConfig = JSON.parse(JSON.stringify(config));
-                spatialConfig.audio.spatialRendering = true;
-                try {
-                    const sr = await Promise.race([
-                        navigator.mediaCapabilities.decodingInfo(spatialConfig),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('spatial audio timeout')), 800))
-                    ]);
-                    result.spatial = {
-                        supported: sr.supported,
-                        smooth: sr.smooth,
-                        powerEfficient: sr.powerEfficient
-                    };
-                } catch (e) {
-                    result.spatial = { error: e.message };
-                }
+    try {
+        const capResult = await Promise.race([
+            navigator.mediaCapabilities.decodingInfo(config),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('mediaCapabilities timeout')), 800))
+        ]);
+
+        result.mediaCapabilities = {
+            supported: capResult.supported,
+            smooth: capResult.smooth,
+            powerEfficient: capResult.powerEfficient
+        };
+
+        // Spatial audio sub-test
+        if (testSpatial && config.audio) {
+            const spatialConfig = JSON.parse(JSON.stringify(config));
+            spatialConfig.audio.spatialRendering = true;
+            try {
+                const sr = await Promise.race([
+                    navigator.mediaCapabilities.decodingInfo(spatialConfig),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('spatial audio timeout')), 800))
+                ]);
+                result.spatial = {
+                    supported: sr.supported,
+                    smooth: sr.smooth,
+                    powerEfficient: sr.powerEfficient
+                };
+            } catch (e) {
+                result.spatial = { supported: false, error: e.message };
             }
-        } catch (e) {
-            if (!e.message.includes('more than one codec')) {
-                console.error(`mediaCapabilities error for ${mime}:`, e);
-            }
-            result.mediaCapabilities = { supported: false, error: e.message };
         }
+    } catch (e) {
+        if (!e.message.includes('more than one codec')) {
+            console.error(`mediaCapabilities error for ${mime}:`, e);
+        }
+        result.mediaCapabilities = { supported: false, error: e.message };
     }
 
     return result;
@@ -242,50 +262,75 @@ async function testCodecDRM(mime, type, keySystem) {
 /**
  * Test a single codec record across all its containers and DRM systems.
  *
+ * Container-level: APIs 1+2 run once per container (MIME-dependent only).
+ * Scenario-level: API 3 runs per scenario per container (params-dependent).
+ * DRM: runs once per key system per codec record.
+ *
  * @param {CodecRecord} record
  * @param {MediaType} groupType
  * @param {import('./drm-detection.js').DRMInfo | null} deviceDRM
  * @returns {Promise<CodecTestResult>}
  */
 async function testCodecRecord(record, groupType, deviceDRM) {
-    const isSpatial = groupType === 'audio' && /** @type {AudioScenario} */ (record.scenario)?.spatial;
+    const isSpatial = groupType === 'audio' &&
+        record.scenarios.some(s => /** @type {AudioScenario} */ (s).spatial);
+
     /** @type {CodecTestResult} */
     const result = {
         codec: record.codec,
         name: record.name,
         type: groupType,
         flags: record.flags || [],
-        scenario: record.scenario,
+        scenarios: record.scenarios,
         education: record.education || null,
         containers: {},
         drm: null,
         support: 'unsupported'
     };
 
+    /**
+     * Test one container: APIs 1+2 once, API 3 per scenario.
+     * @param {string} container
+     * @param {'file' | 'media-source'} mode
+     */
+    const testOneContainer = async (container, mode) => {
+        const mime = buildMime(record.codec, container, groupType);
+        if (!mime) return;
+
+        const apis = testContainerAPIs(mime);
+        /** @type {ContainerTestResult} */
+        const cr = { mime, mode, ...apis, scenarios: {} };
+
+        for (const scenario of record.scenarios) {
+            const scenarioResult = await testScenarioCapabilities(scenario, mime, groupType, mode, isSpatial);
+            if (scenarioResult) {
+                cr.scenarios[scenario.name] = scenarioResult;
+            }
+        }
+
+        result.containers[container] = cr;
+    };
+
     // ── File containers ──
     for (const container of (record.containers.file || [])) {
-        const mime = buildMime(record.codec, container, groupType);
-        if (!mime) continue;
-        result.containers[container] = await testContainer(mime, groupType, 'file', record.scenario, isSpatial);
+        await testOneContainer(container, 'file');
     }
 
     // ── Stream containers ──
     for (const container of (record.containers.stream || [])) {
-        const mime = buildMime(record.codec, container, groupType);
-        if (!mime) continue;
-        result.containers[container] = await testContainer(mime, groupType, 'media-source', record.scenario, isSpatial);
+        await testOneContainer(container, 'media-source');
     }
 
     // ── DRM per-codec (badge 4) ──
     // Only test systems that: (a) the record declares, (b) the device supports
-    if (deviceDRM?.emeAvailable && record.scenario?.drm) {
+    if (deviceDRM?.emeAvailable && record.drm) {
         result.drm = {};
 
         // Use MP4 MIME for DRM testing (DRM systems use ISOBMFF)
         const drmMime = buildMime(record.codec, 'mp4', groupType);
 
         if (drmMime) {
-            for (const system of record.scenario.drm) {
+            for (const system of record.drm) {
                 // Only test if device has this DRM system
                 if (!deviceDRM.systems[system]?.supported) continue;
 
@@ -335,9 +380,19 @@ function determineOverallSupport(result) {
             if (cr.isTypeSupported === 'probably') positiveAPIs++;
         }
 
-        if (cr.mediaCapabilities && !cr.mediaCapabilities.error) {
-            totalAPIs++;
-            if (cr.mediaCapabilities.supported) positiveAPIs++;
+        // API 3: check best scenario result across all scenarios in this container
+        const scenarioEntries = Object.values(cr.scenarios || {});
+        if (scenarioEntries.length > 0) {
+            const anyScenarioSupported = scenarioEntries.some(
+                sr => sr.mediaCapabilities && !sr.mediaCapabilities.error && sr.mediaCapabilities.supported
+            );
+            const anyScenarioTested = scenarioEntries.some(
+                sr => sr.mediaCapabilities && !sr.mediaCapabilities.error
+            );
+            if (anyScenarioTested) {
+                totalAPIs++;
+                if (anyScenarioSupported) positiveAPIs++;
+            }
         }
 
         if (totalAPIs > 0) {
@@ -395,7 +450,7 @@ export async function testCodecWithRetry(record, groupType, deviceDRM, maxRetrie
         name: record.name,
         type: groupType,
         flags: record.flags || [],
-        scenario: record.scenario,
+        scenarios: record.scenarios,
         education: record.education || null,
         containers: {},
         drm: null,

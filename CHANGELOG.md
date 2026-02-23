@@ -2,13 +2,41 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
-## [3.3.0] - 2026-02-10
+## [4.0.0] - 2026-02-23
+
+### Breaking
+
+- **v2 codec database**: Replaces v1's flat 238-entry model with 44 normalized codec records. One card per codec string instead of one card per MIME/container combo. Container and scenario combinations tested within each card.
+- **Test result structure**: Container results now separate API 1+2 (container-level) from API 3 (per-scenario). JSON export format changed.
+
+### Added
+
+- **Scenario-aware testing**: Records with multiple scenarios (e.g. HDR10 + HLG variants of the same codec) test mediaCapabilities independently per scenario. APIs 1+2 tested once per container (they don't depend on resolution/HDR params).
+- **db-tool-v2.mjs**: CLI for v2 database mutations — INSERT, ADD SCENARIO, UPDATE, REMOVE, DROP with auto-populated containers, DRM, and education tokens.
+- **Design token system**: `:root` CSS custom properties for typography (8 tokens, 1.25 Major Third scale), spacing (9 tokens, 4px grid), and border-radius (4 tokens). SCSS `$spacing-*` variables aliased to tokens for backward compatibility.
+- **`%button-base` SCSS placeholder**: Shared button foundation extracted from `filter-btn`, `expand-toggle-btn`, `action-btn` — eliminates 3x duplication of 15 identical lines.
+- **Container detail view**: Individually expandable `<details>` elements per container with request/response API detail browser, chevron rotation animation, and color-coded left borders.
+
+### Fixed
+
+- **"RESPONSE"probably"" concatenation**: `.api-detail-row` now uses `display: flex` with `gap: 8px` — separates label and value elements. Long MIME strings wrap to a new line via `flex-wrap` + `width: 100%` on code blocks.
+- **Skip-link visual artifact**: Removed visible line in top-left corner caused by skip-link rendering outside its hidden state.
+- **File/stream mode labels**: Container mode badges now use theme-aware colors instead of hardcoded values.
+
+### Removed
+
+- **~150 lines dead CSS**: `.api-toggle-label`, `.api-section-title`, `.api-toggle-burger`, `.api-toggle-content`, `.api-test-block`, `.api-request`, `.api-response`, `.config-json`, `.capability-grid`, `.capability-item`, `.capability-label`, `.api-explanation` — all unreferenced after v2 UI refactor.
 
 ### Changed
 
-- **Streaming group consolidated**: Eliminated the separate `streaming_hls` group (25 entries). 7 unique entries (MPEG-TS, SDR HEVC, VP9 P2 HDR) moved to their codec groups; 18 duplicate-codec entries merged (education preserved into main entries). Codec groups now contain all container variants (MP4, MKV, WebM, MPEG-TS) for that codec.
-- **Element selection**: `canPlayType()` element now based on MIME prefix (`video/` → `<video>`) instead of group type. Fixes MPEG-TS audio entries (`video/mp2t`) that moved to `audio_` groups.
-- **Database**: 256 → 238 entries, 14 → 13 groups. Education merged from streaming entries into 7 main codec entries (streaming manifests, platform notes).
+- **DRM at record level**: DRM systems tested per codec record, not per scenario.
+- **44 codec records**: 12 HEVC (11 with education), 21 Dolby Vision, 11 AV1. 10 groups pending migration.
+- **Streaming group consolidated**: Eliminated separate streaming group, merged into codec groups.
+- **Asset references**: modulepreload and service worker cache updated from v1 to v2 database.
+- **Typography**: 40+ hardcoded `font-size` declarations replaced with 8 semantic tokens (`--text-xs` through `--text-2xl` + `--text-code`/`--text-code-sm`).
+- **Spacing**: All padding/margin/gap values migrated to 4px-grid tokens (`--space-1` through `--space-8`). `$spacing-xs` through `$spacing-xl` now alias CSS custom properties.
+- **Border radius**: 8 arbitrary values (2px–12px) unified into 4 semantic tokens (`--radius-sm`/`md`/`lg`/`full`). Zero hardcoded px border-radius remaining.
+- **SCSS reduced**: 1845 → 1691 lines after dead CSS removal and DRY button extraction.
 
 ---
 

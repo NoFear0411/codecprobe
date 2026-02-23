@@ -162,7 +162,7 @@
     }
 
     .codec-string,
-    .api-results {
+    .container-results {
         background: rgba(0, 255, 0, 0.03);
     }
 }
@@ -194,7 +194,7 @@
 // ============================================================================
 .theme-switcher {
     display: flex;
-    gap: clamp(4px, 1vw, 8px);
+    gap: clamp(var(--space-1), 1vw, var(--space-2));
     flex-shrink: 0;
 }
 
@@ -202,7 +202,7 @@
     width: clamp(24px, 4vw, 36px);
     height: clamp(24px, 4vw, 36px);
     border: 2px solid var(--border);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
@@ -269,7 +269,7 @@
 
 ::-webkit-scrollbar-thumb {
     background: var(--border-light);
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
     border: 2px solid var(--bg);
 }
 

@@ -1,10 +1,12 @@
 # CodecProbe
 
-**Browser codec detection — three APIs, 256 tests, no guessing**
+**Browser codec detection — three APIs, one card per codec, no guessing**
 
-CodecProbe queries three browser APIs against 256 codec/container combinations and compares their responses side-by-side. The results reveal which codecs your device can actually decode, where the APIs disagree, and whether your media server needs to transcode or can direct-play.
+CodecProbe queries three browser APIs against each codec record across multiple containers (MP4, MKV, WebM, MOV) and streaming formats (HLS, DASH, CMAF) — then compares their responses side-by-side. The results reveal which codecs your device can actually decode, where the APIs disagree, and whether your media server needs to transcode or can direct-play.
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
+
+> **v4.0.0**: 44 codec records (HEVC, Dolby Vision, AV1) with the new normalized database. VP9, AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries).
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -77,54 +79,23 @@ Results include persistent state support and robustness strings. DRM detection r
 
 ## Codec Coverage
 
-**256 test entries** across 14 codec groups and 17 container MIME types.
+**44 codec records** across 3 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
 
-### Video (142 tests)
+### Video (44 records — v2 database)
 
-| Codec | Profiles/Variants Tested | Containers |
-|-------|-------------------------|------------|
-| HEVC/H.265 | Main, Main 10, Main Still Picture, High Tier, Levels 3.1–6.1, SDR/HDR10/HLG | MP4, MKV, MOV |
-| Dolby Vision | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), supplemental dual-codec strings | MP4, MKV, MOV |
-| AV1 | Main (P0), High (P1, 4:4:4), Professional (P2, 4:2:2), Film Grain, High Tier, Levels 3.1–6.0 | MP4, MKV, WebM, MOV |
-| VP9 | Profile 0 (8-bit), P1 (4:2:2), P2 (10-bit HDR10/HLG), P3 (4:4:4), bare vs full codec strings | MP4, MKV, WebM |
-| AVC/H.264 | Baseline, Main, High, High 10, High 4:2:2, Constrained, Extended, Levels 3.0–5.2 | MP4, MKV, WebM, MOV, 3GP |
-| VVC/H.266 | Main 10, Still Picture, vvc1/vvi1 tags, Levels 3.1–6.0 | MP4, MKV |
-| VP8 | SDR 720p/1080p/4K, MSE streaming | WebM, MKV |
-| Legacy | MPEG-4 Part 2 (Simple/Advanced Simple), H.263, Theora | MP4, MKV, 3GP, OGG |
+| Codec | Records | Profiles/Variants | Containers |
+|-------|---------|-------------------|------------|
+| HEVC/H.265 | 12 | Main, Main 10, Main Still Picture, High Tier, Levels 3.1–6.1, SDR/HDR10/HLG | MP4, MKV, MOV |
+| Dolby Vision | 21 | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), supplemental dual-codec strings | MP4, MKV, MOV |
+| AV1 | 11 | Main (P0), High (P1), Professional (P2), Film Grain, High Tier, Levels 3.1–6.0, SDR/HDR10/HLG | MP4, MKV, WebM, MOV |
 
-### Audio (87 tests)
+### Pending Migration (from v1 — 238 entries)
 
-| Codec | Variants Tested | Containers |
-|-------|----------------|------------|
-| Dolby | AC-3 (stereo/5.1), E-AC-3 (5.1/7.1/Atmos JOC), TrueHD, AC-4, AC-4 IMS | MP4, MKV, MOV, fMP4 |
-| DTS | Core (dts-/dtsc), Express (dtse), HD High Resolution, HD Master Audio (dtsh), Lossless (dtsl), DTS:X (dtsx) | MP4, MKV, fMP4 |
-| Lossless | FLAC (stereo/5.1/Hi-Res), ALAC (stereo/Hi-Res), Opus (stereo/5.1), PCM | MP4, MKV, WebM, MOV, OGG, FLAC, WAV, AIFF |
-| Standard | AAC-LC, HE-AAC v1/v2, xHE-AAC (USAC), AAC-ELD, AAC-LD, MP3, Vorbis (stereo/5.1) | MP4, MKV, WebM, MOV, OGG, AAC, MP3 |
-| MPEG-H | 3D Audio LC (mhm1), 3D Audio (mhm2), Baseline | MP4, MKV |
+The following codec groups are being migrated from the v1 flat database to v2's normalized schema. Each will gain per-container and per-scenario testing:
 
-### Streaming (25 tests)
-
-| Format | Codecs Tested |
-|--------|--------------|
-| HLS (fMP4) | HEVC SDR/HDR, H.264, AV1, Dolby Vision P8.1, E-AC-3, AAC |
-| DASH | AV1 SDR/HDR, VP9 SDR/HDR, H.264, HEVC, DV P8.1 |
-| CMAF | AV1, HEVC, H.264, VP9, DV P8.1 |
-| MPEG-TS | H.264 (High/Baseline), HEVC 4K, AAC, AC-3 |
-
-All streaming tests use `type: 'media-source'` for proper MSE validation.
-
-### Container Matrix
-
-| Container | MIME Type | Video | Audio | Total |
-|-----------|-----------|-------|-------|-------|
-| MP4 | `video/mp4`, `audio/mp4` | 81 | 38 | 119 |
-| MKV | `video/x-matroska`, `audio/x-matroska` | 40 | 26 | 66 |
-| WebM | `video/webm`, `audio/webm` | 25 | 5 | 30 |
-| MOV | `video/quicktime`, `audio/quicktime` | 9 | 5 | 14 |
-| MPEG-TS | `video/mp2t` | 5 | — | 5 |
-| 3GP | `video/3gpp` | 3 | — | 3 |
-| OGG | `video/ogg`, `audio/ogg` | 2 | 4 | 6 |
-| Native | `audio/flac`, `audio/wav`, etc. | — | 11 | 11 |
+- **Video**: VP9, AVC/H.264, VVC/H.266, VP8, Legacy (MPEG-4 Part 2, H.263, Theora)
+- **Audio**: Dolby (AC-3/E-AC-3/AC-4), DTS, Lossless (FLAC/ALAC/Opus/PCM), Standard (AAC/MP3/Vorbis), MPEG-H 3D Audio
+- **Streaming**: HLS, DASH, CMAF scenarios integrated into each codec record
 
 ## Features
 
@@ -139,7 +110,8 @@ All streaming tests use `type: 'media-source'` for proper MSE validation.
 - **Offline PWA** — service worker precaches all assets, works without network after first visit
 - **Zero runtime dependencies** — everything bundled at build time, no CDN or external requests
 - **Fluid layout** — CSS intrinsic sizing with `clamp()`/`min()`/`auto-fit`, no hardcoded breakpoints
-- **Education content** — codec string breakdowns, platform notes, and cited spec references for 131 entries across 38 specifications
+- **Design token system** — CSS custom properties for typography (1.25 scale), spacing (4px grid), and border-radius — any visual change is a single token edit
+- **Education content** — codec string breakdowns, platform notes, and cited spec references
 
 ## Understanding Results
 
@@ -226,7 +198,8 @@ codecprobe/
 │   ├── styles.scss            # Main stylesheet
 │   └── _themes.scss           # Theme definitions
 ├── js/
-│   ├── codec-database.js      # 256 codec tests · 131 education entries · 14 groups
+│   ├── codec-database-v2.js   # v2 normalized database — 44 records, 3 groups (active)
+│   ├── codec-database.js      # v1 flat database — 238 entries, 13 groups (reference)
 │   ├── codec-tester.js        # Three-API testing with retry logic
 │   ├── device-detection.js    # UAParser.js v2.x integration
 │   ├── drm-detection.js       # DRM/EME system testing
@@ -241,10 +214,13 @@ codecprobe/
 ├── scripts/
 │   ├── build.js               # Terser minification + UAParser bundling
 │   ├── inject-versions.js     # Cache-busting version hashes for deploy
-│   ├── db-tool.mjs            # Database CLI — add, inspect, inject, patch, verify
+│   ├── db-tool.mjs            # v1 database CLI — add, inspect, inject, patch, verify
+│   ├── db-tool-v2.mjs         # v2 database CLI — INSERT, ADD SCENARIO, UPDATE, DROP
+│   ├── migrate-scenarios.mjs  # v1→v2 migration helper
+│   ├── v2-audit.mjs           # v2 database audit and validation
 │   └── lib/
-│       ├── reader.mjs         # Database import and query functions
-│       └── writer.mjs         # Source formatter, inject/replace/add operations
+│       ├── reader.mjs         # v1 database import and query functions
+│       └── writer.mjs         # v1 source formatter, inject/replace/add operations
 ├── docs/
 │   ├── BUILD.md               # Build system documentation
 │   └── SETUP.md               # Deployment guide
@@ -254,7 +230,31 @@ codecprobe/
 
 ## Database CLI
 
-The codec database is managed through `scripts/db-tool.mjs` — a CLI that handles validation, formatting, and source-level insertion. No manual editing of `codec-database.js` required.
+### v2 Database (active)
+
+The v2 database uses bare codec strings as primary keys and is managed through `scripts/db-tool-v2.mjs`:
+
+```bash
+node scripts/db-tool-v2.mjs <command> [args]
+```
+
+| Command | Description |
+|---------|-------------|
+| `stats` | Group counts, scenario totals, education coverage |
+| `list [group] [--missing\|--edu]` | List records, filter by education status |
+| `verify` | Schema validation, duplicate detection, container checks |
+| `db <codec>` | Show full record details |
+| `db <codec> --name <n> --scenario [opts]` | INSERT new codec record with scenario |
+| `db <codec> --scenario --sname <n> [opts]` | ADD scenario to existing record |
+| `db <codec> --set key=value` | UPDATE record fields |
+| `db <codec> --rm-scenario <name>` | REMOVE a scenario |
+| `db <codec> --drop --confirm` | DROP entire record |
+
+Auto-populates containers (by codec family), DRM systems (all 4), breakdown tokens, and education skeletons. Every write runs `node -c` syntax check before disk write.
+
+### v1 Database (reference)
+
+The v1 flat database is managed through `scripts/db-tool.mjs` for migration reference:
 
 ```bash
 node scripts/db-tool.mjs <command> [args]
@@ -262,46 +262,13 @@ node scripts/db-tool.mjs <command> [args]
 
 | Command | Description |
 |---------|-------------|
-| `stats` | Group counts and education coverage with completion percentages |
-| `list <group> [--missing\|--complete]` | List entries, filter by education status |
+| `stats` | Group counts and education coverage |
+| `list <group> [--missing\|--complete]` | List entries by education status |
 | `show <group> <name>` | Full entry details as JSON |
-| `add <file> [--group <key>]` | Add new test entries with validation and auto group detection |
-| `scaffold <group>` | Generate education template with pre-filled MIME, tokens, and spec refs |
-| `inject <group> <file>` | Add education content to entries that lack it |
-| `patch <group> <file>` | Deep-merge updates into existing education |
+| `add <file> [--group <key>]` | Add entries with validation |
+| `scaffold <group>` | Generate education template |
+| `inject <group> <file>` | Add education content |
 | `verify` | Syntax + import + structure check |
-
-All write commands (`add`, `inject`, `patch`) support `--dry-run` and run syntax verification before writing.
-
-### Adding new codec entries
-
-The `add` command validates every field before touching the database:
-
-- **MIME type** checked against 16 known types (`video/mp4`, `audio/x-matroska`, etc.)
-- **Container** checked against 15 known values (`MP4`, `MKV`, `WebM`, `fMP4`, etc.)
-- **Name uniqueness** verified across all 14 groups
-- **contentType** must match the codec field exactly
-- **Dimensions, bitrate, framerate** must be positive numbers
-- **transferFunction** and **colorGamut** must be valid enum values if provided
-
-Group detection is automatic from the codec string — `hvc1.*` routes to `video_hevc`, `av01.*` to `video_av1`, `ec-3` to `audio_dolby`, etc. Override with `--group <key>` when needed.
-
-### Adding education content
-
-```bash
-# 1. Generate a template for all entries missing education
-node scripts/db-tool.mjs scaffold video_av1 > /tmp/av1-edu.mjs
-
-# 2. Edit the file — fill in token meanings and overviews
-
-# 3. Preview what will change
-node scripts/db-tool.mjs inject video_av1 /tmp/av1-edu.mjs --dry-run
-
-# 4. Inject into the database
-node scripts/db-tool.mjs inject video_av1 /tmp/av1-edu.mjs
-```
-
-The `scaffold` command pre-fills MIME types, codec string tokens, and spec references based on the group — you only need to write the human content (token meanings, overviews, platform notes).
 
 ## Known Limitations
 

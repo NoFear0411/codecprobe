@@ -199,92 +199,158 @@ function escapeHtml(text) {
  * @param {CodecTestResult} codec
  * @returns {string}
  */
+/**
+ * Determine the best API result class for a container (for the summary dot).
+ * @param {ContainerTestResult} cr
+ * @returns {'success' | 'partial' | 'fail'}
+ */
+function containerSummaryClass(cr) {
+    const api1Pass = cr.canPlayType === 'probably' || cr.canPlayType === 'maybe';
+    const api2Pass = cr.isTypeSupported === 'probably';
+    const scenarioResults = Object.values(cr.scenarios || {});
+    const api3Pass = scenarioResults.some(sr => sr.mediaCapabilities?.supported);
+    const api3Tested = scenarioResults.some(sr => sr.mediaCapabilities && !sr.mediaCapabilities.error);
+
+    let total = 0;
+    let positive = 0;
+    if (cr.canPlayType && cr.canPlayType !== 'error') { total++; if (api1Pass) positive++; }
+    if (cr.isTypeSupported && cr.isTypeSupported !== 'error') { total++; if (api2Pass) positive++; }
+    if (api3Tested) { total++; if (api3Pass) positive++; }
+
+    if (total === 0) return 'fail';
+    if (positive === total) return 'success';
+    if (positive > 0) return 'partial';
+    return 'fail';
+}
+
 function formatContainerResults(codec) {
     const containers = codec.containers;
     if (!containers || Object.keys(containers).length === 0) {
         return '<p style="color: var(--text-dimmed);">No container results available.</p>';
     }
 
-    let html = '<details class="api-results">';
-    html += '<summary class="api-toggle-label">';
-    html += '<span class="api-section-title">Container Test Results</span>';
-    html += '<span class="api-toggle-burger"><span></span><span></span><span></span></span>';
-    html += '</summary>';
-    html += '<div class="api-toggle-content">';
+    let html = '<div class="container-results">';
 
     for (const [containerKey, cr] of Object.entries(containers)) {
         const displayName = CONTAINER_DISPLAY[containerKey] || containerKey.toUpperCase();
         const isStream = STREAM_CONTAINERS.has(containerKey);
         const modeLabel = isStream ? 'Stream' : 'File';
+        const summaryClass = containerSummaryClass(cr);
 
-        html += `<div class="container-result-block">`;
-        html += `<div class="container-result-header">`;
+        // Each container is an individually expandable <details>
+        html += `<details class="container-result-block">`;
+        html += `<summary class="container-result-summary">`;
+        html += `<span class="container-summary-left">`;
+        html += `<span class="container-indicator ${summaryClass}"></span>`;
         html += `<span class="container-label">${escapeHtml(displayName)}</span>`;
-        html += `<span class="container-mode ${isStream ? 'stream' : 'file'}">${modeLabel}</span>`;
-        html += `<code class="container-mime">${escapeHtml(cr.mime)}</code>`;
-        html += `</div>`;
+        html += `<span class="container-mode">${modeLabel}</span>`;
+        html += `</span>`;
+        // Compact badge row in summary
+        html += `<span class="container-summary-right">`;
+        html += `<span class="container-summary-badges">`;
+        if (cr.canPlayType) {
+            html += `<span class="api-number ${getApiBadgeClass('canPlayType', cr.canPlayType)}">1</span>`;
+        }
+        if (cr.isTypeSupported) {
+            html += `<span class="api-number ${getApiBadgeClass('isTypeSupported', cr.isTypeSupported)}">2</span>`;
+        }
+        const scenarioEntries = Object.entries(cr.scenarios || {});
+        if (scenarioEntries.length > 0) {
+            const bestScenario = scenarioEntries.some(([, sr]) => sr.mediaCapabilities?.supported);
+            html += `<span class="api-number ${bestScenario ? 'success' : 'fail'}">3</span>`;
+        }
+        html += `</span>`;
+        html += `<svg class="container-chevron" width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        html += `</span>`;
+        html += `</summary>`;
 
-        html += `<div class="container-badges">`;
+        // Expanded detail — request/response for each API
+        html += `<div class="container-result-detail">`;
 
-        // Badge 1: canPlayType
+        const escapedMime = escapeHtml(cr.mime);
+        const isVideoMime = cr.mime.startsWith('video/');
+
+        // API 1: canPlayType
         if (cr.canPlayType) {
             const cls1 = getApiBadgeClass('canPlayType', cr.canPlayType);
-            html += `<div class="badge-result">`;
-            html += `<span class="api-number ${cls1}">1</span>`;
-            html += `<span class="badge-label">canPlayType:</span>`;
-            html += `<span class="response-value ${getResponseClass(cr.canPlayType)}">${escapeHtml(cr.canPlayType)}</span>`;
+            html += `<div class="api-detail-block">`;
+            html += `<div class="api-detail-header"><span class="api-number ${cls1}">1</span> canPlayType</div>`;
+            html += `<div class="api-detail-row"><span class="api-detail-label">Request</span><code>${isVideoMime ? '&lt;video&gt;' : '&lt;audio&gt;'}.canPlayType("${escapedMime}")</code></div>`;
+            html += `<div class="api-detail-row"><span class="api-detail-label">Response</span><span class="response-value ${getResponseClass(cr.canPlayType)}">"${escapeHtml(cr.canPlayType === 'unsupported' ? '' : cr.canPlayType)}"</span></div>`;
             html += `</div>`;
         }
 
-        // Badge 2: isTypeSupported
+        // API 2: isTypeSupported
         if (cr.isTypeSupported) {
             const cls2 = getApiBadgeClass('isTypeSupported', cr.isTypeSupported);
-            html += `<div class="badge-result">`;
-            html += `<span class="api-number ${cls2}">2</span>`;
-            html += `<span class="badge-label">isTypeSupported:</span>`;
-            html += `<span class="response-value ${cr.isTypeSupported === 'probably' ? 'success' : 'fail'}">${escapeHtml(cr.isTypeSupported)}</span>`;
+            html += `<div class="api-detail-block">`;
+            html += `<div class="api-detail-header"><span class="api-number ${cls2}">2</span> isTypeSupported</div>`;
+            html += `<div class="api-detail-row"><span class="api-detail-label">Request</span><code>MediaSource.isTypeSupported("${escapedMime}")</code></div>`;
+            html += `<div class="api-detail-row"><span class="api-detail-label">Response</span><span class="response-value ${cr.isTypeSupported === 'probably' ? 'success' : 'fail'}">${cr.isTypeSupported === 'probably' ? 'true' : 'false'}</span></div>`;
             html += `</div>`;
         }
 
-        // Badge 3: mediaCapabilities
-        if (cr.mediaCapabilities) {
-            const mc = cr.mediaCapabilities;
-            const cls3 = getApiBadgeClass('mediaCapabilities', mc);
-            html += `<div class="badge-result">`;
-            html += `<span class="api-number ${cls3}">3</span>`;
-            html += `<span class="badge-label">mediaCapabilities:</span>`;
+        // API 3: mediaCapabilities (per scenario)
+        const multiScenario = scenarioEntries.length > 1;
+        for (const [scenarioName, sr] of scenarioEntries) {
+            const mc = sr.mediaCapabilities;
+            if (!mc) continue;
 
+            const cls3 = getApiBadgeClass('mediaCapabilities', mc);
+            const scenarioLabel = multiScenario ? ` — ${escapeHtml(scenarioName)}` : '';
+
+            // Build the config object from the scenario for display
+            const scenarioObj = codec.scenarios.find(s => s.name === scenarioName);
+            const configDisplay = scenarioObj
+                ? escapeHtml(JSON.stringify(buildMediaConfig(scenarioObj, cr.mime, codec.type), null, 2))
+                : '';
+
+            html += `<div class="api-detail-block">`;
+            html += `<div class="api-detail-header"><span class="api-number ${cls3}">3</span> mediaCapabilities${scenarioLabel}</div>`;
+            if (configDisplay) {
+                html += `<div class="api-detail-row"><span class="api-detail-label">Config</span></div>`;
+                html += `<pre class="api-detail-config"><code>${configDisplay}</code></pre>`;
+            }
+            html += `<div class="api-detail-row"><span class="api-detail-label">Response</span>`;
             if (mc.error) {
                 html += `<span class="response-value fail">${escapeHtml(mc.error)}</span>`;
             } else {
-                html += `<span class="response-value ${mc.supported ? 'success' : 'fail'}">${mc.supported ? 'supported' : 'unsupported'}</span>`;
-                if (mc.supported) {
-                    html += `<span class="mc-detail">${mc.smooth ? 'smooth' : ''} ${mc.powerEfficient ? 'efficient' : ''}</span>`;
-                }
+                html += `<code>{ supported: <span class="response-value ${mc.supported ? 'success' : 'fail'}">${mc.supported}</span>, smooth: <span class="response-value ${mc.smooth ? 'success' : 'fail'}">${mc.smooth}</span>, powerEfficient: <span class="response-value ${mc.powerEfficient ? 'success' : 'fail'}">${mc.powerEfficient}</span> }</code>`;
             }
             html += `</div>`;
 
             // Spatial sub-result
-            if (cr.spatial) {
-                html += `<div class="badge-result spatial-result">`;
-                html += `<span class="badge-label">Spatial:</span>`;
-                if (cr.spatial.error) {
-                    html += `<span class="response-value fail">${escapeHtml(cr.spatial.error)}</span>`;
+            if (sr.spatial) {
+                html += `<div class="api-detail-row"><span class="api-detail-label">Spatial</span>`;
+                if (sr.spatial.error) {
+                    html += `<span class="response-value fail">${escapeHtml(sr.spatial.error)}</span>`;
                 } else {
-                    html += `<span class="response-value ${cr.spatial.supported ? 'success' : 'fail'}">${cr.spatial.supported ? 'Yes' : 'No'}</span>`;
+                    html += `<code>{ supported: <span class="response-value ${sr.spatial.supported ? 'success' : 'fail'}">${sr.spatial.supported}</span> }</code>`;
                 }
                 html += `</div>`;
             }
+
+            html += `</div>`;
         }
 
-        html += `</div>`; // close container-badges
-        html += `</div>`; // close container-result-block
+        html += `</div>`; // close container-result-detail
+        html += `</details>`; // close container-result-block
     }
 
     // DRM results (badge 4)
     if (codec.drm && Object.keys(codec.drm).length > 0) {
-        html += `<div class="drm-result-block">`;
-        html += `<div class="container-result-header"><span class="container-label">DRM Per-Codec</span></div>`;
+        html += `<details class="container-result-block drm-result-block">`;
+        html += `<summary class="container-result-summary">`;
+        html += `<span class="container-summary-left">`;
+        html += `<span class="container-label">DRM</span>`;
+        html += `</span>`;
+        html += `<span class="container-summary-badges">`;
+        for (const [, drmResult] of Object.entries(codec.drm)) {
+            html += `<span class="api-number ${drmResult.supported ? 'success' : 'fail'}">4</span>`;
+        }
+        html += `</span>`;
+        html += `</summary>`;
+        html += `<div class="container-result-detail">`;
         html += `<div class="container-badges">`;
 
         for (const [system, drmResult] of Object.entries(codec.drm)) {
@@ -299,11 +365,10 @@ function formatContainerResults(codec) {
             html += `</div>`;
         }
 
-        html += `</div></div>`;
+        html += `</div></div></details>`;
     }
 
     html += '</div>';
-    html += '</details>';
     return html;
 }
 
@@ -311,8 +376,12 @@ function formatContainerResults(codec) {
 // ==================== TECHNICAL SPECS ====================
 
 function buildTechnicalSpecs(codec) {
-    if (!codec.scenario) return '';
-    return buildInfo(codec.scenario, codec.type);
+    if (!codec.scenarios || codec.scenarios.length === 0) return '';
+    let specs = buildInfo(codec.scenarios[0], codec.type);
+    if (codec.scenarios.length > 1) {
+        specs += ` (+${codec.scenarios.length - 1} more)`;
+    }
+    return specs;
 }
 
 
@@ -337,20 +406,24 @@ function buildCopyText(codec) {
         lines.push(`  1 canPlayType: ${cr.canPlayType || 'N/A'}`);
         lines.push(`  2 isTypeSupported: ${cr.isTypeSupported || 'N/A'}`);
 
-        if (cr.mediaCapabilities) {
-            const mc = cr.mediaCapabilities;
+        const scenarioEntries = Object.entries(cr.scenarios || {});
+        for (const [scenarioName, sr] of scenarioEntries) {
+            const mc = sr.mediaCapabilities;
+            if (!mc) continue;
+
+            const label = scenarioEntries.length > 1 ? `  3 ${scenarioName}` : '  3 mediaCapabilities';
             if (mc.error) {
-                lines.push(`  3 mediaCapabilities: error — ${mc.error}`);
+                lines.push(`${label}: error — ${mc.error}`);
             } else {
                 const caps = [mc.supported ? 'supported' : 'unsupported'];
                 if (mc.smooth) caps.push('smooth');
                 if (mc.powerEfficient) caps.push('efficient');
-                lines.push(`  3 mediaCapabilities: ${caps.join(', ')}`);
+                lines.push(`${label}: ${caps.join(', ')}`);
             }
-        }
 
-        if (cr.spatial) {
-            lines.push(`  Spatial: ${cr.spatial.error ? 'error' : cr.spatial.supported ? 'yes' : 'no'}`);
+            if (sr.spatial) {
+                lines.push(`  Spatial: ${sr.spatial.error ? 'error' : sr.spatial.supported ? 'yes' : 'no'}`);
+            }
         }
     }
 
@@ -704,11 +777,10 @@ function attachCopyHandler(container) {
     });
 }
 
-function attachApiToggleHandler(container) {
-    const summary = container.querySelector('.api-toggle-label');
-    if (summary) {
+function attachContainerToggleHandlers(card) {
+    card.querySelectorAll('.container-result-summary').forEach(summary => {
         summary.addEventListener('click', (e) => e.stopPropagation());
-    }
+    });
 }
 
 /**
@@ -758,6 +830,7 @@ function createCardElement(codec, groupKey, isPending) {
         </div>
     `;
 
+    const header = item.querySelector('.codec-card-header');
     const handleToggle = (e) => {
         if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
             if (e.key === ' ') e.preventDefault();
@@ -765,12 +838,12 @@ function createCardElement(codec, groupKey, isPending) {
             item.setAttribute('aria-expanded', item.classList.contains('expanded').toString());
         }
     };
-    item.addEventListener('click', handleToggle);
+    header.addEventListener('click', handleToggle);
     item.addEventListener('keydown', handleToggle);
 
     if (!isPending) {
         attachCopyHandler(item);
-        attachApiToggleHandler(item);
+        attachContainerToggleHandlers(item);
         const eduToggle = item.querySelector('.education-toggle');
         if (eduToggle) setupEducationToggle(eduToggle);
     }
@@ -811,7 +884,17 @@ export function renderPendingCards() {
         section.appendChild(sectionHeader);
 
         for (const record of group.codecs) {
-            const pendingCodec = /** @type {CodecTestResult} */ ({ ...record, type: group.type, containers: {}, drm: null, support: 'unsupported' });
+            const pendingCodec = /** @type {CodecTestResult} */ ({
+                codec: record.codec,
+                name: record.name,
+                flags: record.flags || [],
+                scenarios: record.scenarios,
+                education: record.education || null,
+                type: group.type,
+                containers: {},
+                drm: null,
+                support: 'unsupported'
+            });
             section.appendChild(createCardElement(pendingCodec, groupKey, true));
         }
 
@@ -855,7 +938,7 @@ export function updateCardState(groupKey, codecResult) {
     if (detailsDiv) {
         detailsDiv.innerHTML = createDetailsHTML(codecResult, false);
         attachCopyHandler(card);
-        attachApiToggleHandler(card);
+        attachContainerToggleHandlers(card);
         const eduToggle = card.querySelector('.education-toggle');
         if (eduToggle) setupEducationToggle(eduToggle);
     }

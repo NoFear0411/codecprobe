@@ -19,21 +19,67 @@ $purple: var(--purple, #9c27b0);
 $border: var(--border, #222);
 $border-light: var(--border-light, #333);
 
-// Spacing
-$spacing-xs: 6px;
-$spacing-sm: 10px;
-$spacing-md: 14px;
-$spacing-lg: 20px;
-$spacing-xl: 28px;
+// Design tokens — single source of truth
+:root {
+    // Typography scale (1.25 — Major Third)
+    --text-xs: 0.64rem;
+    --text-sm: 0.8rem;
+    --text-base: 1rem;
+    --text-lg: 1.25rem;
+    --text-xl: 1.563rem;
+    --text-2xl: 1.953rem;
+    --text-code: 0.8rem;
+    --text-code-sm: 0.7rem;
+
+    // Spacing scale (4px grid)
+    --space-px: 1px;
+    --space-05: 2px;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    // Border radius
+    --radius-sm: 3px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-full: 9999px;
+}
+
+// SCSS aliases for backward compat during transition
+$spacing-xs: var(--space-1);   // was 6px -> now 4px
+$spacing-sm: var(--space-2);   // was 10px -> now 8px
+$spacing-md: var(--space-3);   // was 14px -> now 12px
+$spacing-lg: var(--space-5);   // was 20px -> stays 20px
+$spacing-xl: var(--space-8);   // was 28px -> now 32px
 
 // Typography
 $font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
 $font-mono: 'SF Mono', 'Monaco', 'Courier New', monospace;
 
+// Shared button base — extracted from filter-btn, expand-toggle-btn, action-btn
+%button-base {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: clamp(var(--space-1), 1vw, var(--space-2)) clamp(var(--space-2), 2vw, var(--space-5));
+    min-height: clamp(36px, 5vw, 48px);
+    font-size: clamp(var(--text-sm), 1.5vw, var(--text-base));
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 // Mixins
 @mixin card {
     background: var(--card);
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--border);
     transition: all 0.2s ease;
 }
@@ -57,10 +103,10 @@ body {
     background: var(--bg);
     color: var(--text);
     font-family: $font-stack;
-    padding: max(clamp(4px, 1vw, 20px), env(safe-area-inset-top, 0px))
-             max(clamp(4px, 1vw, 20px), env(safe-area-inset-right, 0px))
-             max(clamp(4px, 1vw, 20px), env(safe-area-inset-bottom, 0px))
-             max(clamp(4px, 1vw, 20px), env(safe-area-inset-left, 0px));
+    padding: max(clamp(var(--space-1), 1vw, var(--space-5)), env(safe-area-inset-top, 0px))
+             max(clamp(var(--space-1), 1vw, var(--space-5)), env(safe-area-inset-right, 0px))
+             max(clamp(var(--space-1), 1vw, var(--space-5)), env(safe-area-inset-bottom, 0px))
+             max(clamp(var(--space-1), 1vw, var(--space-5)), env(safe-area-inset-left, 0px));
     line-height: 1.6;
     min-height: 100vh;
     overscroll-behavior-y: contain;
@@ -80,16 +126,16 @@ body:not([class*="theme-"]) {
 // Accessibility
 .skip-link {
     position: absolute;
-    top: -40px;
-    left: 0;
+    left: -9999px;
     background: var(--accent);
     color: var(--bg);
     padding: $spacing-xs $spacing-md;
     text-decoration: none;
-    border-radius: 0 0 4px 0;
+    border-radius: 0 0 var(--radius-sm) 0;
     z-index: 100;
 
     &:focus {
+        left: 0;
         top: 0;
     }
 }
@@ -128,7 +174,7 @@ h1 {
 
 .subtitle {
     color: $text-secondary;
-    font-size: clamp(0.875rem, 2vw, 1.125rem);
+    font-size: clamp(var(--text-base), 2vw, var(--text-lg));
     margin-bottom: $spacing-lg;
 }
 
@@ -143,7 +189,7 @@ h1 {
     margin-bottom: $spacing-sm;
     text-align: center;
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: var(--text-base);
     font-weight: 500;
     border-left: 3px solid var(--border-light);
 
@@ -165,7 +211,7 @@ h1 {
     @include card;
     flex: 1 1 calc((var(--snap-point) - 100%) * 999);
     min-width: 0;
-    padding: clamp(6px, 1vw, 10px) clamp(8px, 1.5vw, 14px);
+    padding: clamp(var(--space-1), 1vw, var(--space-2)) clamp(var(--space-2), 1.5vw, var(--space-3));
     border-left: 2px solid var(--border-light);
     transition: all 0.2s ease;
 
@@ -188,7 +234,7 @@ h1 {
 
 .device-info-label {
     color: var(--text-secondary);
-    font-size: 0.7rem;
+    font-size: var(--text-sm);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: $spacing-xs;
@@ -198,7 +244,7 @@ h1 {
 .device-info-value {
     color: var(--text);
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: var(--text-base);
     overflow-wrap: anywhere;
 }
 
@@ -219,8 +265,8 @@ h1 {
     border: 2px solid var(--border);
     color: var(--text);
     padding: $spacing-sm $spacing-md;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
     outline: none;
     transition: all 0.2s ease;
     min-height: clamp(40px, 5vw, 48px);
@@ -237,19 +283,10 @@ h1 {
 }
 
 .filter-btn {
+    @extend %button-base;
     background: var(--bg-secondary);
     color: var(--text-secondary);
-    border: 1px solid var(--border);
-    padding: clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
     font-weight: 500;
-    transition: all 0.2s ease;
-    min-height: clamp(36px, 5vw, 48px);
-    min-width: 0;
-    white-space: nowrap;
-    flex-shrink: 0;
 
     &:focus {
         background: var(--card);
@@ -283,19 +320,11 @@ h1 {
 }
 
 .expand-toggle-btn {
+    @extend %button-base;
     background: var(--bg-secondary);
     color: var(--text-secondary);
-    border: 1px solid var(--border-light);
-    padding: clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+    border-color: var(--border-light);
     font-weight: 600;
-    min-height: clamp(36px, 5vw, 48px);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
 
     svg {
         width: 16px;
@@ -319,7 +348,6 @@ h1 {
 }
 
 .export-btn {
-    // Inherits from .action-btn - no special styling needed
     margin-left: auto;
     transition: all 0.2s ease;
 
@@ -341,8 +369,8 @@ h1 {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: clamp(4px, 1vw, 14px) clamp(4px, 1.5vw, 20px);
-    gap: clamp(12px, 2vw, 28px);
+    padding: clamp(var(--space-1), 1vw, var(--space-3)) clamp(var(--space-1), 1.5vw, var(--space-5));
+    gap: clamp(var(--space-3), 2vw, var(--space-8));
 }
 
 // PWA Install
@@ -356,13 +384,13 @@ h1 {
     margin-bottom: $spacing-sm;
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 0.85rem;
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
     color: var(--text-secondary);
 
     svg {
         vertical-align: middle;
-        margin: 0 2px;
+        margin: 0 var(--space-05);
     }
 
     .dismiss-btn {
@@ -371,7 +399,7 @@ h1 {
         color: var(--text-secondary);
         font-size: 1.2rem;
         cursor: pointer;
-        padding: 0 4px;
+        padding: 0 var(--space-1);
         line-height: 1;
 
         &:hover {
@@ -390,13 +418,13 @@ h1 {
     &[hidden] { display: none; }
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-2);
     background: var(--bg-secondary, #1a1a1a);
     color: var(--text-secondary);
     border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.8rem;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
     cursor: pointer;
     white-space: nowrap;
     transition: border-color 0.2s ease, color 0.2s ease;
@@ -414,8 +442,8 @@ h1 {
 // Device Header Section
 .device-header {
     background: var(--card);
-    border-radius: clamp(6px, 1vw, 12px);
-    padding: clamp(10px, 2vw, 20px);
+    border-radius: clamp(var(--radius-md), 1vw, var(--radius-lg));
+    padding: clamp(var(--space-2), 2vw, var(--space-5));
     border: 2px solid var(--border);
     box-shadow: var(--shadow);
 }
@@ -425,7 +453,7 @@ h1 {
     align-items: flex-start;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: clamp(4px, 1vw, 8px);
+    gap: clamp(var(--space-1), 1vw, var(--space-2));
     margin-bottom: $spacing-md;
 
     h1 {
@@ -439,11 +467,11 @@ h1 {
 }
 
 .device-info-summary {
-    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+    font-size: clamp(var(--text-sm), 1.5vw, var(--text-base));
     color: var(--text-secondary);
-    padding: clamp(6px, 1vw, 10px);
+    padding: clamp(var(--space-1), 1vw, var(--space-2));
     background: var(--bg-secondary);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     margin-bottom: $spacing-md;
     border-left: 3px solid var(--border-light);
 }
@@ -459,14 +487,14 @@ h1 {
     display: flex;
     align-items: center;
     gap: $spacing-xs;
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     color: var(--text-secondary);
 }
 
 .api-status-indicator {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     flex-shrink: 0;
 }
 
@@ -482,7 +510,7 @@ h1 {
 
 .api-status-label {
     font-family: $font-mono;
-    font-size: 0.8rem;
+    font-size: var(--text-code);
 }
 
 // Controls Section
@@ -492,8 +520,8 @@ h1 {
     gap: $spacing-md;
     align-items: center;
     background: var(--card);
-    padding: clamp(10px, 2vw, 20px);
-    border-radius: 12px;
+    padding: clamp(var(--space-2), 2vw, var(--space-5));
+    border-radius: var(--radius-lg);
     border: 2px solid var(--border);
     box-shadow: var(--shadow);
 }
@@ -510,21 +538,10 @@ h1 {
 }
 
 .action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: $spacing-xs;
-    padding: clamp(6px, 1vw, 10px) clamp(10px, 2vw, 20px);
+    @extend %button-base;
     background: var(--card-hover);
     color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
     font-weight: 500;
-    min-height: clamp(36px, 5vw, 48px);
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    flex-shrink: 0;
 
     &:focus {
         background: var(--bg-secondary);
@@ -557,18 +574,18 @@ main#main-content {
 // Footer
 .site-footer {
     background: var(--bg-secondary);
-    border-radius: 8px;
-    padding: clamp(10px, 2vw, 20px);
+    border-radius: var(--radius-lg);
+    padding: clamp(var(--space-2), 2vw, var(--space-5));
     border: 1px solid var(--border);
     margin-top: $spacing-xl;
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     color: var(--text-secondary);
 }
 
 .footer-content {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(10px, 2vw, 28px);
+    gap: clamp(var(--space-2), 2vw, var(--space-8));
     margin-bottom: $spacing-md;
 }
 
@@ -576,11 +593,11 @@ main#main-content {
     flex: 1 1 min(100%, 250px);
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
     padding: $spacing-md;
 
     h2 {
-        font-size: 0.85rem;
+        font-size: var(--text-base);
         margin-bottom: $spacing-sm;
         color: var(--text-secondary);
         font-weight: 600;
@@ -592,7 +609,7 @@ main#main-content {
 
     p {
         color: var(--text-secondary);
-        font-size: 0.85rem;
+        font-size: var(--text-base);
         line-height: 1.5;
         margin: 0 0 $spacing-xs 0;
     }
@@ -609,14 +626,14 @@ main#main-content {
     li {
         margin: 0;
         color: var(--text-secondary);
-        font-size: 0.85rem;
+        font-size: var(--text-base);
         line-height: 1.5;
     }
 
     a {
         color: var(--text-secondary);
         text-decoration: none;
-        font-size: 0.85rem;
+        font-size: var(--text-base);
         display: inline-block;
         transition: color 0.2s ease;
 
@@ -630,7 +647,7 @@ main#main-content {
     padding-top: $spacing-sm;
     border-top: 1px solid var(--border);
     text-align: center;
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     color: var(--text-secondary);
     line-height: 1.6;
 }
@@ -640,19 +657,18 @@ main#main-content {
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
-    gap: clamp(8px, 1.5vw, 14px);
+    gap: clamp(var(--space-2), 1.5vw, var(--space-3));
     margin-bottom: $spacing-lg;
 }
 
 .section {
     @include card;
-    padding: clamp(8px, 1.5vw, 14px) clamp(10px, 2vw, 20px);
+    padding: clamp(var(--space-2), 1.5vw, var(--space-3)) clamp(var(--space-2), 2vw, var(--space-5));
     box-shadow: var(--shadow);
-    // REMOVED: overflow: hidden;  // This was causing truncation
 }
 
 .section-header {
-    font-size: 1rem;
+    font-size: var(--text-base);
     font-weight: 800;
     color: var(--text);
     margin-bottom: $spacing-sm;
@@ -672,7 +688,7 @@ main#main-content {
 }
 
 .support-count {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     color: var(--text-secondary);
     font-weight: normal;
     text-transform: none;
@@ -683,7 +699,7 @@ main#main-content {
 .codec-item {
     background: var(--card);
     padding: $spacing-sm $spacing-md;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     margin-bottom: $spacing-xs;
     border-left: 3px solid var(--border-light);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -719,10 +735,10 @@ main#main-content {
         transform: none;
 
         .codec-details {
-            max-height: none;  // Changed from 1000px
+            max-height: none;
             opacity: 1;
             margin-top: $spacing-sm;
-            overflow: visible;  // Allow content to expand fully
+            overflow: visible;
         }
 
         .codec-chevron {
@@ -736,7 +752,7 @@ main#main-content {
         position: absolute;
         top: -24px;
         right: 0;
-        font-size: 0.7rem;
+        font-size: var(--text-code-sm);
         color: var(--text-dimmed);
         opacity: 0;
         animation: hint-fade 3s ease-in-out 1s 2;
@@ -753,11 +769,12 @@ main#main-content {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: $spacing-md;  // Increased from sm for more breathing room
+    gap: $spacing-md;
+    cursor: pointer;
 
     > div:first-child {
         flex: 1;
-        min-width: 0;  // Allow text truncation if needed
+        min-width: 0;
     }
 }
 
@@ -766,7 +783,7 @@ main#main-content {
     color: var(--text-dimmed);
     opacity: 0.5;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-top: 2px;
+    margin-top: var(--space-05);
 }
 
 .codec-header-line {
@@ -774,16 +791,16 @@ main#main-content {
     align-items: flex-start;
     justify-content: space-between;
     gap: $spacing-sm;
-    margin-bottom: 2px;
+    margin-bottom: var(--space-05);
 }
 
 .codec-name {
     font-weight: 600;
-    font-size: 1rem;
+    font-size: var(--text-base);
 }
 
 .codec-summary {
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     color: var(--text-secondary);
     margin-top: $spacing-xs;
 }
@@ -793,11 +810,12 @@ main#main-content {
     opacity: 0;
     overflow: hidden;
     transition: all 0.3s ease;
+    font-size: var(--text-sm);
 }
 
 .codec-string {
     font-family: $font-mono;
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     color: var(--text);
     overflow-wrap: anywhere;
     display: flex;
@@ -807,7 +825,7 @@ main#main-content {
     line-height: 1.4;
     padding: $spacing-xs;
     background: transparent;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     border-left: 2px solid var(--border);
     padding-left: $spacing-sm;
 
@@ -822,13 +840,13 @@ main#main-content {
     border: 1px solid var(--border-light);
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-code-sm);
     transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--space-1);
 
     &:hover {
         background: var(--card-hover);
@@ -851,9 +869,9 @@ main#main-content {
 .status-badge {
     display: inline-block;
     font-weight: 700;
-    font-size: 0.7rem;
-    padding: 4px 10px;
-    border-radius: 4px;
+    font-size: var(--text-sm);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     flex-shrink: 0;
@@ -861,25 +879,15 @@ main#main-content {
 }
 
 .info-line {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     color: var(--text-secondary);
     margin-top: $spacing-xs;
-}
-
-// API Results — flat section divider, not a nested box
-.api-results {
-    margin-top: $spacing-md;
-    padding-top: $spacing-md;
-    border-top: 2px solid var(--border);
-    font-size: 0.7rem;
-    line-height: 1.8;
-    color: var(--text-secondary);
 }
 
 .api-result-line {
     display: flex;
     justify-content: space-between;
-    padding: 2px 0;
+    padding: var(--space-05) 0;
     gap: $spacing-sm;
 }
 
@@ -901,105 +909,234 @@ main#main-content {
     }
 }
 
-// API details toggle — native <details>/<summary>
-.api-toggle-label {
+// Container results — grid of individually expandable containers
+.container-results {
+    margin-top: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    border-top: 2px solid var(--border);
+    padding-top: $spacing-sm;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+// Each container is a <details> element
+.container-result-block {
+    border-left: 3px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-secondary);
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    &[open] {
+        background: var(--bg-secondary);
+    }
+
+    // Color the left border based on overall container result
+    &:has(.container-indicator.success) {
+        border-left-color: var(--accent);
+    }
+
+    &:has(.container-indicator.partial) {
+        border-left-color: var(--yellow);
+    }
+
+    &:has(.container-indicator.fail) {
+        border-left-color: var(--red);
+    }
+}
+
+.container-result-summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    cursor: pointer;
     padding: $spacing-xs $spacing-sm;
-    border-radius: 4px;
-    transition: background 0.2s ease;
+    cursor: pointer;
     list-style: none;
+    user-select: none;
 
-    &::-webkit-details-marker {
-        display: none;
-    }
+    &::-webkit-details-marker { display: none; }
 
     &:hover {
-        background: var(--bg-secondary);
+        background: rgba(255, 255, 255, 0.03);
+        background: color-mix(in srgb, var(--text) 3%, transparent);
     }
 }
 
-.api-section-title {
-    font-size: clamp(0.75rem, 1.5vw, 0.85rem);
-    font-weight: 700;
-    color: var(--text);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.api-toggle-burger {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding: 4px;
-
-    span {
-        width: 16px;
-        height: 2px;
-        background: var(--text-secondary);
-        border-radius: 2px;
-        transition: 0.3s;
-    }
-}
-
-.api-toggle-content {
-    padding-top: $spacing-xs;
-}
-
-// Burger→X animation when details is open
-details[open] > .api-toggle-label {
-    .api-toggle-burger span:nth-child(1) {
-        transform: translateY(5px) rotate(45deg);
-    }
-    .api-toggle-burger span:nth-child(2) {
-        opacity: 0;
-    }
-    .api-toggle-burger span:nth-child(3) {
-        transform: translateY(-5px) rotate(-45deg);
-    }
-}
-
-.api-test-block {
-    margin-top: $spacing-sm;
-    border-left: 3px solid var(--border);
-    padding: clamp(6px, 1.5vw, 10px);
-    background: var(--bg-secondary);
-    border-radius: 4px;
-    transition: border-color 0.2s ease, background 0.2s ease;
-
-    &:first-child {
-        margin-top: $spacing-sm;
-    }
-
-    // Hover color based on API result (reflected by badge class)
-    &:has(.api-number.success):hover {
-        border-left-color: var(--accent);
-        background: rgba(0, 255, 136, 0.05);
-        background: color-mix(in srgb, var(--accent) 5%, transparent);
-    }
-
-    &:has(.api-number.partial):hover {
-        border-left-color: var(--yellow);
-        background: rgba(255, 215, 0, 0.05);
-        background: color-mix(in srgb, var(--yellow) 5%, transparent);
-    }
-
-    &:has(.api-number.fail):hover {
-        border-left-color: var(--red);
-        background: rgba(255, 68, 68, 0.05);
-        background: color-mix(in srgb, var(--red) 5%, transparent);
-    }
-}
-
-.api-test-header {
+.container-summary-left {
     display: flex;
     align-items: center;
     gap: $spacing-xs;
+}
+
+.container-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+
+    &.success { background: var(--accent); }
+    &.partial { background: var(--yellow); }
+    &.fail { background: var(--red); }
+}
+
+.container-label {
+    font-weight: 700;
+    font-size: var(--text-sm);
+    color: var(--text);
+}
+
+.container-mode {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: var(--space-px) var(--space-1);
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.03em;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    background: var(--bg);
+}
+
+.container-summary-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+}
+
+.container-summary-badges {
+    display: flex;
+    gap: var(--space-1);
+}
+
+.container-chevron {
+    color: var(--text-dimmed);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.container-result-block[open] > .container-result-summary .container-chevron {
+    transform: rotate(180deg);
+}
+
+// Expanded detail section
+.container-result-detail {
+    padding: 0 $spacing-sm $spacing-sm;
+}
+
+.container-mime {
+    display: block;
+    font-family: $font-mono;
+    font-size: var(--text-code-sm);
+    color: var(--text-secondary);
+    background: var(--bg);
+    padding: var(--space-05) $spacing-xs;
+    border-radius: var(--radius-sm);
+    margin-bottom: $spacing-xs;
+    overflow-wrap: anywhere;
+}
+
+.container-badges {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-05);
+}
+
+.badge-result {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+
+    &.spatial-result {
+        padding-left: 26px;
+    }
+}
+
+.badge-label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.mc-detail {
+    font-size: var(--text-sm);
+    color: var(--text-dimmed);
+    margin-left: var(--space-05);
+}
+
+// DRM block reuses container-result-block styles
+.drm-result-block {
+    border-left-color: var(--border);
+}
+
+// API detail blocks — request/response view inside expanded container
+.api-detail-block {
+    padding: $spacing-xs 0;
+    border-bottom: 1px solid var(--border);
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.api-detail-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    font-weight: 600;
+    color: var(--text);
     margin-bottom: $spacing-xs;
 }
 
+.api-detail-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-05) 0;
+
+    code {
+        display: block;
+        width: 100%;
+        font-family: $font-mono;
+        font-size: var(--text-code);
+        color: var(--text-secondary);
+        background: var(--bg);
+        padding: var(--space-1) var(--space-2);
+        border-radius: var(--radius-sm);
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+}
+
+.api-detail-label {
+    font-weight: 600;
+    color: var(--text-dimmed);
+    text-transform: uppercase;
+    font-size: var(--text-xs);
+    letter-spacing: 0.03em;
+    margin-bottom: var(--space-05);
+}
+
+.api-detail-config {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: $spacing-xs $spacing-sm;
+    margin: var(--space-1) 0;
+    overflow-x: auto;
+
+    code {
+        font-family: $font-mono;
+        font-size: var(--text-code-sm);
+        line-height: 1.4;
+        color: var(--text-secondary);
+        background: none;
+        padding: 0;
+    }
+}
+
+// API numbered badges (1, 2, 3)
 .api-number {
     display: inline-flex;
     align-items: center;
@@ -1008,8 +1145,8 @@ details[open] > .api-toggle-label {
     height: 20px;
     background: var(--accent);
     color: var(--bg);
-    border-radius: 50%;
-    font-size: 0.7rem;
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
     font-weight: 700;
     flex-shrink: 0;
 
@@ -1028,51 +1165,7 @@ details[open] > .api-toggle-label {
     }
 }
 
-.api-name {
-    font-family: $font-mono;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-.api-test-content {
-    font-size: 0.7rem;
-    line-height: 1.6;
-}
-
-.api-request,
-.api-response {
-    margin-bottom: $spacing-xs;
-
-    strong {
-        color: var(--text-secondary);
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    code {
-        font-family: $font-mono;
-        background: var(--bg-secondary);
-        padding: 2px 6px;
-        border-radius: 3px;
-        color: var(--text);  // Changed from accent (green) to neutral
-        font-size: 0.7rem;
-    }
-}
-
-.config-json {
-    font-family: $font-mono;
-    background: var(--bg-secondary);
-    padding: $spacing-xs;
-    border-radius: 4px;
-    color: var(--text-secondary);
-    font-size: 0.65rem;
-    overflow-x: auto;
-    max-width: 100%;
-    margin: 4px 0;
-    border: 1px solid var(--border);
-}
-
+// Response value coloring
 .response-value {
     font-weight: 600;
 
@@ -1087,34 +1180,6 @@ details[open] > .api-toggle-label {
     &.fail {
         color: var(--red);
     }
-}
-
-.capability-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 4px;
-    margin-top: 4px;
-}
-
-.capability-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 0;
-}
-
-.capability-label {
-    color: var(--text-secondary);
-    font-size: 0.7rem;
-}
-
-.api-explanation {
-    margin-top: $spacing-xs;
-    padding-top: $spacing-xs;
-    border-top: 1px solid var(--border);
-    color: var(--text-dimmed);
-    font-size: 0.65rem;
-    font-style: italic;
-    line-height: 1.5;
 }
 
 // Educational content section
@@ -1132,10 +1197,10 @@ details[open] > .api-toggle-label {
     padding: $spacing-sm $spacing-md;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);  // Changed from accent (green) to neutral
+    border-radius: var(--radius-sm);
+    color: var(--text);
     font-weight: 500;
-    font-size: 0.85rem;
+    font-size: var(--text-base);
     cursor: pointer;
     transition: all 0.2s ease;
 
@@ -1163,22 +1228,22 @@ details[open] > .api-toggle-label {
 }
 
 .education-section {
-    margin-bottom: $spacing-lg;
+    margin-bottom: $spacing-md;
 
     h4 {
-        font-size: 0.9rem;
+        font-size: var(--text-sm);
         font-weight: 600;
-        color: var(--text);  // Changed from accent (green) to neutral
-        margin-bottom: $spacing-sm;
+        color: var(--text);
+        margin-bottom: $spacing-xs;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
     p {
-        font-size: 0.85rem;
+        font-size: var(--text-sm);
         color: var(--text-secondary);
-        line-height: 1.6;
-        margin-bottom: $spacing-sm;
+        line-height: 1.5;
+        margin-bottom: $spacing-xs;
         word-wrap: break-word;
         overflow-wrap: break-word;
     }
@@ -1188,13 +1253,13 @@ details[open] > .api-toggle-label {
 .codec-breakdown {
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: $spacing-md;
     margin-bottom: $spacing-sm;
 }
 
 .breakdown-mime {
-    font-size: 0.75rem;
+    font-size: var(--text-sm);
     color: var(--text-tertiary);
     margin-bottom: $spacing-xs;
 
@@ -1207,12 +1272,12 @@ details[open] > .api-toggle-label {
     margin-bottom: $spacing-md;
     padding: $spacing-sm;
     background: var(--bg-secondary);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     text-align: center;
 
     code {
         font-family: $font-mono;
-        font-size: 1rem;
+        font-size: var(--text-base);
         letter-spacing: 0.02em;
     }
 }
@@ -1220,15 +1285,15 @@ details[open] > .api-toggle-label {
 .breakdown-token {
     color: var(--text);
     font-weight: 600;
-    padding: 2px 4px;
-    border-radius: 2px;
+    padding: var(--space-05) var(--space-1);
+    border-radius: var(--radius-sm);
     background: var(--card-hover);
     border: 1px solid var(--border);
 }
 
 .breakdown-dot {
     color: var(--text-dimmed);
-    padding: 0 2px;
+    padding: 0 var(--space-05);
     font-weight: 400;
 }
 
@@ -1242,18 +1307,18 @@ details[open] > .api-toggle-label {
     display: flex;
     gap: $spacing-sm;
     align-items: baseline;
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     line-height: 1.5;
 }
 
 .breakdown-token-label {
     font-family: $font-mono;
-    font-size: 0.75rem;
+    font-size: var(--text-code-sm);
     font-weight: 600;
     color: var(--text);
     background: var(--bg-secondary);
-    padding: 2px 6px;
-    border-radius: 3px;
+    padding: var(--space-05) var(--space-1);
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     flex-shrink: 0;
     min-width: 48px;
@@ -1269,7 +1334,7 @@ details[open] > .api-toggle-label {
     margin-bottom: $spacing-md;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: $spacing-md;
 }
 
@@ -1281,18 +1346,18 @@ details[open] > .api-toggle-label {
 
     .format-badge {
         display: inline-block;
-        padding: 2px 8px;
+        padding: var(--space-05) var(--space-2);
         background: var(--bg-secondary);
         color: var(--text);
         border: 1px solid var(--border);
-        border-radius: 3px;
-        font-size: 0.75rem;
+        border-radius: var(--radius-sm);
+        font-size: var(--text-sm);
         font-weight: 600;
     }
 
     .file-extension {
         font-family: var(--font-mono);
-        font-size: 0.85rem;
+        font-size: var(--text-code);
         color: var(--text-tertiary);
     }
 }
@@ -1300,21 +1365,21 @@ details[open] > .api-toggle-label {
 .streaming-example pre {
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: $spacing-md;
     overflow-x: auto;
     margin: $spacing-sm 0;
 
     code {
         font-family: var(--font-mono);
-        font-size: 0.85rem;
+        font-size: var(--text-code);
         line-height: 1.5;
         color: var(--text);
     }
 }
 
 .streaming-notes {
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     color: var(--yellow);
     font-style: italic;
     margin-top: $spacing-sm;
@@ -1330,9 +1395,9 @@ details[open] > .api-toggle-label {
 .platform-note {
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: $spacing-md;
-    overflow: hidden;  // Prevent content overflow
+    overflow: hidden;
     word-wrap: break-word;
     overflow-wrap: break-word;
 
@@ -1348,12 +1413,12 @@ details[open] > .api-toggle-label {
 
         strong {
             color: var(--text);
-            font-size: 0.9rem;
+            font-size: var(--text-sm);
         }
     }
 
     p {
-        font-size: 0.85rem;
+        font-size: var(--text-sm);
         color: var(--text-secondary);
         line-height: 1.5;
         margin: 0;
@@ -1370,12 +1435,12 @@ details[open] > .api-toggle-label {
     gap: $spacing-xs;
 
     li {
-        font-size: 0.8rem;
+        font-size: var(--text-sm);
         color: var(--text-secondary);
         background: var(--bg);
         border: 1px solid var(--border);
-        border-radius: 3px;
-        padding: 3px $spacing-sm;
+        border-radius: var(--radius-sm);
+        padding: var(--space-05) $spacing-sm;
 
         a {
             color: var(--blue);
@@ -1402,7 +1467,7 @@ details[open] > .api-toggle-label {
         color: var(--bg);
     }
 
-    .api-results {
+    .container-results {
         border-top-color: var(--accent);
     }
 }
@@ -1420,7 +1485,7 @@ details[open] > .api-toggle-label {
         color: var(--bg);
     }
 
-    .api-results {
+    .container-results {
         border-top-color: var(--yellow);
     }
 }
@@ -1443,7 +1508,7 @@ details[open] > .api-toggle-label {
         color: var(--text-secondary);
     }
 
-    .api-results {
+    .container-results {
         border-top-color: var(--red);
     }
 }
@@ -1474,7 +1539,7 @@ details[open] > .api-toggle-label {
         color: var(--text-secondary);
     }
 
-    .api-results {
+    .container-results {
         border-top-color: $purple;
     }
 }
@@ -1517,7 +1582,7 @@ details[open] > .api-toggle-label {
         height: 8px;
         border: 2px solid var(--text-tertiary, #555);
         border-top-color: transparent;
-        border-radius: 50%;
+        border-radius: var(--radius-full);
         animation: spin 0.8s linear infinite;
     }
 }
@@ -1558,7 +1623,7 @@ details[open] > .api-toggle-label {
     text-align: center;
     padding: 60px $spacing-lg;
     color: var(--text-secondary);
-    font-size: 1.125rem;
+    font-size: var(--text-lg);
 }
 
 // Footer
@@ -1568,7 +1633,7 @@ details[open] > .api-toggle-label {
     border-top: 1px solid var(--border);
     margin-top: $spacing-xl;
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: var(--text-base);
 
     a {
         color: var(--blue);
@@ -1613,7 +1678,7 @@ details[open] > .api-toggle-label {
     .export-btn,
     .search-input {
         min-height: 56px;
-        font-size: 1.125rem;
+        font-size: var(--text-lg);
     }
 
     .codec-item {
@@ -1624,4 +1689,3 @@ details[open] > .api-toggle-label {
         }
     }
 }
-
