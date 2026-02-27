@@ -117,5 +117,30 @@ if (!fs.existsSync(deployDir)) {
 
 fs.writeFileSync(outputPath, html);
 
+// 4. Compute JSON-LD hash and inject into deploy/_headers CSP
+const crypto = require('crypto');
+const headersPath = path.join(ROOT, '_headers');
+
+const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+if (jsonLdMatch && fs.existsSync(headersPath)) {
+    const jsonLdContent = jsonLdMatch[1];
+    const hash = crypto.createHash('sha256').update(jsonLdContent, 'utf8').digest('base64');
+    const cspHash = `'sha256-${hash}'`;
+
+    let headers = fs.readFileSync(headersPath, 'utf8');
+    headers = headers.replace(
+        /script-src 'self'(?:\s+'sha256-[^']+')*/,
+        `script-src 'self' ${cspHash}`
+    );
+
+    fs.writeFileSync(path.join(deployDir, '_headers'), headers);
+    console.log(`Injected JSON-LD CSP hash: ${cspHash}`);
+} else {
+    // No JSON-LD or no _headers — copy as-is
+    if (fs.existsSync(headersPath)) {
+        fs.copyFileSync(headersPath, path.join(deployDir, '_headers'));
+    }
+}
+
 console.log(`Injected ${replacedCount} version parameters (HTML + JS imports)`);
 console.log(`Output: deploy/index.html`);

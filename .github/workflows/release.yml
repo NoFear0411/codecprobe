@@ -52,7 +52,7 @@ jobs:
           cp -r build/js/* deploy/js/
           rm -f deploy/js/codec-database.js
           cp -r icons screenshots deploy/
-          cp manifest.json CNAME _headers deploy/
+          cp manifest.json CNAME deploy/
           cp .nojekyll deploy/
           cp sw.js LICENSE deploy/
 
