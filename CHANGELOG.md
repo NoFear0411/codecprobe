@@ -2,6 +2,22 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.1.0] - 2026-02-28
+
+### Added
+
+- **VP9 group**: 20 codec records with 26 scenarios across profiles 0–3, levels 1.0–6.0, 8/10/12-bit, SDR/HDR10/HLG, full and limited range color. Containers: MP4, MKV, WebM (file) + fMP4, DASH (stream).
+- **codec-resolve link**: Footer About section and Links now reference the companion [codec-resolve](https://github.com/nofear0411/codec-resolve) validator.
+- **Test Matrix Generation section in README**: Documents the codec-resolve validation workflow — every codec string is decoded and validated before entering the database.
+
+### Changed
+
+- **64 codec records**: 12 HEVC, 21 Dolby Vision, 11 AV1, 20 VP9. 9 groups pending migration.
+- **Footer text**: Updated codec count and group list to reflect v2 database state.
+- **README**: VP9 row in coverage table, counts updated throughout, codec-resolve added to Technical References.
+
+---
+
 ## [4.0.0] - 2026-02-23
 
 ### Breaking
