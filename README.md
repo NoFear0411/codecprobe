@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.0.0**: 44 codec records (HEVC, Dolby Vision, AV1) with the new normalized database. VP9, AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries).
+> **v4.0.0**: 64 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -79,21 +79,22 @@ Results include persistent state support and robustness strings. DRM detection r
 
 ## Codec Coverage
 
-**44 codec records** across 3 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
+**64 codec records** across 4 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
 
-### Video (44 records — v2 database)
+### Video (64 records — v2 database)
 
 | Codec | Records | Profiles/Variants | Containers |
 |-------|---------|-------------------|------------|
 | HEVC/H.265 | 12 | Main, Main 10, Main Still Picture, High Tier, Levels 3.1–6.1, SDR/HDR10/HLG | MP4, MKV, MOV |
 | Dolby Vision | 21 | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), supplemental dual-codec strings | MP4, MKV, MOV |
 | AV1 | 11 | Main (P0), High (P1), Professional (P2), Film Grain, High Tier, Levels 3.1–6.0, SDR/HDR10/HLG | MP4, MKV, WebM, MOV |
+| VP9 | 20 | Profiles 0–3, Levels 1.0–6.0, 8/10/12-bit, SDR/HDR10/HLG, full and limited range | MP4, MKV, WebM |
 
 ### Pending Migration (from v1 — 238 entries)
 
 The following codec groups are being migrated from the v1 flat database to v2's normalized schema. Each will gain per-container and per-scenario testing:
 
-- **Video**: VP9, AVC/H.264, VVC/H.266, VP8, Legacy (MPEG-4 Part 2, H.263, Theora)
+- **Video**: AVC/H.264, VVC/H.266, VP8, Legacy (MPEG-4 Part 2, H.263, Theora)
 - **Audio**: Dolby (AC-3/E-AC-3/AC-4), DTS, Lossless (FLAC/ALAC/Opus/PCM), Standard (AAC/MP3/Vorbis), MPEG-H 3D Audio
 - **Streaming**: HLS, DASH, CMAF scenarios integrated into each codec record
 
@@ -198,7 +199,7 @@ codecprobe/
 │   ├── styles.scss            # Main stylesheet
 │   └── _themes.scss           # Theme definitions
 ├── js/
-│   ├── codec-database-v2.js   # v2 normalized database — 44 records, 3 groups (active)
+│   ├── codec-database-v2.js   # v2 normalized database — 64 records, 4 groups (active)
 │   ├── codec-database.js      # v1 flat database — 238 entries, 13 groups (reference)
 │   ├── codec-tester.js        # Three-API testing with retry logic
 │   ├── device-detection.js    # UAParser.js v2.x integration
@@ -270,6 +271,25 @@ node scripts/db-tool.mjs <command> [args]
 | `inject <group> <file>` | Add education content |
 | `verify` | Syntax + import + structure check |
 
+## Test Matrix Generation
+
+Every codec string in the v2 database is validated against [**codec-resolve**](https://github.com/nofear0411/codec-resolve) before it enters the test matrix. codec-resolve is a bidirectional codec string resolver and validator — it can both generate codec strings from content parameters (resolution, HDR format, bit depth) and decode existing strings back into their constituent fields.
+
+The migration workflow:
+
+1. **Decode** — `python -m codec_resolve --decode hvc1.2.4.L153.B0` parses the string, validates profile/level/constraint relationships, and flags semantic errors (wrong tier for level, incompatible chroma for profile, etc.)
+2. **Validate** — 143 automated tests across HEVC, AV1, VP9, VP8, and Dolby Vision confirm that every codec string follows its spec (ITU-T, ISO/IEC, IETF, VP9-ISOBMFF Binding)
+3. **Insert** — only strings that pass validation are added to the v2 database via `scripts/db-tool-v2.mjs`
+
+This prevents invalid or malformed codec strings from polluting the test matrix. When a browser reports "unsupported" for a CodecProbe test, it means the codec string is spec-correct and the browser genuinely lacks support — not that we sent a malformed string.
+
+codec-resolve currently supports:
+- **HEVC** — 13 profiles, constraint flag validation, tier/level cross-checks
+- **Dolby Vision** — profiles 5/7/8/9/10/20, HEVC/AV1 hybrid cross-validation, HLS brand inference
+- **AV1** — profiles 0/1/2, tier/level, color parameter validation
+- **VP9** — profiles 0–3, 13 levels, chroma/depth orthogonality checks
+- **VP8** — bare tag validation
+
 ## Known Limitations
 
 **What the APIs report vs. reality:**
@@ -305,6 +325,7 @@ Every education entry in the codec database cites its sources. 38 specifications
 | **IETF** | RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC) |
 | **Industry** | AV1 Bitstream & Decoding Process, AV1 ISOBMFF Binding, VP9 Bitstream & Decoding Process, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF Implementation Guidelines |
 | **Vendor** | [Apple HLS Authoring Spec](https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices), [webOS TV AV Formats](https://webostv.developer.lge.com/develop/specifications/video-audio-250), [Android Supported Media Formats](https://developer.android.com/media/platform/supported-formats), [Android ExoPlayer DASH](https://developer.android.com/media/media3/exoplayer/dash), [Android ExoPlayer HLS](https://developer.android.com/media/media3/exoplayer/hls) |
+| **Companion** | [codec-resolve](https://github.com/nofear0411/codec-resolve) — codec string resolver and validator used to generate and validate the test matrix (143 tests across HEVC, DV, AV1, VP9, VP8) |
 
 ## Contributing
 
