@@ -95,16 +95,21 @@ if (fs.existsSync(buildJsDir)) {
 // 3. Inject semantic version into HTML footer and Schema.org
 if (manifest.version) {
     // Footer: <span id="app-version">v...</span>
-    html = html.replace(
-        /(<span id="app-version">)v[^<]+(<\/span>)/,
-        `$1v${manifest.version}$2`
-    );
+    const versionFooterRe = /(<span id="app-version">)v[^<]+(<\/span>)/;
+    const versionSchemaRe = /"softwareVersion":\s*"[^"]+"/;
 
-    // Schema.org JSON-LD: "softwareVersion": "..."
-    html = html.replace(
-        /"softwareVersion":\s*"[^"]+"/,
-        `"softwareVersion": "${manifest.version}"`
-    );
+    html = html.replace(versionFooterRe, `$1v${manifest.version}$2`);
+    html = html.replace(versionSchemaRe, `"softwareVersion": "${manifest.version}"`);
+
+    // Also update the source index.html so dev server stays in sync
+    let sourceHtml = fs.readFileSync(htmlPath, 'utf8');
+    const before = sourceHtml;
+    sourceHtml = sourceHtml.replace(versionFooterRe, `$1v${manifest.version}$2`);
+    sourceHtml = sourceHtml.replace(versionSchemaRe, `"softwareVersion": "${manifest.version}"`);
+    if (sourceHtml !== before) {
+        fs.writeFileSync(htmlPath, sourceHtml);
+        console.log(`Updated source index.html to v${manifest.version}`);
+    }
 
     console.log(`Injected app version: v${manifest.version}`);
 }

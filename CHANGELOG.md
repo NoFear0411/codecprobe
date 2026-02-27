@@ -2,6 +2,18 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.1.1] - 2026-02-28
+
+### Fixed
+
+- **Design tokens**: Replaced remaining hardcoded font-sizes (0.6rem, 1.2rem) with `--text-xs`/`--text-lg` tokens.
+- **Focus states**: Normalized all `focus-visible` outlines to consistent `2px solid var(--accent)`.
+- **Link styling**: Unified footer links to blue + underline-on-hover (was 3 different patterns).
+- **Dead CSS**: Removed unused `.footer` class and redundant `.theme-light` color overrides that duplicated theme variables.
+- **Version drift**: `inject-versions.js` now updates source `index.html` alongside deploy copy, keeping dev server in sync with `package.json` version.
+
+---
+
 ## [4.1.0] - 2026-02-28
 
 ### Added
