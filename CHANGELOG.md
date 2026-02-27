@@ -2,6 +2,20 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.2.0] - 2026-02-28
+
+### Added
+
+- **Education content**: All 64 v2 codec records now have complete education metadata — token breakdowns with spec-backed meanings, overviews, platform notes, and references. Coverage: 64/64 (100%).
+- **Streaming signaling**: HLS (m3u8) and DASH (MPD) manifest examples for all 64 records. Documents vendor-specific signaling: Apple dvh1 mandate, VIDEO-RANGE attributes, CICP supplemental properties, Dolby URNs.
+- **Container notes**: Per-container implementation guidance (MP4/MKV/WebM/fMP4/CMAF/MPEG-TS) for all 64 records. Covers ISOBMFF box structure, MKV block additions, DV RPU storage, and format-specific constraints.
+
+### Changed
+
+- **CONTRIBUTING.md**: Rewritten for v2 database workflow — v2 CLI examples, codec-resolve validation prerequisite, migration status table, v2 education schema reference.
+
+---
+
 ## [4.1.1] - 2026-02-28
 
 ### Fixed

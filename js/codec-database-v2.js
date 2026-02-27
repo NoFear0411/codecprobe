@@ -931,12 +931,42 @@ hevc_main10_1080p.m3u8`,
                     }
                 ],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        {
+                            token: 'hvc1',
+                            meaning: 'HEVC with parameter sets in the sample entry (out-of-band). Required by Apple HLS.'
+                        },
+                        {
+                            token: '2',
+                            meaning: 'Main 10 Profile (profile_idc=2). Supports 8-bit and 10-bit 4:2:0.'
+                        },
+                        {
+                            token: '4',
+                            meaning: 'Profile compatibility flags. Bit 2 set = Main 10 compatible.'
+                        },
+                        {
+                            token: 'L123',
+                            meaning: 'Level 4.1, Main Tier. 123 = 4.1 × 30. Supports 2048×1080@60fps. Peak bitrate 20 Mbps Main Tier.'
+                        },
+                        {
+                            token: 'B0',
+                            meaning: 'No additional constraint flags.'
+                        }
+                    ],
+                    overview: 'HEVC Main 10 at Level 4.1 — the first level supporting 1080p@60fps. Level 4.0 caps at 30fps for 1080p, so HDR10/HLG content at higher frame rates requires 4.1. Common for live HDR sports and broadcast.',
+                    platforms: {
+                        apple: 'Hardware decode on A8+ (iPhone 6), all Apple Silicon. Level 4.1 is the minimum for 1080p HDR at 60fps in HLS.',
+                        android: 'Hardware decode on Android 5.0+ via MediaCodec. Level 4.1 Main 10 is widely supported on HEVC-capable SoCs.'
+                    },
+                    references: [
+                        {
+                            title: 'ITU-T H.265 | ISO/IEC 23008-2',
+                            url: 'https://www.itu.int/rec/T-REC-H.265'
+                        },
+                        {
+                            title: 'ISO/IEC 14496-15 Annex E'
+                        }
+                    ]
                 }
             },
 
@@ -1586,16 +1616,42 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '04M', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '04M', meaning: 'Level 3.0 (seq_level_idx=4), Main tier. Suitable for 720p content.' },
+                        { token: '08', meaning: '8-bit (BitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 3.0 — baseline SDR for 720p. The minimum level commonly used for adaptive streaming lower rungs.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 720p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=2000000,CODECS="av01.0.04M.08,mp4a.40.2",RESOLUTION=1280x720
+av1_720p.m3u8`,
+                                notes: 'AV1 in HLS requires fMP4 segments — no MPEG-TS support. Apple added AV1 HLS support in Safari 17 / iOS 17 (2023). No VIDEO-RANGE needed for SDR.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 720p',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.04M.08">
+  <Representation bandwidth="2000000" width="1280" height="720" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Standard DASH signaling. No CICP supplemental properties needed for SDR. AV1 in DASH widely supported (YouTube, Netflix).'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord.',
+                        mkv: 'Matroska with CodecID V_AV1. Common in media server libraries (Jellyfin, Plex).',
+                        webm: 'WebM (Matroska subset) — native AV1 web container. Chrome and Firefox support video/webm with AV1.',
+                        fmp4: 'Fragmented MP4 for DASH segments. Same video/mp4 MIME as regular MP4.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH delivery.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.0.05M.08 ──
@@ -1618,16 +1674,42 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '05M', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '05M', meaning: 'Level 3.1 (seq_level_idx=5), Main tier. Supports 1080p content.' },
+                        { token: '08', meaning: '8-bit (BitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 3.1 — standard SDR 1080p. YouTube and Netflix use this level for 1080p AV1 SDR encodes.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 1080p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=3000000,CODECS="av01.0.05M.08,mp4a.40.2",RESOLUTION=1920x1080
+av1_1080p.m3u8`,
+                                notes: 'AV1 in HLS requires fMP4 segments. Available since Safari 17 / iOS 17 (2023). SDR default — no VIDEO-RANGE attribute needed.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 1080p',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.05M.08">
+  <Representation bandwidth="3000000" width="1920" height="1080" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Standard DASH signaling. YouTube uses AV1 at this level for 1080p SDR DASH segments.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord.',
+                        mkv: 'Matroska with CodecID V_AV1. Common in media server libraries for 1080p AV1 encodes.',
+                        webm: 'WebM — native AV1 web container. YouTube serves 1080p AV1 as WebM via DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. Same video/mp4 MIME as regular MP4.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH delivery.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.0.08M.08 ──
@@ -1650,16 +1732,42 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '08M', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '08M', meaning: 'Level 4.0 (seq_level_idx=8), Main tier. Supports 4K@30fps. Main tier peak bitrate 12 Mbps.' },
+                        { token: '08', meaning: '8-bit (BitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 4.0 — 4K SDR in 8-bit. Level 4.0 is the first AV1 level supporting 4K resolution and the first where High tier becomes available.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 4K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=10000000,CODECS="av01.0.08M.08,mp4a.40.2",RESOLUTION=3840x2160
+av1_4k_sdr.m3u8`,
+                                notes: 'AV1 4K in HLS requires fMP4 segments and Safari 17+ / tvOS 17+. No VIDEO-RANGE needed for SDR.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 4K',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.08">
+  <Representation bandwidth="10000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Standard DASH signaling. YouTube and Netflix use AV1 Level 4.0 for 4K SDR DASH delivery.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord. 4K SDR is the mainstream AV1 MP4 use case.',
+                        mkv: 'Matroska with CodecID V_AV1. 4K AV1 MKV common in media server libraries.',
+                        webm: 'WebM — YouTube serves 4K AV1 as WebM via DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. Same video/mp4 MIME as regular MP4.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH delivery.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.0.08M.10 ──
@@ -1697,16 +1805,59 @@ hevc_still.m3u8`,
                 ],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '08M', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '08M', meaning: 'Level 4.0 (seq_level_idx=8), Main tier. Supports 4K@30fps. Main tier peak bitrate 12 Mbps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10). Required for HDR10 (PQ) and HLG transfer functions.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 4.0 in 10-bit — the standard 4K HDR entry point. Short-form codec string with no color parameters; the decoder infers color config from the bitstream.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 PQ',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+av1_4k_hdr10.m3u8`,
+                                notes: 'VIDEO-RANGE=PQ signals HDR10 to Apple devices. AV1 HDR in HLS requires fMP4 segments and Safari 17+ / tvOS 17+. Always provide an SDR fallback variant.'
+                            },
+                            {
+                                signal: 'HLG',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=HLG
+av1_4k_hlg.m3u8`,
+                                notes: 'VIDEO-RANGE=HLG for Hybrid Log-Gamma. HLG is backward-compatible with SDR displays. The player uses VIDEO-RANGE to enable HDR processing path.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 PQ with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'CICP TransferCharacteristics 16 = PQ (ST 2084). ColourPrimaries 9 = BT.2020. Short-form codec string — color signaling is in DASH supplemental properties, not in the codec string.'
+                            },
+                            {
+                                signal: 'HLG with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'CICP TransferCharacteristics 18 = HLG (ARIB STD-B67). ColourPrimaries 9 = BT.2020.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord. HDR metadata (MDCV/CLLI) stored in ISOBMFF boxes or AV1 metadata OBUs.',
+                        mkv: 'Matroska with CodecID V_AV1. Colour element carries BT.2020/PQ or BT.2020/HLG color metadata and mastering display info.',
+                        webm: 'WebM — AV1 HDR in WebM uses Matroska Colour element for CICP signaling. YouTube serves HDR AV1 via WebM DASH.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. Color and HDR metadata in the init segment.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH HDR delivery. HDR metadata in init segment.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.0.08M.10.0.110.01.01.01.0 ──
@@ -1732,22 +1883,49 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '08M', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '110', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '0', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '08M', meaning: 'Level 4.0 (seq_level_idx=8), Main tier. Supports 4K@30fps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10).' },
+                        { token: '0', meaning: 'Not monochrome (mono_chrome=0). Color image.' },
+                        { token: '110', meaning: 'Chroma subsampling 4:2:0 (subsampling_x=1, subsampling_y=1, chroma_sample_position=0).' },
+                        { token: '01', meaning: 'Color primaries: BT.709 (color_primaries=1, ITU-T H.273).' },
+                        { token: '01', meaning: 'Transfer characteristics: BT.709 (transfer_characteristics=1, ITU-T H.273).' },
+                        { token: '01', meaning: 'Matrix coefficients: BT.709 (matrix_coefficients=1, ITU-T H.273).' },
+                        { token: '0', meaning: 'Studio/limited range (color_range=0). Luma 16-235, chroma 16-240 for 8-bit.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 4.0 with explicit BT.709 color and film grain synthesis. The film_grain_params_present flag in the sequence header enables per-frame grain synthesis — grain is removed before encoding and re-applied at decode time, saving bitrate. Netflix uses this for live-action content.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR Film Grain',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10.0.110.01.01.01.0,mp4a.40.2",RESOLUTION=3840x2160
+av1_4k_filmgrain.m3u8`,
+                                notes: 'Extended codec string with explicit CICP in the CODECS attribute. BT.709 color (cp=1, tc=1, mc=1). HLS players must parse all 10 fields. fMP4 segments required.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR Film Grain',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10.0.110.01.01.01.0">
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Extended codec string embeds CICP directly — no separate SupplementalProperty needed. BT.709 color primaries and transfer. Netflix uses this format for film grain AV1 DASH content.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord including chroma and color config. Film grain params carried in AV1 frame headers.',
+                        mkv: 'Matroska with CodecID V_AV1. Film grain synthesis is decoder-side — no special container support needed.',
+                        webm: 'WebM — film grain AV1 in WebM. Netflix original content uses AV1 film grain extensively.',
+                        fmp4: 'Fragmented MP4 for DASH segments. Film grain params in each temporal unit.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH delivery.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'ITU-T H.273 (CICP)', url: 'https://www.itu.int/rec/T-REC-H.273' }
+                    ]
                 }
             },
             // ── av01.0.09H.10 ──
@@ -1774,16 +1952,44 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '09H', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '09H', meaning: 'Level 4.1 (seq_level_idx=9), High tier. Supports 4K@60fps. High tier peak bitrate 50 Mbps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10). Required for HDR10 PQ content.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 4.1, High tier — higher bitrate ceiling for 4K HDR. High tier doubles the bitrate limit vs Main tier at the same level. Used for premium 4K HDR streaming where quality takes priority over bandwidth.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 High Tier',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="av01.0.09H.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+av1_4k_hdr10_high.m3u8`,
+                                notes: 'High tier (H suffix) in the codec string. VIDEO-RANGE=PQ signals HDR10. The H vs M tier distinction matters for decoder capability checks — High tier allows higher bitrates. fMP4 segments required.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 High Tier with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.09H.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). High tier bitrates (40+ Mbps) may exceed some CDN segment size limits — consider chunked transfer or shorter segment durations.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. High tier MP4 files have higher bitrate — 40+ Mbps requires fast storage I/O.',
+                        mkv: 'Matroska with CodecID V_AV1. High tier MKV for premium quality AV1 encodes.',
+                        webm: 'WebM — High tier AV1 in WebM. Larger segment sizes than Main tier.',
+                        fmp4: 'Fragmented MP4 for DASH segments. High tier segments are larger — consider shorter segment duration for smoother ABR switching.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4. High tier CMAF segments for premium HDR delivery.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.0.12M.10.0.110.09.16.09.0 ──
@@ -1809,22 +2015,49 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '12M', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '110', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '16', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '0', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '12M', meaning: 'Level 5.0 (seq_level_idx=12), Main tier. Supports 4K@60fps. Main tier peak bitrate 30 Mbps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10).' },
+                        { token: '0', meaning: 'Not monochrome (mono_chrome=0). Color image.' },
+                        { token: '110', meaning: 'Chroma subsampling 4:2:0 (subsampling_x=1, subsampling_y=1, chroma_sample_position=0).' },
+                        { token: '09', meaning: 'Color primaries: BT.2020 (color_primaries=9, ITU-T H.273).' },
+                        { token: '16', meaning: 'Transfer characteristics: SMPTE ST 2084 PQ (transfer_characteristics=16, ITU-T H.273).' },
+                        { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrix_coefficients=9, ITU-T H.273).' },
+                        { token: '0', meaning: 'Studio/limited range (color_range=0).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 5.0 with full CICP color signaling for HDR10. The explicit BT.2020 + PQ parameters in the codec string let the player configure HDR output before parsing the bitstream. Level 5.0 raises the resolution ceiling above 4K and supports 60fps.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 PQ 60fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.0.12M.10.0.110.09.16.09.0,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+av1_4k_hdr10_60fps.m3u8`,
+                                notes: 'Extended codec string with full CICP in CODECS attribute. The player can verify BT.2020/PQ support from the codec string alone, without parsing the bitstream. VIDEO-RANGE=PQ required. fMP4 segments only.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 PQ 60fps',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.12M.10.0.110.09.16.09.0">
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'Extended codec string already embeds CICP (cp=9, tc=16, mc=9) — no separate SupplementalProperty needed. The codec string and DASH properties are redundant-safe: explicit is preferred for player compatibility.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord. ColourInformationBox (colr) carries CICP values matching the codec string.',
+                        mkv: 'Matroska with CodecID V_AV1. Colour element carries BT.2020 primaries + PQ transfer + mastering display metadata.',
+                        webm: 'WebM — 4K 60fps AV1 HDR in WebM. Matroska Colour element for CICP signaling.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. 60fps doubles the segment data rate vs 30fps — consider 2-second segments.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4. 60fps CMAF segments for high frame rate HDR delivery.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' },
+                        { title: 'ITU-T H.273 (CICP)', url: 'https://www.itu.int/rec/T-REC-H.273' }
+                    ]
                 }
             },
             // ── av01.0.13M.10 ──
@@ -1850,16 +2083,44 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '13M', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '13M', meaning: 'Level 5.1 (seq_level_idx=13), Main tier. Supports 4K@120fps. Main tier peak bitrate 40 Mbps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10). Required for HDR10 PQ content.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 5.1 — 4K@120fps HDR. Level 5.1 doubles the display rate vs 5.0, enabling high frame rate 4K. Few hardware decoders currently support AV1 at 4K@120fps.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 120fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="av01.0.13M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=120
+av1_4k_hdr10_120fps.m3u8`,
+                                notes: 'FRAME-RATE=120 attribute recommended for high frame rate variants so the player can filter by display capability. 120fps at 4K is uncommon in HLS — tests decoder advertisement, not real-world delivery.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 120fps with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.13M.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="120"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). 120fps in DASH requires very short segment duration or large segments. Practical for gaming/sports streaming where AV1 hardware decode exists.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. 4K@120fps MP4 requires very high sustained I/O (40+ Mbps). Practical only from NVMe or fast network storage.',
+                        mkv: 'Matroska with CodecID V_AV1. 120fps MKV for gaming captures or sports content.',
+                        webm: 'WebM — 120fps AV1 in WebM. Extremely high data rate, limited to software decode on most platforms.',
+                        fmp4: 'Fragmented MP4 for DASH segments. 120fps doubles segment data vs 60fps — very short segments recommended for ABR stability.',
+                        cmaf: 'CMAF (ISO 23000-19) — 120fps CMAF segments. Theoretical for now — few pipelines produce 4K@120 AV1 CMAF content.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.0.16M.10 ──
@@ -1885,16 +2146,44 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '0', meaning: '' },
-                        { token: '16M', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '16M', meaning: 'Level 6.0 (seq_level_idx=16), Main tier. Supports 8K@30fps. Main tier peak bitrate 60 Mbps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10). Required for HDR10 PQ content.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Main Profile at Level 6.0 — 8K HDR. Level 6.0 is the first level supporting 8K (7680x4320). Hardware decode support is limited to recent SoCs (Samsung S928+, MediaTek Dimensity 9300+).',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 8K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=50000000,CODECS="av01.0.16M.10,mp4a.40.2",RESOLUTION=7680x4320,VIDEO-RANGE=PQ
+av1_8k_hdr10.m3u8`,
+                                notes: '8K AV1 in HLS is theoretical — no consumer device supports 8K AV1 HLS playback. Tests API-level codec string recognition. fMP4 segments at 50+ Mbps require very high throughput.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 8K with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.16M.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="50000000" width="7680" height="4320" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). 8K AV1 DASH exists in demo/test content from Samsung and NHK. Real-world streaming at 8K requires ~80-100+ Mbps sustained throughput.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. 8K MP4 at 50+ Mbps. Practical only from NVMe storage or high-bandwidth network.',
+                        mkv: 'Matroska with CodecID V_AV1. 8K AV1 MKV exists for demo content and camera test footage.',
+                        webm: 'WebM — 8K AV1 in WebM. YouTube has served limited 8K AV1 demo content via WebM DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. 8K segment sizes are very large — short segment durations may not be practical.',
+                        cmaf: 'CMAF (ISO 23000-19) — 8K CMAF is theoretical. No production pipeline currently delivers 8K AV1 CMAF content.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.1.08M.10 ──
@@ -1921,16 +2210,44 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '1', meaning: '' },
-                        { token: '08M', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '1', meaning: 'High Profile (seq_profile=1). 8-bit and 10-bit, adds 4:4:4 chroma subsampling.' },
+                        { token: '08M', meaning: 'Level 4.0 (seq_level_idx=8), Main tier. Supports 4K@30fps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 High Profile at Level 4.0 — enables 4:4:4 chroma. High Profile adds full-resolution chroma channels, used for screen content and professional workflows. No consumer hardware decoder supports High Profile as of 2025.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'High Profile 4:4:4',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.1.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+av1_high_444.m3u8`,
+                                notes: 'High Profile (seq_profile=1) in HLS. No consumer device supports AV1 High Profile — this tests API-level codec string recognition. Apple HLS spec does not specifically address AV1 High Profile.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'High Profile 4:4:4 with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.1.08M.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). High Profile 4:4:4 in DASH is for professional/screen content workflows. No consumer DASH player supports High Profile decode.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box records chroma_subsampling_x=0, chroma_subsampling_y=0 for 4:4:4.',
+                        mkv: 'Matroska with CodecID V_AV1. 4:4:4 MKV for screen capture and professional workflows.',
+                        webm: 'WebM — 4:4:4 AV1 in WebM. Screen content encoding where full chroma resolution preserves text and UI clarity.',
+                        fmp4: 'Fragmented MP4 — same MIME as regular MP4. 4:4:4 increases data rate ~50% vs 4:2:0 at equivalent quality.',
+                        cmaf: 'CMAF (ISO 23000-19) — theoretical for 4:4:4 AV1. No production CMAF pipeline for High Profile.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
             // ── av01.2.08M.10 ──
@@ -1957,16 +2274,44 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'av01', meaning: '' },
-                        { token: '2', meaning: '' },
-                        { token: '08M', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '2', meaning: 'Professional Profile (seq_profile=2). 8-12 bit, adds 4:2:2 and 12-bit 4:2:0/4:4:4.' },
+                        { token: '08M', meaning: 'Level 4.0 (seq_level_idx=8), Main tier. Supports 4K@30fps.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'AV1 Professional Profile at Level 4.0 — enables 4:2:2 chroma and 12-bit depth. Used in professional post-production workflows. No consumer hardware decoder supports Professional Profile.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'Professional 4:2:2',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.2.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+av1_pro_422.m3u8`,
+                                notes: 'Professional Profile (seq_profile=2) in HLS. No consumer device supports AV1 Professional Profile — tests API recognition only. Not addressed in Apple HLS authoring spec.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'Professional 4:2:2 with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.2.08M.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). Professional Profile 4:2:2 in DASH — used in post-production streaming workflows. No consumer DASH player decodes this profile.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box records chroma_subsampling_x=1, chroma_subsampling_y=0 for 4:2:2.',
+                        mkv: 'Matroska with CodecID V_AV1. Professional 4:2:2 MKV for post-production intermediate files.',
+                        webm: 'WebM — 4:2:2 AV1 in WebM. Professional post-production format preserving full chroma bandwidth.',
+                        fmp4: 'Fragmented MP4 — same MIME as regular MP4. 4:2:2 increases chroma data vs 4:2:0.',
+                        cmaf: 'CMAF (ISO 23000-19) — theoretical for Professional Profile AV1. No production CMAF pipeline exists.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             }
         ]
@@ -2003,13 +2348,35 @@ hevc_still.m3u8`,
                 ],
                 education: {
                     breakdown: [
-                        { token: 'vp9', meaning: '' }
+                        { token: 'vp9', meaning: 'Bare VP9 codec tag without profile/level/depth parameters. Legacy format predating the vp09.PP.LL.DD binding.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'Bare "vp9" tag — the original WebM codec string before the VP Codec ISO Media File Format Binding defined the structured vp09 format. Browser APIs must infer profile and level from the bitstream. Tests basic VP9 support detection.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'Legacy VP9',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="vp9,opus",RESOLUTION=1920x1080
+vp9_legacy.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS — no Apple device plays VP9 in HLS manifests. Third-party MSE players (Shaka Player, hls.js) can handle VP9 on Chromium browsers.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'Legacy VP9',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp9">
+  <Representation bandwidth="5000000" width="1920" height="1080" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Bare "vp9" tag in DASH — used by early YouTube VP9 DASH manifests before the structured vp09 format existed. Still accepted by all VP9-capable DASH players.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        webm: 'WebM — the only container for bare "vp9" codec tag. WebM is a Matroska subset using CodecID V_VP9. YouTube originally served VP9 exclusively in WebM.'
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.00.10.08 ──
@@ -2031,16 +2398,41 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '00', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
+                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 0 at Level 1.0 — minimum level entry. Tests baseline VP9 support detection at the lowest defined level.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 1080p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="vp09.00.10.08,opus",RESOLUTION=1920x1080
+vp9_p0_l10.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 HLS via MediaSource Extensions.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 1080p',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.10.08">
+  <Representation bandwidth="5000000" width="1920" height="1080" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Structured VP9 codec string in DASH. WebM mimeType for WebM segments. Can also use video/mp4 when VP9 is in ISOBMFF per VP Codec ISO Media File Format Binding.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores VP9 codec configuration.',
+                        mkv: 'Matroska with CodecID V_VP9. Common for VP9 in media server libraries.',
+                        webm: 'WebM (Matroska subset) — native VP9 container. YouTube serves VP9 exclusively in WebM.',
+                        fmp4: 'Fragmented MP4 for DASH segments. VP9 in fMP4 per VP Codec ISO Media File Format Binding.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.00.21.08 ──
@@ -2062,16 +2454,41 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '00', meaning: '' },
-                        { token: '21', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
+                        { token: '21', meaning: 'Level 2.1. Supports up to 480p resolution.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 0 at Level 2.1 — 480p SDR. Common as the lowest adaptive bitrate rung in YouTube DASH manifests.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 480p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=2000000,CODECS="vp09.00.21.08,opus",RESOLUTION=854x480
+vp9_p0_480p.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 HLS.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 480p',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.21.08">
+  <Representation bandwidth="2000000" width="854" height="480" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Level 2.1 in YouTube DASH — lowest ABR rung. YouTube uses video/webm mimeType with WebM segments for VP9 delivery.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores VP9 codec configuration.',
+                        mkv: 'Matroska with CodecID V_VP9.',
+                        webm: 'WebM — native VP9 container. YouTube serves 480p VP9 as the lowest ABR rung.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.00.31.08 ──
@@ -2101,16 +2518,41 @@ hevc_still.m3u8`,
                 ],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '00', meaning: '' },
-                        { token: '31', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
+                        { token: '31', meaning: 'Level 3.1. Supports up to 720p resolution.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 0 at Level 3.1 — 720p SDR. Standard 720p delivery level for YouTube and DASH streaming.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 720p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="vp09.00.31.08,opus",RESOLUTION=1280x720
+vp9_p0_720p.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 HLS.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 720p',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.31.08">
+  <Representation bandwidth="5000000" width="1280" height="720" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Standard VP9 720p DASH signaling. YouTube uses Level 3.1 for 720p VP9 delivery.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores VP9 codec configuration.',
+                        mkv: 'Matroska with CodecID V_VP9. Common for 720p VP9 in media server libraries.',
+                        webm: 'WebM — native VP9 container. YouTube 720p VP9 delivery in WebM.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.00.40.08 ──
@@ -2140,16 +2582,41 @@ hevc_still.m3u8`,
                 ],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '00', meaning: '' },
-                        { token: '40', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
+                        { token: '40', meaning: 'Level 4.0. Supports up to 1080p resolution.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 0 at Level 4.0 — 1080p SDR. The primary 1080p delivery level. YouTube uses this for 1080p VP9 encodes in WebM containers.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 1080p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="vp09.00.40.08,opus",RESOLUTION=1920x1080
+vp9_p0_1080p.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 HLS.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 1080p',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.40.08">
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'YouTube primary 1080p VP9 DASH delivery level. WebM segments with Opus audio.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores VP9 codec configuration.',
+                        mkv: 'Matroska with CodecID V_VP9. Common for 1080p VP9 in media server libraries (Jellyfin, Plex).',
+                        webm: 'WebM — the primary VP9 1080p container. YouTube serves 1080p VP9 exclusively in WebM via DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. VP9 in fMP4 per VP Codec ISO Media File Format Binding.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.00.50.08 ──
@@ -2171,16 +2638,41 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '00', meaning: '' },
-                        { token: '50', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
+                        { token: '50', meaning: 'Level 5.0. Supports up to 4K (3840x2160) resolution.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 0 at Level 5.0 — 4K SDR in 8-bit. YouTube serves 4K VP9 at this level. Chrome and Edge hardware-accelerate VP9 4K on supported GPUs.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 4K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="vp09.00.50.08,opus",RESOLUTION=3840x2160
+vp9_p0_4k.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 4K HLS.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 4K',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.50.08">
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'YouTube 4K VP9 DASH delivery. Level 5.0 is the standard 4K SDR level. Chrome and Edge hardware-decode VP9 4K on supported GPUs.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores VP9 codec configuration.',
+                        mkv: 'Matroska with CodecID V_VP9. 4K VP9 MKV common in media server libraries.',
+                        webm: 'WebM — YouTube serves 4K VP9 exclusively in WebM via DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. VP9 in fMP4 per VP Codec ISO Media File Format Binding.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.01.10.08 ──
@@ -2202,16 +2694,41 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '01', meaning: 'Profile 1. 8-bit, adds 4:2:2 and 4:4:4 chroma subsampling.' },
+                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 1 at Level 1.0 — 8-bit with 4:2:2/4:4:4 chroma. Profile 1 adds higher chroma subsampling while staying at 8-bit depth. No hardware decoder widely supports Profile 1.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'Profile 1 4:2:2',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="vp09.01.10.08,opus",RESOLUTION=1920x1080
+vp9_p1_422.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Profile 1 adds no HLS-specific signaling. Tests API recognition of profile=01.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'Profile 1 4:2:2',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.01.10.08">
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'VP9 Profile 1 in DASH. Profile 1 (4:2:2/4:4:4) is not used by YouTube or mainstream DASH services. Tests decoder advertisement for non-standard chroma.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=1 configuration.',
+                        mkv: 'Matroska with CodecID V_VP9. Profile 1 MKV for professional 4:2:2 workflows.',
+                        webm: 'WebM — Profile 1 VP9 in WebM. Rarely used in practice.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.01.40.08 ──
@@ -2233,16 +2750,41 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '40', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '01', meaning: 'Profile 1. 8-bit, adds 4:2:2 and 4:4:4 chroma subsampling.' },
+                        { token: '40', meaning: 'Level 4.0. Supports up to 1080p resolution.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 1 at Level 4.0 — 1080p with 4:2:2/4:4:4 chroma in 8-bit. Profile 1 is rarely used in consumer content; screen capture and professional workflows may use it.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'Profile 1 1080p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="vp09.01.40.08,opus",RESOLUTION=1920x1080
+vp9_p1_1080p.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Profile 1 at 1080p level tests API recognition only.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'Profile 1 1080p',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.01.40.08">
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'VP9 Profile 1 at Level 4.0 in DASH. 4:2:2 chroma for screen content or professional capture. Not used by mainstream streaming services.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=1 configuration.',
+                        mkv: 'Matroska with CodecID V_VP9. Profile 1 1080p MKV for screen capture workflows.',
+                        webm: 'WebM — Profile 1 VP9 at 1080p. Screen content use case.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.02.10.10 ──
@@ -2268,16 +2810,43 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10). Required for HDR10 and HLG.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 at Level 1.0 — 10-bit 4:2:0 HDR entry point. Short-form codec string without CICP parameters; the decoder reads color config from the bitstream.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 4K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="vp09.02.10.10,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+vp9_p2_hdr10.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. VIDEO-RANGE=PQ shown for completeness but no Apple device processes this. Third-party players on Chromium may handle VP9 HDR HLS.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 4K with CICP',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.10.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). Short-form codec string — CICP in DASH supplemental properties. YouTube serves VP9 HDR via WebM DASH with CICP signaling.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=2, 10-bit config.',
+                        mkv: 'Matroska with CodecID V_VP9. Colour element carries BT.2020/PQ metadata for HDR10.',
+                        webm: 'WebM — VP9 HDR in WebM. YouTube serves VP9 HDR10 content in WebM via DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. HDR metadata in init segment.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.02.10.10.01.09.16.09.01 ──
@@ -2303,21 +2872,47 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '16', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '01', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '10', meaning: 'Level 1.0.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10).' },
+                        { token: '01', meaning: 'Chroma subsampling: 4:2:0, colocated with luma (chromaSubsampling=1).' },
+                        { token: '09', meaning: 'Color primaries: BT.2020 (colourPrimaries=9, ITU-T H.273).' },
+                        { token: '16', meaning: 'Transfer characteristics: SMPTE ST 2084 PQ (transferCharacteristics=16, ITU-T H.273).' },
+                        { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrixCoefficients=9, ITU-T H.273).' },
+                        { token: '01', meaning: 'Full range (videoFullRangeFlag=1). Luma and chroma use the full 0-1023 range for 10-bit.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 HDR10 with full-range signaling. Full range (vs limited/studio) uses the complete code value space — less common for HDR10 delivery but tests browser handling of the videoFullRangeFlag.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 Full Range',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.10.10.01.09.16.09.01,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+vp9_p2_hdr10_full.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Extended codec string with full-range flag (videoFullRangeFlag=1) in CODECS attribute.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 Full Range',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.10.10.01.09.16.09.01">
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'Extended codec string embeds CICP (cp=9, tc=16, mc=9) + full range flag directly. No separate SupplementalProperty needed. Full range is uncommon for HDR10 delivery.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores full-range color config.',
+                        mkv: 'Matroska with CodecID V_VP9. Colour element carries BT.2020/PQ + full range flag.',
+                        webm: 'WebM — VP9 HDR10 full-range in WebM. Full range uses 0-1023 for 10-bit (vs 64-940 for limited range).',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ITU-T H.273 (CICP)', url: 'https://www.itu.int/rec/T-REC-H.273' }
+                    ]
                 }
             },
             // ── vp09.02.10.10.01.09.18.09.01 ──
@@ -2343,21 +2938,47 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '18', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '01', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '10', meaning: 'Level 1.0.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10).' },
+                        { token: '01', meaning: 'Chroma subsampling: 4:2:0, colocated with luma (chromaSubsampling=1).' },
+                        { token: '09', meaning: 'Color primaries: BT.2020 (colourPrimaries=9, ITU-T H.273).' },
+                        { token: '18', meaning: 'Transfer characteristics: ARIB STD-B67 HLG (transferCharacteristics=18, ITU-T H.273).' },
+                        { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrixCoefficients=9, ITU-T H.273).' },
+                        { token: '01', meaning: 'Full range (videoFullRangeFlag=1).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 HLG with full-range signaling. HLG (Hybrid Log-Gamma) is backward-compatible with SDR displays — no metadata required. Full-range HLG is less common than limited-range in broadcast delivery.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HLG Full Range',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.10.10.01.09.18.09.01,opus",RESOLUTION=3840x2160,VIDEO-RANGE=HLG
+vp9_p2_hlg_full.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. VIDEO-RANGE=HLG shown for documentation — no Apple device processes VP9 HLG.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HLG Full Range',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.10.10.01.09.18.09.01">
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'Extended codec string embeds CICP (cp=9, tc=18 HLG, mc=9) + full range flag. No separate SupplementalProperty needed.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores full-range HLG color config.',
+                        mkv: 'Matroska with CodecID V_VP9. Colour element carries BT.2020/HLG + full range flag.',
+                        webm: 'WebM — VP9 HLG full-range in WebM. HLG needs no static metadata — backward-compatible with SDR displays.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ITU-T H.273 (CICP)', url: 'https://www.itu.int/rec/T-REC-H.273' }
+                    ]
                 }
             },
             // ── vp09.02.31.10 ──
@@ -2380,16 +3001,41 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '31', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '31', meaning: 'Level 3.1. Supports up to 720p resolution.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 at Level 3.1 — 10-bit SDR at 720p. 10-bit encoding without HDR reduces banding artifacts in gradients. Short-form codec string; color config inferred from bitstream.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 10-bit',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.31.10,opus",RESOLUTION=3840x2160
+vp9_p2_sdr10.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. 10-bit SDR (no HDR transfer function) — no VIDEO-RANGE needed.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 10-bit',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.31.10">
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: '10-bit SDR VP9 in DASH. Short-form codec string — no CICP supplemental properties for SDR. 10-bit reduces banding in gradients without requiring HDR display.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=2, 10-bit config.',
+                        mkv: 'Matroska with CodecID V_VP9. 10-bit SDR MKV for gradient-sensitive content.',
+                        webm: 'WebM — VP9 Profile 2 10-bit SDR in WebM.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.02.50.10 ──
@@ -2427,16 +3073,52 @@ hevc_still.m3u8`,
                 ],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '50', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '50', meaning: 'Level 5.0. Supports up to 4K (3840x2160) resolution.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10). Required for HDR10 and HLG.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 at Level 5.0 — 4K HDR. Short-form codec string without explicit CICP parameters. YouTube uses VP9 Profile 2 Level 5.0 for 4K HDR content in WebM.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 4K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.50.10,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+vp9_p2_4k_hdr.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 HDR HLS.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 4K with CICP',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.50.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). Short-form codec string — CICP in DASH supplemental properties. YouTube 4K VP9 HDR delivery format.'
+                            },
+                            {
+                                signal: 'HLG 4K with CICP',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.50.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=18 (HLG) + CP=9 (BT.2020). Same short-form codec string — HLG vs PQ distinguished by CICP supplemental properties only.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=2, 10-bit config. HDR metadata in ColourInformationBox.',
+                        mkv: 'Matroska with CodecID V_VP9. Colour element carries BT.2020/PQ or BT.2020/HLG metadata.',
+                        webm: 'WebM — YouTube 4K VP9 HDR delivery container. Matroska Colour element for CICP signaling.',
+                        fmp4: 'Fragmented MP4 for DASH segments. HDR metadata in init segment.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.02.50.10.01.09.16.09.00 ──
@@ -2462,21 +3144,47 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '50', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '16', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '00', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '50', meaning: 'Level 5.0. Supports up to 4K (3840x2160) resolution.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10).' },
+                        { token: '01', meaning: 'Chroma subsampling: 4:2:0, colocated with luma (chromaSubsampling=1).' },
+                        { token: '09', meaning: 'Color primaries: BT.2020 (colourPrimaries=9, ITU-T H.273).' },
+                        { token: '16', meaning: 'Transfer characteristics: SMPTE ST 2084 PQ (transferCharacteristics=16, ITU-T H.273).' },
+                        { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrixCoefficients=9, ITU-T H.273).' },
+                        { token: '00', meaning: 'Limited/studio range (videoFullRangeFlag=0). Standard for broadcast HDR10 delivery.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 4K HDR10 with limited-range CICP signaling — the standard HDR10 delivery format. Limited range (16-235 for 8-bit equivalent) is the norm for HDR10 content.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 Limited Range',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.50.10.01.09.16.09.00,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+vp9_p2_4k_hdr10_limited.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Extended codec string with limited-range flag (videoFullRangeFlag=0) — the standard HDR10 delivery format.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 Limited Range',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.50.10.01.09.16.09.00">
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Extended codec string embeds CICP (cp=9, tc=16, mc=9) + limited range flag. No separate SupplementalProperty needed. Limited range is the standard for HDR10 delivery.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores limited-range HDR10 color config.',
+                        mkv: 'Matroska with CodecID V_VP9. Colour element carries BT.2020/PQ + limited range (64-940 for 10-bit).',
+                        webm: 'WebM — VP9 HDR10 limited-range in WebM. The standard HDR10 delivery format for VP9.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ITU-T H.273 (CICP)', url: 'https://www.itu.int/rec/T-REC-H.273' }
+                    ]
                 }
             },
             // ── vp09.02.50.10.01.09.18.09.00 ──
@@ -2502,21 +3210,47 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '50', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '01', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '18', meaning: '' },
-                        { token: '09', meaning: '' },
-                        { token: '00', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '50', meaning: 'Level 5.0. Supports up to 4K (3840x2160) resolution.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10).' },
+                        { token: '01', meaning: 'Chroma subsampling: 4:2:0, colocated with luma (chromaSubsampling=1).' },
+                        { token: '09', meaning: 'Color primaries: BT.2020 (colourPrimaries=9, ITU-T H.273).' },
+                        { token: '18', meaning: 'Transfer characteristics: ARIB STD-B67 HLG (transferCharacteristics=18, ITU-T H.273).' },
+                        { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrixCoefficients=9, ITU-T H.273).' },
+                        { token: '00', meaning: 'Limited/studio range (videoFullRangeFlag=0).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 4K HLG with limited-range CICP signaling. HLG uses a scene-referred transfer function — no static or dynamic metadata required. YouTube supports VP9 HLG for broadcast-origin HDR content.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HLG Limited Range',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.50.10.01.09.18.09.00,opus",RESOLUTION=3840x2160,VIDEO-RANGE=HLG
+vp9_p2_4k_hlg_limited.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Extended codec string with HLG transfer (tc=18) and limited-range flag.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HLG Limited Range',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.50.10.01.09.18.09.00">
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Extended codec string embeds CICP (cp=9, tc=18 HLG, mc=9) + limited range flag. YouTube supports VP9 HLG for broadcast-origin HDR content.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores limited-range HLG color config.',
+                        mkv: 'Matroska with CodecID V_VP9. Colour element carries BT.2020/HLG + limited range.',
+                        webm: 'WebM — VP9 HLG limited-range in WebM. HLG needs no static metadata — backward-compatible with SDR displays.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' },
+                        { title: 'ITU-T H.273 (CICP)', url: 'https://www.itu.int/rec/T-REC-H.273' }
+                    ]
                 }
             },
             // ── vp09.02.51.10 ──
@@ -2554,16 +3288,43 @@ hevc_still.m3u8`,
                 ],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '51', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '51', meaning: 'Level 5.1. Supports 4K@60fps with higher bitrate ceiling than Level 5.0.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10). Required for HDR10 and HLG.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 at Level 5.1 — 4K@60fps HDR. Level 5.1 raises the decode rate above Level 5.0, enabling 60fps at 4K resolution. Used for high frame rate HDR streaming.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 4K60',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="vp09.02.51.10,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=60
+vp9_p2_4k60_hdr.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. FRAME-RATE=60 for high frame rate variant filtering.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 4K60 with CICP',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.51.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). Level 5.1 enables 4K@60fps. YouTube uses this for 4K60 HDR VP9 content.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. 4K@60fps VP9 at 40 Mbps requires fast storage I/O.',
+                        mkv: 'Matroska with CodecID V_VP9. 4K@60fps VP9 MKV for high frame rate HDR content.',
+                        webm: 'WebM — YouTube 4K60 VP9 HDR delivery container.',
+                        fmp4: 'Fragmented MP4 for DASH segments. 60fps doubles segment data rate vs 30fps.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.02.50.12 ──
@@ -2589,16 +3350,43 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '02', meaning: '' },
-                        { token: '50', meaning: '' },
-                        { token: '12', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
+                        { token: '50', meaning: 'Level 5.0. Supports up to 4K (3840x2160) resolution.' },
+                        { token: '12', meaning: '12-bit (bitDepth=12). Maximum depth supported by VP9.' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 2 at Level 5.0 — 4K in 12-bit. 12-bit depth provides 4096 levels per component vs 1024 for 10-bit. No consumer hardware decoder supports VP9 12-bit; tests software decode path.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: '12-bit 4K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="vp09.02.50.12,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+vp9_p2_4k_12bit.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. 12-bit VP9 tests API recognition only — no consumer hardware decoder supports 12-bit VP9.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: '12-bit 4K with CICP',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.50.12">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). 12-bit VP9 in DASH — professional/archival use case. Software decode only.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=2, 12-bit config.',
+                        mkv: 'Matroska with CodecID V_VP9. 12-bit MKV for professional archival.',
+                        webm: 'WebM — 12-bit VP9 in WebM. Professional/mastering use case.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.03.10.10 ──
@@ -2624,16 +3412,43 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '03', meaning: '' },
-                        { token: '10', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '03', meaning: 'Profile 3. 10-bit or 12-bit, adds 4:2:2 and 4:4:4 chroma subsampling.' },
+                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 3 at Level 1.0 — 10-bit with 4:4:4 chroma. Profile 3 combines high bit depth with full chroma resolution. No consumer hardware decoder supports Profile 3.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'Profile 3 4:4:4',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=10000000,CODECS="vp09.03.10.10,opus",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
+vp9_p3_444.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Profile 3 (10-bit 4:4:4) tests API recognition only — no consumer hardware decoder supports Profile 3.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'Profile 3 4:4:4 with CICP',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.03.10.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="10000000" width="1920" height="1080" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). VP9 Profile 3 (10-bit 4:4:4) in DASH. Professional/screen content use case. No consumer DASH player supports Profile 3.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=3 config.',
+                        mkv: 'Matroska with CodecID V_VP9. Profile 3 4:4:4 MKV for screen content.',
+                        webm: 'WebM — VP9 Profile 3 4:4:4. Professional/screen content encoding.',
+                        fmp4: 'Fragmented MP4 for DASH segments.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.03.50.10 ──
@@ -2659,16 +3474,43 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '03', meaning: '' },
-                        { token: '50', meaning: '' },
-                        { token: '10', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '03', meaning: 'Profile 3. 10-bit or 12-bit, adds 4:2:2 and 4:4:4 chroma subsampling.' },
+                        { token: '50', meaning: 'Level 5.0. Supports up to 4K (3840x2160) resolution.' },
+                        { token: '10', meaning: '10-bit (bitDepth=10).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 3 at Level 5.0 — 4K with 10-bit 4:4:4 chroma. Full chroma resolution at 4K is a professional-grade configuration. No consumer hardware decoder supports Profile 3.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'Profile 3 4K 4:4:4',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="vp09.03.50.10,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+vp9_p3_4k_444.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Profile 3 4K 4:4:4 tests API recognition only.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'Profile 3 4K 4:4:4 with CICP',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.03.50.10">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). 4K 4:4:4 VP9 in DASH — professional-grade. No consumer support.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores profile=3 config.',
+                        mkv: 'Matroska with CodecID V_VP9. 4K 4:4:4 MKV for professional workflows.',
+                        webm: 'WebM — VP9 Profile 3 4K 4:4:4. Professional post-production format.',
+                        fmp4: 'Fragmented MP4 for DASH segments. 4:4:4 increases data rate ~50% vs 4:2:0.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             },
             // ── vp09.00.60.08 ──
@@ -2690,16 +3532,41 @@ hevc_still.m3u8`,
                 }],
                 education: {
                     breakdown: [
-                        { token: 'vp09', meaning: '' },
-                        { token: '00', meaning: '' },
-                        { token: '60', meaning: '' },
-                        { token: '08', meaning: '' }
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
+                        { token: '60', meaning: 'Level 6.0. Supports up to 8K (7680x4320) resolution.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    overview: 'VP9 Profile 0 at Level 6.0 — 8K SDR. Level 6.0 is the first VP9 level supporting 8K resolution. No browser hardware-accelerates VP9 at 8K; tests software decode capability.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 8K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=80000000,CODECS="vp09.00.60.08,opus",RESOLUTION=7680x4320
+vp9_p0_8k.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. 8K VP9 is theoretical — no consumer device supports 8K VP9 HLS playback.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 8K',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.60.08">
+  <Representation bandwidth="80000000" width="7680" height="4320" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: '8K VP9 in DASH is demo/test content only. YouTube has served limited 8K VP9 demo content. No browser hardware-accelerates VP9 at 8K resolution.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. 8K VP9 at 80 Mbps — practical only from NVMe storage.',
+                        mkv: 'Matroska with CodecID V_VP9. 8K MKV for demo content.',
+                        webm: 'WebM — 8K VP9 in WebM. YouTube 8K demo content.',
+                        fmp4: 'Fragmented MP4 for DASH segments. Very large segment sizes at 8K.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
                 }
             }
         ]
@@ -2754,12 +3621,46 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band), like hvc1.' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0. IPT-PQ color space internally. No backward-compatible base layer.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 5 — single-layer HEVC without backward compatibility. Non-DV decoders cannot play the stream. Apple TV 4K and recent LG/Sony TVs support Profile 5. The dvh1 tag signals out-of-band parameter sets.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 5',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvh1.05.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p5_4k.m3u8`,
+                                notes: 'Apple requires dvh1 tag for DV HLS — dvhe is not recommended. VIDEO-RANGE=PQ always for Dolby Vision (DV uses IPT-PQ internally). fMP4 segments required. No backward-compatible fallback — non-DV devices cannot play this variant.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 5',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.05.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Dolby DASH URN (urn:dolby:dash:codec_attributes:2014) signals DV-specific processing. CICP TC=16 (PQ) + CP=9 (BT.2020) for the HDR transfer.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. Profile 5 is single-layer — one HEVC track with RPU embedded.',
+                        mkv: 'DV MKV support via MKVToolNix 67.0+ (2022). RPU stored as block additions. Shield TV and webOS 25+ support DV MKV.',
+                        mov: 'QuickTime — Apple ecosystem. DV MOV from professional mastering workflows.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. DOVIDecoderConfigurationRecord in init segment.',
+                        mpegts: 'DV in MPEG-TS for broadcast (DVB). Profile 5 over transport stream is rare — broadcast typically uses Profile 8.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH DV delivery.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'DOVI Configuration Record (DOVIDecoderConfigurationRecord)' }
+                    ]
                 }
             },
 
@@ -2786,12 +3687,44 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvhe', meaning: 'Dolby Vision HEVC with in-band parameter sets, like hev1. VPS/SPS/PPS repeated per access unit.' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0. IPT-PQ color space internally.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 5 with the dvhe tag (in-band parameter sets). Same Profile 5 content as dvh1.05.06 but with HEVC parameters repeated in the bitstream. Tests whether the browser distinguishes dvhe from dvh1.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 5 (dvhe)',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvhe.05.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p5_4k_dvhe.m3u8`,
+                                notes: 'Apple HLS authoring spec does NOT recommend dvhe — use dvh1 instead. This tests whether the browser accepts dvhe in HLS manifests. Some non-Apple players accept dvhe.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 5 (dvhe)',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvhe.05.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'DASH has no vendor preference between dvh1 and dvhe — both are valid. The dvhe vs dvh1 distinction matters only for HLS (Apple preference).'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. dvhe stores parameter sets in both sample entry and bitstream.',
+                        mkv: 'DV MKV via MKVToolNix. In-band parameter sets align with Matroska NAL conventions.',
+                        mov: 'QuickTime — dvhe MOV. Apple prefers dvh1 but QuickTime accepts dvhe.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments.',
+                        mpegts: 'DV in MPEG-TS. In-band parameters (dvhe) natural for transport stream random access.',
+                        cmaf: 'CMAF (ISO 23000-19) — DV with in-band parameter sets.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'DOVI Configuration Record (DOVIDecoderConfigurationRecord)' }
+                    ]
                 }
             },
 
@@ -2818,12 +3751,43 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvhe', meaning: 'Dolby Vision HEVC with in-band parameter sets.' },
+                        { token: '07', meaning: 'Profile 7. Single-layer HEVC with MEL (Minimum Enhancement Layer) + RPU embedded in the HEVC NAL stream. 10-bit 4:2:0.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 7 — single-layer HEVC with a small enhancement layer (MEL) embedded alongside the RPU. The MEL carries additional mapping data for improved DV rendering. Non-DV decoders ignore the MEL/RPU NAL units.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 7 MEL',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=50000000,CODECS="dvhe.07.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p7_mel.m3u8`,
+                                notes: 'Profile 7 uses dvhe tag (in-band). Apple HLS prefers dvh1 — use dvh1.07.06 for Apple-targeted manifests. VIDEO-RANGE=PQ always for DV.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 7 MEL',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvhe.07.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <Representation bandwidth="50000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Dolby DASH URN signals DV processing. Profile 7 MEL provides richer DV metadata than Profile 5 RPU-only.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. Profile 7 MEL data embedded in HEVC NAL stream alongside the RPU.',
+                        mkv: 'DV MKV via MKVToolNix. MEL+RPU stored as block additions.',
+                        mov: 'QuickTime — DV Profile 7 MOV from mastering workflows.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments.',
+                        mpegts: 'DV in MPEG-TS. MEL+RPU NAL units in the transport stream.',
+                        cmaf: 'CMAF (ISO 23000-19) — DV Profile 7 in constrained fMP4.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -2850,12 +3814,45 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile determined by base layer type (8.1=HDR10, 8.2=SDR, 8.4=HLG).' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.1 — backward-compatible with HDR10. Non-DV decoders play the HDR10 base layer (PQ + static metadata). DV-capable decoders apply the RPU for dynamic tone mapping. The most common DV profile for streaming (Netflix, Disney+).',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 8.1 HDR10',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvh1.08.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p81_hdr10.m3u8`,
+                                notes: 'Apple requires dvh1 for DV HLS. VIDEO-RANGE=PQ for DV. Profile 8.1 is the most common DV profile in streaming manifests (Netflix, Disney+, Apple TV+). Always provide an HDR10 fallback variant for non-DV devices.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 8.1 HDR10',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Dolby DASH URN + CICP TC=16 (PQ) + CP=9 (BT.2020). Profile 8.1 HDR10 base is the standard DV DASH delivery format.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. Profile 8 stores RPU alongside the HEVC base layer. HDR10 static metadata (MDCV/CLLI) in ISOBMFF boxes for non-DV fallback.',
+                        mkv: 'DV MKV via MKVToolNix 67.0+. RPU as block additions. Shield TV, webOS 25+, and Kodi support Profile 8 DV MKV.',
+                        mov: 'QuickTime — Profile 8.1 MOV. Apple platforms handle natively.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. DOVIDecoderConfigurationRecord in init segment.',
+                        mpegts: 'DV in MPEG-TS for broadcast. Profile 8 is the standard broadcast DV profile (DVB-T2).',
+                        cmaf: 'CMAF (ISO 23000-19) — DV Profile 8.1 in constrained fMP4 for dual HLS+DASH delivery.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -2882,12 +3879,45 @@ hevc_still.m3u8`,
                     hdrFormat: 'hlg'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvhe', meaning: 'Dolby Vision HEVC with in-band parameter sets.' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.4 uses HLG base.' },
+                        { token: '09', meaning: 'Level 09. Max 3840x2160@60fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.4 — backward-compatible with HLG. Non-DV decoders play the HLG base layer. Used for broadcast-origin content where HLG backward compatibility is needed alongside DV enhancement.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 8.4 HLG (dvhe)',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvhe.08.09,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p84_hlg_dvhe.m3u8`,
+                                notes: 'Apple HLS prefers dvh1 — use dvh1.08.09 for Apple manifests. VIDEO-RANGE=PQ for DV (not HLG, even though the base layer is HLG). Provide an HLG fallback variant with VIDEO-RANGE=HLG.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 8.4 HLG (dvhe)',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvhe.08.09">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'CICP TC=18 (HLG) for the base layer transfer function. DV RPU provides dynamic tone mapping on top of the HLG base.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. Profile 8.4 HLG base layer metadata in ColourInformationBox.',
+                        mkv: 'DV MKV via MKVToolNix. HLG base + DV RPU. Broadcast-to-streaming transcoding workflows.',
+                        mov: 'QuickTime — Profile 8.4 HLG MOV for broadcast-origin content.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments.',
+                        mpegts: 'DV in MPEG-TS. Profile 8.4 HLG is the standard for DV broadcast (DVB HLG + DV enhancement).',
+                        cmaf: 'CMAF (ISO 23000-19) — DV Profile 8.4 in constrained fMP4.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -2914,12 +3944,49 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'hvc1', meaning: 'HEVC base layer with out-of-band parameter sets.' },
+                        { token: '2', meaning: 'Main 10 Profile (profile_idc=2). 10-bit 4:2:0.' },
+                        { token: '4', meaning: 'Profile compatibility flags. Bit 2 set = Main 10.' },
+                        { token: 'L153', meaning: 'Level 5.1, Main Tier. 153 = 51 × 3.' },
+                        { token: 'B0', meaning: 'No additional constraint flags.' },
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC enhancement layer (out-of-band).' },
+                        { token: '05', meaning: 'DV Profile 5. Single-layer, 10-bit 4:2:0, IPT-PQ.' },
+                        { token: '07', meaning: 'DV Level 07. Max 3840x2160@30fps.' }
+                    ],
+                    overview: 'Supplemental DV codec string — declares both HEVC base (hvc1) and DV enhancement (dvh1) in one codecs= parameter. Allows the player to check support for both layers simultaneously. The comma-separated format is used in HLS/DASH manifests.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV P5 + HEVC Supplemental',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,dvh1.05.07,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p5_hevc_supplemental.m3u8`,
+                                notes: 'Comma-separated codecs in CODECS attribute — the player must support both HEVC Main 10 and DV P5 simultaneously. Apple uses this format to verify dual-layer capability in a single EXT-X-STREAM-INF.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV P5 + HEVC Supplemental',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0,dvh1.05.07">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Dual codec string in DASH codecs attribute. The player must parse both codec identifiers to determine support.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with both hvcC (HEVC config) and dvcC (DV config) boxes. Supplemental codec strings declare both decoders needed.',
+                        mkv: 'DV MKV — dual codec string tests browser parsing of comma-separated codec identifiers with Matroska MIME.',
+                        mov: 'QuickTime — dual codec MOV from Apple professional workflows.',
+                        fmp4: 'Fragmented MP4 — init segment carries both HEVC and DV configuration.',
+                        mpegts: 'DV in MPEG-TS with supplemental signaling.',
+                        cmaf: 'CMAF (ISO 23000-19) — dual codec CMAF for DV delivery.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'ITU-T H.265 | ISO/IEC 23008-2', url: 'https://www.itu.int/rec/T-REC-H.265' }
+                    ]
                 }
             },
 
@@ -2946,12 +4013,45 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dva1', meaning: 'Dolby Vision AV1-based. The dva1 tag indicates DV with AV1 as the base codec.' },
+                        { token: '10', meaning: 'Profile 10. Single-layer AV1 with DV RPU metadata in OBU. 10-bit 4:2:0.' },
+                        { token: '01', meaning: 'DV Level 01. Max 1280x720@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 10 with AV1 base — the next generation of DV delivery. AV1 offers ~30% better compression than HEVC. The dva1 tag is used in manifests. Profile 10 support is emerging on recent devices.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 10 AV1',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="dva1.10.01,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p10_av1.m3u8`,
+                                notes: 'DV Profile 10 (AV1 base) in HLS. Requires both AV1 decode and DV RPU processing. fMP4 segments only. Support is emerging — few devices handle AV1+DV as of 2025.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 10 AV1',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dva1.10.01">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Dolby DASH URN + CICP TC=16 (PQ). DV Profile 10 AV1 in DASH — next-generation delivery format combining AV1 compression with DV dynamic metadata.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. DV RPU embedded in AV1 OBU (Open Bitstream Units) format.',
+                        mkv: 'Matroska with AV1 CodecID V_AV1 + DV RPU block additions. Emerging format.',
+                        mov: 'QuickTime — DV Profile 10 AV1 MOV. Apple ecosystem support emerging.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. AV1+DV init segment configuration.',
+                        mpegts: 'AV1 in MPEG-TS is not standard. DV Profile 10 over transport stream is theoretical.',
+                        cmaf: 'CMAF (ISO 23000-19) — AV1+DV CMAF for future dual HLS+DASH delivery.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -2978,12 +4078,43 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvhe', meaning: 'Dolby Vision HEVC with in-band parameter sets.' },
+                        { token: '04', meaning: 'Profile 4. Dual-layer HEVC — separate base layer (BL) and enhancement layer (EL). 12-bit 4:2:0 internal processing, cross-compatible.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 4 — dual-layer HEVC. Two separate HEVC streams: a base layer and an enhancement layer. This is a studio/mastering profile, not used in consumer streaming. Tests whether the browser recognizes Profile 4.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 4 Dual-Layer',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=50000000,CODECS="dvhe.04.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p4_dual.m3u8`,
+                                notes: 'Profile 4 (dual-layer, studio mastering) is not used in consumer HLS. Tests API recognition only. No consumer device plays Profile 4 content.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 4 Dual-Layer',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvhe.04.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <Representation bandwidth="50000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Profile 4 in DASH — studio mastering profile. No consumer DASH player supports dual-layer DV. Tests codec string recognition.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with dual HEVC tracks — separate base layer (BL) and enhancement layer (EL). Studio mastering container format.',
+                        mkv: 'DV MKV dual-layer. Dual HEVC streams in Matroska. Not supported by consumer players.',
+                        mov: 'QuickTime — Profile 4 dual-layer MOV from DaVinci Resolve / Dolby Vision Professional workflows.',
+                        fmp4: 'Fragmented MP4 — dual-layer segments. Studio/professional use only.',
+                        mpegts: 'DV dual-layer in MPEG-TS is not a real-world scenario.',
+                        cmaf: 'CMAF with dual-layer DV is theoretical.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3007,12 +4138,43 @@ hevc_still.m3u8`,
                     chromaSubsampling: '4:2:0',
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.2 uses SDR base.' },
+                        { token: '02', meaning: 'DV Level 02. Max 1280x720@30fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.2 — backward-compatible with SDR. Non-DV decoders play the SDR base layer. DV-capable decoders apply the RPU to reconstruct HDR. Used where SDR fallback is required.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 8.2 SDR Base',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="dvh1.08.02,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p82_sdr.m3u8`,
+                                notes: 'Apple requires dvh1 for DV HLS. VIDEO-RANGE=PQ for DV (even though the base layer is SDR). The SDR base plays on non-DV devices. DV devices apply RPU for HDR reconstruction.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 8.2 SDR Base',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.02">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Dolby DASH URN for DV processing. Profile 8.2 SDR-base — the DASH player falls back to SDR on non-DV devices.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. Profile 8.2 stores SDR HEVC + DV RPU in one track.',
+                        mkv: 'DV MKV via MKVToolNix. SDR base + DV RPU as block additions.',
+                        mov: 'QuickTime — Profile 8.2 SDR-base MOV.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments.',
+                        mpegts: 'DV in MPEG-TS. SDR base layer is broadcast-friendly.',
+                        cmaf: 'CMAF (ISO 23000-19) — DV Profile 8.2 in constrained fMP4.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3039,12 +4201,38 @@ hevc_still.m3u8`,
                     hdrFormat: 'hlg'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.4 uses HLG base.' },
+                        { token: '09', meaning: 'DV Level 09. Max 3840x2160@60fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.4 with dvh1 tag — backward-compatible with HLG. Same as dvhe.08.09 but with out-of-band parameter sets. Tests whether the browser distinguishes dvh1 from dvhe for Profile 8.4.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV Profile 8.4 HLG — dvh1 tag',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvh1.08.09,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p84_hlg_dvh1.m3u8`,
+                            notes: 'Apple HLS mandates dvh1 (not dvhe). VIDEO-RANGE=PQ even though the base layer is HLG — DV always signals PQ because internal processing uses IPT-PQ. Non-DV clients fall back to HLG base layer.'
+                        }],
+                        dash: [{
+                            signal: '4K DV Profile 8.4 HLG DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.09">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvh1.08.09"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'CICP TC=18 (HLG) describes the base layer transfer function. The Dolby URN identifies DV metadata presence. Non-DV DASH clients decode the HLG base layer.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. Base layer uses HLG transfer (ARIB STD-B67). RPU stored as enhancement layer NAL units.',
+                        mkv: 'MKV DV requires MKVToolNix 67.0+. DV RPU stored as block additions. HLG base layer plays on non-DV players.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. Each segment carries DV RPU alongside HLG base layer data.',
+                        mpegts: 'DV Profile 8.4 HLG in MPEG-TS for DVB broadcast. Less common than Profile 8.1 HDR10 in broadcast deployments.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3071,12 +4259,39 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvhe', meaning: 'Dolby Vision HEVC with in-band parameter sets.' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.1 uses HDR10 base.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.1 with dvhe tag (in-band parameter sets). Same Profile 8.1 HDR10-backward-compatible content as dvh1.08.06. Tests whether the browser handles dvhe differently from dvh1.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV Profile 8.1 HDR10 — dvhe tag',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvhe.08.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p81_hdr10_dvhe.m3u8`,
+                            notes: 'Apple HLS requires dvh1, not dvhe. Using dvhe in HLS manifests may fail on Apple devices. Android and smart TV platforms vary in dvhe recognition. This tests browser API handling of the non-preferred tag.'
+                        }],
+                        dash: [{
+                            signal: '4K DV Profile 8.1 HDR10 DASH — dvhe tag',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvhe.08.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvhe.08.06"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'DASH has no Apple-imposed tag restriction — dvhe is valid alongside the Dolby URN. CICP TC=16 (PQ) and CP=9 (BT.2020) describe the HDR10 base layer.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'Same ISOBMFF structure as dvh1.08.06 — DOVIDecoderConfigurationRecord in dvcC box with HDR10 (PQ + static metadata) base layer.',
+                        mkv: 'MKV muxing identical to dvh1 variant. The hev1/dvhe vs hvc1/dvh1 distinction is a codec tag preference, not a container difference.',
+                        fmp4: 'In-band parameter sets (dvhe) means VPS/SPS/PPS are repeated in each segment, increasing segment overhead slightly vs dvh1.',
+                        mpegts: 'MPEG-TS DV transport uses the same PES structure regardless of dvh1 vs dvhe tag. The tag distinction applies to ISOBMFF signaling only.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3103,12 +4318,37 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvav', meaning: 'Dolby Vision AVC/H.264-based. The dvav tag indicates DV with AVC as the base codec.' },
+                        { token: '09', meaning: 'Profile 9. Single-layer AVC with DV RPU. 10-bit 4:2:0. Limited to 1080p.' },
+                        { token: '06', meaning: 'DV Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 9 — AVC-based Dolby Vision for legacy devices. Limited to 1080p resolution. Used where HEVC is unavailable. Non-DV decoders play the AVC SDR base layer.',
+                    streaming: {
+                        hls: [{
+                            signal: '1080p DV Profile 9 AVC-based',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="dvav.09.06,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
+dv_p9_avc.m3u8`,
+                            notes: 'DV Profile 9 is AVC-based, limited to 1080p. VIDEO-RANGE=PQ even though the AVC base layer is SDR — DV processing uses IPT-PQ internally. Rarely used in production HLS; Profile 8.1 HEVC is preferred.'
+                        }],
+                        dash: [{
+                            signal: '1080p DV Profile 9 AVC DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvav.09.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvav.09.06"/>
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'AVC-based DV in DASH. Non-DV clients see the AVC SDR base layer. Profile 9 is a legacy format for devices without HEVC decode capability.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with AVC base track + DV RPU stored in dvcC box. The AVC track uses standard avcC configuration box.',
+                        mkv: 'MKV support for AVC-based DV follows the same block addition mechanism as HEVC DV. Requires MKVToolNix 67.0+.',
+                        fmp4: 'Fragmented MP4 segments carry AVC NAL units + DV RPU. Non-DV clients decode the AVC SDR base layer.',
+                        mpegts: 'Profile 9 in MPEG-TS uses AVC PES with DV RPU in supplemental enhancement information (SEI) NAL units.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3135,12 +4375,45 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'hvc1', meaning: 'HEVC base layer with out-of-band parameter sets.' },
+                        { token: '2', meaning: 'Main 10 Profile (profile_idc=2). 10-bit 4:2:0.' },
+                        { token: '4', meaning: 'Profile compatibility flags. Bit 2 set = Main 10.' },
+                        { token: 'L153', meaning: 'Level 5.1, Main Tier. 153 = 51 × 3.' },
+                        { token: 'B0', meaning: 'No additional constraint flags.' },
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC enhancement layer (out-of-band).' },
+                        { token: '08', meaning: 'DV Profile 8. Sub-profile 8.1 = HDR10 base layer.' },
+                        { token: '06', meaning: 'DV Level 06. Max 3840x2160@24fps.' }
+                    ],
+                    overview: 'Supplemental codec string for DV Profile 8.1 with hvc1 HEVC base. The player checks both HEVC Main 10 and DV P8.1 support. Apple HLS uses this format to signal DV + HEVC fallback in a single EXT-X-STREAM-INF.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV P8.1 + HEVC supplemental (hvc1)',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,dvh1.08.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p81_hvc1_supplemental.m3u8`,
+                            notes: 'Comma-separated CODECS declares both HEVC base and DV enhancement. Apple HLS Authoring Spec requires this format for DV content — the player selects the appropriate decoder chain based on device capability.'
+                        }],
+                        dash: [{
+                            signal: '4K DV P8.1 + HEVC supplemental DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0,dvh1.08.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvh1.08.06"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'Both codec strings in the codecs attribute. DASH clients use this to determine if they can decode the DV enhancement or should fall back to the HEVC HDR10 base layer.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'Single MP4 file contains HEVC Main 10 video track with DV RPU. The dvcC and hvcC boxes coexist in the sample entry.',
+                        mkv: 'MKV supplemental DV uses HEVC video track + DV RPU as block additions (CodecID V_MPEGH/ISO/HEVC). MKVToolNix 67.0+ required.',
+                        fmp4: 'fMP4 segments carry the unified HEVC + DV stream. The client negotiates which layer to decode based on the supplemental codec string.',
+                        mpegts: 'MPEG-TS carries a single HEVC PES with DV RPU embedded. The supplemental codec string is a signaling concept for manifests, not a container distinction.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                    ]
                 }
             },
 
@@ -3167,12 +4440,45 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'hev1', meaning: 'HEVC base layer with in-band parameter sets. VPS/SPS/PPS repeated per access unit.' },
+                        { token: '2', meaning: 'Main 10 Profile (profile_idc=2). 10-bit 4:2:0.' },
+                        { token: '4', meaning: 'Profile compatibility flags. Bit 2 set = Main 10.' },
+                        { token: 'L153', meaning: 'Level 5.1, Main Tier. 153 = 51 × 3.' },
+                        { token: 'B0', meaning: 'No additional constraint flags.' },
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC enhancement layer (out-of-band).' },
+                        { token: '08', meaning: 'DV Profile 8. Sub-profile 8.1 = HDR10 base layer.' },
+                        { token: '06', meaning: 'DV Level 06. Max 3840x2160@24fps.' }
+                    ],
+                    overview: 'Supplemental codec string for DV P8.1 with hev1 HEVC base. Identical to the hvc1 variant but with in-band parameter sets. Tests whether the browser handles hev1 + DV differently from hvc1 + DV.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV P8.1 + HEVC supplemental (hev1)',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hev1.2.4.L153.B0,dvh1.08.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p81_hev1_supplemental.m3u8`,
+                            notes: 'Uses hev1 (in-band parameter sets) instead of hvc1 for the HEVC base layer. Apple HLS prefers hvc1 — hev1 in supplemental strings tests whether the browser API distinguishes parameter set signaling in DV contexts.'
+                        }],
+                        dash: [{
+                            signal: '4K DV P8.1 + HEVC supplemental DASH (hev1)',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="hev1.2.4.L153.B0,dvh1.08.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvh1.08.06"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'hev1 vs hvc1 in DASH codecs attribute. Most DASH clients treat them identically for decoder selection. The distinction matters for segment parsing — hev1 repeats parameter sets per access unit.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF sample entry uses hev1 box (in-band VPS/SPS/PPS) instead of hvc1. The DV dvcC box is present regardless of hev1 vs hvc1.',
+                        mkv: 'MKV CodecID is V_MPEGH/ISO/HEVC for both hev1 and hvc1. The parameter set delivery distinction is an ISOBMFF concept, not a Matroska one.',
+                        fmp4: 'In-band parameter sets (hev1) mean each fMP4 segment includes VPS/SPS/PPS, making segments independently decodable at the cost of slightly higher overhead.',
+                        mpegts: 'MPEG-TS always carries parameter sets in-band via PES — the hev1 vs hvc1 distinction is irrelevant for transport stream delivery.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'ITU-T H.265 | ISO/IEC 23008-2', url: 'https://www.itu.int/rec/T-REC-H.265' }
+                    ]
                 }
             },
 
@@ -3199,12 +4505,38 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dav1', meaning: 'Dolby Vision AV1-based. Alternative FourCC tag to dva1 for DV with AV1 base codec.' },
+                        { token: '10', meaning: 'Profile 10. Single-layer AV1 with DV RPU metadata in OBU. 10-bit 4:2:0.' },
+                        { token: '01', meaning: 'DV Level 01. Max 1280x720@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 10 with the dav1 tag — alternative FourCC to dva1. Both tags signal the same AV1-based DV Profile 10 content. Tests whether the browser recognizes dav1 in addition to dva1.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV Profile 10 AV1 — dav1 tag',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="dav1.10.01,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p10_av1_dav1.m3u8`,
+                            notes: 'Alternative dav1 tag for AV1-based DV. Apple has not yet defined HLS requirements for DV+AV1 — this tests whether the browser API recognizes dav1 alongside dva1.'
+                        }],
+                        dash: [{
+                            signal: '4K DV Profile 10 AV1 DASH — dav1 tag',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dav1.10.01">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dav1.10.01"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'dav1 in DASH — same Dolby URN as dva1. Tests whether DASH clients differentiate between the two AV1 DV FourCC variants.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'Same ISOBMFF structure as dva1.10.01 — AV1 video track with av1C box + DV RPU in dvcC box. The FourCC in the sample entry determines which tag is used.',
+                        mkv: 'MKV uses CodecID V_AV1 with DV RPU as block additions. The dav1 vs dva1 distinction exists only in ISOBMFF signaling.',
+                        fmp4: 'Fragmented MP4 segments carry AV1 OBUs + DV RPU metadata. Content is identical to dva1 — only the sample entry FourCC differs.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3231,12 +4563,37 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0. IPT-PQ color space internally.' },
+                        { token: '09', meaning: 'Level 09. Max 3840x2160@60fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 5 at Level 9 — 4K@60fps. Higher frame rate variant of dvh1.05.06. Used for sports and live content where 60fps is required alongside DV dynamic metadata.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV Profile 5 60fps',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="dvh1.05.09,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=60,VIDEO-RANGE=PQ
+dv_p5_60fps.m3u8`,
+                            notes: 'Level 9 enables 4K@60fps. FRAME-RATE=60 is required in the EXT-X-STREAM-INF. Profile 5 is non-backward-compatible — no fallback for non-DV clients.'
+                        }],
+                        dash: [{
+                            signal: '4K DV Profile 5 60fps DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.05.09">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvh1.05.09"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="60"/>
+</AdaptationSet>`,
+                            notes: '60fps doubles the segment data rate vs 24fps. Profile 5 at Level 9 targets live sports and premium event streaming where high frame rate DV is required.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. 60fps increases I/O requirements — 40 Mbps at 4K needs fast storage.',
+                        mkv: 'MKV DV at 60fps uses the same block addition structure. TimestampScale must accommodate 60fps intervals.',
+                        fmp4: '60fps fMP4 segments at 40 Mbps produce ~5 MB per second of content. Segment duration choices affect buffer requirements.',
+                        mpegts: 'Profile 5 60fps in MPEG-TS is uncommon. Broadcast deployments prefer Profile 8.1 for backward compatibility.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3263,12 +4620,37 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '07', meaning: 'Profile 7. Single-layer HEVC with MEL (Minimum Enhancement Layer) + RPU. 10-bit 4:2:0.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 7 with dvh1 tag — same content as dvhe.07.06 but with out-of-band parameter sets. Tests whether the browser distinguishes dvh1 from dvhe for Profile 7.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV Profile 7 MEL — dvh1 tag',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=30000000,CODECS="dvh1.07.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p7_mel_dvh1.m3u8`,
+                            notes: 'Profile 7 MEL (Minimum Enhancement Layer) with dvh1 tag. Apple HLS mandates dvh1. MEL adds minimal DV metadata on top of a Profile 5-like base — smaller enhancement overhead than full RPU.'
+                        }],
+                        dash: [{
+                            signal: '4K DV Profile 7 MEL DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.07.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvh1.07.06"/>
+  <Representation bandwidth="30000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'Profile 7 MEL in DASH. The MEL provides a lightweight DV enhancement path — less metadata overhead than full Profile 5 RPU while still enabling dynamic tone mapping.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with dvcC box signaling Profile 7. The MEL is stored as a minimal enhancement NAL unit alongside the base layer.',
+                        mkv: 'MKV stores MEL data as block additions. Profile 7 MEL is less common in MKV — most MKV DV content uses Profile 5 or 8.1.',
+                        fmp4: 'fMP4 segments include the MEL enhancement alongside the IPT-PQ base layer. Smaller enhancement overhead than Profile 5 full RPU.',
+                        mpegts: 'Profile 7 in MPEG-TS is rare. Broadcast deployments prefer Profile 8.x for backward-compatible base layers.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3295,12 +4677,44 @@ hevc_still.m3u8`,
                     hdrFormat: 'hlg'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'hvc1', meaning: 'HEVC base layer with out-of-band parameter sets.' },
+                        { token: '2', meaning: 'Main 10 Profile (profile_idc=2). 10-bit 4:2:0.' },
+                        { token: '4', meaning: 'Profile compatibility flags. Bit 2 set = Main 10.' },
+                        { token: 'L153', meaning: 'Level 5.1, Main Tier. 153 = 51 × 3.' },
+                        { token: 'B0', meaning: 'No additional constraint flags.' },
+                        { token: 'dvhe', meaning: 'Dolby Vision HEVC enhancement (in-band parameter sets).' },
+                        { token: '08', meaning: 'DV Profile 8. Sub-profile 8.4 = HLG base layer.' },
+                        { token: '09', meaning: 'DV Level 09. Max 3840x2160@60fps.' }
+                    ],
+                    overview: 'Supplemental codec string for DV Profile 8.4 HLG with HEVC base. Declares both HEVC Main 10 and DV P8.4 HLG in one codecs= parameter. Non-DV decoders play the HLG base layer.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV P8.4 HLG + HEVC supplemental',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,dvhe.08.09,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p84_hlg_supplemental.m3u8`,
+                            notes: 'Supplemental string with HLG base. VIDEO-RANGE=PQ despite HLG base — DV internal processing is IPT-PQ. Non-DV clients fall back to HEVC HLG.'
+                        }],
+                        dash: [{
+                            signal: '4K DV P8.4 HLG + HEVC supplemental DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0,dvhe.08.09">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvhe.08.09"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'CICP TC=18 (HLG) for the base layer. The Dolby URN signals DV P8.4 enhancement. Non-DV DASH clients decode HEVC HLG.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with hvcC + dvcC boxes. The HEVC base carries HLG transfer characteristics; DV RPU provides dynamic tone mapping on top.',
+                        mkv: 'MKV supplemental DV HLG uses HEVC video track + DV RPU block additions. MKVToolNix 67.0+ required.',
+                        fmp4: 'fMP4 segments carry unified HEVC HLG + DV stream. Client negotiates DV or HLG fallback based on supplemental codec string.',
+                        mpegts: 'Single HEVC PES with embedded DV RPU. HLG base layer is broadcast-friendly (no metadata dependency for basic display).'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'ITU-T H.265 | ISO/IEC 23008-2', url: 'https://www.itu.int/rec/T-REC-H.265' }
+                    ]
                 }
             },
 
@@ -3327,12 +4741,43 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'av01', meaning: 'AV1 base layer codec identifier.' },
+                        { token: '0', meaning: 'AV1 Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0.' },
+                        { token: '08M', meaning: 'AV1 Level 4.0, Main tier.' },
+                        { token: '10', meaning: '10-bit (BitDepth=10).' },
+                        { token: 'dav1', meaning: 'Dolby Vision AV1 enhancement layer.' },
+                        { token: '10', meaning: 'DV Profile 10. Single-layer AV1 with DV RPU in OBU.' },
+                        { token: '01', meaning: 'DV Level 01. Max 1280x720@24fps.' }
+                    ],
+                    overview: 'Supplemental codec string for DV Profile 10 with AV1 base. Declares both AV1 Main and DV P10 in one codecs= parameter. Tests browser support for the AV1 + DV combination.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV P10 + AV1 supplemental',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.0.08M.10,dav1.10.01,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p10_av1_supplemental.m3u8`,
+                            notes: 'Supplemental string declares both AV1 base and DV P10 enhancement. No established Apple HLS support for AV1+DV combination yet — tests forward-looking API recognition.'
+                        }],
+                        dash: [{
+                            signal: '4K DV P10 + AV1 supplemental DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10,dav1.10.01">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dav1.10.01"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'AV1 + DV supplemental in DASH. The Dolby URN identifies DV P10 metadata. Non-DV clients decode the AV1 HDR10 base layer.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with av1C + dvcC boxes coexisting in the sample entry. AV1 OBUs carry the base layer; DV RPU is stored in a metadata OBU.',
+                        mkv: 'MKV uses CodecID V_AV1 with DV RPU as block additions. The supplemental codec string is a manifest-level concept.',
+                        fmp4: 'fMP4 segments carry AV1 OBUs + DV RPU metadata. Client uses the supplemental string to determine AV1+DV or AV1-only decode path.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
                 }
             },
 
@@ -3359,12 +4804,36 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvc1', meaning: 'Deprecated Dolby Vision HEVC tag. Replaced by dvh1/dvhe in current spec revisions.' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0, IPT-PQ.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps.' }
+                    ],
+                    overview: 'Deprecated DV Profile 5 tag — dvc1 was used in early DV implementations before the FourCC scheme was standardized. Modern content uses dvh1 or dvhe. Tests whether legacy tag recognition persists in browser APIs.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV Profile 5 — deprecated dvc1 tag',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvc1.05.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p5_dvc1_legacy.m3u8`,
+                            notes: 'Deprecated tag — no modern HLS implementation uses dvc1. Apple HLS requires dvh1. Tests whether browser APIs still recognize the legacy FourCC.'
+                        }],
+                        dash: [{
+                            signal: '4K DV Profile 5 DASH — deprecated dvc1 tag',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvc1.05.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvc1.05.06"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                            notes: 'dvc1 in DASH — tests legacy tag recognition. No production DASH service uses dvc1; modern content uses dvh1 or dvhe.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'Early DV implementations used dvc1 as the sample entry FourCC. Modern ISOBMFF uses dvh1 (out-of-band) or dvhe (in-band).',
+                        mkv: 'MKV DV does not use FourCC-based signaling — the dvc1 tag is an ISOBMFF/API concept only.',
+                        fmp4: 'Legacy fMP4 content with dvc1 sample entries may exist in early DV test streams. Modern packaging tools emit dvh1 or dvhe.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
                 }
             },
 
@@ -3391,12 +4860,37 @@ hevc_still.m3u8`,
                     hdrFormat: 'hdr10'
                 }],
                 education: {
-                    breakdown: [],
-                    overview: '',
-                    platforms: {},
-                    streaming: {},
-                    containerNotes: {},
-                    references: []
+                    breakdown: [
+                        { token: 'dvhp', meaning: 'Dolby Vision HEVC for OMAF (Omnidirectional Media Application Format, ISO 23090-2). Used for VR/360 content.' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0, IPT-PQ.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 5 with the OMAF/VR tag — dvhp signals Dolby Vision HEVC packaged for omnidirectional media (ISO 23090-2). Used in VR headsets and 360-degree video. No browser supports OMAF natively; tests API recognition of the tag.',
+                    streaming: {
+                        hls: [{
+                            signal: '4K DV Profile 5 OMAF/VR',
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="dvhp.05.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p5_omaf_vr.m3u8`,
+                            notes: 'OMAF/VR DV — dvhp tag for omnidirectional media. No browser HLS implementation supports dvhp. VR headsets use proprietary players, not browser-based HLS.'
+                        }],
+                        dash: [{
+                            signal: '4K DV Profile 5 OMAF/VR DASH',
+                            mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvhp.05.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvhp.05.06"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                            notes: 'OMAF DV in DASH uses the same Dolby URN. DASH-IF has OMAF extensions but browser-based DASH players do not implement them.'
+                        }]
+                    },
+                    containerNotes: {
+                        mp4: 'OMAF ISOBMFF extends standard MP4 with spatial metadata boxes (ProjectionHeader, CoverageInformation). dvhp sample entry signals DV + OMAF packaging.',
+                        mkv: 'MKV has Matroska projection elements for 360 video but no standardized DV OMAF integration.',
+                        fmp4: 'OMAF fMP4 segments include spatial metadata alongside DV RPU. Higher bitrate (40 Mbps) accounts for 360-degree coverage area.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' },
+                        { title: 'ISO/IEC 23090-2 (OMAF)' }
+                    ]
                 }
             }
 
