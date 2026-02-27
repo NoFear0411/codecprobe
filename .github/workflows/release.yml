@@ -47,9 +47,10 @@ jobs:
 
       - name: Prepare deploy directory
         run: |
-          mkdir -p deploy/js
-          cp -r css deploy/
+          mkdir -p deploy/js deploy/css
+          cp css/styles.css deploy/css/
           cp -r build/js/* deploy/js/
+          rm -f deploy/js/codec-database.js
           cp -r icons screenshots deploy/
           cp manifest.json CNAME _headers deploy/
           cp .nojekyll deploy/
