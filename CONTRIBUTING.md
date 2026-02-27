@@ -5,8 +5,9 @@
 1. Fork and clone
 2. `npm install`
 3. `git checkout -b your-feature`
-4. `npm run dev` (server + SCSS watcher) or `python -m http.server 8000`
-5. Make changes, `npm run build`, push, open PR
+4. `npm run dev` (server + SCSS watcher) or `npx http-server -p 8000 -c-1`
+5. `npm run typecheck` to check for type errors
+6. Make changes, `npm run build`, push, open PR
 
 ## Code Standards
 
@@ -14,7 +15,7 @@
 
 **Runtime**: Zero. UAParser.js v2.x is bundled at build time in `js/vendor/`.
 
-**Dev only**: sass, terser, ua-parser-js, npm-run-all.
+**Dev only**: sass, terser, typescript, ua-parser-js, npm-run-all.
 
 ### Style
 
@@ -31,150 +32,233 @@
 - True constants: `UPPER_CASE`
 - Files: `kebab-case`
 
-## Adding Codec / Container Tests
+## Adding Codec Records
 
-The codec database is managed through `scripts/db-tool.mjs` — a CLI that validates, formats, and writes entries at the source level. No manual editing of `codec-database.js` required.
+The v2 database (`js/codec-database-v2.js`) uses bare codec strings as primary keys. Full MIME strings are built at test time by `buildMime(codec, container, type)`. All mutations go through the CLI tool — no manual editing of the database file.
 
-Create a `.mjs` file exporting an array of entries, then use the CLI to validate and insert:
+### Codec String Validation
 
-```javascript
-// new-entries.mjs — video entry
-export default [
-    {
-        name: "HEVC Main 10 (HDR10 4K WebM)",
-        codec: 'video/webm; codecs="hvc1.2.4.L153.B0"',
-        container: "WebM",
-        info: "10-bit HDR10",
-        mediaConfig: {
-            type: 'file',
-            video: {
-                contentType: 'video/webm; codecs="hvc1.2.4.L153.B0"',
-                width: 3840,
-                height: 2160,
-                bitrate: 25000000,
-                framerate: 24,
-                transferFunction: 'pq',
-                colorGamut: 'rec2020'
-            }
-        }
-    }
-];
-```
-
-```javascript
-// new-entries.mjs — audio entry
-export default [
-    {
-        name: "Opus 5.1 (WebM)",
-        codec: 'audio/webm; codecs="opus"',
-        container: "WebM",
-        info: "5.1 surround",
-        mediaConfig: {
-            type: 'file',
-            audio: {
-                contentType: 'audio/webm; codecs="opus"',
-                channels: 6,
-                bitrate: 256000,
-                samplerate: 48000
-            }
-        }
-    }
-];
-```
+Every codec string **must** be validated before insertion using [codec-resolve](https://github.com/nofear0411/codec-resolve):
 
 ```bash
-node scripts/db-tool.mjs add new-entries.mjs --dry-run  # preview
-node scripts/db-tool.mjs add new-entries.mjs             # write to database
-node scripts/db-tool.mjs verify                          # confirm integrity
+python -m codec_resolve --decode "hvc1.2.4.L153.B0"
+# ✓ HEVC Main 10, Level 5.1, Main Tier
+
+python -m codec_resolve --decode "av01.0.12M.10"
+# ✓ AV1 Main Profile, Level 5.0 Main tier, 10-bit
 ```
 
-### Validation
+codec-resolve currently supports: HEVC, AV1, VP9, VP8, Dolby Vision.
 
-The `add` command validates every field before touching the database:
+Groups that require a new decoder before migration can proceed:
+- AVC/H.264 — needs `avc/` module
+- VVC/H.266 — needs `vvc/` module
+- Legacy (Theora, H.263, MPEG-4 Part 2) — needs `theora/`, `h263/`, `mp4v/` modules
+- All audio groups — needs audio decoders
 
-- **MIME type** checked against 16 known types (`video/mp4`, `audio/x-matroska`, etc.)
-- **Container** checked against 15 known values (`MP4`, `MKV`, `WebM`, `fMP4`, etc.)
-- **Name uniqueness** verified across all 14 groups
-- **contentType** must match the codec field exactly
-- **Dimensions, bitrate, framerate** must be positive numbers
-- **transferFunction** and **colorGamut** must be valid enum values if provided
+### INSERT a new record
 
-Group detection is automatic from the codec string — `hvc1.*` routes to `video_hevc`, `av01.*` to `video_av1`, `ec-3` to `audio_dolby`, etc. Override with `--group <key>` when needed.
+Provide the codec string, display name, and first scenario:
+
+**Video example:**
+
+```bash
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
+  --name "HEVC Main 10 4K HDR10" \
+  --scenario --sname "4K HDR10 24fps" \
+  --width 3840 --height 2160 --fps 24 --bitrate 25000000 \
+  --depth 10 --chroma 4:2:0 --transfer pq --gamut rec2020 --hdr hdr10
+```
+
+**Audio example:**
+
+```bash
+node scripts/db-tool-v2.mjs db opus \
+  --name "Opus" \
+  --scenario --sname "Stereo 48kHz" \
+  --channels 2 --samplerate 48000 --bitrate 128000
+```
+
+### ADD a scenario
+
+Add another scenario to an existing record (omit `--name`):
+
+```bash
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
+  --scenario --sname "4K HLG 60fps" \
+  --width 3840 --height 2160 --fps 60 --bitrate 40000000 \
+  --depth 10 --transfer hlg --gamut rec2020 --hdr hlg
+```
+
+### UPDATE and REMOVE
+
+```bash
+# Update a field
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --set name="New Display Name"
+
+# Remove a scenario by name
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --rm-scenario "4K HLG 60fps"
+
+# Drop an entire record (requires --confirm)
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --drop --confirm
+```
+
+All mutations support `--dry-run` for preview. Every write is validated with `node -c` before hitting disk.
+
+### Auto-population
+
+When inserting a record, the tool automatically populates:
+
+- **Containers** — file and stream arrays based on codec family defaults (e.g., HEVC gets mp4, mkv, mov, webm for file; fmp4, hls, dash, cmaf for stream)
+- **DRM** — `['widevine', 'playready', 'fairplay', 'clearkey']`
+- **Education skeleton** — tokenized `breakdown` with empty meanings, empty `overview`, placeholder objects for `platforms`, `streaming`, `containerNotes`, `references`
+- **Group** — auto-detected from codec string (override with `--group <key>`)
+
+### Always verify after changes
+
+```bash
+node scripts/db-tool-v2.mjs verify
+```
+
+This runs five-tier validation: syntax check, module import, group structure, record fields, and scenario fields (media-type-specific). It also detects duplicate codec strings across groups.
 
 ### Codec string formats
 
-- HEVC: `hvc1.{profile}.{compat}.L{level*3}.{constraints}` (in-band) / `hev1.*` (out-of-band)
-- AV1: `av01.{profile}.{level}{tier}.{bitDepth}`
-- VP9: `vp09.{profile}.{level}.{bitDepth}`
+- HEVC: `hvc1.{profile}.{compat}.L{level*3}.{constraints}` / `hev1.*`
+- AV1: `av01.{profile}.{level:02d}{tier}.{bitDepth}`
+- VP9: `vp09.{profile:02d}.{level:02d}.{bitDepth}`
+- VP8: `vp8` / `vp08.{profile}.{level}.{bitDepth}`
 - VVC: `vvc1.{profile}.L{level*3}.CQ{x}.S{bits}` / `vvi1.*`
-- Dolby Vision: `dvh1.{profile:02d}.{level:02d}` / `dvhe.*` / `dva1.*` / `dav1.*`
+- Dolby Vision: `dvh1.{profile:02d}.{level:02d}` / `dvhe.*` / `dva1.*` / `dav1.*` / `dvav.*`
+- Supplemental DV: `hvc1.2.4.L153.B0, dvh1.08.06` (comma-separated, HEVC base + DV enhancement)
 - DTS tags: `dtsc` (Core), `dtsh` (HD), `dtse` (Express), `dtsl` (Lossless), `dtsx` (DTS:X)
+- Hyphenated audio: `ac-3`, `ec-3`, `ac-4`
 
-Use the relevant spec (ITU, ISO/IEC, ETSI) for correct strings. The education system cites 38 specifications — check existing entries for format examples.
+Use the relevant spec (ITU, ISO/IEC, ETSI) for correct strings. Check existing entries in the database for format examples.
 
 ## Adding Education Content
 
-Each codec entry can have an `education` object with codec string breakdowns, platform notes, streaming details, and spec references. The database CLI handles scaffolding and injection.
+Each codec record has an `education` object. The INSERT command auto-creates a skeleton — you fill in the content by editing `js/codec-database-v2.js` directly.
 
-### Scaffold → edit → inject
-
-```bash
-# 1. Generate a template for all entries missing education
-node scripts/db-tool.mjs scaffold video_av1 > /tmp/av1-edu.mjs
-
-# 2. Edit the file — fill in token meanings and overviews
-
-# 3. Preview what will change
-node scripts/db-tool.mjs inject video_av1 /tmp/av1-edu.mjs --dry-run
-
-# 4. Inject into the database
-node scripts/db-tool.mjs inject video_av1 /tmp/av1-edu.mjs
-```
-
-The scaffold pre-fills MIME types, tokenized codec strings, and spec references based on the group — you only need to write the human content (token meanings, overviews, platform notes).
-
-### Education entry structure
+### v2 education structure
 
 ```javascript
-export default {
-    "DTS-HD Master Audio (MKV)": {
-        codecBreakdown: {
-            mime: 'audio/x-matroska',
-            string: 'dtsl',
-            parts: [
-                { token: 'dtsl', meaning: 'DTS Lossless tag per ETSI TS 102 114. Bit-identical to studio master.' }
-            ]
-        },
-        overview: 'DTS-HD MA in Matroska. Lossless decode requires a DTS-HD MA licensed decoder.',
-        references: [
-            { title: 'ETSI TS 102 114' }
-        ]
-    }
-};
+education: {
+    breakdown: [
+        { token: 'hvc1', meaning: 'HEVC with in-band parameter sets. Required by Apple HLS.' },
+        { token: '2', meaning: 'Main 10 Profile (profile_idc=2). 8/10-bit 4:2:0.' },
+        { token: '4', meaning: 'Profile compatibility flags. Bit 2 set — Main 10 tier.' },
+        { token: 'L153', meaning: 'Level 5.1 (153 = 51 * 3). Supports 4K @ 60fps.' },
+        { token: 'B0', meaning: 'General constraint flags. B0 = no constraints beyond profile.' }
+    ],
+    overview: 'HEVC Main 10 at Level 5.1. Supports 10-bit 4:2:0 for HDR content in MP4/MKV.',
+    platforms: {
+        safari: 'Hardware decode on Apple Silicon and A-series chips.',
+        android: 'Hardware decode on Snapdragon 8-series SoCs.'
+    },
+    streaming: {
+        hls: 'Supported in HLS with fMP4 segments.',
+        dash: 'Supported in DASH with ISOBMFF.'
+    },
+    containerNotes: {
+        mkv: 'MKV/WebM muxing supported by FFmpeg.'
+    },
+    references: [
+        { title: 'ITU-T H.265', url: 'https://www.itu.int/rec/T-REC-H.265' }
+    ]
+}
 ```
 
-### Updating existing education
+Key differences from v1: `breakdown` is a flat array of `{token, meaning}` objects — not nested under `codecBreakdown.parts[]`.
 
-Use `patch` to deep-merge new fields into existing education entries (add platform notes, new references, streaming details):
+### What the skeleton looks like
+
+After INSERT, the tool generates a skeleton with tokenized breakdown (empty meanings) and empty fields:
 
 ```javascript
-// dts-patch.mjs
-export default {
-    "DTS-HD Master Audio (MKV)": {
-        platforms: {
-            android: 'DTS passthrough via AudioTrack ENCODING_DTS_HD on supported hardware.'
-        }
-    }
-};
+education: {
+    breakdown: [
+        { token: 'av01', meaning: '' },
+        { token: '0', meaning: '' },
+        { token: '08M', meaning: '' },
+        { token: '10', meaning: '' }
+    ],
+    overview: '',
+    platforms: {},
+    streaming: {},
+    containerNotes: {},
+    references: []
+}
 ```
+
+Fill in the `meaning` for each token and write the `overview`. The other fields (`platforms`, `streaming`, `containerNotes`, `references`) are optional but encouraged.
+
+### Quality guidelines
+
+- **1-3 sentences per field**. Factual, cite specs where relevant.
+- **Token meanings**: Explain what the value means in the codec standard. Include the spec field name (e.g., `profile_idc=2`).
+- **Overview**: What this codec configuration is for. Don't repeat what the tokens already say.
+- No filler language. No "comprehensive", "robust", "ensures". Direct and specific.
+
+### Checking coverage
 
 ```bash
-node scripts/db-tool.mjs patch audio_dts /tmp/dts-patch.mjs
+# Overview of education coverage per group
+node scripts/db-tool-v2.mjs stats
+
+# List entries missing education content
+node scripts/db-tool-v2.mjs list --missing
+
+# List entries with education content
+node scripts/db-tool-v2.mjs list --edu
+
+# Filter by group
+node scripts/db-tool-v2.mjs list video_hevc --missing
 ```
 
-### Education coverage
+## CLI Reference
 
-Run `node scripts/db-tool.mjs stats` to see which groups have incomplete education coverage. Run `node scripts/db-tool.mjs list <group> --missing` to find specific entries that need content.
+All commands run via `node scripts/db-tool-v2.mjs <command>`.
+
+| Command | Description |
+|---------|-------------|
+| `stats` | Overview table: groups, codec counts, education coverage |
+| `list [group] [--missing\|--edu]` | List records with optional group filter and education filter |
+| `verify` | Five-tier validation + duplicate detection |
+| `db <codec>` | Show record details |
+| `db <codec> --name <n> --scenario [opts]` | Insert new record with first scenario |
+| `db <codec> --scenario --sname <n> [opts]` | Add scenario to existing record |
+| `db <codec> --set key=value` | Update a field value |
+| `db <codec> --rm-scenario <name>` | Remove a scenario by name |
+| `db <codec> --drop --confirm` | Drop entire record |
+
+**Video scenario flags**: `--sname` (required), `--width`, `--height`, `--fps`, `--bitrate` (required), `--depth`, `--chroma`, `--transfer`, `--gamut`, `--hdr`, `--tier` (optional)
+
+**Audio scenario flags**: `--sname` (required), `--channels`, `--samplerate`, `--bitrate` (required), `--depth`, `--spatial` (optional)
+
+**Options**: `--group <key>` (override auto-detection), `--flags <a,b>` (codec flags), `--dry-run` (preview)
+
+## Migration Status
+
+The v2 database is being populated group by group. Each group requires codec-resolve decoder support before migration.
+
+| Group | v2 Records | Status |
+|-------|-----------|--------|
+| video_hevc | 12 | Populated (11/12 education) |
+| video_dolby_vision | 21 | Populated (education pending) |
+| video_av1 | 11 | Populated (education pending) |
+| video_vp9 | 20 | Populated (education pending) |
+| video_avc | 0 | Blocked — needs codec-resolve `avc/` decoder |
+| video_vvc | 0 | Blocked — needs codec-resolve `vvc/` decoder |
+| video_vp8 | 0 | Blocked — needs v2 migration |
+| video_legacy | 0 | Blocked — needs codec-resolve `theora/`, `h263/`, `mp4v/` decoders |
+| audio_dolby | 0 | Blocked — needs codec-resolve audio decoders |
+| audio_dts | 0 | Blocked — needs codec-resolve audio decoders |
+| audio_lossless | 0 | Blocked — needs codec-resolve audio decoders |
+| audio_standard | 0 | Blocked — needs codec-resolve audio decoders |
+| audio_mpegh | 0 | Blocked — needs codec-resolve audio decoders |
+
+Contributing a new codec-resolve decoder directly unblocks a group for migration.
 
 ## Platform Quirks
 
