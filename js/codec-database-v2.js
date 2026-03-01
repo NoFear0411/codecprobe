@@ -398,21 +398,29 @@ export const codecSource = {
 
             {
                 codec: 'hvc1.1.6.L93.B0',
-                name: '1080p SDR 24fps 8-bit',
+                name: '720p SDR 24fps 8-bit',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '1080p SDR 24fps 8-bit',
-                    width: 1920,
-                    height: 1080,
+                    name: '720p SDR 24fps 8-bit',
+                    width: 1280,
+                    height: 720,
                     framerate: 24,
-                    bitrate: 5_000_000,
+                    bitrate: 3_000_000,
                     bitDepth: 8,
                     chromaSubsampling: '4:2:0',
-                }],
+                },
+                    {
+                        name: '720p SDR 23.976fps 8-bit',
+                        width: 1280,
+                        height: 720,
+                        framerate: 23.976,
+                        bitrate: 3_000_000,
+                    }
+                ],
                 education: {
                     breakdown: [
                         {
@@ -429,14 +437,14 @@ export const codecSource = {
                         },
                         {
                             token: 'L93',
-                            meaning: 'Level 3.1, Main Tier. L = Main Tier, 93 = level_idc (3.1 × 30). Supports up to 1080p@30fps, 10 Mbps peak bitrate.'
+                            meaning: 'Level 3.1, Main Tier. L = Main Tier, 93 = level_idc (3.1 × 30). max_luma_ps=983,040 (up to 1280×768). 10 Mbps peak bitrate.'
                         },
                         {
                             token: 'B0',
                             meaning: 'No additional constraint flags beyond the profile.'
                         }
                     ],
-                    overview: 'HEVC Main Profile — baseline 8-bit SDR. Roughly 50% better compression than H.264 High Profile at the same quality. The safe default for SDR content on any HEVC-capable device.',
+                    overview: 'HEVC Main Profile at Level 3.1 — baseline 8-bit SDR capped at 720p. Roughly 50% better compression than H.264 High Profile at the same quality. The safe default for SDR content on any HEVC-capable device.',
                     platforms: {
                         apple: 'Hardware decode on A8+ (iPhone 6), A8X+ (iPad Air 2), Mac 2015+ (Skylake), all Apple Silicon. HLS requires hvc1 tag + fMP4. SDR is the default VIDEO-RANGE.',
                         lg: 'All webOS 3.0+ (2016+). Hardware decode via SoC. Both hvc1 and hev1 tags accepted.',
@@ -446,8 +454,8 @@ export const codecSource = {
                         hls: [
                             {
                                 signal: 'Standard SDR',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="hvc1.1.6.L93.B0,mp4a.40.2",RESOLUTION=1920x1080
-hevc_main_1080p.m3u8`,
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=3000000,CODECS="hvc1.1.6.L93.B0,mp4a.40.2",RESOLUTION=1280x720
+hevc_main_720p.m3u8`,
                                 notes: 'No VIDEO-RANGE needed — SDR is the default. Apple requires hvc1 tag. Segments must be fMP4 (MPEG-TS not supported for HEVC in HLS). fMP4 and CMAF segments share the same video/mp4 MIME as regular MP4 — the difference is internal structure (fragmented moof+mdat vs progressive moov). Browser APIs return the same codec support for both, but mediaCapabilities distinguishes file vs media-source playback.'
                             }
                         ],
@@ -455,7 +463,7 @@ hevc_main_1080p.m3u8`,
                             {
                                 signal: 'Standard SDR',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.1.6.L93.B0">
-  <Representation bandwidth="5000000" width="1920" height="1080" frameRate="24"/>
+  <Representation bandwidth="3000000" width="1280" height="720" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'No supplemental properties needed for SDR. DASH uses ISOBMFF (fMP4) segments exclusively. CMAF (ISO 23000-19) is a constrained fMP4 profile designed for dual HLS+DASH compatibility — same MIME, same codec string, interchangeable segments.'
                             }
@@ -521,6 +529,20 @@ hevc_main_1080p.m3u8`,
                         bitrate: 5_000_000,
                         bitDepth: 8,
                         chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '1080p SDR 23.976fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
+                        bitrate: 8_000_000,
+                    },
+                    {
+                        name: '1080p SDR 29.97fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 29.97,
+                        bitrate: 10_000_000,
                     }
                 ],
                 education: {
@@ -613,7 +635,15 @@ hevc_main_1080p30.m3u8`,
                     bitrate: 8_000_000,
                     bitDepth: 8,
                     chromaSubsampling: '4:2:0',
-                }],
+                },
+                    {
+                        name: '1080p SDR 59.94fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 59.94,
+                        bitrate: 18_000_000,
+                    }
+                ],
                 education: {
                     breakdown: [
                         {
@@ -704,7 +734,22 @@ hevc_main_1080p60.m3u8`,
                     bitrate: 15_000_000,
                     bitDepth: 8,
                     chromaSubsampling: '4:2:0',
-                }],
+                },
+                    {
+                        name: '4K SDR 23.976fps 8-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 18_000_000,
+                    },
+                    {
+                        name: '4K SDR 29.97fps 8-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 22_000_000,
+                    }
+                ],
                 education: {
                     breakdown: [
                         {
@@ -820,6 +865,20 @@ hevc_main_4k.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020',
                         hdrFormat: 'hlg',
+                    },
+                    {
+                        name: '1080p SDR 23.976fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
+                        bitrate: 8_000_000,
+                    },
+                    {
+                        name: '1080p SDR 29.97fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 29.97,
+                        bitrate: 10_000_000,
                     }
                 ],
                 education: {
@@ -928,6 +987,15 @@ hevc_main10_1080p.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020',
                         hdrFormat: 'hlg',
+                    },
+                    {
+                        name: '1080p HDR10 59.94fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 59.94,
+                        bitrate: 18_000_000,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
                     }
                 ],
                 education: {
@@ -957,6 +1025,35 @@ hevc_main10_1080p.m3u8`,
                     platforms: {
                         apple: 'Hardware decode on A8+ (iPhone 6), all Apple Silicon. Level 4.1 is the minimum for 1080p HDR at 60fps in HLS.',
                         android: 'Hardware decode on Android 5.0+ via MediaCodec. Level 4.1 Main 10 is widely supported on HEVC-capable SoCs.'
+                    },
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 PQ 1080p60',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=12000000,CODECS="hvc1.2.4.L123.B0,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
+hdr10_1080p60.m3u8`,
+                                notes: 'VIDEO-RANGE=PQ signals HDR10 to iOS/tvOS. Level 4.1 is the minimum level for 1080p@60fps. Always provide an SDR fallback variant for non-HDR devices.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 PQ with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L123.B0">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="12000000" width="1920" height="1080" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'CICP TransferCharacteristics 16 = PQ (ST 2084). ColourPrimaries 9 = BT.2020. 1080p@60fps HDR10 for live broadcast and sports.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF — standard 1080p HDR10 container. HDR metadata (mastering display, content light level) in colr/mdcv/clli boxes.',
+                        mkv: 'video/x-matroska — limited browser support. MKV is common for 1080p HDR10 content in media server libraries.',
+                        mov: 'QuickTime — 1080p HDR10 MOV from professional workflows. Apple platforms handle it natively.',
+                        fmp4: 'Fragmented MP4 — same video/mp4 MIME. The segment format for HLS and DASH 1080p HDR10 streaming.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH. Same video/mp4 MIME.',
+                        mpegts: 'MPEG-TS — 1080p HDR10 in transport stream for broadcast (DVB-T2, ATSC 3.0). HEVC in TS uses Annex B NAL format.'
                     },
                     references: [
                         {
@@ -1016,6 +1113,24 @@ hevc_main10_1080p.m3u8`,
                         transferFunction: 'pq',
                         colorGamut: 'rec2020',
                         hdrFormat: 'hdr10'
+                    },
+                    {
+                        name: '4K HDR10 23.976fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 25_000_000,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                    },
+                    {
+                        name: '4K HDR10 59.94fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 35_000_000,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
                     }
                 ],
                 education: {
@@ -1124,7 +1239,17 @@ hdr10_4k.m3u8`,
                     transferFunction: 'pq',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hdr10'
-                }],
+                },
+                    {
+                        name: '4K HDR10 59.94fps High Tier',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 80_000_000,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                    }
+                ],
                 education: {
                     breakdown: [
                         {
@@ -1415,7 +1540,17 @@ hdr10_8k.m3u8`,
                     transferFunction: 'pq',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hdr10'
-                }],
+                },
+                    {
+                        name: '4K HDR10 23.976fps (hev1)',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 25_000_000,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                    }
+                ],
                 education: {
                     breakdown: [
                         {
@@ -1502,17 +1637,17 @@ hdr10_4k_hev1.m3u8`,
 
             {
                 codec: 'hvc1.3.E.L93.B0',
-                name: '1080p Still Picture',
+                name: '720p Still Picture',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 scenarios: [{
-                    name: '1080p SDR 1fps 8-bit',
-                    width: 1920,
-                    height: 1080,
+                    name: '720p SDR 1fps 8-bit',
+                    width: 1280,
+                    height: 720,
                     framerate: 1,
-                    bitrate: 5_000_000,
+                    bitrate: 3_000_000,
                     bitDepth: 8,
                     chromaSubsampling: '4:2:0',
                 }],
@@ -1532,7 +1667,7 @@ hdr10_4k_hev1.m3u8`,
                         },
                         {
                             token: 'L93',
-                            meaning: 'Level 3.1, Main Tier. For still images, the level constrains maximum picture size rather than framerate. Level 3.1 supports up to 1920×1080 single frames.'
+                            meaning: 'Level 3.1, Main Tier. For still images, the level constrains maximum picture size rather than framerate. max_luma_ps=983,040 (up to 1280×720 single frames).'
                         },
                         {
                             token: 'B0',
@@ -1549,7 +1684,7 @@ hdr10_4k_hev1.m3u8`,
                         hls: [
                             {
                                 signal: 'Still Picture',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="hvc1.3.E.L93.B0",RESOLUTION=1920x1080
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=3000000,CODECS="hvc1.3.E.L93.B0",RESOLUTION=1280x720
 hevc_still.m3u8`,
                                 notes: 'Still Picture profile in HLS is unusual — single-frame HEVC content is not a streaming use case. Tests whether the browser API recognizes the profile_idc=3 codec string in a streaming context.'
                             }
@@ -1558,7 +1693,7 @@ hevc_still.m3u8`,
                             {
                                 signal: 'Still Picture',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.3.E.L93.B0">
-  <Representation bandwidth="5000000" width="1920" height="1080" frameRate="1"/>
+  <Representation bandwidth="3000000" width="1280" height="720" frameRate="1"/>
 </AdaptationSet>`,
                                 notes: 'Main Still Picture in DASH. Tests API response to profile_idc=3 in a media-source context.'
                             }
@@ -1586,10 +1721,294 @@ hevc_still.m3u8`,
                     ]
                 }
             },
-            // ── hvc1.2.4.L150.B0 ──,
             // ── hvc1.2.4.L150.B0 ──
 
+            {
+                codec: 'hvc1.2.4.L150.B0',
+                name: '4K HDR10 24fps 10-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 24fps 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 24,
+                    bitrate: 20_000_000,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                },
+                    {
+                        name: '4K HDR10 23.976fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 18_000_000,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                    },
+                    {
+                        name: '4K HDR10 29.97fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 22_000_000,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        {
+                            token: 'hvc1',
+                            meaning: 'HEVC with parameter sets in the sample entry (out-of-band). Required by Apple HLS.'
+                        },
+                        {
+                            token: '2',
+                            meaning: 'Main 10 Profile (profile_idc=2). Supports 8-bit and 10-bit 4:2:0. Required for HDR10 content.'
+                        },
+                        {
+                            token: '4',
+                            meaning: 'Profile compatibility flags. Bit 2 set = Main 10 compatible.'
+                        },
+                        {
+                            token: 'L150',
+                            meaning: 'Level 5.0, Main Tier. 150 = 5.0 × 30. Supports 3840×2160@30fps. Peak bitrate 25 Mbps Main Tier. The base 4K level.'
+                        },
+                        {
+                            token: 'B0',
+                            meaning: 'No additional constraint flags. HDR10 signaling is in stream metadata and mediaCapabilities config, not in the codec string.'
+                        }
+                    ],
+                    overview: 'HEVC Main 10 at Level 5.0 — the standard 4K HDR10 streaming level. Netflix, Apple TV+, and Disney+ use this level for 4K HDR10 catalog content at film framerates (24/23.976fps). Level 5.1 adds 60fps capability, but most HDR10 streaming stays at L5.0 to maximize device compatibility.',
+                    platforms: {
+                        apple: 'Hardware decode on A10X+ (iPad Pro 2017), A11+ (iPhone X), all Apple Silicon. Level 5.0 Main 10 with PQ is the standard Apple TV 4K HDR10 decode path.',
+                        lg: 'All webOS 3.0+ (2016+). Hardware decode via SoC. 4K HDR10 at Level 5.0 is the native playback configuration for streaming apps.',
+                        android: 'Hardware decode on Android 7.0+ with MediaCodec HEVCProfileMain10HDR10. Snapdragon 820+, Exynos 7420+. The standard 4K HDR streaming level on Android TV.'
+                    },
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'HDR10 PQ',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="hvc1.2.4.L150.B0,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+hdr10_4k_24.m3u8`,
+                                notes: 'VIDEO-RANGE=PQ signals HDR10 to iOS/tvOS. Level 5.0 is the standard 4K HDR10 level for film content (24fps). Always provide an SDR fallback variant.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'HDR10 PQ with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L150.B0">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'CICP TransferCharacteristics 16 = PQ (ST 2084). ColourPrimaries 9 = BT.2020. The standard Netflix/Disney+ 4K HDR10 DASH configuration.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF — the standard 4K HDR10 container. HDR metadata (mastering display, content light level) stored in colr/mdcv/clli boxes.',
+                        mkv: 'video/x-matroska — dominant container for 4K HDR10 content in media server libraries (Jellyfin, Plex). HDR metadata in Matroska colour elements.',
+                        mov: 'QuickTime — Apple platforms. HDR10 MOV from professional workflows (DaVinci Resolve, Final Cut Pro).',
+                        fmp4: 'Fragmented MP4 — same video/mp4 MIME. The segment format for HLS and DASH 4K HDR10 streaming.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH. Same video/mp4 MIME.',
+                        mpegts: 'MPEG-TS — 4K HDR10 in transport stream for broadcast (DVB-T2 UHD, ATSC 3.0). HEVC in TS uses Annex B NAL format.'
+                    },
+                    references: [
+                        {
+                            title: 'ITU-T H.265 | ISO/IEC 23008-2',
+                            url: 'https://www.itu.int/rec/T-REC-H.265'
+                        },
+                        {
+                            title: 'ISO/IEC 14496-15 Annex E'
+                        }
                     ]
+                }
+            },
+            // ── hvc1.1.6.L153.B0 ──
+
+            {
+                codec: 'hvc1.1.6.L153.B0',
+                name: '4K SDR 60fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K SDR 60fps 8-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 60,
+                    bitrate: 25_000_000,
+                },
+                    {
+                        name: '4K SDR 59.94fps 8-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 25_000_000,
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        {
+                            token: 'hvc1',
+                            meaning: 'HEVC with parameter sets in the sample entry (out-of-band). Required by Apple HLS.'
+                        },
+                        {
+                            token: '1',
+                            meaning: 'Main Profile (profile_idc=1). 8-bit 4:2:0 only. Baseline SDR profile — no HDR metadata.'
+                        },
+                        {
+                            token: '6',
+                            meaning: 'Profile compatibility flags. Bits 1+2 set — backward-compatible with Main and Main 10 decoders.'
+                        },
+                        {
+                            token: 'L153',
+                            meaning: 'Level 5.1, Main Tier. 153 = 5.1 × 30. Supports 3840×2160@60fps. Peak bitrate 40 Mbps Main Tier. Needed for 4K HFR content.'
+                        },
+                        {
+                            token: 'B0',
+                            meaning: 'No additional constraint flags beyond the profile.'
+                        }
+                    ],
+                    overview: 'HEVC Main Profile at Level 5.1 — 4K SDR at 60fps for high-frame-rate content like sports and gaming. Level 5.0 caps at 30fps for 4K, so live sports broadcasts and game streaming at 4K@60 require Level 5.1. 8-bit SDR at this level is uncommon in streaming (most 4K uses Main 10) but relevant for game capture and live broadcast.',
+                    platforms: {
+                        apple: 'Hardware 4K@60 decode on A10X+ (iPad Pro 2017), A11+ (iPhone X), all Apple Silicon. 8-bit 4K@60 supported but uncommon — Apple prefers Main 10 for 4K content.',
+                        lg: 'All webOS 3.0+ (2016+). 4K@60 HEVC decode via SoC. 8-bit 4K@60 for SDR gaming and sports streaming.',
+                        android: 'Hardware 4K@60 decode on flagship SoCs (Snapdragon 845+, Exynos 9810+). Level 5.1 Main at 8-bit is the standard 4K gaming stream profile.'
+                    },
+                    streaming: {
+                        hls: [
+                            {
+                                signal: '4K SDR 60fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.1.6.L153.B0,mp4a.40.2",RESOLUTION=3840x2160
+hevc_main_4k_60.m3u8`,
+                                notes: 'No VIDEO-RANGE needed — SDR is the default. Level 5.1 required for 4K@60fps. Most 4K HLS uses Main 10 instead, but Main Profile is valid for 8-bit SDR game streaming.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: '4K SDR 60fps',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.1.6.L153.B0">
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'No supplemental properties needed for SDR. 4K@60fps DASH for live sports and game streaming.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF — standard 4K container. 4K@60fps SDR at 25 Mbps requires sustained read throughput.',
+                        mkv: 'video/x-matroska — limited browser support. MKV is common for 4K SDR game captures in media server libraries.',
+                        mov: 'QuickTime — 4K MOV from professional cameras and Apple screen recording.',
+                        fmp4: 'Fragmented MP4 — same video/mp4 MIME. The segment format for HLS and DASH 4K@60 streaming.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH. Same video/mp4 MIME.',
+                        mpegts: 'MPEG-TS — 4K@60 SDR broadcast. DVB-T2 UHD and ATSC 3.0 support HEVC in transport stream.'
+                    },
+                    references: [
+                        {
+                            title: 'ITU-T H.265 | ISO/IEC 23008-2',
+                            url: 'https://www.itu.int/rec/T-REC-H.265'
+                        },
+                        {
+                            title: 'ISO/IEC 14496-15 Annex E'
+                        }
+                    ]
+                }
+            },
+            // ── hvc1.2.4.L180.B0 ──
+
+            {
+                codec: 'hvc1.2.4.L180.B0',
+                name: '8K HDR10 30fps 10-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '8K HDR10 30fps 10-bit',
+                    width: 7680,
+                    height: 4320,
+                    framerate: 30,
+                    bitrate: 50_000_000,
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                }],
+                education: {
+                    breakdown: [
+                        {
+                            token: 'hvc1',
+                            meaning: 'HEVC with parameter sets in the sample entry (out-of-band).'
+                        },
+                        {
+                            token: '2',
+                            meaning: 'Main 10 Profile (profile_idc=2). 10-bit 4:2:0. Required for HDR10.'
+                        },
+                        {
+                            token: '4',
+                            meaning: 'Profile compatibility flags. Bit 2 set = Main 10 compatible.'
+                        },
+                        {
+                            token: 'L180',
+                            meaning: 'Level 6.0, Main Tier. 180 = 6.0 × 30. Supports 7680×4320@30fps. Peak bitrate 60 Mbps Main Tier. Bridges Level 5.2 (4K@120fps) and Level 6.1 (8K@60fps).'
+                        },
+                        {
+                            token: 'B0',
+                            meaning: 'No additional constraint flags.'
+                        }
+                    ],
+                    overview: 'Level 6.0 bridges the 4K and 8K tiers — it supports 8K at 30fps or 4K at very high framerates. Compared to Level 6.1 (8K@60fps, 120 Mbps Main), Level 6.0 is more conservative (60 Mbps). NHK Japan pioneered 8K broadcast using HEVC, though most consumer content uses AV1 for 8K.',
+                    platforms: {
+                        apple: 'No Apple device supports 8K HEVC decode. Apple Silicon tops out at Level 5.1 (4K@60) for hardware decode. Safari will report unsupported.',
+                        lg: 'LG 8K TVs (88Z9, 77ZX, QNED 8K) may support Level 6.0 hardware decode. Standard 4K webOS TVs cap at Level 5.1.',
+                        android: '8K decode on Snapdragon 8 Gen 2+, Exynos 2200+. Level 6.0 at 30fps is less demanding than Level 6.1 at 60fps. Most Android devices will report unsupported.'
+                    },
+                    streaming: {
+                        hls: [
+                            {
+                                signal: '8K HDR10',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=50000000,CODECS="hvc1.2.4.L180.B0,mp4a.40.2",RESOLUTION=7680x4320,VIDEO-RANGE=PQ
+hdr10_8k_30.m3u8`,
+                                notes: '8K HLS is theoretical — no production HLS service delivers 8K HEVC. Tests browser API acknowledgment of Level 6.0.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: '8K HDR10 with CICP',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L180.B0">
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="50000000" width="7680" height="4320" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: '8K HEVC DASH is theoretical. CICP TC=16 (PQ), CP=9 (BT.2020). Level 6.0 at 30fps vs Level 6.1 at 60fps.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF — 8K MP4 requires sustained read throughput of 50+ Mbps. Practical only from fast NVMe storage.',
+                        mkv: 'video/x-matroska — 8K MKV exists for demo content and camera test footage.',
+                        mov: 'QuickTime — 8K MOV from RED/Canon cinema cameras. Apple platforms cannot decode 8K HEVC.',
+                        fmp4: 'Fragmented MP4 — same video/mp4 MIME. 8K streaming at 50 Mbps requires robust CDN delivery.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH. Same video/mp4 MIME.',
+                        mpegts: 'MPEG-TS — 8K broadcast (NHK Japan Super Hi-Vision uses HEVC in transport stream for 8K). Tests browser API response.'
+                    },
+                    references: [
+                        {
+                            title: 'ITU-T H.265 | ISO/IEC 23008-2',
+                            url: 'https://www.itu.int/rec/T-REC-H.265'
+                        },
+                        {
+                            title: 'ISO/IEC 14496-15 Annex E'
+                        }
+                    ]
+                }
+            }
+        ]
     },
     video_av1: {
         category: 'AV1',
