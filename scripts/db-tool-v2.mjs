@@ -76,6 +76,11 @@ function q(str) {
     return `'${s.replace(/'/g, "\\'")}'`;
 }
 
+function qBacktick(str) {
+    const expanded = str.replace(/\\n/g, '\n');
+    return '`' + expanded.replace(/`/g, '\\`').replace(/\$/g, '\\$') + '`';
+}
+
 /** Format number with underscore separators for values >= 1_000_000 */
 function fmtNum(n) {
     if (n >= 1_000_000) {
@@ -266,6 +271,62 @@ function findFieldInEntry(source, entryStart, entryEnd, fieldName) {
 }
 
 
+function findNestedField(source, entryStart, entryEnd, dotPath) {
+    const parts = dotPath.split('.');
+    let scopeStart = entryStart;
+    let scopeEnd = entryEnd;
+
+    // Navigate through parent objects
+    for (let i = 0; i < parts.length - 1; i++) {
+        const field = findFieldInEntry(source, scopeStart, scopeEnd, parts[i]);
+        if (!field) {
+            // Parent segment missing — return info for the caller to create it
+            return { leaf: null, leafName: parts[parts.length - 1],
+                missingFrom: i, missingSegments: parts.slice(i),
+                parentStart: scopeStart, parentEnd: scopeEnd };
+        }
+        if (source[field.valueStart] !== '{') return null;
+        scopeStart = field.valueStart;
+        scopeEnd = field.valueEnd;
+    }
+
+    const leafName = parts[parts.length - 1];
+    const leaf = findFieldInEntry(source, scopeStart, scopeEnd, leafName);
+
+    return { leaf, leafName, parentStart: scopeStart, parentEnd: scopeEnd };
+}
+
+function indentAt(source, pos) {
+    let lineStart = pos;
+    while (lineStart > 0 && source[lineStart - 1] !== '\n') lineStart--;
+    let indent = 0;
+    while (lineStart + indent < source.length && source[lineStart + indent] === ' ') indent++;
+    return indent;
+}
+
+function insertIntoObject(source, objStart, objEnd, key, formattedValue) {
+    const innerIndent = indentAt(source, objEnd) + 4;
+    const pad = ' '.repeat(innerIndent);
+    const entry = `${pad}${key}: ${formattedValue}`;
+
+    // Check if object is empty
+    const inner = source.substring(objStart + 1, objEnd).trim();
+    if (inner === '') {
+        return source.substring(0, objStart + 1) + '\n' + entry + '\n' +
+            ' '.repeat(indentAt(source, objEnd)) + '}' + source.substring(objEnd + 1);
+    }
+
+    // Non-empty: find last content before closing }
+    let lastContent = objEnd - 1;
+    while (lastContent > objStart && /\s/.test(source[lastContent])) lastContent--;
+    const needsComma = source[lastContent] !== ',';
+    const comma = needsComma ? ',' : '';
+
+    return source.substring(0, lastContent + 1) + comma + '\n' + entry +
+        source.substring(lastContent + 1);
+}
+
+
 // ==================== CODEC TAG → GROUP MAPPING ====================
 
 const CODEC_TAG_TO_GROUP = {
@@ -382,6 +443,7 @@ const I12 = ' '.repeat(12);
 const I16 = ' '.repeat(16);
 const I20 = ' '.repeat(20);
 const I24 = ' '.repeat(24);
+const I28 = ' '.repeat(28);
 
 function formatStringArray(arr) {
     return `[${arr.map(s => q(s)).join(', ')}]`;
@@ -497,7 +559,8 @@ function parseArgs(argv) {
         if (arg.startsWith('--')) {
             const key = arg.substring(2);
             // Boolean flags
-            if (['confirm', 'dry-run', 'missing', 'edu', 'scenario', 'drop', 'spatial'].includes(key)) {
+            if (['confirm', 'dry-run', 'missing', 'edu', 'scenario', 'drop', 'spatial',
+                 'add-ref', 'rm-ref', 'add-hls', 'add-dash'].includes(key)) {
                 result.flags.add(key);
                 i++;
                 continue;
@@ -580,43 +643,62 @@ function buildScenarioFromArgs(opts, flags, mediaType) {
 
 // ==================== COMMANDS: READ-ONLY ====================
 
+function hasStreaming(edu) {
+    return edu?.streaming && (edu.streaming.hls?.length > 0 || edu.streaming.dash?.length > 0);
+}
+
+function hasContainerNotes(edu) {
+    return edu?.containerNotes && Object.keys(edu.containerNotes).length > 0;
+}
+
+function hasRefs(edu) {
+    return edu?.references?.length > 0;
+}
+
+function hasOverview(edu) {
+    return edu?.overview && edu.overview !== '';
+}
+
+function pctBar(count, total) {
+    if (total === 0) return `${C.dim} -%${C.reset}`;
+    const pct = Math.round(count / total * 100);
+    const color = pct === 100 ? C.green : pct > 0 ? C.yellow : C.red;
+    return `${color}${pct.toString().padStart(3)}%${C.reset}`;
+}
+
 async function cmdStats() {
     const db = await loadDatabase();
     console.log(`\n${C.bold}CodecProbe v2 Database Stats${C.reset}\n`);
 
-    const header = `${'Group'.padEnd(24)} ${'Type'.padEnd(7)} ${'Codecs'.padStart(6)} ${'Edu'.padStart(5)} ${'Miss'.padStart(5)}`;
+    const header = `${'Group'.padEnd(24)} ${'Type'.padEnd(7)} ${'Recs'.padStart(5)} ${'Edu'.padStart(5)} ${'Strm'.padStart(5)} ${'Cntr'.padStart(5)} ${'Refs'.padStart(5)}`;
     console.log(`${C.dim}${header}${C.reset}`);
     console.log(`${C.dim}${'─'.repeat(header.length)}${C.reset}`);
 
-    let totalCodecs = 0, totalEdu = 0;
+    let tRecs = 0, tEdu = 0, tStrm = 0, tCntr = 0, tRefs = 0;
 
     for (const [key, group] of Object.entries(db)) {
-        const codecs = group.codecs.length;
-        let withEdu = 0;
+        const recs = group.codecs.length;
+        let edu = 0, strm = 0, cntr = 0, refs = 0;
         for (const rec of group.codecs) {
-            if (rec.education && rec.education.breakdown && rec.education.breakdown.length > 0) {
-                const hasContent = rec.education.overview !== '' ||
-                    rec.education.breakdown.some(t => t.meaning !== '');
-                if (hasContent) withEdu++;
-            }
+            if (hasOverview(rec.education)) edu++;
+            if (hasStreaming(rec.education)) strm++;
+            if (hasContainerNotes(rec.education)) cntr++;
+            if (hasRefs(rec.education)) refs++;
         }
-        const missing = codecs - withEdu;
-        const pct = codecs > 0 ? Math.round(withEdu / codecs * 100) : 0;
-        const color = pct === 100 ? C.green : pct > 0 ? C.yellow : C.red;
-        const bar = codecs > 0 ? `${color}${pct.toString().padStart(3)}%${C.reset}` : `${C.dim}  -%${C.reset}`;
 
         console.log(
-            `${key.padEnd(24)} ${group.type.padEnd(7)} ${String(codecs).padStart(6)} ` +
-            `${String(withEdu).padStart(5)} ${String(missing).padStart(5)}  ${bar}`
+            `${key.padEnd(24)} ${group.type.padEnd(7)} ${String(recs).padStart(5)} ` +
+            `${String(edu).padStart(5)} ${String(strm).padStart(5)} ${String(cntr).padStart(5)} ${String(refs).padStart(5)}  ` +
+            `${pctBar(edu, recs)}`
         );
-        totalCodecs += codecs;
-        totalEdu += withEdu;
+        tRecs += recs; tEdu += edu; tStrm += strm; tCntr += cntr; tRefs += refs;
     }
 
     console.log(`${C.dim}${'─'.repeat(header.length)}${C.reset}`);
     console.log(
-        `${'TOTAL'.padEnd(24)} ${''.padEnd(7)} ${String(totalCodecs).padStart(6)} ` +
-        `${String(totalEdu).padStart(5)} ${String(totalCodecs - totalEdu).padStart(5)}`
+        `${'TOTAL'.padEnd(24)} ${''.padEnd(7)} ${String(tRecs).padStart(5)} ` +
+        `${String(tEdu).padStart(5)} ${String(tStrm).padStart(5)} ${String(tCntr).padStart(5)} ${String(tRefs).padStart(5)}  ` +
+        `${pctBar(tEdu, tRecs)}`
     );
     console.log();
 }
@@ -636,13 +718,20 @@ async function cmdList(groupFilter, filter) {
         }
 
         for (const rec of group.codecs) {
-            const hasEdu = rec.education && rec.education.overview !== '';
+            const edu = rec.education;
+            const hasEdu = hasOverview(edu);
             if (filter === 'missing' && hasEdu) continue;
             if (filter === 'edu' && !hasEdu) continue;
 
-            const icon = hasEdu ? `${C.green}✓${C.reset}` : `${C.dim}·${C.reset}`;
+            // Sub-field flags: O=overview S=streaming C=containerNotes R=references
+            const flagO = hasOverview(edu) ? `${C.green}O${C.reset}` : `${C.dim}O${C.reset}`;
+            const flagS = hasStreaming(edu) ? `${C.green}S${C.reset}` : `${C.dim}S${C.reset}`;
+            const flagC = hasContainerNotes(edu) ? `${C.green}C${C.reset}` : `${C.dim}C${C.reset}`;
+            const flagR = hasRefs(edu) ? `${C.green}R${C.reset}` : `${C.dim}R${C.reset}`;
+            const flags = `${flagO}${flagS}${flagC}${flagR}`;
+
             const scenarios = rec.scenarios.length > 1 ? `${C.dim}(${rec.scenarios.length} scenarios)${C.reset}` : '';
-            console.log(`  ${icon} ${C.cyan}${rec.codec}${C.reset}  ${rec.name} ${scenarios}`);
+            console.log(`  ${flags} ${C.cyan}${rec.codec}${C.reset}  ${rec.name} ${scenarios}`);
         }
     }
     console.log();
@@ -664,7 +753,7 @@ async function cmdVerify() {
     const groupKeys = Object.keys(db);
     console.log(`  ${C.green}✓${C.reset} Module imports OK (${groupKeys.length} groups)`);
 
-    let issues = 0;
+    let issues = 0, warnings = 0, gaps = 0;
     let totalCodecs = 0;
     const seenCodecs = new Map();
 
@@ -715,15 +804,39 @@ async function cmdVerify() {
                 }
             }
 
+            // Education validation
             if (rec.education) {
-                if (!Array.isArray(rec.education.breakdown)) {
-                    console.log(`  ${C.yellow}⚠${C.reset} ${key}/${rec.codec}: education.breakdown not an array`);
+                const edu = rec.education;
+                const prefix = `${key}/${rec.codec}`;
+
+                if (!Array.isArray(edu.breakdown)) {
+                    console.log(`  ${C.red}✗${C.reset} ${prefix}: education.breakdown not an array`);
+                    issues++;
+                } else {
+                    for (const t of edu.breakdown) {
+                        if (!t.token) { console.log(`  ${C.red}✗${C.reset} ${prefix}: breakdown token missing`); issues++; }
+                        if (!t.meaning) { console.log(`  ${C.yellow}⚠${C.reset} ${prefix}: empty meaning for token "${t.token}"`); warnings++; }
+                    }
                 }
+
+                if (!hasOverview(edu)) { console.log(`  ${C.yellow}⚠${C.reset} ${prefix}: empty overview`); warnings++; }
+
+                if (edu.references?.length) {
+                    for (const ref of edu.references) {
+                        if (!ref.title) { console.log(`  ${C.red}✗${C.reset} ${prefix}: reference missing title`); issues++; }
+                    }
+                }
+
+                if (!hasStreaming(edu)) { console.log(`  ${C.dim}·${C.reset} ${prefix}: no streaming entries`); gaps++; }
+                if (!hasContainerNotes(edu)) { console.log(`  ${C.dim}·${C.reset} ${prefix}: no containerNotes`); gaps++; }
+                if (!hasRefs(edu)) { console.log(`  ${C.dim}·${C.reset} ${prefix}: no references`); gaps++; }
             }
         }
     }
 
     console.log(`  ${C.green}✓${C.reset} Structure: ${totalCodecs} codecs, ${issues} issues`);
+    if (warnings > 0) console.log(`  ${C.yellow}⚠${C.reset} ${warnings} warning(s)`);
+    if (gaps > 0) console.log(`  ${C.dim}·${C.reset} ${gaps} education gap(s)`);
 
     if (issues > 0) {
         console.log(`\n  ${C.red}${issues} issue(s) found${C.reset}\n`);
@@ -755,12 +868,19 @@ async function cmdDb(codecString, args) {
     const hasDropFlag = args.flags.has('drop');
     const hasSetOpt = args.options.set !== undefined;
     const hasRmScenario = args.options['rm-scenario'] !== undefined;
+    const hasAddRef = args.flags.has('add-ref');
+    const hasRmRef = args.flags.has('rm-ref');
+    const hasAddHls = args.flags.has('add-hls');
+    const hasAddDash = args.flags.has('add-dash');
+    const hasEduFrom = args.options['edu-from'] !== undefined;
     const dryRun = args.flags.has('dry-run');
 
     // ── Record exists ──
 
     if (foundRecord) {
-        if (!hasScenarioFlag && !hasDropFlag && !hasSetOpt && !hasRmScenario) {
+        const noMutation = !hasScenarioFlag && !hasDropFlag && !hasSetOpt && !hasRmScenario &&
+            !hasAddRef && !hasRmRef && !hasAddHls && !hasAddDash && !hasEduFrom;
+        if (noMutation) {
             return showRecord(foundRecord, foundGroup, db[foundGroup].type);
         }
 
@@ -774,6 +894,26 @@ async function cmdDb(codecString, args) {
 
         if (hasRmScenario) {
             return removeScenario(source, codecString, foundGroup, args.options['rm-scenario'], dryRun);
+        }
+
+        if (hasAddRef) {
+            return addReference(source, codecString, foundGroup, args, dryRun);
+        }
+
+        if (hasRmRef) {
+            return removeReference(source, codecString, foundGroup, args, dryRun);
+        }
+
+        if (hasAddHls) {
+            return addStreamingEntry(source, codecString, foundGroup, 'hls', args, dryRun);
+        }
+
+        if (hasAddDash) {
+            return addStreamingEntry(source, codecString, foundGroup, 'dash', args, dryRun);
+        }
+
+        if (hasEduFrom) {
+            return importEducation(source, codecString, foundGroup, args, dryRun);
         }
 
         if (hasDropFlag) {
@@ -828,14 +968,69 @@ function showRecord(record, groupKey, mediaType) {
         }
     }
 
-    if (record.education) {
-        const hasContent = record.education.overview !== '' ||
-            (record.education.breakdown && record.education.breakdown.some(t => t.meaning !== ''));
-        console.log(`\n  ${C.cyan}Education:${C.reset}  ${hasContent ? `${C.green}populated${C.reset}` : `${C.dim}skeleton${C.reset}`}`);
-        if (record.education.breakdown?.length) {
-            console.log(`  ${C.cyan}Tokens:${C.reset}     ${record.education.breakdown.map(t => t.token).join(' . ')}`);
+    if (!record.education) {
+        console.log(`\n  ${C.dim}No education data${C.reset}`);
+        console.log();
+        return;
+    }
+
+    const edu = record.education;
+    console.log(`\n  ${C.bold}Education:${C.reset}`);
+
+    // Breakdown tokens
+    if (edu.breakdown?.length) {
+        console.log(`\n  ${C.cyan}Breakdown:${C.reset}`);
+        for (const t of edu.breakdown) {
+            const meaning = t.meaning || `${C.dim}(empty)${C.reset}`;
+            console.log(`    ${C.yellow}${t.token}${C.reset}  ${meaning}`);
         }
     }
+
+    // Overview
+    if (edu.overview) {
+        console.log(`\n  ${C.cyan}Overview:${C.reset}   ${edu.overview}`);
+    } else {
+        console.log(`\n  ${C.cyan}Overview:${C.reset}   ${C.dim}(empty)${C.reset}`);
+    }
+
+    // Platforms
+    if (edu.platforms && Object.keys(edu.platforms).length > 0) {
+        console.log(`\n  ${C.cyan}Platforms:${C.reset}`);
+        for (const [platform, note] of Object.entries(edu.platforms)) {
+            console.log(`    ${C.magenta}${platform}:${C.reset} ${note}`);
+        }
+    }
+
+    // Streaming
+    if (edu.streaming && (edu.streaming.hls?.length || edu.streaming.dash?.length)) {
+        console.log(`\n  ${C.cyan}Streaming:${C.reset}`);
+        for (const entry of edu.streaming.hls || []) {
+            console.log(`    ${C.green}HLS${C.reset}  ${entry.signal}`);
+            if (entry.notes) console.log(`         ${C.dim}${entry.notes}${C.reset}`);
+        }
+        for (const entry of edu.streaming.dash || []) {
+            console.log(`    ${C.green}DASH${C.reset} ${entry.signal}`);
+            if (entry.notes) console.log(`         ${C.dim}${entry.notes}${C.reset}`);
+        }
+    }
+
+    // Container notes
+    if (edu.containerNotes && Object.keys(edu.containerNotes).length > 0) {
+        console.log(`\n  ${C.cyan}Container Notes:${C.reset}`);
+        for (const [container, note] of Object.entries(edu.containerNotes)) {
+            console.log(`    ${C.magenta}${container}:${C.reset} ${note}`);
+        }
+    }
+
+    // References
+    if (edu.references?.length) {
+        console.log(`\n  ${C.cyan}References:${C.reset}`);
+        for (const ref of edu.references) {
+            const url = ref.url ? ` ${C.dim}${ref.url}${C.reset}` : '';
+            console.log(`    ${C.green}•${C.reset} ${ref.title}${url}`);
+        }
+    }
+
     console.log();
 }
 
@@ -1006,6 +1201,16 @@ function removeScenario(source, codecString, groupKey, scenarioName, dryRun) {
     return writeResult(newSource, dryRun, `REMOVE SCENARIO "${scenarioName}" from ${codecString}`);
 }
 
+function formatRawValue(rawValue) {
+    if (rawValue.startsWith('[')) {
+        const items = rawValue.slice(1, -1).split(',').map(s => q(s.trim()));
+        return `[${items.join(', ')}]`;
+    }
+    if (rawValue === 'true' || rawValue === 'false') return rawValue;
+    if (!isNaN(rawValue) && rawValue !== '') return fmtNum(parseInt(rawValue, 10));
+    return q(rawValue);
+}
+
 function updateField(source, codecString, groupKey, args, dryRun) {
     const setArg = args.options.set;
     const eqIdx = setArg.indexOf('=');
@@ -1014,7 +1219,7 @@ function updateField(source, codecString, groupKey, args, dryRun) {
         process.exit(1);
     }
 
-    const fieldName = setArg.substring(0, eqIdx);
+    const fieldPath = setArg.substring(0, eqIdx);
     const rawValue = setArg.substring(eqIdx + 1);
 
     const groupRange = findGroupRange(source, groupKey);
@@ -1024,26 +1229,373 @@ function updateField(source, codecString, groupKey, args, dryRun) {
         process.exit(1);
     }
 
-    const field = findFieldInEntry(source, record.start, record.end, fieldName);
-    if (!field) {
-        console.error(`${C.red}Field "${fieldName}" not found in record${C.reset}`);
+    const formattedValue = formatRawValue(rawValue);
+    let newSource;
+
+    if (fieldPath.includes('.')) {
+        // Dot-path: education.overview, education.containerNotes.mp4
+        const nested = findNestedField(source, record.start, record.end, fieldPath);
+        if (!nested) {
+            console.error(`${C.red}Path "${fieldPath}" not found — non-object in path${C.reset}`);
+            process.exit(1);
+        }
+
+        if (nested.missingSegments) {
+            // Intermediate object(s) missing — build nested structure
+            // e.g. containerNotes missing → insert containerNotes: { mp4: 'value' }
+            const segments = nested.missingSegments;
+            const baseIndent = indentAt(source, nested.parentEnd) + 4;
+            let innerValue = formattedValue;
+
+            // Wrap from innermost to outermost
+            for (let i = segments.length - 1; i >= 1; i--) {
+                const pad = ' '.repeat(baseIndent + (i * 4));
+                innerValue = `{\n${pad}${segments[i]}: ${innerValue}\n${' '.repeat(baseIndent + ((i - 1) * 4))}}`;
+            }
+            newSource = insertIntoObject(source, nested.parentStart, nested.parentEnd,
+                segments[0], innerValue);
+        } else if (nested.leaf) {
+            // Leaf exists — replace value
+            newSource = source.substring(0, nested.leaf.valueStart) + formattedValue +
+                source.substring(nested.leaf.valueEnd + 1);
+        } else {
+            // Leaf missing but parent exists — insert into parent object
+            newSource = insertIntoObject(source, nested.parentStart, nested.parentEnd,
+                nested.leafName, formattedValue);
+        }
+    } else {
+        // Flat field (original behavior)
+        const field = findFieldInEntry(source, record.start, record.end, fieldPath);
+        if (!field) {
+            console.error(`${C.red}Field "${fieldPath}" not found in record${C.reset}`);
+            process.exit(1);
+        }
+        newSource = source.substring(0, field.valueStart) + formattedValue +
+            source.substring(field.valueEnd + 1);
+    }
+
+    return writeResult(newSource, dryRun, `UPDATE ${codecString}.${fieldPath} = ${rawValue}`);
+}
+
+function locateRefsArray(source, codecString, groupKey) {
+    const groupRange = findGroupRange(source, groupKey);
+    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
+    if (!record) return null;
+
+    const nested = findNestedField(source, record.start, record.end, 'education.references');
+    if (!nested) return null;
+
+    // If references field exists and is an array
+    if (nested.leaf && source[nested.leaf.valueStart] === '[') {
+        return { arrStart: nested.leaf.valueStart, arrEnd: nested.leaf.valueEnd, record };
+    }
+
+    // references missing from education — need to create it
+    if (nested.missingSegments) {
+        return { missing: true, parentStart: nested.parentStart, parentEnd: nested.parentEnd, record };
+    }
+
+    return null;
+}
+
+function addReference(source, codecString, groupKey, args, dryRun) {
+    const title = args.options.title;
+    if (!title) {
+        console.error(`${C.red}--title is required for --add-ref${C.reset}`);
         process.exit(1);
     }
 
-    let formattedValue;
-    if (rawValue.startsWith('[')) {
-        const items = rawValue.slice(1, -1).split(',').map(s => q(s.trim()));
-        formattedValue = `[${items.join(', ')}]`;
-    } else if (rawValue === 'true' || rawValue === 'false') {
-        formattedValue = rawValue;
-    } else if (!isNaN(rawValue) && rawValue !== '') {
-        formattedValue = fmtNum(parseInt(rawValue, 10));
-    } else {
-        formattedValue = q(rawValue);
+    const loc = locateRefsArray(source, codecString, groupKey);
+    if (!loc) {
+        console.error(`${C.red}Cannot locate education.references for ${codecString}${C.reset}`);
+        process.exit(1);
     }
 
-    const newSource = source.substring(0, field.valueStart) + formattedValue + source.substring(field.valueEnd + 1);
-    return writeResult(newSource, dryRun, `UPDATE ${codecString}.${fieldName} = ${rawValue}`);
+    const url = args.options.url;
+    const indent = I24;
+    const refObj = url
+        ? `{ title: ${q(title)}, url: ${q(url)} }`
+        : `{ title: ${q(title)} }`;
+
+    let newSource;
+    if (loc.missing) {
+        // Create references array with first entry
+        newSource = insertIntoObject(source, loc.parentStart, loc.parentEnd,
+            'references', `[\n${indent}${refObj}\n${I20}]`);
+    } else {
+        // Append to existing array
+        const inner = source.substring(loc.arrStart + 1, loc.arrEnd).trim();
+        if (inner === '') {
+            // Empty []
+            newSource = source.substring(0, loc.arrStart + 1) + '\n' + indent + refObj + '\n' +
+                I20 + source.substring(loc.arrEnd);
+        } else {
+            let lastContent = loc.arrEnd - 1;
+            while (lastContent > loc.arrStart && /\s/.test(source[lastContent])) lastContent--;
+            const needsComma = source[lastContent] !== ',';
+            const comma = needsComma ? ',' : '';
+            newSource = source.substring(0, lastContent + 1) + comma + '\n' + indent + refObj +
+                source.substring(lastContent + 1);
+        }
+    }
+
+    return writeResult(newSource, dryRun, `ADD REF "${title}" to ${codecString}`);
+}
+
+function removeFromArray(source, arrStart, arrEnd, matchStart, matchEnd) {
+    let removeStart = matchStart;
+    let removeEnd = matchEnd;
+
+    // Look ahead: is there a comma after the entry?
+    let ahead = removeEnd;
+    while (ahead < arrEnd && source[ahead] === ' ') ahead++;
+    const hasTrailingComma = source[ahead] === ',';
+
+    if (hasTrailingComma) {
+        // Not the last entry — remove entry + trailing comma, keep next entry's indentation
+        removeEnd = ahead + 1;
+        // Consume leading whitespace + newline for this entry's line
+        while (removeStart > arrStart + 1 && source[removeStart - 1] === ' ') removeStart--;
+        if (removeStart > arrStart + 1 && source[removeStart - 1] === '\n') removeStart--;
+    } else {
+        // Last entry — consume leading comma + whitespace before this entry
+        let before = removeStart - 1;
+        while (before > arrStart && /\s/.test(source[before])) before--;
+        if (source[before] === ',') removeStart = before;
+        // Consume whitespace/newline back to previous line end
+        while (removeStart > arrStart + 1 && source[removeStart - 1] === ' ') removeStart--;
+        if (removeStart > arrStart + 1 && source[removeStart - 1] === '\n') removeStart--;
+    }
+
+    return source.substring(0, removeStart) + source.substring(removeEnd);
+}
+
+function removeReference(source, codecString, groupKey, args, dryRun) {
+    const title = args.options.title;
+    if (!title) {
+        console.error(`${C.red}--title is required for --rm-ref${C.reset}`);
+        process.exit(1);
+    }
+
+    const loc = locateRefsArray(source, codecString, groupKey);
+    if (!loc || loc.missing) {
+        console.error(`${C.red}No references array found for ${codecString}${C.reset}`);
+        process.exit(1);
+    }
+
+    // Find the reference object by title string match
+    const area = source.substring(loc.arrStart, loc.arrEnd + 1);
+    const titleEscaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const refPattern = new RegExp(`\\{[^}]*title:\\s*'${titleEscaped}'[^}]*\\}`);
+    const refMatch = refPattern.exec(area);
+    if (!refMatch) {
+        console.error(`${C.red}Reference "${title}" not found in ${codecString}${C.reset}`);
+        process.exit(1);
+    }
+
+    const matchStart = loc.arrStart + refMatch.index;
+    const matchEnd = matchStart + refMatch[0].length;
+    const newSource = removeFromArray(source, loc.arrStart, loc.arrEnd, matchStart, matchEnd);
+    return writeResult(newSource, dryRun, `REMOVE REF "${title}" from ${codecString}`);
+}
+
+function addStreamingEntry(source, codecString, groupKey, protocol, args, dryRun) {
+    const signal = args.options.signal;
+    const manifestKey = protocol === 'hls' ? 'm3u8' : 'mpd';
+    const manifest = args.options[manifestKey];
+    const notes = args.options.notes || '';
+
+    if (!signal) {
+        console.error(`${C.red}--signal is required for --add-${protocol}${C.reset}`);
+        process.exit(1);
+    }
+    if (!manifest) {
+        console.error(`${C.red}--${manifestKey} is required for --add-${protocol}${C.reset}`);
+        process.exit(1);
+    }
+
+    const groupRange = findGroupRange(source, groupKey);
+    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
+    if (!record) {
+        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
+        process.exit(1);
+    }
+
+    // Build the entry object text
+    const entryLines = [
+        `{`,
+        `${I28}signal: ${q(signal)},`,
+        `${I28}${manifestKey}: ${qBacktick(manifest)},`,
+        `${I28}notes: ${q(notes)}`,
+        `${I24}}`
+    ];
+    const entryText = entryLines.join('\n');
+
+    // Locate education.streaming in source
+    const nested = findNestedField(source, record.start, record.end, `education.streaming`);
+    if (!nested) {
+        console.error(`${C.red}Cannot locate education.streaming for ${codecString}${C.reset}`);
+        process.exit(1);
+    }
+
+    let newSource;
+    const streamingMissing = nested.missingSegments || (!nested.leaf);
+    if (streamingMissing) {
+        // streaming doesn't exist — create streaming: { hls/dash: [{...}] }
+        const parent = nested.missingSegments
+            ? { start: nested.parentStart, end: nested.parentEnd }
+            : { start: nested.parentStart, end: nested.parentEnd };
+        const inner = `{\n${I24}${protocol}: [\n${I24}${entryText}\n${I20}]\n${I20}}`;
+        newSource = insertIntoObject(source, parent.start, parent.end, 'streaming', inner);
+    } else if (nested.leaf && source[nested.leaf.valueStart] === '{') {
+        // streaming exists — find or create the protocol array
+        const protoField = findFieldInEntry(source, nested.leaf.valueStart, nested.leaf.valueEnd, protocol);
+
+        if (protoField && source[protoField.valueStart] === '[') {
+            // Protocol array exists — append entry
+            const inner = source.substring(protoField.valueStart + 1, protoField.valueEnd).trim();
+            if (inner === '') {
+                newSource = source.substring(0, protoField.valueStart + 1) +
+                    '\n' + I24 + entryText + '\n' + I20 +
+                    source.substring(protoField.valueEnd);
+            } else {
+                let lastContent = protoField.valueEnd - 1;
+                while (lastContent > protoField.valueStart && /\s/.test(source[lastContent])) lastContent--;
+                const needsComma = source[lastContent] !== ',';
+                const comma = needsComma ? ',' : '';
+                newSource = source.substring(0, lastContent + 1) + comma + '\n' + I24 + entryText +
+                    source.substring(lastContent + 1);
+            }
+        } else {
+            // Protocol array doesn't exist — insert into streaming object
+            newSource = insertIntoObject(source, nested.leaf.valueStart, nested.leaf.valueEnd,
+                protocol, `[\n${I24}${entryText}\n${I20}]`);
+        }
+    } else {
+        console.error(`${C.red}education.streaming is not an object for ${codecString}${C.reset}`);
+        process.exit(1);
+    }
+
+    const label = protocol.toUpperCase();
+    return writeResult(newSource, dryRun, `ADD ${label} "${signal}" to ${codecString}`);
+}
+
+function formatEducationFromJson(edu, baseIndent) {
+    const I = ' '.repeat(baseIndent);
+    const I4 = ' '.repeat(baseIndent + 4);
+    const I8 = ' '.repeat(baseIndent + 8);
+    const I12 = ' '.repeat(baseIndent + 12);
+    const lines = ['{'];
+
+    // breakdown
+    if (edu.breakdown?.length) {
+        lines.push(`${I4}breakdown: [`);
+        edu.breakdown.forEach((t, i) => {
+            const comma = i < edu.breakdown.length - 1 ? ',' : '';
+            lines.push(`${I8}{ token: ${q(t.token)}, meaning: ${q(t.meaning)} }${comma}`);
+        });
+        lines.push(`${I4}],`);
+    }
+
+    // overview
+    lines.push(`${I4}overview: ${q(edu.overview || '')},`);
+
+    // platforms
+    if (edu.platforms && Object.keys(edu.platforms).length > 0) {
+        lines.push(`${I4}platforms: {`);
+        const entries = Object.entries(edu.platforms);
+        entries.forEach(([k, v], i) => {
+            const comma = i < entries.length - 1 ? ',' : '';
+            lines.push(`${I8}${k}: ${q(v)}${comma}`);
+        });
+        lines.push(`${I4}},`);
+    }
+
+    // streaming
+    if (edu.streaming && (edu.streaming.hls?.length || edu.streaming.dash?.length)) {
+        lines.push(`${I4}streaming: {`);
+        for (const proto of ['hls', 'dash']) {
+            const arr = edu.streaming[proto];
+            if (!arr?.length) continue;
+            const manifestKey = proto === 'hls' ? 'm3u8' : 'mpd';
+            lines.push(`${I8}${proto}: [`);
+            arr.forEach((entry, i) => {
+                lines.push(`${I8}{`);
+                lines.push(`${I12}signal: ${q(entry.signal)},`);
+                lines.push(`${I12}${manifestKey}: ${qBacktick(entry[manifestKey] || '')},`);
+                lines.push(`${I12}notes: ${q(entry.notes || '')}`);
+                const comma = i < arr.length - 1 ? ',' : '';
+                lines.push(`${I8}}${comma}`);
+            });
+            lines.push(`${I8}],`);
+        }
+        // Remove trailing comma from last ]
+        const lastLine = lines[lines.length - 1];
+        if (lastLine.endsWith('],')) lines[lines.length - 1] = lastLine.slice(0, -1);
+        lines.push(`${I4}},`);
+    }
+
+    // containerNotes
+    if (edu.containerNotes && Object.keys(edu.containerNotes).length > 0) {
+        lines.push(`${I4}containerNotes: {`);
+        const entries = Object.entries(edu.containerNotes);
+        entries.forEach(([k, v], i) => {
+            const comma = i < entries.length - 1 ? ',' : '';
+            lines.push(`${I8}${k}: ${q(v)}${comma}`);
+        });
+        lines.push(`${I4}},`);
+    }
+
+    // references
+    if (edu.references?.length) {
+        lines.push(`${I4}references: [`);
+        edu.references.forEach((ref, i) => {
+            const comma = i < edu.references.length - 1 ? ',' : '';
+            const url = ref.url ? `, url: ${q(ref.url)}` : '';
+            lines.push(`${I8}{ title: ${q(ref.title)}${url} }${comma}`);
+        });
+        lines.push(`${I4}]`);
+    } else {
+        lines.push(`${I4}references: []`);
+    }
+
+    lines.push(`${I}}`);
+    // Remove trailing comma from last field before references/closing
+    return lines.join('\n');
+}
+
+function importEducation(source, codecString, groupKey, args, dryRun) {
+    const filePath = args.options['edu-from'];
+    if (!filePath) {
+        console.error(`${C.red}--edu-from <path> is required${C.reset}`);
+        process.exit(1);
+    }
+
+    let eduJson;
+    try {
+        const raw = readFileSync(resolve(filePath), 'utf-8');
+        eduJson = JSON.parse(raw);
+    } catch (err) {
+        console.error(`${C.red}Cannot read/parse ${filePath}: ${err.message}${C.reset}`);
+        process.exit(1);
+    }
+
+    const groupRange = findGroupRange(source, groupKey);
+    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
+    if (!record) {
+        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
+        process.exit(1);
+    }
+
+    const eduField = findFieldInEntry(source, record.start, record.end, 'education');
+    if (!eduField) {
+        console.error(`${C.red}No education field found for ${codecString}${C.reset}`);
+        process.exit(1);
+    }
+
+    const formatted = formatEducationFromJson(eduJson, 20);
+    const newSource = source.substring(0, eduField.valueStart) + formatted + source.substring(eduField.valueEnd + 1);
+    return writeResult(newSource, dryRun, `IMPORT education from ${filePath} → ${codecString}`);
 }
 
 function dropRecord(source, codecString, groupKey, dryRun) {
@@ -1101,18 +1653,28 @@ ${C.bold}CodecProbe v2 Database Tool${C.reset}
 
 ${C.cyan}Usage:${C.reset}  node scripts/db-tool-v2.mjs <command> [args]
 
-${C.cyan}Mutations (codec string = primary key):${C.reset}
+${C.cyan}Record mutations (codec string = primary key):${C.reset}
   db <codec>                                    Show record details
   db <codec> --name <n> --scenario [opts]       Insert new record + first scenario
   db <codec> --scenario --sname <n> [opts]      Add scenario to existing record
-  db <codec> --set key=value                    Update field value
+  db <codec> --set key=value                    Update field (supports dot-paths)
   db <codec> --rm-scenario <name>               Remove scenario by name
   db <codec> --drop --confirm                   Drop entire record
 
+${C.cyan}Education mutations:${C.reset}
+  db <codec> --set education.overview="text"            Set overview
+  db <codec> --set education.platforms.safari="text"    Set platform note
+  db <codec> --set education.containerNotes.mp4="text"  Set container note
+  db <codec> --add-ref --title <t> [--url <u>]          Add reference
+  db <codec> --rm-ref --title <t>                       Remove reference by title
+  db <codec> --add-hls --signal <s> --m3u8 <m> --notes <n>   Add HLS streaming entry
+  db <codec> --add-dash --signal <s> --mpd <m> --notes <n>   Add DASH streaming entry
+  db <codec> --edu-from <path.json>                     Replace education from JSON file
+
 ${C.cyan}Read-only:${C.reset}
-  stats                                         Overview table
-  list [group] [--missing|--edu]                List records
-  verify                                        Validate all records
+  stats                                         Coverage table (edu/streaming/notes/refs)
+  list [group] [--missing|--edu]                List records with OSCR indicators
+  verify                                        Validate structure + education completeness
 
 ${C.cyan}Video scenario flags:${C.reset}
   --sname <name>     Scenario name (required)
@@ -1142,19 +1704,28 @@ ${C.cyan}Options:${C.reset}
   --dry-run          Preview without writing
 
 ${C.cyan}Examples:${C.reset}
+  ${C.dim}# Read-only${C.reset}
   node scripts/db-tool-v2.mjs stats
   node scripts/db-tool-v2.mjs list video_hevc
-  node scripts/db-tool-v2.mjs list --missing
   node scripts/db-tool-v2.mjs db hvc1.1.6.L93.B0
+
+  ${C.dim}# Record mutations${C.reset}
   node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --name "4K HDR10 HFR" \\
     --scenario --sname "4K HDR10 120fps" --width 3840 --height 2160 \\
     --fps 120 --bitrate 40000000 --depth 10 --transfer pq --gamut rec2020 --hdr hdr10
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --scenario \\
-    --sname "4K HLG 120fps" --width 3840 --height 2160 \\
-    --fps 120 --bitrate 40000000 --depth 10 --transfer hlg --gamut rec2020 --hdr hlg
   node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --set name="Updated Name"
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --rm-scenario "4K HLG 120fps"
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --drop --confirm
+
+  ${C.dim}# Education mutations${C.reset}
+  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 \\
+    --set education.overview="HEVC Main 10 at Level 5.1"
+  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 \\
+    --set education.containerNotes.mp4="ISOBMFF with hvcC box"
+  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 \\
+    --add-ref --title "ITU-T H.265" --url "https://www.itu.int/rec/T-REC-H.265"
+  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --add-hls \\
+    --signal "4K HDR10" --m3u8 "#EXT-X-STREAM-INF:...\\nvariant.m3u8" \\
+    --notes "Apple HLS requires hvc1 tag"
+  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --edu-from education.json
   node scripts/db-tool-v2.mjs verify
 `);
 }
