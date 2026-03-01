@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.0.0**: 64 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.0.0**: 72 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -79,14 +79,14 @@ Results include persistent state support and robustness strings. DRM detection r
 
 ## Codec Coverage
 
-**64 codec records** across 4 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
+**72 codec records** across 4 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
 
 ### Video (64 records — v2 database)
 
 | Codec | Records | Profiles/Variants | Containers |
 |-------|---------|-------------------|------------|
 | HEVC/H.265 | 12 | Main, Main 10, Main Still Picture, High Tier, Levels 3.1–6.1, SDR/HDR10/HLG | MP4, MKV, MOV |
-| Dolby Vision | 21 | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), supplemental dual-codec strings | MP4, MKV, MOV |
+| Dolby Vision | 29 | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), Levels 01–10, film framerates, supplemental dual-codec strings | MP4, MKV, MOV |
 | AV1 | 11 | Main (P0), High (P1), Professional (P2), Film Grain, High Tier, Levels 3.1–6.0, SDR/HDR10/HLG | MP4, MKV, WebM, MOV |
 | VP9 | 20 | Profiles 0–3, Levels 1.0–6.0, 8/10/12-bit, SDR/HDR10/HLG, full and limited range | MP4, MKV, WebM |
 
@@ -236,7 +236,7 @@ Every codec string in the v2 database is validated against [**codec-resolve**](h
 The migration workflow:
 
 1. **Decode** — `python -m codec_resolve --decode hvc1.2.4.L153.B0` parses the string, validates profile/level/constraint relationships, and flags semantic errors (wrong tier for level, incompatible chroma for profile, etc.)
-2. **Validate** — 143 automated tests across HEVC, AV1, VP9, VP8, and Dolby Vision confirm that every codec string follows its spec (ITU-T, ISO/IEC, IETF, VP9-ISOBMFF Binding)
+2. **Validate** — 145 automated tests across HEVC, AV1, VP9, VP8, and Dolby Vision confirm that every codec string follows its spec (ITU-T, ISO/IEC, IETF, VP9-ISOBMFF Binding)
 3. **Insert** — only strings that pass validation are added to the v2 database via `scripts/db-tool-v2.mjs`
 
 This prevents invalid or malformed codec strings from polluting the test matrix. When a browser reports "unsupported" for a CodecProbe test, it means the codec string is spec-correct and the browser genuinely lacks support — not that we sent a malformed string.
@@ -283,7 +283,7 @@ Every education entry in the codec database cites its sources. 38 specifications
 | **IETF** | RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC) |
 | **Industry** | AV1 Bitstream & Decoding Process, AV1 ISOBMFF Binding, VP9 Bitstream & Decoding Process, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF Implementation Guidelines |
 | **Vendor** | [Apple HLS Authoring Spec](https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices), [webOS TV AV Formats](https://webostv.developer.lge.com/develop/specifications/video-audio-250), [Android Supported Media Formats](https://developer.android.com/media/platform/supported-formats), [Android ExoPlayer DASH](https://developer.android.com/media/media3/exoplayer/dash), [Android ExoPlayer HLS](https://developer.android.com/media/media3/exoplayer/hls) |
-| **Companion** | [codec-resolve](https://github.com/nofear0411/codec-resolve) — codec string resolver and validator used to generate and validate the test matrix (143 tests across HEVC, DV, AV1, VP9, VP8) |
+| **Companion** | [codec-resolve](https://github.com/nofear0411/codec-resolve) — codec string resolver and validator used to generate and validate the test matrix (145 tests across HEVC, DV, AV1, VP9, VP8) |
 
 ## Contributing
 

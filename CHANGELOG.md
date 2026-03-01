@@ -2,6 +2,29 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.3.0] - 2026-03-01
+
+### Fixed
+
+- **9 DV level/scenario mismatches**: Records where the DV level's max capability didn't match the test scenario (e.g. `dvh1.08.02` Level 02 = max 720p@30fps was testing 4K@24fps). All 29 DV records now have scenarios that match their level specification per ETSI TS 103 572.
+
+### Added
+
+- **8 new DV records**: Level expansion across Profiles 5, 8, and 10 — Level 03 (1080p@24fps), Level 07 (4K@30fps), Level 10 (4K@120fps), plus Level 06 and 09 for Profile 10 AV1.
+- **12 NTSC film framerate scenarios**: 23.976fps (L03/L06), 29.97fps (L07), 59.94fps (L09) added to 12 records. Tests real-world telecine rates used in streaming.
+- **Education content**: All 8 new records have full education metadata — breakdown tokens, overviews, HLS/DASH manifest examples, container notes, and ETSI TS 103 572 references.
+- **db-tool-v2 education mutations**: `--set education.*` with dot-path field navigation for nested updates, `--add-ref`/`--rm-ref` for reference arrays, `--add-hls`/`--add-dash`/`--rm-streaming` for streaming manifest entries, `--import-education` for bulk JSON import. Includes `findNestedField()` and `insertIntoObject()` utilities for source-text surgery on nested education structures.
+- **Enhanced CLI output**: `list` shows per-record OSCR education indicators (Overview, Streaming, Container notes, References), `stats` shows Recs/Edu/Strm/Cntr/Refs columns with percentage bars, `verify` detects education gaps and warnings separately, `db <codec>` displays full education content including streaming entries and container notes.
+
+### Changed
+
+- **72 codec records**: Was 64. 29 DV records (was 21). Levels covered: L01, L02, L03, L06, L07, L09, L10 (was L01, L02, L06, L07, L09).
+- **41 DV scenarios**: Was 21. Includes film framerates and level-matched test parameters.
+- **CONTRIBUTING.md**: Rewritten for v2 database workflow — CLI reference table, education schema reference, codec-resolve validation prerequisite, migration status.
+- **README.md**: CLI reference moved to CONTRIBUTING.md to eliminate duplication. Migration status and codec counts updated.
+
+---
+
 ## [4.2.0] - 2026-02-28
 
 ### Added
