@@ -3619,7 +3619,20 @@ vp9_p0_8k.m3u8`,
                     transferFunction: 'pq',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hdr10'
-                }],
+                },
+                    {
+                        name: '4K HDR10 23.976fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 25_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band), like hvc1.' },
@@ -3812,7 +3825,20 @@ dv_p7_mel.m3u8`,
                     transferFunction: 'pq',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hdr10'
-                }],
+                },
+                    {
+                        name: '4K HDR10 23.976fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 25_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
@@ -3860,38 +3886,51 @@ dv_p81_hdr10.m3u8`,
 
             {
                 codec: 'dvhe.08.09',
-                name: '4K DV Profile 8.4 24fps (HLG base, dvhe)',
+                name: '4K DV Profile 8.4 60fps (HLG base, dvhe)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HLG 24fps 10-bit',
+                    name: '4K HLG 60fps 10-bit',
                     width: 3840,
                     height: 2160,
-                    framerate: 24,
-                    bitrate: 25_000_000,
+                    framerate: 60,
+                    bitrate: 40_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'hlg',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hlg'
-                }],
+                },
+                    {
+                        name: '4K HLG 59.94fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 40_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'hlg',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hlg',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'dvhe', meaning: 'Dolby Vision HEVC with in-band parameter sets.' },
                         { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.4 uses HLG base.' },
                         { token: '09', meaning: 'Level 09. Max 3840x2160@60fps per ETSI TS 103 572.' }
                     ],
-                    overview: 'DV Profile 8.4 — backward-compatible with HLG. Non-DV decoders play the HLG base layer. Used for broadcast-origin content where HLG backward compatibility is needed alongside DV enhancement.',
+                    overview: 'DV Profile 8.4 at Level 09 (4K@60fps) — backward-compatible with HLG. Non-DV decoders play the HLG base layer. Used for broadcast-origin content where HLG backward compatibility and high frame rate are needed alongside DV enhancement.',
                     streaming: {
                         hls: [
                             {
                                 signal: 'DV Profile 8.4 HLG (dvhe)',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvhe.08.09,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="dvhe.08.09,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=60,VIDEO-RANGE=PQ
 dv_p84_hlg_dvhe.m3u8`,
-                                notes: 'Apple HLS prefers dvh1 — use dvh1.08.09 for Apple manifests. VIDEO-RANGE=PQ for DV (not HLG, even though the base layer is HLG). Provide an HLG fallback variant with VIDEO-RANGE=HLG.'
+                                notes: 'Level 09 enables 4K@60fps. Apple HLS prefers dvh1 — use dvh1.08.09 for Apple manifests. VIDEO-RANGE=PQ for DV (not HLG, even though the base layer is HLG).'
                             }
                         ],
                         dash: [
@@ -3901,9 +3940,9 @@ dv_p84_hlg_dvhe.m3u8`,
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="60"/>
 </AdaptationSet>`,
-                                notes: 'CICP TC=18 (HLG) for the base layer transfer function. DV RPU provides dynamic tone mapping on top of the HLG base.'
+                                notes: 'Level 09 (4K@60fps). CICP TC=18 (HLG) for the base layer transfer function. DV RPU provides dynamic tone mapping on top of the HLG base.'
                             }
                         ]
                     },
@@ -3925,24 +3964,37 @@ dv_p84_hlg_dvhe.m3u8`,
 
             {
                 codec: 'hvc1.2.4.L153.B0, dvh1.05.07',
-                name: '4K DV Profile 5 + HEVC 24fps (supplemental)',
+                name: '4K DV Profile 5 + HEVC 30fps (supplemental)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HDR10 24fps 10-bit',
+                    name: '4K HDR10 30fps 10-bit',
                     width: 3840,
                     height: 2160,
-                    framerate: 24,
-                    bitrate: 25_000_000,
+                    framerate: 30,
+                    bitrate: 30_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'pq',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hdr10'
-                }],
+                },
+                    {
+                        name: '4K HDR10 29.97fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 30_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'hvc1', meaning: 'HEVC base layer with out-of-band parameter sets.' },
@@ -3952,14 +4004,14 @@ dv_p84_hlg_dvhe.m3u8`,
                         { token: 'B0', meaning: 'No additional constraint flags.' },
                         { token: 'dvh1', meaning: 'Dolby Vision HEVC enhancement layer (out-of-band).' },
                         { token: '05', meaning: 'DV Profile 5. Single-layer, 10-bit 4:2:0, IPT-PQ.' },
-                        { token: '07', meaning: 'DV Level 07. Max 3840x2160@30fps.' }
+                        { token: '07', meaning: 'DV Level 07. Max 3840x2160@30fps per ETSI TS 103 572.' }
                     ],
-                    overview: 'Supplemental DV codec string — declares both HEVC base (hvc1) and DV enhancement (dvh1) in one codecs= parameter. Allows the player to check support for both layers simultaneously. The comma-separated format is used in HLS/DASH manifests.',
+                    overview: 'Supplemental DV codec string — declares both HEVC base (hvc1) and DV enhancement (dvh1) in one codecs= parameter. Level 07 targets 4K@30fps streaming. The comma-separated format lets the player check support for both layers simultaneously.',
                     streaming: {
                         hls: [
                             {
                                 signal: 'DV P5 + HEVC Supplemental',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,dvh1.05.07,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=30000000,CODECS="hvc1.2.4.L153.B0,dvh1.05.07,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=30,VIDEO-RANGE=PQ
 dv_p5_hevc_supplemental.m3u8`,
                                 notes: 'Comma-separated codecs in CODECS attribute — the player must support both HEVC Main 10 and DV P5 simultaneously. Apple uses this format to verify dual-layer capability in a single EXT-X-STREAM-INF.'
                             }
@@ -3969,9 +4021,9 @@ dv_p5_hevc_supplemental.m3u8`,
                                 signal: 'DV P5 + HEVC Supplemental',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0,dvh1.05.07">
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
-  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="30000000" width="3840" height="2160" frameRate="30"/>
 </AdaptationSet>`,
-                                notes: 'Dual codec string in DASH codecs attribute. The player must parse both codec identifiers to determine support.'
+                                notes: 'Dual codec string in DASH codecs attribute. Level 07 targets 4K@30fps. The player must parse both codec identifiers to determine support.'
                             }
                         ]
                     },
@@ -3994,18 +4046,18 @@ dv_p5_hevc_supplemental.m3u8`,
 
             {
                 codec: 'dva1.10.01',
-                name: '4K DV Profile 10 24fps (AV1 base)',
+                name: '720p DV Profile 10 24fps (AV1 base)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HDR10 24fps 10-bit',
-                    width: 3840,
-                    height: 2160,
+                    name: '720p HDR10 24fps 10-bit',
+                    width: 1280,
+                    height: 720,
                     framerate: 24,
-                    bitrate: 15_000_000,
+                    bitrate: 5_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'pq',
@@ -4018,14 +4070,14 @@ dv_p5_hevc_supplemental.m3u8`,
                         { token: '10', meaning: 'Profile 10. Single-layer AV1 with DV RPU metadata in OBU. 10-bit 4:2:0.' },
                         { token: '01', meaning: 'DV Level 01. Max 1280x720@24fps per ETSI TS 103 572.' }
                     ],
-                    overview: 'DV Profile 10 with AV1 base — the next generation of DV delivery. AV1 offers ~30% better compression than HEVC. The dva1 tag is used in manifests. Profile 10 support is emerging on recent devices.',
+                    overview: 'DV Profile 10 at Level 01 (720p@24fps) with AV1 base — the next generation of DV delivery. AV1 offers ~30% better compression than HEVC. Level 01 tests baseline decoder capability. Profile 10 support is emerging on recent devices.',
                     streaming: {
                         hls: [
                             {
                                 signal: 'DV Profile 10 AV1',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="dva1.10.01,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="dva1.10.01,mp4a.40.2",RESOLUTION=1280x720,VIDEO-RANGE=PQ
 dv_p10_av1.m3u8`,
-                                notes: 'DV Profile 10 (AV1 base) in HLS. Requires both AV1 decode and DV RPU processing. fMP4 segments only. Support is emerging — few devices handle AV1+DV as of 2025.'
+                                notes: 'DV Profile 10 Level 01 (720p@24fps) in HLS. Requires both AV1 decode and DV RPU processing. fMP4 segments only. Support is emerging — few devices handle AV1+DV as of 2025.'
                             }
                         ],
                         dash: [
@@ -4035,9 +4087,9 @@ dv_p10_av1.m3u8`,
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="5000000" width="1280" height="720" frameRate="24"/>
 </AdaptationSet>`,
-                                notes: 'Dolby DASH URN + CICP TC=16 (PQ). DV Profile 10 AV1 in DASH — next-generation delivery format combining AV1 compression with DV dynamic metadata.'
+                                notes: 'DV Profile 10 Level 01 (720p@24fps). AV1 + DV in DASH — next-generation delivery at baseline capability level.'
                             }
                         ]
                     },
@@ -4122,18 +4174,18 @@ dv_p4_dual.m3u8`,
 
             {
                 codec: 'dvh1.08.02',
-                name: '4K DV Profile 8.2 24fps (SDR base)',
+                name: '720p DV Profile 8.2 30fps (SDR base)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K SDR 24fps 10-bit',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 24,
-                    bitrate: 20_000_000,
+                    name: '720p SDR 30fps 10-bit',
+                    width: 1280,
+                    height: 720,
+                    framerate: 30,
+                    bitrate: 5_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                 }],
@@ -4143,14 +4195,14 @@ dv_p4_dual.m3u8`,
                         { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.2 uses SDR base.' },
                         { token: '02', meaning: 'DV Level 02. Max 1280x720@30fps per ETSI TS 103 572.' }
                     ],
-                    overview: 'DV Profile 8.2 — backward-compatible with SDR. Non-DV decoders play the SDR base layer. DV-capable decoders apply the RPU to reconstruct HDR. Used where SDR fallback is required.',
+                    overview: 'DV Profile 8.2 at Level 02 (720p@30fps) — backward-compatible with SDR. Non-DV decoders play the SDR base layer. DV-capable decoders apply the RPU to reconstruct HDR. Used for low-bandwidth DV delivery where SDR fallback is required.',
                     streaming: {
                         hls: [
                             {
                                 signal: 'DV Profile 8.2 SDR Base',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="dvh1.08.02,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="dvh1.08.02,mp4a.40.2",RESOLUTION=1280x720,FRAME-RATE=30,VIDEO-RANGE=PQ
 dv_p82_sdr.m3u8`,
-                                notes: 'Apple requires dvh1 for DV HLS. VIDEO-RANGE=PQ for DV (even though the base layer is SDR). The SDR base plays on non-DV devices. DV devices apply RPU for HDR reconstruction.'
+                                notes: 'Level 02 caps at 720p@30fps. VIDEO-RANGE=PQ for DV (even though the base layer is SDR). The SDR base plays on non-DV devices. DV devices apply RPU for HDR reconstruction.'
                             }
                         ],
                         dash: [
@@ -4158,9 +4210,9 @@ dv_p82_sdr.m3u8`,
                                 signal: 'DV Profile 8.2 SDR Base',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.02">
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="5000000" width="1280" height="720" frameRate="30"/>
 </AdaptationSet>`,
-                                notes: 'Dolby DASH URN for DV processing. Profile 8.2 SDR-base — the DASH player falls back to SDR on non-DV devices.'
+                                notes: 'Level 02 (720p@30fps). Profile 8.2 SDR-base — the DASH player falls back to SDR on non-DV devices.'
                             }
                         ]
                     },
@@ -4182,46 +4234,59 @@ dv_p82_sdr.m3u8`,
 
             {
                 codec: 'dvh1.08.09',
-                name: '4K DV Profile 8.4 24fps (HLG base, dvh1)',
+                name: '4K DV Profile 8.4 60fps (HLG base, dvh1)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HLG 24fps 10-bit',
+                    name: '4K HLG 60fps 10-bit',
                     width: 3840,
                     height: 2160,
-                    framerate: 24,
-                    bitrate: 25_000_000,
+                    framerate: 60,
+                    bitrate: 40_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'hlg',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hlg'
-                }],
+                },
+                    {
+                        name: '4K HLG 59.94fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 40_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'hlg',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hlg',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
                         { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.4 uses HLG base.' },
                         { token: '09', meaning: 'DV Level 09. Max 3840x2160@60fps per ETSI TS 103 572.' }
                     ],
-                    overview: 'DV Profile 8.4 with dvh1 tag — backward-compatible with HLG. Same as dvhe.08.09 but with out-of-band parameter sets. Tests whether the browser distinguishes dvh1 from dvhe for Profile 8.4.',
+                    overview: 'DV Profile 8.4 at Level 09 (4K@60fps) with dvh1 tag — backward-compatible with HLG. Same as dvhe.08.09 but with out-of-band parameter sets. Tests whether the browser distinguishes dvh1 from dvhe for Profile 8.4 at high frame rate.',
                     streaming: {
                         hls: [{
                             signal: '4K DV Profile 8.4 HLG — dvh1 tag',
-                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvh1.08.09,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="dvh1.08.09,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=60,VIDEO-RANGE=PQ
 dv_p84_hlg_dvh1.m3u8`,
-                            notes: 'Apple HLS mandates dvh1 (not dvhe). VIDEO-RANGE=PQ even though the base layer is HLG — DV always signals PQ because internal processing uses IPT-PQ. Non-DV clients fall back to HLG base layer.'
+                            notes: 'Level 09 enables 4K@60fps. Apple HLS mandates dvh1 (not dvhe). VIDEO-RANGE=PQ even though the base layer is HLG — DV always signals PQ. Non-DV clients fall back to HLG base layer.'
                         }],
                         dash: [{
                             signal: '4K DV Profile 8.4 HLG DASH',
                             mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.09">
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvh1.08.09"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
-  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="60"/>
 </AdaptationSet>`,
-                            notes: 'CICP TC=18 (HLG) describes the base layer transfer function. The Dolby URN identifies DV metadata presence. Non-DV DASH clients decode the HLG base layer.'
+                            notes: 'Level 09 (4K@60fps). CICP TC=18 (HLG) describes the base layer transfer function. Non-DV DASH clients decode the HLG base layer.'
                         }]
                     },
                     containerNotes: {
@@ -4486,18 +4551,18 @@ dv_p81_hev1_supplemental.m3u8`,
 
             {
                 codec: 'dav1.10.01',
-                name: '4K DV Profile 10 24fps (AV1 base, dav1)',
+                name: '720p DV Profile 10 24fps (AV1 base, dav1)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HDR10 24fps 10-bit',
-                    width: 3840,
-                    height: 2160,
+                    name: '720p HDR10 24fps 10-bit',
+                    width: 1280,
+                    height: 720,
                     framerate: 24,
-                    bitrate: 15_000_000,
+                    bitrate: 5_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'pq',
@@ -4510,13 +4575,13 @@ dv_p81_hev1_supplemental.m3u8`,
                         { token: '10', meaning: 'Profile 10. Single-layer AV1 with DV RPU metadata in OBU. 10-bit 4:2:0.' },
                         { token: '01', meaning: 'DV Level 01. Max 1280x720@24fps per ETSI TS 103 572.' }
                     ],
-                    overview: 'DV Profile 10 with the dav1 tag — alternative FourCC to dva1. Both tags signal the same AV1-based DV Profile 10 content. Tests whether the browser recognizes dav1 in addition to dva1.',
+                    overview: 'DV Profile 10 Level 01 (720p@24fps) with the dav1 tag — alternative FourCC to dva1. Both tags signal the same AV1-based DV Profile 10 content. Tests whether the browser recognizes dav1 in addition to dva1.',
                     streaming: {
                         hls: [{
                             signal: '4K DV Profile 10 AV1 — dav1 tag',
-                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="dav1.10.01,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="dav1.10.01,mp4a.40.2",RESOLUTION=1280x720,VIDEO-RANGE=PQ
 dv_p10_av1_dav1.m3u8`,
-                            notes: 'Alternative dav1 tag for AV1-based DV. Apple has not yet defined HLS requirements for DV+AV1 — this tests whether the browser API recognizes dav1 alongside dva1.'
+                            notes: 'Level 01 (720p@24fps) with dav1 tag. Apple has not yet defined HLS requirements for DV+AV1 — this tests whether the browser API recognizes dav1 alongside dva1.'
                         }],
                         dash: [{
                             signal: '4K DV Profile 10 AV1 DASH — dav1 tag',
@@ -4524,9 +4589,9 @@ dv_p10_av1_dav1.m3u8`,
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dav1.10.01"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="5000000" width="1280" height="720" frameRate="24"/>
 </AdaptationSet>`,
-                            notes: 'dav1 in DASH — same Dolby URN as dva1. Tests whether DASH clients differentiate between the two AV1 DV FourCC variants.'
+                            notes: 'Level 01 (720p@24fps) with dav1 in DASH. Tests whether DASH clients differentiate between the two AV1 DV FourCC variants.'
                         }]
                     },
                     containerNotes: {
@@ -4561,7 +4626,20 @@ dv_p10_av1_dav1.m3u8`,
                     transferFunction: 'pq',
                     colorGamut: 'rec2020',
                     hdrFormat: 'hdr10'
-                }],
+                },
+                    {
+                        name: '4K HDR10 59.94fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 40_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
@@ -4658,18 +4736,18 @@ dv_p7_mel_dvh1.m3u8`,
 
             {
                 codec: 'hvc1.2.4.L153.B0, dvhe.08.09',
-                name: '4K DV P8.4 + HEVC 24fps (HLG supplemental)',
+                name: '4K DV P8.4 + HEVC 60fps (HLG supplemental)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HLG 24fps 10-bit',
+                    name: '4K HLG 60fps 10-bit',
                     width: 3840,
                     height: 2160,
-                    framerate: 24,
-                    bitrate: 25_000_000,
+                    framerate: 60,
+                    bitrate: 40_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'hlg',
@@ -4687,22 +4765,22 @@ dv_p7_mel_dvh1.m3u8`,
                         { token: '08', meaning: 'DV Profile 8. Sub-profile 8.4 = HLG base layer.' },
                         { token: '09', meaning: 'DV Level 09. Max 3840x2160@60fps.' }
                     ],
-                    overview: 'Supplemental codec string for DV Profile 8.4 HLG with HEVC base. Declares both HEVC Main 10 and DV P8.4 HLG in one codecs= parameter. Non-DV decoders play the HLG base layer.',
+                    overview: 'Supplemental codec string for DV Profile 8.4 HLG at Level 09 (4K@60fps) with HEVC base. Declares both HEVC Main 10 and DV P8.4 HLG in one codecs= parameter. Non-DV decoders play the HLG base layer.',
                     streaming: {
                         hls: [{
                             signal: '4K DV P8.4 HLG + HEVC supplemental',
-                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="hvc1.2.4.L153.B0,dvhe.08.09,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="hvc1.2.4.L153.B0,dvhe.08.09,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=60,VIDEO-RANGE=PQ
 dv_p84_hlg_supplemental.m3u8`,
-                            notes: 'Supplemental string with HLG base. VIDEO-RANGE=PQ despite HLG base — DV internal processing is IPT-PQ. Non-DV clients fall back to HEVC HLG.'
+                            notes: 'Level 09 (4K@60fps) supplemental with HLG base. VIDEO-RANGE=PQ despite HLG base — DV internal processing is IPT-PQ. Non-DV clients fall back to HEVC HLG.'
                         }],
                         dash: [{
                             signal: '4K DV P8.4 HLG + HEVC supplemental DASH',
                             mpd: `<AdaptationSet mimeType="video/mp4" codecs="hvc1.2.4.L153.B0,dvhe.08.09">
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvhe.08.09"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
-  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="60"/>
 </AdaptationSet>`,
-                            notes: 'CICP TC=18 (HLG) for the base layer. The Dolby URN signals DV P8.4 enhancement. Non-DV DASH clients decode HEVC HLG.'
+                            notes: 'Level 09 (4K@60fps). CICP TC=18 (HLG) for the base layer. The Dolby URN signals DV P8.4 enhancement. Non-DV DASH clients decode HEVC HLG.'
                         }]
                     },
                     containerNotes: {
@@ -4722,18 +4800,18 @@ dv_p84_hlg_supplemental.m3u8`,
 
             {
                 codec: 'av01.0.08M.10, dav1.10.01',
-                name: '4K DV P10 + AV1 24fps (supplemental)',
+                name: '720p DV P10 + AV1 24fps (supplemental)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HDR10 24fps 10-bit',
-                    width: 3840,
-                    height: 2160,
+                    name: '720p HDR10 24fps 10-bit',
+                    width: 1280,
+                    height: 720,
                     framerate: 24,
-                    bitrate: 20_000_000,
+                    bitrate: 5_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'pq',
@@ -4750,13 +4828,13 @@ dv_p84_hlg_supplemental.m3u8`,
                         { token: '10', meaning: 'DV Profile 10. Single-layer AV1 with DV RPU in OBU.' },
                         { token: '01', meaning: 'DV Level 01. Max 1280x720@24fps.' }
                     ],
-                    overview: 'Supplemental codec string for DV Profile 10 with AV1 base. Declares both AV1 Main and DV P10 in one codecs= parameter. Tests browser support for the AV1 + DV combination.',
+                    overview: 'Supplemental codec string for DV Profile 10 Level 01 (720p@24fps) with AV1 base. Declares both AV1 Main and DV P10 in one codecs= parameter. Tests browser support for the AV1 + DV combination at baseline capability.',
                     streaming: {
                         hls: [{
                             signal: '4K DV P10 + AV1 supplemental',
-                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.0.08M.10,dav1.10.01,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="av01.0.08M.10,dav1.10.01,mp4a.40.2",RESOLUTION=1280x720,VIDEO-RANGE=PQ
 dv_p10_av1_supplemental.m3u8`,
-                            notes: 'Supplemental string declares both AV1 base and DV P10 enhancement. No established Apple HLS support for AV1+DV combination yet — tests forward-looking API recognition.'
+                            notes: 'Level 01 (720p@24fps) supplemental string declares both AV1 base and DV P10 enhancement. Tests forward-looking API recognition of AV1+DV at baseline capability.'
                         }],
                         dash: [{
                             signal: '4K DV P10 + AV1 supplemental DASH',
@@ -4764,9 +4842,9 @@ dv_p10_av1_supplemental.m3u8`,
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dav1.10.01"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="5000000" width="1280" height="720" frameRate="24"/>
 </AdaptationSet>`,
-                            notes: 'AV1 + DV supplemental in DASH. The Dolby URN identifies DV P10 metadata. Non-DV clients decode the AV1 HDR10 base layer.'
+                            notes: 'Level 01 (720p@24fps) AV1 + DV supplemental in DASH. Non-DV clients decode the AV1 HDR10 base layer.'
                         }]
                     },
                     containerNotes: {
@@ -4841,18 +4919,18 @@ dv_p5_dvc1_legacy.m3u8`,
 
             {
                 codec: 'dvhp.05.06',
-                name: '4K DV Profile 5 30fps (OMAF/VR)',
+                name: '4K DV Profile 5 24fps (OMAF/VR)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
                 scenarios: [{
-                    name: '4K HDR10 30fps 10-bit',
+                    name: '4K HDR10 24fps 10-bit',
                     width: 3840,
                     height: 2160,
-                    framerate: 30,
-                    bitrate: 40_000_000,
+                    framerate: 24,
+                    bitrate: 25_000_000,
                     bitDepth: 10,
                     chromaSubsampling: '4:2:0',
                     transferFunction: 'pq',
@@ -4869,7 +4947,7 @@ dv_p5_dvc1_legacy.m3u8`,
                     streaming: {
                         hls: [{
                             signal: '4K DV Profile 5 OMAF/VR',
-                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="dvhp.05.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                            m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvhp.05.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
 dv_p5_omaf_vr.m3u8`,
                             notes: 'OMAF/VR DV — dvhp tag for omnidirectional media. No browser HLS implementation supports dvhp. VR headsets use proprietary players, not browser-based HLS.'
                         }],
@@ -4877,7 +4955,7 @@ dv_p5_omaf_vr.m3u8`,
                             signal: '4K DV Profile 5 OMAF/VR DASH',
                             mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvhp.05.06">
   <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014" value="dvhp.05.06"/>
-  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="30"/>
+  <Representation bandwidth="25000000" width="3840" height="2160" frameRate="24"/>
 </AdaptationSet>`,
                             notes: 'OMAF DV in DASH uses the same Dolby URN. DASH-IF has OMAF extensions but browser-based DASH players do not implement them.'
                         }]
@@ -4885,15 +4963,580 @@ dv_p5_omaf_vr.m3u8`,
                     containerNotes: {
                         mp4: 'OMAF ISOBMFF extends standard MP4 with spatial metadata boxes (ProjectionHeader, CoverageInformation). dvhp sample entry signals DV + OMAF packaging.',
                         mkv: 'MKV has Matroska projection elements for 360 video but no standardized DV OMAF integration.',
-                        fmp4: 'OMAF fMP4 segments include spatial metadata alongside DV RPU. Higher bitrate (40 Mbps) accounts for 360-degree coverage area.'
+                        fmp4: 'OMAF fMP4 segments include spatial metadata alongside DV RPU. 360-degree coverage requires higher spatial resolution for equivalent perceived quality.'
                     },
                     references: [
                         { title: 'ETSI TS 103 572 (Dolby Vision)' },
                         { title: 'ISO/IEC 23090-2 (OMAF)' }
                     ]
                 }
-            }
+            },
+            // ── dvh1.05.03 ──
 
+            {
+                codec: 'dvh1.05.03',
+                name: '1080p DV Profile 5 24fps',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p HDR10 24fps 10-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 24,
+                    bitrate: 25_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '1080p HDR10 23.976fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
+                        bitrate: 25_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band), like hvc1.' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0. IPT-PQ color space internally. No backward-compatible base layer.' },
+                        { token: '03', meaning: 'Level 03. Max 1920x1080@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 5 at Level 03 (1080p@24fps) — single-layer HEVC without backward compatibility. Tests DV support at HD resolution, where more devices qualify than at 4K levels.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 5 1080p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,CODECS="dvh1.05.03,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
+dv_p5_1080p.m3u8`,
+                                notes: 'Apple requires dvh1 tag for DV HLS. VIDEO-RANGE=PQ always for Dolby Vision. Level 03 targets 1080p cinema content.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 5 1080p',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.05.03">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="25000000" width="1920" height="1080" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Dolby DASH URN signals DV processing. CICP TC=16 (PQ) + CP=9 (BT.2020). Level 03 caps at 1080p@24fps.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. Profile 5 single-layer — one HEVC track with RPU embedded.',
+                        mkv: 'DV MKV support via MKVToolNix 67.0+. RPU stored as block additions.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. DOVIDecoderConfigurationRecord in init segment.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            },
+            // ── dvh1.05.07 ──
+
+            {
+                codec: 'dvh1.05.07',
+                name: '4K DV Profile 5 30fps',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 30fps 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 30_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '4K HDR10 29.97fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 30_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band), like hvc1.' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0. IPT-PQ color space internally. No backward-compatible base layer.' },
+                        { token: '07', meaning: 'Level 07. Max 3840x2160@30fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 5 at Level 07 (4K@30fps) — single-layer HEVC. Level 07 targets 4K streaming at 30fps, common for non-sports content on platforms that deliver above cinema framerate.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 5 4K 30fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=30000000,CODECS="dvh1.05.07,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=30,VIDEO-RANGE=PQ
+dv_p5_4k_30fps.m3u8`,
+                                notes: 'Level 07 enables 4K@30fps. FRAME-RATE=30 required in the EXT-X-STREAM-INF. No backward-compatible fallback — non-DV devices cannot play this variant.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 5 4K 30fps',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.05.07">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="30000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Level 07 (4K@30fps). Dolby DASH URN + CICP TC=16 (PQ) + CP=9 (BT.2020).'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. Profile 5 single-layer — one HEVC track with RPU embedded.',
+                        mkv: 'DV MKV support via MKVToolNix 67.0+. RPU stored as block additions.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. DOVIDecoderConfigurationRecord in init segment.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            },
+            // ── dvh1.05.10 ──
+
+            {
+                codec: 'dvh1.05.10',
+                name: '4K DV Profile 5 120fps',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 120fps 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 120,
+                    bitrate: 80_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band), like hvc1.' },
+                        { token: '05', meaning: 'Profile 5. Single-layer HEVC, 10-bit 4:2:0. IPT-PQ color space internally. No backward-compatible base layer.' },
+                        { token: '10', meaning: 'Level 10. Max 3840x2160@120fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 5 at Level 10 (4K@120fps) — the highest DV level. Targets gaming and cutting-edge HFR content. Very few devices support 120fps DV decode.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 5 4K 120fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=80000000,CODECS="dvh1.05.10,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=120,VIDEO-RANGE=PQ
+dv_p5_4k_120fps.m3u8`,
+                                notes: 'Level 10 enables 4K@120fps — highest DV capability tier. 80 Mbps bandwidth. FRAME-RATE=120 required. Targets gaming consoles and high-end displays.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 5 4K 120fps',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.05.10">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="80000000" width="3840" height="2160" frameRate="120"/>
+</AdaptationSet>`,
+                                notes: 'Level 10 (4K@120fps). 80 Mbps requires robust network — primarily for wired or WiFi 6E connections.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. 120fps at 80 Mbps produces ~10 MB/s — fast storage required.',
+                        mkv: 'DV MKV at 120fps. TimestampScale must accommodate 120fps intervals.',
+                        fmp4: '120fps fMP4 segments at 80 Mbps. Short segment durations recommended to manage buffer sizes.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            },
+            // ── dvh1.08.03 ──
+
+            {
+                codec: 'dvh1.08.03',
+                name: '1080p DV Profile 8.1 24fps (HDR10 base)',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p HDR10 24fps 10-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 24,
+                    bitrate: 15_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '1080p HDR10 23.976fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
+                        bitrate: 15_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.1 uses HDR10 base.' },
+                        { token: '03', meaning: 'Level 03. Max 1920x1080@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.1 at Level 03 (1080p@24fps) — backward-compatible with HDR10. Non-DV decoders play the HDR10 base layer. Tests DV Profile 8 support at HD resolution.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 8.1 1080p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="dvh1.08.03,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
+dv_p81_1080p.m3u8`,
+                                notes: 'Apple requires dvh1 for DV HLS. VIDEO-RANGE=PQ for DV. Level 03 targets 1080p cinema content. Always provide an HDR10 fallback variant.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 8.1 1080p',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.03">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="15000000" width="1920" height="1080" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Level 03 (1080p@24fps). Dolby DASH URN + CICP TC=16 (PQ). Profile 8.1 HDR10 base provides backward compatibility.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. Profile 8 stores RPU alongside the HEVC base layer.',
+                        mkv: 'DV MKV via MKVToolNix 67.0+. RPU as block additions. Shield TV, webOS 25+, and Kodi support Profile 8 DV MKV.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. DOVIDecoderConfigurationRecord in init segment.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            },
+            // ── dvh1.08.07 ──
+
+            {
+                codec: 'dvh1.08.07',
+                name: '4K DV Profile 8.1 30fps (HDR10 base)',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 30fps 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 30_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '4K HDR10 29.97fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 30_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.1 uses HDR10 base.' },
+                        { token: '07', meaning: 'Level 07. Max 3840x2160@30fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.1 at Level 07 (4K@30fps) — backward-compatible with HDR10. Level 07 targets 4K streaming at 30fps. Non-DV decoders fall back to the HDR10 base layer.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 8.1 4K 30fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=30000000,CODECS="dvh1.08.07,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=30,VIDEO-RANGE=PQ
+dv_p81_4k_30fps.m3u8`,
+                                notes: 'Level 07 enables 4K@30fps. Apple requires dvh1 for DV HLS. Provide an HDR10 fallback variant for non-DV devices.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 8.1 4K 30fps',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.07">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="30000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Level 07 (4K@30fps). Profile 8.1 HDR10-backward-compatible — the standard DV delivery format for streaming.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord in dvcC box. Profile 8 HDR10 base layer with static metadata (MDCV/CLLI) for non-DV fallback.',
+                        mkv: 'DV MKV via MKVToolNix 67.0+. RPU as block additions.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. DOVIDecoderConfigurationRecord in init segment.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            },
+            // ── dvh1.08.10 ──
+
+            {
+                codec: 'dvh1.08.10',
+                name: '4K DV Profile 8.1 120fps (HDR10 base)',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 120fps 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 120,
+                    bitrate: 80_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                }],
+                education: {
+                    breakdown: [
+                        { token: 'dvh1', meaning: 'Dolby Vision HEVC with parameter sets in the sample entry (out-of-band).' },
+                        { token: '08', meaning: 'Profile 8. Single-layer HEVC with backward-compatible base layer + RPU. Sub-profile 8.1 uses HDR10 base.' },
+                        { token: '10', meaning: 'Level 10. Max 3840x2160@120fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 8.1 at Level 10 (4K@120fps) — the highest DV level with HDR10 backward compatibility. Targets gaming and HFR content. Non-DV decoders fall back to HDR10.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 8.1 4K 120fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=80000000,CODECS="dvh1.08.10,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=120,VIDEO-RANGE=PQ
+dv_p81_4k_120fps.m3u8`,
+                                notes: 'Level 10 enables 4K@120fps. 80 Mbps bandwidth. Profile 8.1 provides HDR10 fallback for non-DV devices — unlike Profile 5, backward compatibility is preserved even at 120fps.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 8.1 4K 120fps',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dvh1.08.10">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="80000000" width="3840" height="2160" frameRate="120"/>
+</AdaptationSet>`,
+                                notes: 'Level 10 (4K@120fps). 80 Mbps requires robust network. Profile 8.1 backward compatibility means non-DV DASH clients still get HDR10.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. 120fps at 80 Mbps — fast storage required.',
+                        mkv: 'DV MKV at 120fps. TimestampScale must accommodate 120fps intervals.',
+                        fmp4: '120fps fMP4 segments at 80 Mbps. Short segment durations recommended to manage buffer sizes.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            },
+            // ── dva1.10.06 ──
+
+            {
+                codec: 'dva1.10.06',
+                name: '4K DV Profile 10 24fps (AV1 base)',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 24fps 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 24,
+                    bitrate: 15_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '4K HDR10 23.976fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 15_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'dva1', meaning: 'Dolby Vision AV1-based. The dva1 tag indicates DV with AV1 as the base codec.' },
+                        { token: '10', meaning: 'Profile 10. Single-layer AV1 with DV RPU metadata in OBU. 10-bit 4:2:0.' },
+                        { token: '06', meaning: 'Level 06. Max 3840x2160@24fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 10 at Level 06 (4K@24fps) with AV1 base — the primary 4K cinema variant for next-gen DV delivery. AV1 offers ~30% better compression than HEVC. Profile 10 support is emerging.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 10 AV1 4K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="dva1.10.06,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+dv_p10_av1_4k.m3u8`,
+                                notes: 'DV Profile 10 Level 06 (4K@24fps) in HLS. Requires both AV1 decode and DV RPU processing. fMP4 segments only.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 10 AV1 4K',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dva1.10.06">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+</AdaptationSet>`,
+                                notes: 'Level 06 (4K@24fps). AV1 + DV in DASH — next-generation delivery combining AV1 compression with DV dynamic metadata.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. DV RPU embedded in AV1 OBU (Open Bitstream Units) format.',
+                        mkv: 'Matroska with AV1 CodecID V_AV1 + DV RPU block additions. Emerging format.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. AV1+DV init segment configuration.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            },
+            // ── dva1.10.09 ──
+
+            {
+                codec: 'dva1.10.09',
+                name: '4K DV Profile 10 60fps (AV1 base)',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K HDR10 60fps 10-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 60,
+                    bitrate: 30_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:0',
+                    transferFunction: 'pq',
+                    colorGamut: 'rec2020',
+                    hdrFormat: 'hdr10',
+                },
+                    {
+                        name: '4K HDR10 59.94fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 30_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'dva1', meaning: 'Dolby Vision AV1-based. The dva1 tag indicates DV with AV1 as the base codec.' },
+                        { token: '10', meaning: 'Profile 10. Single-layer AV1 with DV RPU metadata in OBU. 10-bit 4:2:0.' },
+                        { token: '09', meaning: 'Level 09. Max 3840x2160@60fps per ETSI TS 103 572.' }
+                    ],
+                    overview: 'DV Profile 10 at Level 09 (4K@60fps) with AV1 base — high frame rate variant for sports and live content. Combines AV1 compression efficiency with DV dynamic metadata at 60fps.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'DV Profile 10 AV1 4K 60fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=30000000,CODECS="dva1.10.09,mp4a.40.2",RESOLUTION=3840x2160,FRAME-RATE=60,VIDEO-RANGE=PQ
+dv_p10_av1_60fps.m3u8`,
+                                notes: 'Level 09 enables 4K@60fps. AV1+DV at 60fps — next-gen HFR delivery. Few devices support this combination as of 2025.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'DV Profile 10 AV1 4K 60fps',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="dva1.10.09">
+  <SupplementalProperty schemeIdUri="urn:dolby:dash:codec_attributes:2014"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
+  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
+  <Representation bandwidth="30000000" width="3840" height="2160" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'Level 09 (4K@60fps). AV1 + DV in DASH for high frame rate delivery.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF with DOVIDecoderConfigurationRecord. DV RPU embedded in AV1 OBU format. 60fps doubles I/O requirements vs 24fps.',
+                        mkv: 'Matroska with AV1 CodecID V_AV1 + DV RPU block additions. 60fps TimestampScale considerations.',
+                        fmp4: '60fps fMP4 segments at 30 Mbps. AV1+DV init segment configuration.'
+                    },
+                    references: [
+                        { title: 'ETSI TS 103 572 (Dolby Vision)' }
+                    ]
+                }
+            }
         ]
     },
 
