@@ -216,7 +216,7 @@ codecprobe/
 │   ├── build.js               # Terser minification + UAParser bundling
 │   ├── inject-versions.js     # Cache-busting version hashes for deploy
 │   ├── db-tool.mjs            # v1 database CLI — add, inspect, inject, patch, verify
-│   ├── db-tool-v2.mjs         # v2 database CLI — INSERT, ADD SCENARIO, UPDATE, DROP
+│   ├── db-tool-v2.mjs         # v2 database CLI — record + education mutations
 │   ├── migrate-scenarios.mjs  # v1→v2 migration helper
 │   ├── v2-audit.mjs           # v2 database audit and validation
 │   └── lib/
@@ -228,48 +228,6 @@ codecprobe/
 ├── CLAUDE.md                  # AI assistant context
 └── README.md
 ```
-
-## Database CLI
-
-### v2 Database (active)
-
-The v2 database uses bare codec strings as primary keys and is managed through `scripts/db-tool-v2.mjs`:
-
-```bash
-node scripts/db-tool-v2.mjs <command> [args]
-```
-
-| Command | Description |
-|---------|-------------|
-| `stats` | Group counts, scenario totals, education coverage |
-| `list [group] [--missing\|--edu]` | List records, filter by education status |
-| `verify` | Schema validation, duplicate detection, container checks |
-| `db <codec>` | Show full record details |
-| `db <codec> --name <n> --scenario [opts]` | INSERT new codec record with scenario |
-| `db <codec> --scenario --sname <n> [opts]` | ADD scenario to existing record |
-| `db <codec> --set key=value` | UPDATE record fields |
-| `db <codec> --rm-scenario <name>` | REMOVE a scenario |
-| `db <codec> --drop --confirm` | DROP entire record |
-
-Auto-populates containers (by codec family), DRM systems (all 4), breakdown tokens, and education skeletons. Every write runs `node -c` syntax check before disk write.
-
-### v1 Database (reference)
-
-The v1 flat database is managed through `scripts/db-tool.mjs` for migration reference:
-
-```bash
-node scripts/db-tool.mjs <command> [args]
-```
-
-| Command | Description |
-|---------|-------------|
-| `stats` | Group counts and education coverage |
-| `list <group> [--missing\|--complete]` | List entries by education status |
-| `show <group> <name>` | Full entry details as JSON |
-| `add <file> [--group <key>]` | Add entries with validation |
-| `scaffold <group>` | Generate education template |
-| `inject <group> <file>` | Add education content |
-| `verify` | Syntax + import + structure check |
 
 ## Test Matrix Generation
 
@@ -329,7 +287,7 @@ Every education entry in the codec database cites its sources. 38 specifications
 
 ## Contributing
 
-Pull requests welcome — codec database contributions especially. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, code standards, and detailed guides for adding codecs, education content, and platform quirks.
+Pull requests welcome — codec database contributions especially. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, code standards, CLI reference, and detailed guides for adding codec records and education content.
 
 If you have a device that reports unexpected results, [open an issue](https://github.com/nofear0411/codecprobe/issues) with your exported JSON — it helps expand coverage for everyone.
 

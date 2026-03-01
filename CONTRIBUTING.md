@@ -138,30 +138,43 @@ Use the relevant spec (ITU, ISO/IEC, ETSI) for correct strings. Check existing e
 
 ## Adding Education Content
 
-Each codec record has an `education` object. The INSERT command auto-creates a skeleton — you fill in the content by editing `js/codec-database-v2.js` directly.
+Each codec record has an `education` object. The INSERT command auto-creates a skeleton — you fill in the content using CLI education commands or by editing `js/codec-database-v2.js` directly.
 
 ### v2 education structure
 
 ```javascript
 education: {
     breakdown: [
-        { token: 'hvc1', meaning: 'HEVC with in-band parameter sets. Required by Apple HLS.' },
+        { token: 'hvc1', meaning: 'HEVC with out-of-band parameter sets. Required by Apple HLS.' },
         { token: '2', meaning: 'Main 10 Profile (profile_idc=2). 8/10-bit 4:2:0.' },
         { token: '4', meaning: 'Profile compatibility flags. Bit 2 set — Main 10 tier.' },
-        { token: 'L153', meaning: 'Level 5.1 (153 = 51 * 3). Supports 4K @ 60fps.' },
+        { token: 'L153', meaning: 'Level 5.1 (153 = 51 × 3). Supports 4K @ 60fps.' },
         { token: 'B0', meaning: 'General constraint flags. B0 = no constraints beyond profile.' }
     ],
     overview: 'HEVC Main 10 at Level 5.1. Supports 10-bit 4:2:0 for HDR content in MP4/MKV.',
     platforms: {
-        safari: 'Hardware decode on Apple Silicon and A-series chips.',
-        android: 'Hardware decode on Snapdragon 8-series SoCs.'
+        apple: 'Hardware decode on A8+ and all Apple Silicon. HLS requires hvc1 tag + fMP4.',
+        android: 'Hardware decode on Snapdragon 820+ and Exynos 8890+ via MediaCodec.'
     },
     streaming: {
-        hls: 'Supported in HLS with fMP4 segments.',
-        dash: 'Supported in DASH with ISOBMFF.'
+        hls: [
+            {
+                signal: '4K HDR10',
+                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=25000000,...,VIDEO-RANGE=PQ\nvariant.m3u8`,
+                notes: 'Apple HLS requires hvc1 tag. Segments must be fMP4.'
+            }
+        ],
+        dash: [
+            {
+                signal: '4K HDR10',
+                mpd: `<Representation codecs="hvc1.2.4.L153.B0" .../>`,
+                notes: 'DASH uses ISOBMFF (fMP4) segments exclusively.'
+            }
+        ]
     },
     containerNotes: {
-        mkv: 'MKV/WebM muxing supported by FFmpeg.'
+        mp4: 'ISOBMFF — universal HEVC container with hvcC sample entry box.',
+        mkv: 'Browser support for video/x-matroska is limited. Android Chrome may accept it.'
     },
     references: [
         { title: 'ITU-T H.265', url: 'https://www.itu.int/rec/T-REC-H.265' }
@@ -200,41 +213,120 @@ Fill in the `meaning` for each token and write the `overview`. The other fields 
 - **Overview**: What this codec configuration is for. Don't repeat what the tokens already say.
 - No filler language. No "comprehensive", "robust", "ensures". Direct and specific.
 
+### Editing via CLI
+
+Use dot-path `--set` to update individual education fields:
+
+```bash
+# Set overview
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
+  --set education.overview="HEVC Main 10 at Level 5.1."
+
+# Set a platform note
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
+  --set education.platforms.apple="Hardware decode on A8+ and all Apple Silicon."
+
+# Set a container note
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
+  --set education.containerNotes.mp4="ISOBMFF with hvcC sample entry box."
+```
+
+Manage references:
+
+```bash
+# Add a reference
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
+  --add-ref --title "ITU-T H.265" --url "https://www.itu.int/rec/T-REC-H.265"
+
+# Remove a reference by title
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --rm-ref --title "ITU-T H.265"
+```
+
+Add streaming entries (HLS/DASH):
+
+```bash
+# Add an HLS entry
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --add-hls \
+  --signal "4K HDR10" \
+  --m3u8 "#EXT-X-STREAM-INF:BANDWIDTH=25000000,...,VIDEO-RANGE=PQ\nvariant.m3u8" \
+  --notes "Apple HLS requires hvc1 tag."
+
+# Add a DASH entry
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --add-dash \
+  --signal "4K HDR10" \
+  --mpd "<Representation codecs=\"hvc1.2.4.L153.B0\" .../>" \
+  --notes "DASH uses ISOBMFF segments."
+```
+
+Bulk-import education from a JSON file:
+
+```bash
+node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --edu-from education.json
+```
+
+The JSON file should match the education structure above. This replaces the entire education object for the record.
+
 ### Checking coverage
 
 ```bash
-# Overview of education coverage per group
+# Coverage table — shows Recs, Edu, Strm, Cntr, Refs per group
 node scripts/db-tool-v2.mjs stats
 
-# List entries missing education content
+# List records with OSCR flags (Overview, Streaming, ContainerNotes, References)
+# Green = populated, dim = missing
+node scripts/db-tool-v2.mjs list video_hevc
+
+# Filter to records missing education overview
 node scripts/db-tool-v2.mjs list --missing
 
-# List entries with education content
+# Filter to records with education overview
 node scripts/db-tool-v2.mjs list --edu
 
-# Filter by group
-node scripts/db-tool-v2.mjs list video_hevc --missing
+# Verify structure + education completeness (reports errors, warnings, gaps)
+node scripts/db-tool-v2.mjs verify
 ```
 
 ## CLI Reference
 
 All commands run via `node scripts/db-tool-v2.mjs <command>`.
 
+### Read-only
+
 | Command | Description |
 |---------|-------------|
-| `stats` | Overview table: groups, codec counts, education coverage |
-| `list [group] [--missing\|--edu]` | List records with optional group filter and education filter |
-| `verify` | Five-tier validation + duplicate detection |
-| `db <codec>` | Show record details |
+| `stats` | Coverage table with Recs, Edu, Strm, Cntr, Refs columns per group |
+| `list [group] [--missing\|--edu]` | List records with OSCR flags (Overview, Streaming, ContainerNotes, References) |
+| `verify` | Structure validation + education completeness (errors, warnings, gaps) |
+| `db <codec>` | Show full record details including education content |
+
+### Record mutations
+
+| Command | Description |
+|---------|-------------|
 | `db <codec> --name <n> --scenario [opts]` | Insert new record with first scenario |
 | `db <codec> --scenario --sname <n> [opts]` | Add scenario to existing record |
-| `db <codec> --set key=value` | Update a field value |
+| `db <codec> --set key=value` | Update field (supports dot-paths like `education.overview`) |
 | `db <codec> --rm-scenario <name>` | Remove a scenario by name |
 | `db <codec> --drop --confirm` | Drop entire record |
 
-**Video scenario flags**: `--sname` (required), `--width`, `--height`, `--fps`, `--bitrate` (required), `--depth`, `--chroma`, `--transfer`, `--gamut`, `--hdr`, `--tier` (optional)
+### Education mutations
 
-**Audio scenario flags**: `--sname` (required), `--channels`, `--samplerate`, `--bitrate` (required), `--depth`, `--spatial` (optional)
+| Command | Description |
+|---------|-------------|
+| `db <codec> --set education.overview="text"` | Set education overview |
+| `db <codec> --set education.platforms.apple="text"` | Set a platform note |
+| `db <codec> --set education.containerNotes.mp4="text"` | Set a container note |
+| `db <codec> --add-ref --title <t> [--url <u>]` | Add a reference entry |
+| `db <codec> --rm-ref --title <t>` | Remove reference by title |
+| `db <codec> --add-hls --signal <s> --m3u8 <m> --notes <n>` | Add HLS streaming entry |
+| `db <codec> --add-dash --signal <s> --mpd <m> --notes <n>` | Add DASH streaming entry |
+| `db <codec> --edu-from <path.json>` | Replace education from JSON file |
+
+### Flags
+
+**Video scenario**: `--sname` (required), `--width`, `--height`, `--fps`, `--bitrate` (required), `--depth`, `--chroma`, `--transfer`, `--gamut`, `--hdr`, `--tier` (optional)
+
+**Audio scenario**: `--sname` (required), `--channels`, `--samplerate`, `--bitrate` (required), `--depth`, `--spatial` (optional)
 
 **Options**: `--group <key>` (override auto-detection), `--flags <a,b>` (codec flags), `--dry-run` (preview)
 
@@ -244,10 +336,10 @@ The v2 database is being populated group by group. Each group requires codec-res
 
 | Group | v2 Records | Status |
 |-------|-----------|--------|
-| video_hevc | 12 | Populated (11/12 education) |
-| video_dolby_vision | 21 | Populated (education pending) |
-| video_av1 | 11 | Populated (education pending) |
-| video_vp9 | 20 | Populated (education pending) |
+| video_hevc | 12 | Complete (12 edu, 11 strm/cntr, 12 refs) |
+| video_dolby_vision | 21 | Complete (21 edu, 21 strm, 21 cntr, 21 refs) |
+| video_av1 | 11 | Complete (11 edu, 11 strm, 11 cntr, 11 refs) |
+| video_vp9 | 20 | Complete (20 edu, 20 strm, 20 cntr, 20 refs) |
 | video_avc | 0 | Blocked — needs codec-resolve `avc/` decoder |
 | video_vvc | 0 | Blocked — needs codec-resolve `vvc/` decoder |
 | video_vp8 | 0 | Blocked — needs v2 migration |
