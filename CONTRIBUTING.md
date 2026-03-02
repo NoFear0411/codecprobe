@@ -336,10 +336,10 @@ The v2 database is being populated group by group. Each group requires codec-res
 
 | Group | v2 Records | Status |
 |-------|-----------|--------|
-| video_hevc | 12 | Complete (12 edu, 11 strm/cntr, 12 refs) |
-| video_dolby_vision | 21 | Complete (21 edu, 21 strm, 21 cntr, 21 refs) |
-| video_av1 | 11 | Complete (11 edu, 11 strm, 11 cntr, 11 refs) |
-| video_vp9 | 20 | Complete (20 edu, 20 strm, 20 cntr, 20 refs) |
+| video_hevc | 15 | Complete (15 edu, 15 strm, 15 cntr, 15 refs) |
+| video_dolby_vision | 29 | Complete (29 edu, 29 strm, 29 cntr, 29 refs) |
+| video_av1 | 12 | Complete (12 edu, 12 strm, 12 cntr, 12 refs) |
+| video_vp9 | 21 | Complete (21 edu, 21 strm, 21 cntr, 21 refs) |
 | video_avc | 0 | Blocked — needs codec-resolve `avc/` decoder |
 | video_vvc | 0 | Blocked — needs codec-resolve `vvc/` decoder |
 | video_vp8 | 0 | Blocked — needs v2 migration |

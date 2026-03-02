@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.0.0**: 72 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.4.0**: 77 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -79,16 +79,16 @@ Results include persistent state support and robustness strings. DRM detection r
 
 ## Codec Coverage
 
-**72 codec records** across 4 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
+**77 codec records** across 4 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
 
-### Video (64 records — v2 database)
+### Video (77 records — v2 database)
 
 | Codec | Records | Profiles/Variants | Containers |
 |-------|---------|-------------------|------------|
-| HEVC/H.265 | 12 | Main, Main 10, Main Still Picture, High Tier, Levels 3.1–6.1, SDR/HDR10/HLG | MP4, MKV, MOV |
+| HEVC/H.265 | 15 | Main, Main 10, Main Still Picture, High Tier, Levels 3.1–6.1, SDR/HDR10/HLG | MP4, MKV, MOV |
 | Dolby Vision | 29 | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), Levels 01–10, film framerates, supplemental dual-codec strings | MP4, MKV, MOV |
-| AV1 | 11 | Main (P0), High (P1), Professional (P2), Film Grain, High Tier, Levels 3.1–6.0, SDR/HDR10/HLG | MP4, MKV, WebM, MOV |
-| VP9 | 20 | Profiles 0–3, Levels 1.0–6.0, 8/10/12-bit, SDR/HDR10/HLG, full and limited range | MP4, MKV, WebM |
+| AV1 | 12 | Main (P0), High (P1), Professional (P2), Film Grain, High Tier, Levels 3.0–6.0, SDR/HDR10/HLG | MP4, MKV, WebM, MOV |
+| VP9 | 21 | Profiles 0–3, Levels 1.0–6.0, 8/10/12-bit, SDR/HDR10/HLG, full and limited range | MP4, MKV, WebM |
 
 ### Pending Migration (from v1 — 238 entries)
 
@@ -199,7 +199,7 @@ codecprobe/
 │   ├── styles.scss            # Main stylesheet
 │   └── _themes.scss           # Theme definitions
 ├── js/
-│   ├── codec-database-v2.js   # v2 normalized database — 64 records, 4 groups (active)
+│   ├── codec-database-v2.js   # v2 normalized database — 77 records, 4 groups (active)
 │   ├── codec-database.js      # v1 flat database — 238 entries, 13 groups (reference)
 │   ├── codec-tester.js        # Three-API testing with retry logic
 │   ├── device-detection.js    # UAParser.js v2.x integration

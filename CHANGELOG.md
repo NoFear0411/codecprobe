@@ -2,6 +2,28 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.4.0] - 2026-03-02
+
+### Fixed
+
+- **22 level/scenario mismatches** across HEVC, AV1, and VP9: Records where the codec level's max capability didn't match the test scenario. Every record now has scenarios that pass `pic_size ≤ max_pic_size AND display_rate ≤ max_display_rate` (AV1/VP9) or `luma_ps ≤ max_luma_ps AND sample_rate ≤ max_luma_sr` (HEVC).
+  - **HEVC** (2 fixes): L3.1 records downgraded from 1080p to 720p (max_luma_ps = 983,040).
+  - **AV1** (10 fixes): L3.0 from 720p to 540p, L3.1 from 1080p to 720p, L4.0 records from 4K to 1080p, L4.1H from 4K@30 to 1080p@60, L5.0 from 4K@60 to 4K@30, L5.1 from 4K@120 to 4K@60.
+  - **VP9** (10 fixes): 6 Level 1 records downgraded from 1080p/4K to 176×144@24fps QCIF (max_pic_size = 36,864), L2.1 from 480p to 360p, L3.1 and L4 invalid scenarios removed, L3.1 P2 from 4K to 720p.
+
+### Added
+
+- **5 new codec records**: 3 HEVC (4K HDR10 24fps L5.0, 4K SDR 60fps L5.1, 8K HDR10 30fps L6.0), 1 AV1 (4K SDR 8-bit L5.0), 1 VP9 (1080p60 SDR L4.1). Fill coverage gaps created by level-aligned downgrades.
+- **~27 NTSC film framerate scenarios**: 23.976fps, 29.97fps, 59.94fps across HEVC, AV1, and VP9 records. Tests real-world telecine rates used in streaming and Blu-ray authoring.
+- **Education content**: All 5 new records have full education — breakdown tokens, overviews, HLS/DASH manifest examples, container notes, and spec references.
+
+### Changed
+
+- **77 codec records**: Was 72. 15 HEVC (was 12), 12 AV1 (was 11), 21 VP9 (was 20). 29 DV unchanged.
+- **~45 new scenarios**: Film framerates and level-corrected test parameters across all three codec groups.
+
+---
+
 ## [4.3.0] - 2026-03-01
 
 ### Fixed
