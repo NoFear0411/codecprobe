@@ -2019,42 +2019,44 @@ hdr10_8k_30.m3u8`,
 
             {
                 codec: 'av01.0.04M.08',
-                name: 'AV1 Main 720p SDR',
+                name: 'AV1 Main 540p SDR',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '720p SDR 30fps',
-                    width: 1280,
-                    height: 720,
-                    framerate: 30,
-                    bitrate: 2_000_000,
-                    bitDepth: 8,
-                }],
+                scenarios: [
+                    {
+                        name: '540p SDR 30fps',
+                        width: 960,
+                        height: 540,
+                        framerate: 30,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
                         { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
-                        { token: '04M', meaning: 'Level 3.0 (seq_level_idx=4), Main tier. Suitable for 720p content.' },
+                        { token: '04M', meaning: 'Level 3.0 (seq_level_idx=4), Main tier. Max 665,856 luma samples — suitable for 540p content.' },
                         { token: '08', meaning: '8-bit (BitDepth=8).' }
                     ],
-                    overview: 'AV1 Main Profile at Level 3.0 — baseline SDR for 720p. The minimum level commonly used for adaptive streaming lower rungs.',
+                    overview: 'AV1 Main Profile at Level 3.0 — baseline SDR for 540p. Level 3.0 caps at 665,856 luma samples (960×694 max), too small for 720p. Used for adaptive streaming lower rungs.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'SDR 720p',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=2000000,CODECS="av01.0.04M.08,mp4a.40.2",RESOLUTION=1280x720
-av1_720p.m3u8`,
+                                signal: 'SDR 540p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=2000000,CODECS="av01.0.04M.08,mp4a.40.2",RESOLUTION=960x540
+av1_540p.m3u8`,
                                 notes: 'AV1 in HLS requires fMP4 segments — no MPEG-TS support. Apple added AV1 HLS support in Safari 17 / iOS 17 (2023). No VIDEO-RANGE needed for SDR.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'SDR 720p',
+                                signal: 'SDR 540p',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.04M.08">
-  <Representation bandwidth="2000000" width="1280" height="720" frameRate="30"/>
+  <Representation bandwidth="2000000" width="960" height="540" frameRate="30"/>
 </AdaptationSet>`,
                                 notes: 'Standard DASH signaling. No CICP supplemental properties needed for SDR. AV1 in DASH widely supported (YouTube, Netflix).'
                             }
@@ -2077,51 +2079,61 @@ av1_720p.m3u8`,
 
             {
                 codec: 'av01.0.05M.08',
-                name: 'AV1 Main 1080p SDR',
+                name: 'AV1 Main 720p SDR',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '1080p SDR 24fps',
-                    width: 1920,
-                    height: 1080,
-                    framerate: 24,
-                    bitrate: 3_000_000,
-                    bitDepth: 8,
-                }],
+                scenarios: [
+                    {
+                        name: '720p SDR 24fps',
+                        width: 1280,
+                        height: 720,
+                        framerate: 24,
+                        bitrate: 3_000_000,
+                        bitDepth: 8,
+                    },
+                    {
+                        name: '720p SDR 23.976fps',
+                        width: 1280,
+                        height: 720,
+                        framerate: 23.976,
+                        bitrate: 3_000_000,
+                        bitDepth: 8,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
                         { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
-                        { token: '05M', meaning: 'Level 3.1 (seq_level_idx=5), Main tier. Supports 1080p content.' },
+                        { token: '05M', meaning: 'Level 3.1 (seq_level_idx=5), Main tier. Max 1,065,024 luma samples — supports 720p content.' },
                         { token: '08', meaning: '8-bit (BitDepth=8).' }
                     ],
-                    overview: 'AV1 Main Profile at Level 3.1 — standard SDR 1080p. YouTube and Netflix use this level for 1080p AV1 SDR encodes.',
+                    overview: 'AV1 Main Profile at Level 3.1 — SDR 720p. Level 3.1 caps at 1,065,024 luma samples, enough for 720p but not 1080p. Common in adaptive streaming mid-rungs.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'SDR 1080p',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=3000000,CODECS="av01.0.05M.08,mp4a.40.2",RESOLUTION=1920x1080
-av1_1080p.m3u8`,
+                                signal: 'SDR 720p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=3000000,CODECS="av01.0.05M.08,mp4a.40.2",RESOLUTION=1280x720
+av1_720p.m3u8`,
                                 notes: 'AV1 in HLS requires fMP4 segments. Available since Safari 17 / iOS 17 (2023). SDR default — no VIDEO-RANGE attribute needed.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'SDR 1080p',
+                                signal: 'SDR 720p',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.05M.08">
-  <Representation bandwidth="3000000" width="1920" height="1080" frameRate="24"/>
+  <Representation bandwidth="3000000" width="1280" height="720" frameRate="24"/>
 </AdaptationSet>`,
-                                notes: 'Standard DASH signaling. YouTube uses AV1 at this level for 1080p SDR DASH segments.'
+                                notes: 'Standard DASH signaling. Level 3.1 used for 720p SDR DASH segments.'
                             }
                         ]
                     },
                     containerNotes: {
                         mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord.',
-                        mkv: 'Matroska with CodecID V_AV1. Common in media server libraries for 1080p AV1 encodes.',
-                        webm: 'WebM — native AV1 web container. YouTube serves 1080p AV1 as WebM via DASH.',
+                        mkv: 'Matroska with CodecID V_AV1. Common in media server libraries (Jellyfin, Plex).',
+                        webm: 'WebM (Matroska subset) — native AV1 web container. Chrome and Firefox support video/webm with AV1.',
                         fmp4: 'Fragmented MP4 for DASH segments. Same video/mp4 MIME as regular MP4.',
                         cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH delivery.'
                     },
@@ -2135,20 +2147,38 @@ av1_1080p.m3u8`,
 
             {
                 codec: 'av01.0.08M.08',
-                name: 'AV1 Main 4K SDR',
+                name: 'AV1 Main 1080p SDR',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K SDR 30fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 30,
-                    bitrate: 10_000_000,
-                    bitDepth: 8,
-                }],
+                scenarios: [
+                    {
+                        name: '1080p SDR 30fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 30,
+                        bitrate: 8_000_000,
+                        bitDepth: 8,
+                    },
+                    {
+                        name: '1080p SDR 23.976fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
+                        bitrate: 8_000_000,
+                        bitDepth: 8,
+                    },
+                    {
+                        name: '1080p SDR 29.97fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 29.97,
+                        bitrate: 8_000_000,
+                        bitDepth: 8,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
@@ -2156,30 +2186,30 @@ av1_1080p.m3u8`,
                         { token: '08M', meaning: 'Level 4.0 (seq_level_idx=8), Main tier. Supports 4K@30fps. Main tier peak bitrate 12 Mbps.' },
                         { token: '08', meaning: '8-bit (BitDepth=8).' }
                     ],
-                    overview: 'AV1 Main Profile at Level 4.0 — 4K SDR in 8-bit. Level 4.0 is the first AV1 level supporting 4K resolution and the first where High tier becomes available.',
+                    overview: 'AV1 Main Profile at Level 4.0 — 1080p SDR in 8-bit. Level 4.0 supports up to 2,359,296 luma samples (enough for 1080p@30fps). The first level where High tier becomes available.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'SDR 4K',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=10000000,CODECS="av01.0.08M.08,mp4a.40.2",RESOLUTION=3840x2160
-av1_4k_sdr.m3u8`,
-                                notes: 'AV1 4K in HLS requires fMP4 segments and Safari 17+ / tvOS 17+. No VIDEO-RANGE needed for SDR.'
+                                signal: 'SDR 1080p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="av01.0.08M.08,mp4a.40.2",RESOLUTION=1920x1080
+av1_1080p_sdr.m3u8`,
+                                notes: 'AV1 in HLS requires fMP4 segments and Safari 17+ / tvOS 17+. No VIDEO-RANGE needed for SDR.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'SDR 4K',
+                                signal: 'SDR 1080p',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.08">
-  <Representation bandwidth="10000000" width="3840" height="2160" frameRate="30"/>
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="30"/>
 </AdaptationSet>`,
-                                notes: 'Standard DASH signaling. YouTube and Netflix use AV1 Level 4.0 for 4K SDR DASH delivery.'
+                                notes: 'Standard DASH signaling. AV1 Level 4.0 used for 1080p SDR DASH delivery.'
                             }
                         ]
                     },
                     containerNotes: {
-                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord. 4K SDR is the mainstream AV1 MP4 use case.',
-                        mkv: 'Matroska with CodecID V_AV1. 4K AV1 MKV common in media server libraries.',
-                        webm: 'WebM — YouTube serves 4K AV1 as WebM via DASH.',
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord.',
+                        mkv: 'Matroska with CodecID V_AV1. Common in media server libraries (Jellyfin, Plex).',
+                        webm: 'WebM (Matroska subset) — native AV1 web container. Chrome and Firefox support video/webm with AV1.',
                         fmp4: 'Fragmented MP4 for DASH segments. Same video/mp4 MIME as regular MP4.',
                         cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH delivery.'
                     },
@@ -2193,33 +2223,45 @@ av1_4k_sdr.m3u8`,
 
             {
                 codec: 'av01.0.08M.10',
-                name: 'AV1 Main 4K HDR',
+                name: 'AV1 Main 1080p HDR',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K HDR10 24fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 24,
-                    bitrate: 15_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                },
+                scenarios: [
                     {
-                        name: '4K HLG 24fps',
-                        width: 3840,
-                        height: 2160,
+                        name: '1080p HDR10 24fps',
+                        width: 1920,
+                        height: 1080,
                         framerate: 24,
-                        bitrate: 15_000_000,
+                        bitrate: 8_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    },
+                    {
+                        name: '1080p HLG 24fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 24,
+                        bitrate: 8_000_000,
                         bitDepth: 10,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020',
                         hdrFormat: 'hlg',
+                    },
+                    {
+                        name: '1080p HDR10 23.976fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
+                        bitrate: 8_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
                     }
                 ],
                 education: {
@@ -2229,19 +2271,19 @@ av1_4k_sdr.m3u8`,
                         { token: '08M', meaning: 'Level 4.0 (seq_level_idx=8), Main tier. Supports 4K@30fps. Main tier peak bitrate 12 Mbps.' },
                         { token: '10', meaning: '10-bit (BitDepth=10). Required for HDR10 (PQ) and HLG transfer functions.' }
                     ],
-                    overview: 'AV1 Main Profile at Level 4.0 in 10-bit — the standard 4K HDR entry point. Short-form codec string with no color parameters; the decoder infers color config from the bitstream.',
+                    overview: 'AV1 Main Profile at Level 4.0 in 10-bit — 1080p HDR entry point. Short-form codec string with no color parameters; the decoder infers color config from the bitstream. Level 4.0 max 2,359,296 luma samples.',
                     streaming: {
                         hls: [
                             {
                                 signal: 'HDR10 PQ',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
-av1_4k_hdr10.m3u8`,
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="av01.0.08M.10,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
+av1_1080p_hdr10.m3u8`,
                                 notes: 'VIDEO-RANGE=PQ signals HDR10 to Apple devices. AV1 HDR in HLS requires fMP4 segments and Safari 17+ / tvOS 17+. Always provide an SDR fallback variant.'
                             },
                             {
                                 signal: 'HLG',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=HLG
-av1_4k_hlg.m3u8`,
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="av01.0.08M.10,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=HLG
+av1_1080p_hlg.m3u8`,
                                 notes: 'VIDEO-RANGE=HLG for Hybrid Log-Gamma. HLG is backward-compatible with SDR displays. The player uses VIDEO-RANGE to enable HDR processing path.'
                             }
                         ],
@@ -2251,7 +2293,7 @@ av1_4k_hlg.m3u8`,
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10">
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'CICP TransferCharacteristics 16 = PQ (ST 2084). ColourPrimaries 9 = BT.2020. Short-form codec string — color signaling is in DASH supplemental properties, not in the codec string.'
                             },
@@ -2260,7 +2302,7 @@ av1_4k_hlg.m3u8`,
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10">
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="18"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'CICP TransferCharacteristics 18 = HLG (ARIB STD-B67). ColourPrimaries 9 = BT.2020.'
                             }
@@ -2283,23 +2325,25 @@ av1_4k_hlg.m3u8`,
 
             {
                 codec: 'av01.0.08M.10.0.110.01.01.01.0',
-                name: 'AV1 Main 4K Film Grain',
+                name: 'AV1 Main 1080p Film Grain',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K Film Grain 24fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 24,
-                    bitrate: 15_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: '1080p Film Grain 24fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 24,
+                        bitrate: 8_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
@@ -2318,8 +2362,8 @@ av1_4k_hlg.m3u8`,
                         hls: [
                             {
                                 signal: 'SDR Film Grain',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="av01.0.08M.10.0.110.01.01.01.0,mp4a.40.2",RESOLUTION=3840x2160
-av1_4k_filmgrain.m3u8`,
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="av01.0.08M.10.0.110.01.01.01.0,mp4a.40.2",RESOLUTION=1920x1080
+av1_1080p_filmgrain.m3u8`,
                                 notes: 'Extended codec string with explicit CICP in the CODECS attribute. BT.709 color (cp=1, tc=1, mc=1). HLS players must parse all 10 fields. fMP4 segments required.'
                             }
                         ],
@@ -2327,7 +2371,7 @@ av1_4k_filmgrain.m3u8`,
                             {
                                 signal: 'SDR Film Grain',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.08M.10.0.110.01.01.01.0">
-  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'Extended codec string embeds CICP directly — no separate SupplementalProperty needed. BT.709 color primaries and transfer. Netflix uses this format for film grain AV1 DASH content.'
                             }
@@ -2351,24 +2395,38 @@ av1_4k_filmgrain.m3u8`,
 
             {
                 codec: 'av01.0.09H.10',
-                name: 'AV1 Main 4K HDR10 High Tier',
+                name: 'AV1 Main 1080p HDR10 High Tier',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K HDR10 High Tier 30fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 30,
-                    bitrate: 40_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                    tier: 'high',
-                }],
+                scenarios: [
+                    {
+                        name: '1080p HDR10 High Tier 60fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 60,
+                        bitrate: 20_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                        tier: 'high',
+                    },
+                    {
+                        name: '1080p HDR10 High Tier 59.94fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 59.94,
+                        bitrate: 20_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                        tier: 'high',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
@@ -2376,13 +2434,13 @@ av1_4k_filmgrain.m3u8`,
                         { token: '09H', meaning: 'Level 4.1 (seq_level_idx=9), High tier. Supports 4K@60fps. High tier peak bitrate 50 Mbps.' },
                         { token: '10', meaning: '10-bit (BitDepth=10). Required for HDR10 PQ content.' }
                     ],
-                    overview: 'AV1 Main Profile at Level 4.1, High tier — higher bitrate ceiling for 4K HDR. High tier doubles the bitrate limit vs Main tier at the same level. Used for premium 4K HDR streaming where quality takes priority over bandwidth.',
+                    overview: 'AV1 Main Profile at Level 4.1, High tier — 1080p@60fps HDR with higher bitrate ceiling. High tier doubles the bitrate limit vs Main tier at the same level (50 Mbps vs 20 Mbps). Level 4.1 doubles the display rate of 4.0, enabling 60fps at 1080p.',
                     streaming: {
                         hls: [
                             {
                                 signal: 'HDR10 High Tier',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="av01.0.09H.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
-av1_4k_hdr10_high.m3u8`,
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.0.09H.10,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ,FRAME-RATE=60
+av1_1080p_hdr10_high.m3u8`,
                                 notes: 'High tier (H suffix) in the codec string. VIDEO-RANGE=PQ signals HDR10. The H vs M tier distinction matters for decoder capability checks — High tier allows higher bitrates. fMP4 segments required.'
                             }
                         ],
@@ -2392,9 +2450,9 @@ av1_4k_hdr10_high.m3u8`,
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.09H.10">
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="30"/>
+  <Representation bandwidth="20000000" width="1920" height="1080" frameRate="60"/>
 </AdaptationSet>`,
-                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). High tier bitrates (40+ Mbps) may exceed some CDN segment size limits — consider chunked transfer or shorter segment durations.'
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). High tier enables higher bitrates for demanding 60fps HDR content.'
                             }
                         ]
                     },
@@ -2415,28 +2473,41 @@ av1_4k_hdr10_high.m3u8`,
 
             {
                 codec: 'av01.0.12M.10.0.110.09.16.09.0',
-                name: 'AV1 Main 4K 60fps HDR10',
+                name: 'AV1 Main 4K HDR10',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K HDR10 60fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 60,
-                    bitrate: 20_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: '4K HDR10 30fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 30,
+                        bitrate: 20_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    },
+                    {
+                        name: '4K HDR10 29.97fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 20_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
                         { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
-                        { token: '12M', meaning: 'Level 5.0 (seq_level_idx=12), Main tier. Supports 4K@60fps. Main tier peak bitrate 30 Mbps.' },
+                        { token: '12M', meaning: 'Level 5.0 (seq_level_idx=12), Main tier. Max 8,912,896 luma samples — supports 4K@30fps. Main tier peak bitrate 30 Mbps.' },
                         { token: '10', meaning: '10-bit (BitDepth=10).' },
                         { token: '0', meaning: 'Not monochrome (mono_chrome=0). Color image.' },
                         { token: '110', meaning: 'Chroma subsampling 4:2:0 (subsampling_x=1, subsampling_y=1, chroma_sample_position=0).' },
@@ -2445,21 +2516,21 @@ av1_4k_hdr10_high.m3u8`,
                         { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrix_coefficients=9, ITU-T H.273).' },
                         { token: '0', meaning: 'Studio/limited range (color_range=0).' }
                     ],
-                    overview: 'AV1 Main Profile at Level 5.0 with full CICP color signaling for HDR10. The explicit BT.2020 + PQ parameters in the codec string let the player configure HDR output before parsing the bitstream. Level 5.0 raises the resolution ceiling above 4K and supports 60fps.',
+                    overview: 'AV1 Main Profile at Level 5.0 with full CICP color signaling for HDR10. The explicit BT.2020 + PQ parameters in the codec string let the player configure HDR output before parsing the bitstream. Level 5.0 max display rate 267M samples/s — enough for 4K@30fps but not 4K@60fps.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'HDR10 PQ 60fps',
+                                signal: 'HDR10 PQ 4K',
                                 m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.0.12M.10.0.110.09.16.09.0,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
-av1_4k_hdr10_60fps.m3u8`,
+av1_4k_hdr10.m3u8`,
                                 notes: 'Extended codec string with full CICP in CODECS attribute. The player can verify BT.2020/PQ support from the codec string alone, without parsing the bitstream. VIDEO-RANGE=PQ required. fMP4 segments only.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'HDR10 PQ 60fps',
+                                signal: 'HDR10 PQ 4K',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.12M.10.0.110.09.16.09.0">
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="60"/>
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
 </AdaptationSet>`,
                                 notes: 'Extended codec string already embeds CICP (cp=9, tc=16, mc=9) — no separate SupplementalProperty needed. The codec string and DASH properties are redundant-safe: explicit is preferred for player compatibility.'
                             }
@@ -2468,9 +2539,9 @@ av1_4k_hdr10_60fps.m3u8`,
                     containerNotes: {
                         mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord. ColourInformationBox (colr) carries CICP values matching the codec string.',
                         mkv: 'Matroska with CodecID V_AV1. Colour element carries BT.2020 primaries + PQ transfer + mastering display metadata.',
-                        webm: 'WebM — 4K 60fps AV1 HDR in WebM. Matroska Colour element for CICP signaling.',
-                        fmp4: 'Fragmented MP4 for HLS/DASH segments. 60fps doubles the segment data rate vs 30fps — consider 2-second segments.',
-                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4. 60fps CMAF segments for high frame rate HDR delivery.'
+                        webm: 'WebM — 4K AV1 HDR in WebM. Matroska Colour element for CICP signaling.',
+                        fmp4: 'Fragmented MP4 for HLS/DASH segments. Color and HDR metadata in the init segment.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH HDR delivery.'
                     },
                     references: [
                         { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
@@ -2483,58 +2554,82 @@ av1_4k_hdr10_60fps.m3u8`,
 
             {
                 codec: 'av01.0.13M.10',
-                name: 'AV1 Main 4K 120fps',
+                name: 'AV1 Main 4K 60fps HDR10',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K HDR10 120fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 120,
-                    bitrate: 40_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: '4K HDR10 60fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 60,
+                        bitrate: 35_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    },
+                    {
+                        name: '4K HDR10 59.94fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 35_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    },
+                    {
+                        name: '4K HDR10 23.976fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 20_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
                         { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
-                        { token: '13M', meaning: 'Level 5.1 (seq_level_idx=13), Main tier. Supports 4K@120fps. Main tier peak bitrate 40 Mbps.' },
+                        { token: '13M', meaning: 'Level 5.1 (seq_level_idx=13), Main tier. Max display rate 534M samples/s — supports 4K@60fps. Main tier peak bitrate 40 Mbps.' },
                         { token: '10', meaning: '10-bit (BitDepth=10). Required for HDR10 PQ content.' }
                     ],
-                    overview: 'AV1 Main Profile at Level 5.1 — 4K@120fps HDR. Level 5.1 doubles the display rate vs 5.0, enabling high frame rate 4K. Few hardware decoders currently support AV1 at 4K@120fps.',
+                    overview: 'AV1 Main Profile at Level 5.1 — 4K@60fps HDR. Level 5.1 doubles the display rate of 5.0 (534M vs 267M samples/s), enabling 60fps at 4K. Used for premium HDR sports and gaming streaming.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'HDR10 120fps',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=40000000,CODECS="av01.0.13M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=120
-av1_4k_hdr10_120fps.m3u8`,
-                                notes: 'FRAME-RATE=120 attribute recommended for high frame rate variants so the player can filter by display capability. 120fps at 4K is uncommon in HLS — tests decoder advertisement, not real-world delivery.'
+                                signal: 'HDR10 4K 60fps',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=35000000,CODECS="av01.0.13M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ,FRAME-RATE=60
+av1_4k_hdr10_60fps.m3u8`,
+                                notes: 'FRAME-RATE=60 attribute recommended for high frame rate variants so the player can filter by display capability. VIDEO-RANGE=PQ signals HDR10. fMP4 segments required.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'HDR10 120fps with CICP',
+                                signal: 'HDR10 4K 60fps with CICP',
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.13M.10">
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="40000000" width="3840" height="2160" frameRate="120"/>
+  <Representation bandwidth="35000000" width="3840" height="2160" frameRate="60"/>
 </AdaptationSet>`,
-                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). 120fps in DASH requires very short segment duration or large segments. Practical for gaming/sports streaming where AV1 hardware decode exists.'
+                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). 60fps at 4K doubles segment data vs 30fps — consider shorter segment durations for ABR stability.'
                             }
                         ]
                     },
                     containerNotes: {
-                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. 4K@120fps MP4 requires very high sustained I/O (40+ Mbps). Practical only from NVMe or fast network storage.',
-                        mkv: 'Matroska with CodecID V_AV1. 120fps MKV for gaming captures or sports content.',
-                        webm: 'WebM — 120fps AV1 in WebM. Extremely high data rate, limited to software decode on most platforms.',
-                        fmp4: 'Fragmented MP4 for DASH segments. 120fps doubles segment data vs 60fps — very short segments recommended for ABR stability.',
-                        cmaf: 'CMAF (ISO 23000-19) — 120fps CMAF segments. Theoretical for now — few pipelines produce 4K@120 AV1 CMAF content.'
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. 4K@60fps MP4 at 35 Mbps requires sustained I/O from SSD or fast network storage.',
+                        mkv: 'Matroska with CodecID V_AV1. 60fps MKV for gaming captures or sports content.',
+                        webm: 'WebM — 4K 60fps AV1 HDR in WebM. High data rate, requires hardware AV1 decode.',
+                        fmp4: 'Fragmented MP4 for DASH segments. 60fps doubles segment data vs 30fps — shorter segments recommended for ABR stability.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH 60fps HDR delivery.'
                     },
                     references: [
                         { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
@@ -2609,24 +2704,26 @@ av1_8k_hdr10.m3u8`,
 
             {
                 codec: 'av01.1.08M.10',
-                name: 'AV1 High 4:4:4',
+                name: 'AV1 High 1080p 4:4:4',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K 4:4:4 HDR10 24fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 24,
-                    bitrate: 20_000_000,
-                    bitDepth: 10,
-                    chromaSubsampling: '4:4:4',
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: '1080p 4:4:4 HDR10 24fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 24,
+                        bitrate: 8_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:4:4',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
@@ -2639,7 +2736,7 @@ av1_8k_hdr10.m3u8`,
                         hls: [
                             {
                                 signal: 'High Profile 4:4:4',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.1.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="av01.1.08M.10,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
 av1_high_444.m3u8`,
                                 notes: 'High Profile (seq_profile=1) in HLS. No consumer device supports AV1 High Profile — this tests API-level codec string recognition. Apple HLS spec does not specifically address AV1 High Profile.'
                             }
@@ -2650,7 +2747,7 @@ av1_high_444.m3u8`,
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.1.08M.10">
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). High Profile 4:4:4 in DASH is for professional/screen content workflows. No consumer DASH player supports High Profile decode.'
                             }
@@ -2673,24 +2770,26 @@ av1_high_444.m3u8`,
 
             {
                 codec: 'av01.2.08M.10',
-                name: 'AV1 Professional 4:2:2',
+                name: 'AV1 Professional 1080p 4:2:2',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash', 'cmaf']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K 4:2:2 HDR10 24fps',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 24,
-                    bitrate: 20_000_000,
-                    bitDepth: 10,
-                    chromaSubsampling: '4:2:2',
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: '1080p 4:2:2 HDR10 24fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 24,
+                        bitrate: 8_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:2',
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
@@ -2703,7 +2802,7 @@ av1_high_444.m3u8`,
                         hls: [
                             {
                                 signal: 'Professional 4:2:2',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.2.08M.10,mp4a.40.2",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="av01.2.08M.10,mp4a.40.2",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
 av1_pro_422.m3u8`,
                                 notes: 'Professional Profile (seq_profile=2) in HLS. No consumer device supports AV1 Professional Profile — tests API recognition only. Not addressed in Apple HLS authoring spec.'
                             }
@@ -2714,7 +2813,7 @@ av1_pro_422.m3u8`,
                                 mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.2.08M.10">
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
   <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). Professional Profile 4:2:2 in DASH — used in post-production streaming workflows. No consumer DASH player decodes this profile.'
                             }
@@ -2726,6 +2825,81 @@ av1_pro_422.m3u8`,
                         webm: 'WebM — 4:2:2 AV1 in WebM. Professional post-production format preserving full chroma bandwidth.',
                         fmp4: 'Fragmented MP4 — same MIME as regular MP4. 4:2:2 increases chroma data vs 4:2:0.',
                         cmaf: 'CMAF (ISO 23000-19) — theoretical for Professional Profile AV1. No production CMAF pipeline exists.'
+                    },
+                    references: [
+                        { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
+                        { title: 'AV1 Codec ISO Media File Format Binding', url: 'https://aomediacodec.github.io/av1-isobmff/' }
+                    ]
+                }
+            },
+            // ── av01.0.12M.08 ──
+
+            {
+                codec: 'av01.0.12M.08',
+                name: 'AV1 Main 4K SDR',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash', 'cmaf']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K SDR 30fps',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 20_000_000,
+                    bitDepth: 8,
+                },
+                    {
+                        name: '4K SDR 23.976fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 20_000_000,
+                        bitDepth: 8,
+                    },
+                    {
+                        name: '4K SDR 29.97fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 20_000_000,
+                        bitDepth: 8,
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'av01', meaning: 'AV1 codec identifier per AV1 Codec ISO Media File Format Binding.' },
+                        { token: '0', meaning: 'Main Profile (seq_profile=0). 8-bit and 10-bit, 4:2:0 only.' },
+                        { token: '12M', meaning: 'Level 5.0 (seq_level_idx=12), Main tier. Max 8,912,896 luma samples — supports 4K@30fps. Main tier peak bitrate 30 Mbps.' },
+                        { token: '08', meaning: '8-bit (BitDepth=8).' }
+                    ],
+                    overview: 'AV1 Main Profile at Level 5.0 — 4K SDR in 8-bit. Fills the 4K SDR gap after Level 4.0 records are capped at 1080p. YouTube and AV1-capable set-top boxes use Level 5.0 for 4K SDR delivery.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 4K',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="av01.0.12M.08,mp4a.40.2",RESOLUTION=3840x2160
+av1_4k_sdr.m3u8`,
+                                notes: 'AV1 4K in HLS requires fMP4 segments and Safari 17+ / tvOS 17+. No VIDEO-RANGE needed for SDR.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 4K',
+                                mpd: `<AdaptationSet mimeType="video/mp4" codecs="av01.0.12M.08">
+  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
+</AdaptationSet>`,
+                                notes: 'Standard DASH signaling. YouTube and Netflix use AV1 Level 5.0 for 4K SDR DASH delivery.'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per AV1 ISOBMFF Binding. av1C box stores AV1CodecConfigurationRecord. 4K SDR is the mainstream AV1 MP4 use case.',
+                        mkv: 'Matroska with CodecID V_AV1. 4K AV1 MKV common in media server libraries (Jellyfin, Plex).',
+                        webm: 'WebM — YouTube serves 4K AV1 as WebM via DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. Same video/mp4 MIME as regular MP4.',
+                        cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH delivery.'
                     },
                     references: [
                         { title: 'AV1 Bitstream & Decoding Process Specification', url: 'https://aomediacodec.github.io/av1-spec/' },
@@ -2802,41 +2976,44 @@ vp9_legacy.m3u8`,
 
             {
                 codec: 'vp09.00.10.08',
-                name: 'VP9 Profile 0 SD',
+                name: 'VP9 Profile 0 QCIF',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '1080p SDR',
-                    width: 1920,
-                    height: 1080,
-                    framerate: 30,
-                    bitrate: 5_000_000,
-                }],
+                scenarios: [
+                    {
+                        name: 'QCIF SDR 24fps',
+                        width: 176,
+                        height: 144,
+                        framerate: 24,
+                        bitrate: 150000,
+                        bitDepth: 8,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
-                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '10', meaning: 'Level 1.0. Max 36,864 luma samples (192×192 max). Lowest defined level.' },
                         { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: 'VP9 Profile 0 at Level 1.0 — minimum level entry. Tests baseline VP9 support detection at the lowest defined level.',
+                    overview: 'VP9 Profile 0 at Level 1 — baseline profile detection at the minimum defined level. Level 1 caps at 36,864 luma samples (QCIF-class), testing whether the browser recognizes VP9 codec strings at all.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'SDR 1080p',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="vp09.00.10.08,opus",RESOLUTION=1920x1080
+                                signal: 'SDR QCIF',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=150000,CODECS="vp09.00.10.08,opus",RESOLUTION=176x144
 vp9_p0_l10.m3u8`,
                                 notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 HLS via MediaSource Extensions.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'SDR 1080p',
+                                signal: 'SDR QCIF',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.10.08">
-  <Representation bandwidth="5000000" width="1920" height="1080" frameRate="30"/>
+  <Representation bandwidth="150000" width="176" height="144" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'Structured VP9 codec string in DASH. WebM mimeType for WebM segments. Can also use video/mp4 when VP9 is in ISOBMFF per VP Codec ISO Media File Format Binding.'
                             }
@@ -2858,41 +3035,44 @@ vp9_p0_l10.m3u8`,
 
             {
                 codec: 'vp09.00.21.08',
-                name: 'VP9 Profile 0 480p',
+                name: 'VP9 Profile 0 360p',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '480p SDR',
-                    width: 854,
-                    height: 480,
-                    framerate: 30,
-                    bitrate: 2_000_000,
-                }],
+                scenarios: [
+                    {
+                        name: '360p SDR 30fps',
+                        width: 640,
+                        height: 360,
+                        framerate: 30,
+                        bitrate: 1_500_000,
+                        bitDepth: 8,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
-                        { token: '21', meaning: 'Level 2.1. Supports up to 480p resolution.' },
+                        { token: '21', meaning: 'Level 2.1. Max 245,760 luma samples (dim ≤ 1344). Supports up to 360p resolution.' },
                         { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: 'VP9 Profile 0 at Level 2.1 — 480p SDR. Common as the lowest adaptive bitrate rung in YouTube DASH manifests.',
+                    overview: 'VP9 Profile 0 at Level 2.1 — 360p SDR. Level 2.1 caps at 245,760 luma samples (640×384 max), suitable for 360p. Common as the lowest ABR rung in YouTube DASH manifests.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'SDR 480p',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=2000000,CODECS="vp09.00.21.08,opus",RESOLUTION=854x480
-vp9_p0_480p.m3u8`,
+                                signal: 'SDR 360p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=1500000,CODECS="vp09.00.21.08,opus",RESOLUTION=640x360
+vp9_p0_360p.m3u8`,
                                 notes: 'VP9 is not supported in Apple HLS. Third-party MSE players on Chromium can handle VP9 HLS.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'SDR 480p',
+                                signal: 'SDR 360p',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.21.08">
-  <Representation bandwidth="2000000" width="854" height="480" frameRate="30"/>
+  <Representation bandwidth="1500000" width="640" height="360" frameRate="30"/>
 </AdaptationSet>`,
                                 notes: 'Level 2.1 in YouTube DASH — lowest ABR rung. YouTube uses video/webm mimeType with WebM segments for VP9 delivery.'
                             }
@@ -2928,18 +3108,19 @@ vp9_p0_480p.m3u8`,
                     bitrate: 5_000_000,
                 },
                     {
-                        name: '4K SDR',
-                        width: 3840,
-                        height: 2160,
-                        framerate: 30,
-                        bitrate: 15_000_000,
+                        name: '720p SDR 29.97fps',
+                        width: 1280,
+                        height: 720,
+                        framerate: 29.97,
+                        bitrate: 5_000_000,
+                        bitDepth: 8,
                     }
                 ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
-                        { token: '31', meaning: 'Level 3.1. Supports up to 720p resolution.' },
+                        { token: '31', meaning: 'Level 3.1. Max 983,040 luma samples (dim ≤ 2752). Supports up to 720p resolution.' },
                         { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
                     overview: 'VP9 Profile 0 at Level 3.1 — 720p SDR. Standard 720p delivery level for YouTube and DASH streaming.',
@@ -2992,11 +3173,20 @@ vp9_p0_720p.m3u8`,
                     bitrate: 8_000_000,
                 },
                     {
-                        name: '1080p60 SDR',
+                        name: '1080p SDR 23.976fps',
                         width: 1920,
                         height: 1080,
-                        framerate: 60,
-                        bitrate: 12_000_000,
+                        framerate: 23.976,
+                        bitrate: 8_000_000,
+                        bitDepth: 8,
+                    },
+                    {
+                        name: '1080p SDR 29.97fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 29.97,
+                        bitrate: 8_000_000,
+                        bitDepth: 8,
                     }
                 ],
                 education: {
@@ -3054,7 +3244,16 @@ vp9_p0_1080p.m3u8`,
                     height: 2160,
                     framerate: 30,
                     bitrate: 15_000_000,
-                }],
+                },
+                    {
+                        name: '4K SDR 29.97fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 20_000_000,
+                        bitDepth: 8,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
@@ -3098,41 +3297,45 @@ vp9_p0_4k.m3u8`,
 
             {
                 codec: 'vp09.01.10.08',
-                name: 'VP9 Profile 1 SD',
+                name: 'VP9 Profile 1 QCIF',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '1080p 4:2:2',
-                    width: 1920,
-                    height: 1080,
-                    framerate: 30,
-                    bitrate: 8_000_000,
-                }],
+                scenarios: [
+                    {
+                        name: 'QCIF 4:2:2 24fps',
+                        width: 176,
+                        height: 144,
+                        framerate: 24,
+                        bitrate: 150000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:2',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '01', meaning: 'Profile 1. 8-bit, adds 4:2:2 and 4:4:4 chroma subsampling.' },
-                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '10', meaning: 'Level 1.0. Max 36,864 luma samples (192×192 max). Lowest defined level.' },
                         { token: '08', meaning: '8-bit (bitDepth=8).' }
                     ],
-                    overview: 'VP9 Profile 1 at Level 1.0 — 8-bit with 4:2:2/4:4:4 chroma. Profile 1 adds higher chroma subsampling while staying at 8-bit depth. No hardware decoder widely supports Profile 1.',
+                    overview: 'VP9 Profile 1 at Level 1 — baseline 4:2:2 profile detection at the minimum level. Level 1 caps at 36,864 luma samples (QCIF-class). Tests whether the browser distinguishes Profile 1 from Profile 0.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'Profile 1 4:2:2',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=8000000,CODECS="vp09.01.10.08,opus",RESOLUTION=1920x1080
+                                signal: 'Profile 1 QCIF',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=150000,CODECS="vp09.01.10.08,opus",RESOLUTION=176x144
 vp9_p1_422.m3u8`,
                                 notes: 'VP9 is not supported in Apple HLS. Profile 1 adds no HLS-specific signaling. Tests API recognition of profile=01.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'Profile 1 4:2:2',
+                                signal: 'Profile 1 QCIF',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.01.10.08">
-  <Representation bandwidth="8000000" width="1920" height="1080" frameRate="30"/>
+  <Representation bandwidth="150000" width="176" height="144" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'VP9 Profile 1 in DASH. Profile 1 (4:2:2/4:4:4) is not used by YouTube or mainstream DASH services. Tests decoder advertisement for non-standard chroma.'
                             }
@@ -3210,49 +3413,46 @@ vp9_p1_1080p.m3u8`,
 
             {
                 codec: 'vp09.02.10.10',
-                name: 'VP9 Profile 2 SD',
+                name: 'VP9 Profile 2 QCIF',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K HDR10',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 24,
-                    bitrate: 15_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: 'QCIF 10-bit 24fps',
+                        width: 176,
+                        height: 144,
+                        framerate: 24,
+                        bitrate: 150000,
+                        bitDepth: 10,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
-                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '10', meaning: 'Level 1.0. Max 36,864 luma samples (192×192 max). Lowest defined level.' },
                         { token: '10', meaning: '10-bit (bitDepth=10). Required for HDR10 and HLG.' }
                     ],
-                    overview: 'VP9 Profile 2 at Level 1.0 — 10-bit 4:2:0 HDR entry point. Short-form codec string without CICP parameters; the decoder reads color config from the bitstream.',
+                    overview: 'VP9 Profile 2 at Level 1 — baseline 10-bit profile detection at the minimum level. Short-form codec string without CICP parameters; tests whether the browser recognizes Profile 2 at the lowest level.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'HDR10 4K',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="vp09.02.10.10,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
-vp9_p2_hdr10.m3u8`,
-                                notes: 'VP9 is not supported in Apple HLS. VIDEO-RANGE=PQ shown for completeness but no Apple device processes this. Third-party players on Chromium may handle VP9 HDR HLS.'
+                                signal: 'Profile 2 QCIF',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=150000,CODECS="vp09.02.10.10,opus",RESOLUTION=176x144
+vp9_p2_l1.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. Tests API recognition of VP9 Profile 2 at minimum level.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'HDR10 4K with CICP',
+                                signal: 'Profile 2 QCIF',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.10.10">
-  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
-  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="15000000" width="3840" height="2160" frameRate="24"/>
+  <Representation bandwidth="150000" width="176" height="144" frameRate="24"/>
 </AdaptationSet>`,
-                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). Short-form codec string — CICP in DASH supplemental properties. YouTube serves VP9 HDR via WebM DASH with CICP signaling.'
+                                notes: 'Short-form VP9 Profile 2 codec string in DASH. Level 1 QCIF scenario tests codec string recognition only.'
                             }
                         ]
                     },
@@ -3272,28 +3472,30 @@ vp9_p2_hdr10.m3u8`,
 
             {
                 codec: 'vp09.02.10.10.01.09.16.09.01',
-                name: 'VP9 Profile 2 HDR10 (full range)',
+                name: 'VP9 Profile 2 QCIF HDR10 (full range)',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K HDR10',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 60,
-                    bitrate: 20_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: 'QCIF HDR10 24fps',
+                        width: 176,
+                        height: 144,
+                        framerate: 24,
+                        bitrate: 150000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
-                        { token: '10', meaning: 'Level 1.0.' },
+                        { token: '10', meaning: 'Level 1.0. Max 36,864 luma samples (192×192 max).' },
                         { token: '10', meaning: '10-bit (bitDepth=10).' },
                         { token: '01', meaning: 'Chroma subsampling: 4:2:0, colocated with luma (chromaSubsampling=1).' },
                         { token: '09', meaning: 'Color primaries: BT.2020 (colourPrimaries=9, ITU-T H.273).' },
@@ -3301,21 +3503,21 @@ vp9_p2_hdr10.m3u8`,
                         { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrixCoefficients=9, ITU-T H.273).' },
                         { token: '01', meaning: 'Full range (videoFullRangeFlag=1). Luma and chroma use the full 0-1023 range for 10-bit.' }
                     ],
-                    overview: 'VP9 Profile 2 HDR10 with full-range signaling. Full range (vs limited/studio) uses the complete code value space — less common for HDR10 delivery but tests browser handling of the videoFullRangeFlag.',
+                    overview: 'VP9 Profile 2 HDR10 with full-range signaling at Level 1. Full range (vs limited/studio) uses the complete code value space. Level 1 QCIF scenario tests browser handling of the extended codec string with videoFullRangeFlag.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'HDR10 Full Range',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.10.10.01.09.16.09.01,opus",RESOLUTION=3840x2160,VIDEO-RANGE=PQ
+                                signal: 'HDR10 Full Range QCIF',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=150000,CODECS="vp09.02.10.10.01.09.16.09.01,opus",RESOLUTION=176x144,VIDEO-RANGE=PQ
 vp9_p2_hdr10_full.m3u8`,
                                 notes: 'VP9 is not supported in Apple HLS. Extended codec string with full-range flag (videoFullRangeFlag=1) in CODECS attribute.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'HDR10 Full Range',
+                                signal: 'HDR10 Full Range QCIF',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.10.10.01.09.16.09.01">
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="60"/>
+  <Representation bandwidth="150000" width="176" height="144" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'Extended codec string embeds CICP (cp=9, tc=16, mc=9) + full range flag directly. No separate SupplementalProperty needed. Full range is uncommon for HDR10 delivery.'
                             }
@@ -3338,28 +3540,30 @@ vp9_p2_hdr10_full.m3u8`,
 
             {
                 codec: 'vp09.02.10.10.01.09.18.09.01',
-                name: 'VP9 Profile 2 HLG (full range)',
+                name: 'VP9 Profile 2 QCIF HLG (full range)',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K HLG',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 60,
-                    bitrate: 20_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'hlg',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hlg',
-                }],
+                scenarios: [
+                    {
+                        name: 'QCIF HLG 24fps',
+                        width: 176,
+                        height: 144,
+                        framerate: 24,
+                        bitrate: 150000,
+                        bitDepth: 10,
+                        transferFunction: 'hlg',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hlg',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
-                        { token: '10', meaning: 'Level 1.0.' },
+                        { token: '10', meaning: 'Level 1.0. Max 36,864 luma samples (192×192 max).' },
                         { token: '10', meaning: '10-bit (bitDepth=10).' },
                         { token: '01', meaning: 'Chroma subsampling: 4:2:0, colocated with luma (chromaSubsampling=1).' },
                         { token: '09', meaning: 'Color primaries: BT.2020 (colourPrimaries=9, ITU-T H.273).' },
@@ -3367,21 +3571,21 @@ vp9_p2_hdr10_full.m3u8`,
                         { token: '09', meaning: 'Matrix coefficients: BT.2020 non-constant luminance (matrixCoefficients=9, ITU-T H.273).' },
                         { token: '01', meaning: 'Full range (videoFullRangeFlag=1).' }
                     ],
-                    overview: 'VP9 Profile 2 HLG with full-range signaling. HLG (Hybrid Log-Gamma) is backward-compatible with SDR displays — no metadata required. Full-range HLG is less common than limited-range in broadcast delivery.',
+                    overview: 'VP9 Profile 2 HLG with full-range signaling at Level 1. HLG (Hybrid Log-Gamma) is backward-compatible with SDR displays — no metadata required. Level 1 QCIF scenario tests browser handling of the extended HLG codec string.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'HLG Full Range',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.10.10.01.09.18.09.01,opus",RESOLUTION=3840x2160,VIDEO-RANGE=HLG
+                                signal: 'HLG Full Range QCIF',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=150000,CODECS="vp09.02.10.10.01.09.18.09.01,opus",RESOLUTION=176x144,VIDEO-RANGE=HLG
 vp9_p2_hlg_full.m3u8`,
                                 notes: 'VP9 is not supported in Apple HLS. VIDEO-RANGE=HLG shown for documentation — no Apple device processes VP9 HLG.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'HLG Full Range',
+                                signal: 'HLG Full Range QCIF',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.10.10.01.09.18.09.01">
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="60"/>
+  <Representation bandwidth="150000" width="176" height="144" frameRate="24"/>
 </AdaptationSet>`,
                                 notes: 'Extended codec string embeds CICP (cp=9, tc=18 HLG, mc=9) + full range flag. No separate SupplementalProperty needed.'
                             }
@@ -3410,38 +3614,40 @@ vp9_p2_hlg_full.m3u8`,
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '4K SDR 10-bit',
-                    width: 3840,
-                    height: 2160,
-                    framerate: 30,
-                    bitrate: 20_000_000,
-                    bitDepth: 10,
-                }],
+                scenarios: [
+                    {
+                        name: '720p SDR 10-bit 30fps',
+                        width: 1280,
+                        height: 720,
+                        framerate: 30,
+                        bitrate: 5_000_000,
+                        bitDepth: 10,
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '02', meaning: 'Profile 2. 10-bit or 12-bit, 4:2:0 chroma subsampling.' },
-                        { token: '31', meaning: 'Level 3.1. Supports up to 720p resolution.' },
+                        { token: '31', meaning: 'Level 3.1. Max 983,040 luma samples (dim ≤ 2752). Supports up to 720p resolution.' },
                         { token: '10', meaning: '10-bit (bitDepth=10).' }
                     ],
                     overview: 'VP9 Profile 2 at Level 3.1 — 10-bit SDR at 720p. 10-bit encoding without HDR reduces banding artifacts in gradients. Short-form codec string; color config inferred from bitstream.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'SDR 10-bit',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=20000000,CODECS="vp09.02.31.10,opus",RESOLUTION=3840x2160
+                                signal: 'SDR 10-bit 720p',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=5000000,CODECS="vp09.02.31.10,opus",RESOLUTION=1280x720
 vp9_p2_sdr10.m3u8`,
                                 notes: 'VP9 is not supported in Apple HLS. 10-bit SDR (no HDR transfer function) — no VIDEO-RANGE needed.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'SDR 10-bit',
+                                signal: 'SDR 10-bit 720p',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.02.31.10">
-  <Representation bandwidth="20000000" width="3840" height="2160" frameRate="30"/>
+  <Representation bandwidth="5000000" width="1280" height="720" frameRate="30"/>
 </AdaptationSet>`,
-                                notes: '10-bit SDR VP9 in DASH. Short-form codec string — no CICP supplemental properties for SDR. 10-bit reduces banding in gradients without requiring HDR display.'
+                                notes: '10-bit SDR VP9 at 720p in DASH. Short-form codec string — no CICP supplemental properties for SDR. 10-bit reduces banding in gradients without requiring HDR display.'
                             }
                         ]
                     },
@@ -3488,6 +3694,17 @@ vp9_p2_sdr10.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020',
                         hdrFormat: 'hlg',
+                    },
+                    {
+                        name: '4K HDR10 29.97fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 20_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
                     }
                 ],
                 education: {
@@ -3703,6 +3920,17 @@ vp9_p2_4k_hlg_limited.m3u8`,
                         transferFunction: 'hlg',
                         colorGamut: 'rec2020',
                         hdrFormat: 'hlg',
+                    },
+                    {
+                        name: '4K HDR10 59.94fps',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 59.94,
+                        bitrate: 35_000_000,
+                        bitDepth: 10,
+                        transferFunction: 'pq',
+                        colorGamut: 'rec2020',
+                        hdrFormat: 'hdr10',
                     }
                 ],
                 education: {
@@ -3812,49 +4040,47 @@ vp9_p2_4k_12bit.m3u8`,
 
             {
                 codec: 'vp09.03.10.10',
-                name: 'VP9 Profile 3 SD',
+                name: 'VP9 Profile 3 QCIF',
                 containers: {
                     file: ['mp4', 'mkv', 'webm'],
                     stream: ['fmp4', 'dash']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '1080p 4:4:4 HDR',
-                    width: 1920,
-                    height: 1080,
-                    framerate: 30,
-                    bitrate: 10_000_000,
-                    bitDepth: 10,
-                    transferFunction: 'pq',
-                    colorGamut: 'rec2020',
-                    hdrFormat: 'hdr10',
-                }],
+                scenarios: [
+                    {
+                        name: 'QCIF 4:4:4 10-bit 24fps',
+                        width: 176,
+                        height: 144,
+                        framerate: 24,
+                        bitrate: 150000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:4:4',
+                    }
+                ],
                 education: {
                     breakdown: [
                         { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
                         { token: '03', meaning: 'Profile 3. 10-bit or 12-bit, adds 4:2:2 and 4:4:4 chroma subsampling.' },
-                        { token: '10', meaning: 'Level 1.0. Lowest defined level.' },
+                        { token: '10', meaning: 'Level 1.0. Max 36,864 luma samples (192×192 max). Lowest defined level.' },
                         { token: '10', meaning: '10-bit (bitDepth=10).' }
                     ],
-                    overview: 'VP9 Profile 3 at Level 1.0 — 10-bit with 4:4:4 chroma. Profile 3 combines high bit depth with full chroma resolution. No consumer hardware decoder supports Profile 3.',
+                    overview: 'VP9 Profile 3 at Level 1 — baseline 4:4:4 10-bit profile detection at the minimum level. Profile 3 combines high bit depth with full chroma resolution. No consumer hardware decoder supports Profile 3.',
                     streaming: {
                         hls: [
                             {
-                                signal: 'Profile 3 4:4:4',
-                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=10000000,CODECS="vp09.03.10.10,opus",RESOLUTION=1920x1080,VIDEO-RANGE=PQ
+                                signal: 'Profile 3 QCIF',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=150000,CODECS="vp09.03.10.10,opus",RESOLUTION=176x144
 vp9_p3_444.m3u8`,
                                 notes: 'VP9 is not supported in Apple HLS. Profile 3 (10-bit 4:4:4) tests API recognition only — no consumer hardware decoder supports Profile 3.'
                             }
                         ],
                         dash: [
                             {
-                                signal: 'Profile 3 4:4:4 with CICP',
+                                signal: 'Profile 3 QCIF',
                                 mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.03.10.10">
-  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:TransferCharacteristics" value="16"/>
-  <SupplementalProperty schemeIdUri="urn:mpeg:mpegB:cicp:ColourPrimaries" value="9"/>
-  <Representation bandwidth="10000000" width="1920" height="1080" frameRate="30"/>
+  <Representation bandwidth="150000" width="176" height="144" frameRate="24"/>
 </AdaptationSet>`,
-                                notes: 'CICP TC=16 (PQ) + CP=9 (BT.2020). VP9 Profile 3 (10-bit 4:4:4) in DASH. Professional/screen content use case. No consumer DASH player supports Profile 3.'
+                                notes: 'VP9 Profile 3 (10-bit 4:4:4) in DASH. Level 1 QCIF scenario tests codec string recognition. No consumer DASH player supports Profile 3.'
                             }
                         ]
                     },
@@ -3981,6 +4207,72 @@ vp9_p0_8k.m3u8`,
                         mkv: 'Matroska with CodecID V_VP9. 8K MKV for demo content.',
                         webm: 'WebM — 8K VP9 in WebM. YouTube 8K demo content.',
                         fmp4: 'Fragmented MP4 for DASH segments. Very large segment sizes at 8K.',
+                    },
+                    references: [
+                        { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
+                        { title: 'VP Codec ISO Media File Format Binding', url: 'https://www.webmproject.org/vp9/mp4/' }
+                    ]
+                }
+            },
+            // ── vp09.00.41.08 ──
+
+            {
+                codec: 'vp09.00.41.08',
+                name: 'VP9 Profile 0 1080p60',
+                containers: {
+                    file: ['mp4', 'mkv', 'webm'],
+                    stream: ['fmp4', 'dash']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p60 SDR',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 60,
+                    bitrate: 15_000_000,
+                    bitDepth: 8,
+                },
+                    {
+                        name: '1080p60 SDR 59.94fps',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 59.94,
+                        bitrate: 15_000_000,
+                        bitDepth: 8,
+                    }
+                ],
+                education: {
+                    breakdown: [
+                        { token: 'vp09', meaning: 'VP9 codec identifier per VP Codec ISO Media File Format Binding.' },
+                        { token: '00', meaning: 'Profile 0. 8-bit only, 4:2:0 chroma subsampling.' },
+                        { token: '41', meaning: 'Level 4.1. Max display rate 160,432,128 samples/s — supports 1080p@60fps. Max bitrate 30 Mbps.' },
+                        { token: '08', meaning: '8-bit (bitDepth=8).' }
+                    ],
+                    overview: 'VP9 Profile 0 at Level 4.1 — 1080p@60fps SDR. Level 4.1 doubles the display rate of Level 4 (160M vs 83M samples/s), enabling 60fps at 1080p. YouTube uses this level for 1080p60 VP9 delivery.',
+                    streaming: {
+                        hls: [
+                            {
+                                signal: 'SDR 1080p60',
+                                m3u8: `#EXT-X-STREAM-INF:BANDWIDTH=15000000,CODECS="vp09.00.41.08,opus",RESOLUTION=1920x1080,FRAME-RATE=60
+vp9_p0_1080p60.m3u8`,
+                                notes: 'VP9 is not supported in Apple HLS. FRAME-RATE=60 attribute for high frame rate variant filtering. Third-party MSE players on Chromium can handle VP9 HLS.'
+                            }
+                        ],
+                        dash: [
+                            {
+                                signal: 'SDR 1080p60',
+                                mpd: `<AdaptationSet mimeType="video/webm" codecs="vp09.00.41.08">
+  <Representation bandwidth="15000000" width="1920" height="1080" frameRate="60"/>
+</AdaptationSet>`,
+                                notes: 'YouTube VP9 1080p60 DASH delivery. Level 4.1 is the standard YouTube level for 1080p@60fps VP9 content (sports, gaming).'
+                            }
+                        ]
+                    },
+                    containerNotes: {
+                        mp4: 'ISOBMFF per VP Codec ISO Media File Format Binding. vpcC box stores VP9 codec configuration.',
+                        mkv: 'Matroska with CodecID V_VP9. 1080p60 VP9 MKV common in gaming captures.',
+                        webm: 'WebM — native VP9 container. YouTube serves 1080p60 VP9 as WebM via DASH.',
+                        fmp4: 'Fragmented MP4 for DASH segments. 60fps doubles segment data vs 30fps.',
                     },
                     references: [
                         { title: 'VP9 Bitstream Specification', url: 'https://www.webmproject.org/vp9/' },
