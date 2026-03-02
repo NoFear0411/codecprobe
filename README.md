@@ -225,13 +225,14 @@ Every codec string in the v2 database is validated against [**codec-resolve**](h
 The migration workflow:
 
 1. **Decode** — `python -m codec_resolve --decode hvc1.2.4.L153.B0` parses the string, validates profile/level/constraint relationships, and flags semantic errors (wrong tier for level, incompatible chroma for profile, etc.)
-2. **Validate** — 145 automated tests across HEVC, AV1, VP9, VP8, and Dolby Vision confirm that every codec string follows its spec (ITU-T, ISO/IEC, IETF, VP9-ISOBMFF Binding)
+2. **Validate** — 180 automated tests across HEVC, AV1, VP9, AVC, VP8, and Dolby Vision confirm that every codec string follows its spec (ITU-T, ISO/IEC, IETF, VP9-ISOBMFF Binding)
 3. **Insert** — only strings that pass validation are added to the v2 database via `scripts/db-tool-v2.mjs`
 
 This prevents invalid or malformed codec strings from polluting the test matrix. When a browser reports "unsupported" for a CodecProbe test, it means the codec string is spec-correct and the browser genuinely lacks support — not that we sent a malformed string.
 
 codec-resolve currently supports:
 - **HEVC** — 13 profiles, constraint flag validation, tier/level cross-checks
+- **AVC/H.264** — 8 profiles, 20 levels, hex triplet format, constraint flags, bitrate multipliers
 - **Dolby Vision** — profiles 5/7/8/9/10/20, HEVC/AV1 hybrid cross-validation, HLS brand inference
 - **AV1** — profiles 0/1/2, tier/level, color parameter validation
 - **VP9** — profiles 0–3, 13 levels, chroma/depth orthogonality checks
@@ -272,7 +273,7 @@ Every education entry in the codec database cites its sources. 38 specifications
 | **IETF** | RFC 6386 (VP8), RFC 6716 (Opus), RFC 8216 (HLS), RFC 9639 (FLAC) |
 | **Industry** | AV1 Bitstream & Decoding Process, AV1 ISOBMFF Binding, VP9 Bitstream & Decoding Process, VP9 ISOBMFF Binding, Vorbis I Specification, DASH-IF Implementation Guidelines |
 | **Vendor** | [Apple HLS Authoring Spec](https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices), [webOS TV AV Formats](https://webostv.developer.lge.com/develop/specifications/video-audio-250), [Android Supported Media Formats](https://developer.android.com/media/platform/supported-formats), [Android ExoPlayer DASH](https://developer.android.com/media/media3/exoplayer/dash), [Android ExoPlayer HLS](https://developer.android.com/media/media3/exoplayer/hls) |
-| **Companion** | [codec-resolve](https://github.com/nofear0411/codec-resolve) — codec string resolver and validator used to generate and validate the test matrix (145 tests across HEVC, DV, AV1, VP9, VP8) |
+| **Companion** | [codec-resolve](https://github.com/nofear0411/codec-resolve) — codec string resolver and validator used to generate and validate the test matrix (180 tests across HEVC, AVC, DV, AV1, VP9, VP8) |
 
 ## Contributing
 
