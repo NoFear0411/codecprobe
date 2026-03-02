@@ -122,29 +122,28 @@ if (!fs.existsSync(deployDir)) {
 
 fs.writeFileSync(outputPath, html);
 
-// 4. Compute JSON-LD hash and inject into deploy/_headers CSP
+// 4. Compute JSON-LD hash and inject into CSP meta tag + deploy/_headers
 const crypto = require('crypto');
 const headersPath = path.join(ROOT, '_headers');
 
 const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
-if (jsonLdMatch && fs.existsSync(headersPath)) {
+if (jsonLdMatch) {
     const jsonLdContent = jsonLdMatch[1];
     const hash = crypto.createHash('sha256').update(jsonLdContent, 'utf8').digest('base64');
     const cspHash = `'sha256-${hash}'`;
 
-    let headers = fs.readFileSync(headersPath, 'utf8');
-    headers = headers.replace(
-        /script-src 'self'(?:\s+'sha256-[^']+')*/,
-        `script-src 'self' ${cspHash}`
+    // Inject hash into CSP meta tag in HTML
+    html = html.replace(
+        /(<meta http-equiv="Content-Security-Policy" content="[^"]*script-src 'self')([^"]*")/,
+        `$1 ${cspHash}$2`
     );
+    fs.writeFileSync(outputPath, html);
+    console.log(`Injected JSON-LD CSP hash into meta tag: ${cspHash}`);
+}
 
-    fs.writeFileSync(path.join(deployDir, '_headers'), headers);
-    console.log(`Injected JSON-LD CSP hash: ${cspHash}`);
-} else {
-    // No JSON-LD or no _headers — copy as-is
-    if (fs.existsSync(headersPath)) {
-        fs.copyFileSync(headersPath, path.join(deployDir, '_headers'));
-    }
+// Copy _headers to deploy (CSP now lives in meta tag)
+if (fs.existsSync(headersPath)) {
+    fs.copyFileSync(headersPath, path.join(deployDir, '_headers'));
 }
 
 console.log(`Injected ${replacedCount} version parameters (HTML + JS imports)`);

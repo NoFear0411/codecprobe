@@ -2,6 +2,14 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.5.1] - 2026-03-02
+
+### Changed
+
+- **CSP via meta tag**: Moved Content-Security-Policy from `_headers`/Cloudflare into an HTML `<meta>` tag with build-time SHA256 hash injection for the JSON-LD script. Eliminates manual Cloudflare hash updates after each version bump.
+
+---
+
 ## [4.5.0] - 2026-03-02
 
 ### Added

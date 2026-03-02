@@ -251,14 +251,19 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 
 ## Security
 
-**Headers** (deployed via Cloudflare Transform Rules; `_headers` file for CF Pages/Netlify portability):
-- CSP: `default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
-- Permissions-Policy: camera, microphone, geolocation, payment, usb, bluetooth, accelerometer, gyroscope disabled. `encrypted-media` left at default (DRM detection needs it).
+**CSP** (via `<meta http-equiv="Content-Security-Policy">` in HTML):
+- `default-src 'none'; script-src 'self' 'sha256-...'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'`
+- `sha256` hash for the JSON-LD `<script>` is auto-injected by `scripts/inject-versions.js` at build time
+- `frame-ancestors` not supported in meta CSP — `X-Frame-Options: DENY` in Cloudflare covers it
+- `style-src 'unsafe-inline'` required — 14 inline style locations (1 HTML, 4 templates, 9 element.style in JS)
+
+**Other headers** (Cloudflare Transform Rules):
+- Permissions-Policy: camera, microphone, geolocation, payment, usb, accelerometer, gyroscope disabled. `encrypted-media` left at default (DRM detection needs it).
 - X-Content-Type-Options: nosniff, X-Frame-Options: DENY, Referrer-Policy: strict-origin-when-cross-origin, COOP: same-origin
 - COEP skipped (no SharedArrayBuffer benefit, fragile if external resources added)
 - HSTS skipped (.dev preloaded, Cloudflare handles it)
-- `style-src 'unsafe-inline'` required — 14 inline style locations (1 HTML, 4 templates, 9 element.style in JS)
-- GitHub Pages ignores `_headers` — all headers set in Cloudflare dashboard
+
+**`_headers` file**: Cache-control rules + non-CSP security headers for CF Pages/Netlify portability. GitHub Pages ignores it.
 
 **App-level**:
 - All HTML template-generated from codec database (no user input)
