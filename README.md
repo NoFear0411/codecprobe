@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.5.0**: 77 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. Purple error badges distinguish API exceptions from clean rejections. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.5.2**: 77 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. Purple error badges distinguish API exceptions from clean rejections. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -19,36 +19,25 @@ Each tested codec includes education content explaining the codec string format,
 
 ## Why This Exists
 
-The three browser codec APIs return different answers for the same codec string:
+Media servers decide whether to transcode based on browser codec API responses. The three browser APIs return different answers for the same codec string, containers affect results independently of the codec, and platform-level parser differences mean the same query can fail on one OS but succeed on another. CodecProbe tests all three APIs across multiple containers so you see where they disagree and why.
 
-- `canPlayType()` returns `"maybe"` for codecs without hardware decoders — it checks syntax, not capability
-- `MediaSource.isTypeSupported()` has stricter requirements than native `<video>` playback
-- `mediaCapabilities.decodingInfo()` is the only API that reports hardware decode, HDR transfer functions, and power efficiency — but most apps don't use it
-- The same codec string can return different results depending on the container, the API, and the device
+### The three APIs disagree
 
-Media servers decide whether to transcode based on these API responses. When the APIs are wrong or incomplete, you get unnecessary transcoding or failed playback. CodecProbe makes the full picture visible.
+- `canPlayType()` matches codec strings against an internal list — `"maybe"` does not mean the device can decode it
+- `MediaSource.isTypeSupported()` has stricter requirements than native `<video>` playback — a codec can work in a video element but fail in HLS/DASH streaming
+- `mediaCapabilities.decodingInfo()` reports hardware decode capability, HDR transfer functions, and power efficiency — but most media server apps don't query it
+- Safari's `canPlayType()` returns `""` for all Dolby Vision codec strings, even on devices with DV hardware — `mediaCapabilities` with `transferFunction: 'pq'` reveals the actual support that `canPlayType()` hides
 
-## Real-World Issues This Catches
+### Display limits override hardware
 
-### API Disagreement on Dolby Vision
+A device can have HDR decode hardware but a display that cannot render PQ content. iPad panels below 1000 nits return `supported: false` for `transferFunction: 'pq'` even with DV Profile 5 hardware — the API reflects the display limitation, not the SoC. The same codec string produces different `mediaCapabilities` results on devices with identical chips but different displays.
 
-`canPlayType()` returns `""` for all Dolby Vision codec strings on Safari, even on devices with DV hardware. Badge 1 shows red while badge 3 shows green — `mediaCapabilities` with `transferFunction: 'pq'` reveals the actual HDR support that `canPlayType()` hides.
+### Container and codec parser differences
 
-Media server apps that rely solely on `canPlayType()` will incorrectly decide to transcode DV content. CodecProbe makes this mismatch visible.
-
-### HDR Reporting vs. Display Capability
-
-A device can have HDR decode hardware but a display that cannot render PQ content. iPad panels below 1000 nits return `supported: false` for `transferFunction: 'pq'` even with DV Profile 5 hardware — the API correctly reflects the display limitation, not the SoC capability.
-
-This is why the same codec string shows different `mediaCapabilities` results on devices with identical chips but different displays.
-
-### Container Support vs. Codec Support
-
-The same HEVC codec string returns supported in MP4 but unsupported in MKV on most browsers. This directly maps to whether a media server needs to remux (fast container swap) or transcode (slow re-encode). CodecProbe tests each codec across multiple containers so you can see exactly which combinations your device handles.
-
-### MSE vs. Native Playback Gaps
-
-`MediaSource.isTypeSupported()` (badge 2) can disagree with `canPlayType()` (badge 1) for the same codec string. MSE has stricter requirements — a codec may work in a `<video>` element but fail in adaptive streaming. CodecProbe surfaces these gaps, which matter for HLS/DASH playback in media server web clients.
+- The same HEVC codec string returns supported in MP4 but unsupported in MKV on most browsers — the difference between a fast remux and a slow transcode
+- Chrome's media parser rejects `video/quicktime` (MOV) and `video/x-matroska` (MKV) MIME types entirely — the API returns unsupported before evaluating the codec string. Firefox and Safari parse those MIME types normally
+- Even with `video/mp4`, Chrome on Linux rejects all Dolby Vision FourCC tags (`dvh1`, `dvhe`, `dvc1`, `dvhp`, `dav1`, `dvav`) and dual-codec supplemental strings (e.g. `hvc1.2.4.L153.B0, dvhe.08.09`) — its media stack has no DV parser on that platform
+- These parser-level failures are distinct from decode-level failures: "the browser doesn't recognize this codec string" is a different problem from "the browser parsed it but can't decode it"
 
 ## What It Tests
 

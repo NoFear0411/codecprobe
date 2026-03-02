@@ -91,10 +91,6 @@ export async function testKeySystem(keySystem, drmName) {
         {
             contentType: 'video/mp4; codecs="avc1.42E01E"',
             robustness: 'HW_SECURE_ALL'
-        },
-        {
-            contentType: 'video/mp4; codecs="avc1.42E01E"',
-            robustness: ''
         }
     ];
 
@@ -102,10 +98,6 @@ export async function testKeySystem(keySystem, drmName) {
         {
             contentType: 'audio/mp4; codecs="mp4a.40.2"',
             robustness: 'SW_SECURE_CRYPTO'
-        },
-        {
-            contentType: 'audio/mp4; codecs="mp4a.40.2"',
-            robustness: ''
         }
     ];
 

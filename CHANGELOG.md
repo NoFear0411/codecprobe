@@ -2,6 +2,15 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.5.2] - 2026-03-02
+
+### Fixed
+
+- **DRM robustness warning**: Removed empty robustness fallback entries from device-level DRM detection. The 5 Widevine-specific levels already cover all tiers; empty fallbacks triggered Chrome console warnings.
+- **CSS source map 404**: Deploy workflow now copies `styles.css.map` alongside `styles.css`, fixing DevTools source map errors.
+
+---
+
 ## [4.5.1] - 2026-03-02
 
 ### Changed

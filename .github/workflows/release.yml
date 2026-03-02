@@ -48,7 +48,7 @@ jobs:
       - name: Prepare deploy directory
         run: |
           mkdir -p deploy/js deploy/css
-          cp css/styles.css deploy/css/
+          cp css/styles.css css/styles.css.map deploy/css/
           cp -r build/js/* deploy/js/
           rm -f deploy/js/codec-database.js
           cp -r icons screenshots deploy/
