@@ -2,11 +2,12 @@
 /**
  * Codec Testing Module
  *
- * Tests each codec record across all its containers using four test types:
+ * Tests each codec record across all its containers using three APIs:
  *   1  — HTMLMediaElement.canPlayType()           (per container)
  *   2  — MediaSource.isTypeSupported()            (per container)
  *   3  — mediaCapabilities.decodingInfo()         (per container, file or media-source)
- *   4  — requestMediaKeySystemAccess()            (per codec, conditional on device DRM)
+ *
+ * DRM testing uses decodingInfo() + keySystemConfiguration (API 3 variant).
  *
  * Spatial audio tested automatically for codecs with any scenario.spatial = true.
  *
@@ -42,10 +43,14 @@
 /**
  * @typedef {Object} DRMTestResult
  * @property {boolean} supported
+ * @property {boolean} [smooth]
+ * @property {boolean} [powerEfficient]
  * @property {string} [keySystem]
  * @property {string} [robustness]
- * @property {string} [persistentState]
+ * @property {string} [securityLevel]
  * @property {string} [reason]
+ * @property {boolean} [error] - true if exception was unexpected (timeout, etc.)
+ * @property {Object} [config] - Full decodingInfo config for display
  */
 
 /**
@@ -204,54 +209,72 @@ async function testScenarioCapabilities(scenario, mime, type, mcType, testSpatia
 }
 
 
-// ==================== PER-CODEC DRM TEST ====================
+// ==================== DRM VIA DECODING INFO ====================
 
 /**
- * Test a specific DRM key system with a specific codec MIME string.
+ * Map robustness string to human-readable security level.
+ * @param {string} robustness
+ * @returns {string}
+ */
+function interpretSecurityLevel(robustness) {
+    if (robustness.startsWith('HW_SECURE')) return 'Hardware (L1)';
+    if (robustness.startsWith('SW_SECURE')) return 'Software (L3)';
+    return robustness || 'Basic';
+}
+
+/**
+ * Test DRM capability for a codec+scenario via decodingInfo + keySystemConfiguration.
+ * Uses the same API as badge 3, adding DRM config to the request.
  *
- * @param {string} mime - Full MIME string for the codec
+ * @param {VideoScenario | AudioScenario} scenario
+ * @param {string} mime - Full MIME string
  * @param {MediaType} type
  * @param {string} keySystem - Key system ID (e.g. 'com.widevine.alpha')
  * @returns {Promise<DRMTestResult>}
  */
-async function testCodecDRM(mime, type, keySystem) {
-    if (!navigator.requestMediaKeySystemAccess) {
-        return { supported: false, reason: 'EME not available' };
+async function testDRMCapabilities(scenario, mime, type, keySystem) {
+    if (!API_METHODS.mediaCapabilities) {
+        return { supported: false, reason: 'mediaCapabilities not available', error: true };
     }
 
-    const capabilities = type === 'video'
-        ? { videoCapabilities: [{ contentType: mime }] }
-        : { audioCapabilities: [{ contentType: mime }] };
-
-    /** @type {MediaKeySystemConfiguration} */
-    const config = {
-        initDataTypes: ['cenc', 'keyids'],
-        ...capabilities,
-        distinctiveIdentifier: /** @type {MediaKeysRequirement} */ ('optional'),
-        persistentState: /** @type {MediaKeysRequirement} */ ('optional')
+    const config = /** @type {MediaDecodingConfiguration} */ (buildMediaConfig(scenario, mime, type));
+    config.type = 'media-source';
+    config.keySystemConfiguration = {
+        keySystem,
+        [type]: { contentType: mime }
     };
 
     try {
-        const access = await Promise.race([
-            navigator.requestMediaKeySystemAccess(keySystem, [config]),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('DRM test timeout')), 3000))
+        const result = await Promise.race([
+            navigator.mediaCapabilities.decodingInfo(config),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('DRM capability timeout')), 3000))
         ]);
 
-        const resolvedConfig = access.getConfiguration();
-        const caps = resolvedConfig.videoCapabilities || resolvedConfig.audioCapabilities || [];
-        const robustness = caps[0]?.robustness || '';
-
-        return {
-            supported: true,
+        /** @type {DRMTestResult} */
+        const drmResult = {
+            supported: result.supported,
+            smooth: result.smooth,
+            powerEfficient: result.powerEfficient,
             keySystem,
-            robustness,
-            persistentState: resolvedConfig.persistentState
+            config
         };
+
+        if (result.keySystemAccess) {
+            const resolved = result.keySystemAccess.getConfiguration();
+            const caps = resolved[`${type}Capabilities`] || [];
+            drmResult.robustness = caps[0]?.robustness || '';
+            drmResult.securityLevel = interpretSecurityLevel(drmResult.robustness);
+        }
+
+        return drmResult;
     } catch (e) {
         return {
             supported: false,
             keySystem,
-            reason: e.name === 'NotSupportedError' ? 'Not supported' : e.message
+            reason: e.name === 'NotSupportedError' ? 'Not supported' : e.message,
+            error: e.name !== 'NotSupportedError',
+            config
         };
     }
 }
@@ -264,7 +287,7 @@ async function testCodecDRM(mime, type, keySystem) {
  *
  * Container-level: APIs 1+2 run once per container (MIME-dependent only).
  * Scenario-level: API 3 runs per scenario per container (params-dependent).
- * DRM: runs once per key system per codec record.
+ * DRM: API 3 + keySystemConfiguration, once per available key system.
  *
  * @param {CodecRecord} record
  * @param {MediaType} groupType
@@ -321,23 +344,25 @@ async function testCodecRecord(record, groupType, deviceDRM) {
         await testOneContainer(container, 'media-source');
     }
 
-    // ── DRM per-codec (badge 4) ──
-    // Only test systems that: (a) the record declares, (b) the device supports
-    if (deviceDRM?.emeAvailable && record.drm) {
-        result.drm = {};
+    // ── DRM via decodingInfo + keySystemConfiguration ──
+    // Guard: requires mediaCapabilities, EME, and record.drm declaration
+    if (API_METHODS.mediaCapabilities && deviceDRM?.emeAvailable && record.drm) {
+        const availableSystems = record.drm.filter(
+            system => deviceDRM.systems[system]?.supported
+        );
 
-        // Use MP4 MIME for DRM testing (DRM systems use ISOBMFF)
-        const drmMime = buildMime(record.codec, 'mp4', groupType);
-
-        if (drmMime) {
-            for (const system of record.drm) {
-                // Only test if device has this DRM system
-                if (!deviceDRM.systems[system]?.supported) continue;
-
-                const keySystemId = DRM_SYSTEMS[system];
-                if (!keySystemId) continue;
-
-                result.drm[system] = await testCodecDRM(drmMime, groupType, keySystemId);
+        if (availableSystems.length > 0) {
+            result.drm = {};
+            const drmMime = buildMime(record.codec, 'fmp4', groupType);
+            if (drmMime) {
+                const scenario = record.scenarios[0];
+                for (const system of availableSystems) {
+                    const keySystemId = DRM_SYSTEMS[system];
+                    if (!keySystemId) continue;
+                    result.drm[system] = await testDRMCapabilities(
+                        scenario, drmMime, groupType, keySystemId
+                    );
+                }
             }
         }
     }

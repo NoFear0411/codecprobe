@@ -21,6 +21,13 @@ import { codecSource, buildMime, buildInfo, buildMediaConfig, CONTAINER_DISPLAY,
 import { updateURLState } from './url-state.js';
 import { detectDeviceInfo } from './device-detection.js';
 
+const DRM_DISPLAY = {
+    widevine: 'Widevine',
+    playready: 'PlayReady',
+    fairplay: 'FairPlay',
+    clearkey: 'ClearKey'
+};
+
 /** @type {{ currentFilter: string, testResults: TestResults | null, searchQuery: string }} */
 export const state = {
     currentFilter: 'all',
@@ -160,11 +167,13 @@ export function renderDeviceInfo(info) {
 function getResponseClass(value) {
     if (value === 'probably') return 'success';
     if (value === 'maybe') return 'partial';
+    if (value === 'error') return 'error';
     return 'fail';
 }
 
 function getApiBadgeClass(apiName, apiData) {
-    if (!apiData || apiData === 'error') return 'fail';
+    if (!apiData) return 'fail';
+    if (apiData === 'error') return 'error';
 
     switch (apiName) {
         case 'canPlayType':
@@ -174,7 +183,7 @@ function getApiBadgeClass(apiName, apiData) {
         case 'isTypeSupported':
             return apiData === 'probably' ? 'success' : 'fail';
         case 'mediaCapabilities':
-            if (apiData.error) return 'fail';
+            if (apiData.error) return 'error';
             if (apiData.supported) return 'success';
             return 'fail';
         default:
@@ -202,7 +211,7 @@ function escapeHtml(text) {
 /**
  * Determine the best API result class for a container (for the summary dot).
  * @param {ContainerTestResult} cr
- * @returns {'success' | 'partial' | 'fail'}
+ * @returns {'success' | 'partial' | 'fail' | 'error'}
  */
 function containerSummaryClass(cr) {
     const api1Pass = cr.canPlayType === 'probably' || cr.canPlayType === 'maybe';
@@ -213,11 +222,15 @@ function containerSummaryClass(cr) {
 
     let total = 0;
     let positive = 0;
+    let errored = false;
     if (cr.canPlayType && cr.canPlayType !== 'error') { total++; if (api1Pass) positive++; }
+    else if (cr.canPlayType === 'error') errored = true;
     if (cr.isTypeSupported && cr.isTypeSupported !== 'error') { total++; if (api2Pass) positive++; }
+    else if (cr.isTypeSupported === 'error') errored = true;
     if (api3Tested) { total++; if (api3Pass) positive++; }
+    else if (scenarioResults.some(sr => sr.mediaCapabilities?.error)) errored = true;
 
-    if (total === 0) return 'fail';
+    if (total === 0) return errored ? 'error' : 'fail';
     if (positive === total) return 'success';
     if (positive > 0) return 'partial';
     return 'fail';
@@ -257,7 +270,9 @@ function formatContainerResults(codec) {
         const scenarioEntries = Object.entries(cr.scenarios || {});
         if (scenarioEntries.length > 0) {
             const bestScenario = scenarioEntries.some(([, sr]) => sr.mediaCapabilities?.supported);
-            html += `<span class="api-number ${bestScenario ? 'success' : 'fail'}">3</span>`;
+            const allErrored = scenarioEntries.every(([, sr]) => sr.mediaCapabilities?.error);
+            const badge3Class = bestScenario ? 'success' : allErrored ? 'error' : 'fail';
+            html += `<span class="api-number ${badge3Class}">3</span>`;
         }
         html += `</span>`;
         html += `<svg class="container-chevron" width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -313,7 +328,7 @@ function formatContainerResults(codec) {
             }
             html += `<div class="api-detail-row"><span class="api-detail-label">Response</span>`;
             if (mc.error) {
-                html += `<span class="response-value fail">${escapeHtml(mc.error)}</span>`;
+                html += `<span class="response-value error">${escapeHtml(mc.error)}</span>`;
             } else {
                 html += `<code>{ supported: <span class="response-value ${mc.supported ? 'success' : 'fail'}">${mc.supported}</span>, smooth: <span class="response-value ${mc.smooth ? 'success' : 'fail'}">${mc.smooth}</span>, powerEfficient: <span class="response-value ${mc.powerEfficient ? 'success' : 'fail'}">${mc.powerEfficient}</span> }</code>`;
             }
@@ -323,7 +338,7 @@ function formatContainerResults(codec) {
             if (sr.spatial) {
                 html += `<div class="api-detail-row"><span class="api-detail-label">Spatial</span>`;
                 if (sr.spatial.error) {
-                    html += `<span class="response-value fail">${escapeHtml(sr.spatial.error)}</span>`;
+                    html += `<span class="response-value error">${escapeHtml(sr.spatial.error)}</span>`;
                 } else {
                     html += `<code>{ supported: <span class="response-value ${sr.spatial.supported ? 'success' : 'fail'}">${sr.spatial.supported}</span> }</code>`;
                 }
@@ -337,35 +352,59 @@ function formatContainerResults(codec) {
         html += `</details>`; // close container-result-block
     }
 
-    // DRM results (badge 4)
+    // DRM results (API 3 + keySystemConfiguration)
     if (codec.drm && Object.keys(codec.drm).length > 0) {
+        const anyDrmSupported = Object.values(codec.drm).some(dr => dr.supported);
+        const allDrmErrored = Object.values(codec.drm).every(dr => dr.error);
+        const drmDotClass = anyDrmSupported ? 'success' : allDrmErrored ? 'error' : 'fail';
+
         html += `<details class="container-result-block drm-result-block">`;
         html += `<summary class="container-result-summary">`;
         html += `<span class="container-summary-left">`;
+        html += `<span class="container-indicator ${drmDotClass}"></span>`;
         html += `<span class="container-label">DRM</span>`;
+        html += `<span class="container-mode">fMP4 · Stream</span>`;
         html += `</span>`;
+        html += `<span class="container-summary-right">`;
         html += `<span class="container-summary-badges">`;
         for (const [, drmResult] of Object.entries(codec.drm)) {
-            html += `<span class="api-number ${drmResult.supported ? 'success' : 'fail'}">4</span>`;
+            const badgeCls = drmResult.supported ? 'success' : drmResult.error ? 'error' : 'fail';
+            html += `<span class="api-number ${badgeCls}">3</span>`;
         }
+        html += `</span>`;
+        html += `<svg class="container-chevron" width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         html += `</span>`;
         html += `</summary>`;
         html += `<div class="container-result-detail">`;
-        html += `<div class="container-badges">`;
 
         for (const [system, drmResult] of Object.entries(codec.drm)) {
-            const cls = drmResult.supported ? 'success' : 'fail';
-            html += `<div class="badge-result">`;
-            html += `<span class="api-number ${cls}">4</span>`;
-            html += `<span class="badge-label">${escapeHtml(system)}:</span>`;
-            html += `<span class="response-value ${cls}">${drmResult.supported ? 'supported' : escapeHtml(drmResult.reason || 'unsupported')}</span>`;
-            if (drmResult.robustness) {
-                html += `<span class="mc-detail">${escapeHtml(drmResult.robustness)}</span>`;
+            const displayName = DRM_DISPLAY[system] || system;
+            const cls = drmResult.supported ? 'success' : drmResult.error ? 'error' : 'fail';
+
+            html += `<div class="api-detail-block">`;
+            html += `<div class="api-detail-header"><span class="api-number ${cls}">3</span> mediaCapabilities + ${escapeHtml(displayName)}</div>`;
+
+            if (drmResult.config) {
+                html += `<div class="api-detail-row"><span class="api-detail-label">Config</span></div>`;
+                html += `<pre class="api-detail-config"><code>${escapeHtml(JSON.stringify(drmResult.config, null, 2))}</code></pre>`;
             }
+
+            html += `<div class="api-detail-row"><span class="api-detail-label">Response</span>`;
+            if (drmResult.error || drmResult.reason) {
+                html += `<span class="response-value ${cls}">${escapeHtml(drmResult.reason || 'Unknown error')}</span>`;
+            } else {
+                html += `<code>{ supported: <span class="response-value ${drmResult.supported ? 'success' : 'fail'}">${drmResult.supported}</span>, smooth: <span class="response-value ${drmResult.smooth ? 'success' : 'fail'}">${drmResult.smooth}</span>, powerEfficient: <span class="response-value ${drmResult.powerEfficient ? 'success' : 'fail'}">${drmResult.powerEfficient}</span> }</code>`;
+            }
+            html += `</div>`;
+
+            if (drmResult.securityLevel) {
+                html += `<div class="api-detail-row"><span class="api-detail-label">Security</span><span class="response-value ${cls}">${escapeHtml(drmResult.securityLevel)}</span></div>`;
+            }
+
             html += `</div>`;
         }
 
-        html += `</div></div></details>`;
+        html += `</div></details>`;
     }
 
     html += '</div>';
@@ -429,9 +468,14 @@ function buildCopyText(codec) {
 
     if (codec.drm && Object.keys(codec.drm).length > 0) {
         lines.push('');
-        lines.push('── DRM ──');
+        lines.push('── DRM (fMP4 · Stream) ──');
         for (const [system, dr] of Object.entries(codec.drm)) {
-            lines.push(`  ${system}: ${dr.supported ? 'supported' : dr.reason || 'unsupported'}${dr.robustness ? ` (${dr.robustness})` : ''}`);
+            const displayName = DRM_DISPLAY[system] || system;
+            const status = dr.error ? `error — ${dr.reason || 'unknown'}` :
+                dr.supported ? 'supported' : dr.reason || 'unsupported';
+            const detail = dr.securityLevel ? ` (${dr.securityLevel})` :
+                dr.robustness ? ` (${dr.robustness})` : '';
+            lines.push(`  3 ${displayName}: ${status}${detail}`);
         }
     }
 

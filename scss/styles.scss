@@ -928,6 +928,10 @@ main#main-content {
     &:has(.container-indicator.fail) {
         border-left-color: var(--red);
     }
+
+    &:has(.container-indicator.error) {
+        border-left-color: $purple;
+    }
 }
 
 .container-result-summary {
@@ -962,6 +966,7 @@ main#main-content {
     &.success { background: var(--accent); }
     &.partial { background: var(--yellow); }
     &.fail { background: var(--red); }
+    &.error { background: $purple; }
 }
 
 .container-label {
@@ -1146,6 +1151,11 @@ main#main-content {
         background: var(--red);
         color: var(--bg);
     }
+
+    &.error {
+        background: $purple;
+        color: var(--bg);
+    }
 }
 
 // Response value coloring
@@ -1162,6 +1172,10 @@ main#main-content {
 
     &.fail {
         color: var(--red);
+    }
+
+    &.error {
+        color: $purple;
     }
 }
 
