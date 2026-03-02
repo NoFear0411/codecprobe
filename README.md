@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.4.0**: 77 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.5.0**: 77 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. Purple error badges distinguish API exceptions from clean rejections. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -54,7 +54,7 @@ The same HEVC codec string returns supported in MP4 but unsupported in MKV on mo
 
 ### Three Decoder APIs
 
-Each codec is tested against all three APIs. Results are shown as numbered color-coded badges (**green** = supported, **yellow** = maybe/partial, **red** = unsupported) so disagreements are visible at a glance.
+Each codec is tested against all three APIs. Results are shown as numbered color-coded badges (**green** = supported, **yellow** = maybe/partial, **red** = unsupported, **purple** = API threw exception/timed out) so disagreements are visible at a glance.
 
 | Badge | API | Returns | What it actually checks |
 |-------|-----|---------|------------------------|
@@ -66,7 +66,7 @@ When badges disagree, that's the signal. A red **1** with a green **3** means th
 
 ### DRM/EME Support
 
-Tests `requestMediaKeySystemAccess()` for encrypted content playback:
+Device-level DRM detection uses `requestMediaKeySystemAccess()` at startup to discover available key systems. Per-codec DRM tests then use `mediaCapabilities.decodingInfo()` with `keySystemConfiguration` — the same API as badge 3, extended with DRM config. Only device-confirmed systems are tested per codec.
 
 | Key System | Typical Platform | What CodecProbe Reports |
 |------------|------------------|-------------------------|
@@ -75,7 +75,7 @@ Tests `requestMediaKeySystemAccess()` for encrypted content playback:
 | **FairPlay** | Safari, iOS | Key system availability |
 | **ClearKey** | All (W3C standard) | Unencrypted key delivery support |
 
-Results include persistent state support and robustness strings. DRM detection runs in parallel with codec tests and times out gracefully if the key system is unavailable.
+DRM results show the full `decodingInfo()` config including `keySystemConfiguration`, along with `{ supported, smooth, powerEfficient }` response and resolved security level.
 
 ## Codec Coverage
 
@@ -262,7 +262,7 @@ codec-resolve currently supports:
 
 **Scope:**
 - Tests API responses, not actual file playback — "supported" means the API says yes, not that a specific file will play
-- DRM tests check `requestMediaKeySystemAccess()` availability, not whether a license server will issue keys
+- DRM tests check `decodingInfo()` with `keySystemConfiguration` for per-codec DRM capability, not whether a license server will issue keys
 - `mediaCapabilities` reports `smooth` and `powerEfficient` booleans but this tool does not benchmark actual decode performance
 
 ## Dependencies

@@ -71,19 +71,24 @@ Test results structure:
 **Visual API Badges**: Each API result shown with color-coded badge (1, 2, 3):
 - Green = success/probably
 - Yellow = maybe/partial
-- Red = fail/unsupported
+- Red = fail/unsupported (clean rejection)
+- Purple = error (API threw exception or timed out)
 
 This reveals API inconsistencies (e.g., Safari hiding DV in canPlayType).
 
 ### DRM/EME Testing
 
-Tests **requestMediaKeySystemAccess()** for encrypted content support:
+Two-tier architecture:
+1. **Device-level** (`drm-detection.js`): `requestMediaKeySystemAccess()` at startup discovers available key systems
+2. **Per-codec** (`codec-tester.js`): `decodingInfo()` + `keySystemConfiguration` tests each codec against device-confirmed systems only
+
+Key systems tested:
 - **Widevine** (com.widevine.alpha) - Google, Chrome/Android
 - **PlayReady** (com.microsoft.playready) - Microsoft, Edge/Xbox
 - **FairPlay** (com.apple.fps) - Apple, Safari/iOS
 - **ClearKey** (org.w3.clearkey) - W3C standard
 
-Returns security level (L1/L3), robustness, persistent state support.
+Per-codec DRM uses fMP4 container with `type: 'media-source'` and full scenario config (resolution, framerate, HDR). Returns `{ supported, smooth, powerEfficient }` plus resolved security level (L1/L3).
 
 ### Platform Quirks
 
@@ -298,7 +303,7 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 **Intentional choices**:
 - No result caching (tests are fast enough, fresh results every time)
 - No Web Workers (tests don't block UI significantly)
-- DRM tests inline (non-blocking with timeout)
+- DRM tests via decodingInfo() + keySystemConfiguration (non-blocking with timeout)
 
 ## Themes
 

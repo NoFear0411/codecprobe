@@ -2,6 +2,27 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.5.0] - 2026-03-02
+
+### Added
+
+- **Purple error badges**: API exceptions and timeouts now render as purple badges, distinct from red "not supported" badges. Visible on TVs and mobile devices where DevTools is unavailable. Applies to all three API badges, container summary dots, and expanded response text.
+- **DRM testing via `decodingInfo()`**: Per-codec DRM tests now use `mediaCapabilities.decodingInfo()` with `keySystemConfiguration` instead of standalone `requestMediaKeySystemAccess()`. Tests DRM in the context of full scenario configs (resolution, framerate, HDR). Results display in the same request/response format as API 3 with config object and `{ supported, smooth, powerEfficient }` response.
+- **DRM guard rails**: Pre-filters `record.drm` against device-confirmed systems before testing. Only queries DRM systems the device actually has (e.g., Chrome tests Widevine + ClearKey, not all 4). Uses fMP4 container with `type: 'media-source'` (DRM requires MSE).
+- **DRM security level display**: Resolved robustness strings mapped to human-readable levels (Hardware L1, Software L3, Basic) shown in expanded DRM detail view.
+
+### Changed
+
+- **Badge semantics**: Green = API returned positive, Yellow = canPlayType "maybe", Red = API cleanly returned negative, Purple = API threw exception or timed out. Was: purple only at card level (FAILED state).
+- **DRM section UI**: Container-style expandable row with dot indicator, `fMP4 · Stream` label, ③ badges per DRM system, chevron arrow. Expanded view shows full `decodingInfo()` config including `keySystemConfiguration` and response. Replaces old Badge 4 rendering.
+- **DRM API call budget**: Net neutral — ~2 `requestMediaKeySystemAccess` calls replaced with ~2 `decodingInfo` calls per codec.
+
+### Fixed
+
+- **Chromium PWA console warnings**: Removed unsupported `bluetooth=()` from Permissions-Policy, added standard `mobile-web-app-capable` meta tag, specified empty robustness on DRM fallback capabilities.
+
+---
+
 ## [4.4.0] - 2026-03-02
 
 ### Fixed
