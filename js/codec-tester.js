@@ -490,12 +490,13 @@ export async function testCodecWithRetry(record, groupType, deviceDRM, maxRetrie
 
 /**
  * Batching configuration.
- * 10 codec records per batch — each record tests multiple containers,
- * so effective API calls per batch are higher than the old flat model.
+ * 6 codec records per batch — each record tests multiple containers × scenarios,
+ * so effective API calls per batch can reach 100+. Keeping batches small
+ * prevents browser API throttling that causes purple timeout badges.
  */
 export const BATCH_CONFIG = {
-    batchSize: 10,
-    batchDelay: 50,
+    batchSize: 6,
+    batchDelay: 100,
     parallelWithinBatch: true
 };
 
@@ -536,8 +537,13 @@ export async function runCodecTests(onProgress = null, deviceDRM = null) {
     for (let i = 0; i < totalRecords; i += BATCH_CONFIG.batchSize) {
         const batch = allRecords.slice(i, i + BATCH_CONFIG.batchSize);
 
-        const batchPromises = batch.map(({ groupKey, record, groupType }) =>
-            testCodecWithRetry(record, groupType, deviceDRM, 2, 2000).then(codecResult => {
+        const batchPromises = batch.map(({ groupKey, record, groupType }) => {
+            // Dynamic timeout: base 1500ms + 150ms per container×scenario API call
+            const containerCount = (record.containers.file || []).length + (record.containers.stream || []).length;
+            const scenarioCount = record.scenarios.length;
+            const recordTimeout = 1500 + (containerCount * scenarioCount * 150);
+
+            return testCodecWithRetry(record, groupType, deviceDRM, 2, recordTimeout).then(codecResult => {
                 if (codecResult.support === 'supported' || codecResult.support === 'probably') {
                     results.supported++;
                 } else if (codecResult.support === 'failed') {
@@ -557,8 +563,8 @@ export async function runCodecTests(onProgress = null, deviceDRM = null) {
                 }
 
                 return codecResult;
-            })
-        );
+            });
+        });
 
         if (BATCH_CONFIG.parallelWithinBatch) {
             await Promise.allSettled(batchPromises);
