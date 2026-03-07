@@ -48,10 +48,9 @@ python -m codec_resolve --decode "av01.0.12M.10"
 # ✓ AV1 Main Profile, Level 5.0 Main tier, 10-bit
 ```
 
-codec-resolve currently supports: HEVC, AV1, VP9, VP8, Dolby Vision.
+codec-resolve currently supports: HEVC, AVC/H.264, AV1, VP9, VP8, Dolby Vision.
 
 Groups that require a new decoder before migration can proceed:
-- AVC/H.264 — needs `avc/` module
 - VVC/H.266 — needs `vvc/` module
 - Legacy (Theora, H.263, MPEG-4 Part 2) — needs `theora/`, `h263/`, `mp4v/` modules
 - All audio groups — needs audio decoders
@@ -340,7 +339,7 @@ The v2 database is being populated group by group. Each group requires codec-res
 | video_dolby_vision | 29 | Complete (29 edu, 29 strm, 29 cntr, 29 refs) |
 | video_av1 | 12 | Complete (12 edu, 12 strm, 12 cntr, 12 refs) |
 | video_vp9 | 21 | Complete (21 edu, 21 strm, 21 cntr, 21 refs) |
-| video_avc | 0 | Blocked — needs codec-resolve `avc/` decoder |
+| video_avc | 14 | Complete (14 edu, 14 strm, 14 cntr, 14 refs) |
 | video_vvc | 0 | Blocked — needs codec-resolve `vvc/` decoder |
 | video_vp8 | 0 | Blocked — needs v2 migration |
 | video_legacy | 0 | Blocked — needs codec-resolve `theora/`, `h263/`, `mp4v/` decoders |

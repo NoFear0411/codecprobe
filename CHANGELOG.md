@@ -2,6 +2,16 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.6.0] - 2026-03-07
+
+### Added
+
+- **AVC/H.264 codec group**: 14 records with 22 scenarios covering Baseline, Constrained Baseline, Main, High, Constrained High, Progressive High, High 10, High 4:2:2, Extended, and avc3 (in-band parameter sets). Levels 3.0–5.2.
+- **Full AVC education**: All 14 records have breakdown, overview, platform notes, HLS/DASH streaming examples, container notes, and spec references. Hex triplet format (profile_idc + constraint_flags + level_idc) explained per-record.
+- **91 codec records**: Was 77. 14 AVC added. HEVC (15), DV (29), AV1 (12), VP9 (21) unchanged.
+
+---
+
 ## [4.5.2] - 2026-03-02
 
 ### Fixed

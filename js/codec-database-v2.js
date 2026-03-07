@@ -4286,7 +4286,928 @@ vp9_p0_1080p60.m3u8`,
         category: 'AVC/H.264',
         type: 'video',
         description: 'Baseline, Main, High, High 10, High 4:2:2, Constrained, Extended. Levels 3.0–5.2.',
-        codecs: []
+        codecs: [
+            // ── avc1.42E01E ──
+
+            {
+                codec: 'avc1.42E01E',
+                name: 'Baseline 480p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '480p SDR 30fps 8-bit',
+                    width: 720,
+                    height: 480,
+                    framerate: 30,
+                    bitrate: 2_000_000,
+                    bitDepth: 8,
+                },
+                    {
+                        name: '720p SDR 30fps 8-bit',
+                        width: 1280,
+                        height: 720,
+                        framerate: 30,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                    }
+                ],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '42E01E', meaning: 'Hex triplet: profile_idc=0x42 (66, Baseline Profile), constraint_set_flags=0xE0 (constraint_set0 + constraint_set1 + constraint_set2 — satisfies Constrained Baseline and Main constraints), level_idc=0x1E (30, Level 3.0).' }
+                        ],
+                        overview: 'Baseline Profile with all three upper constraint flags set, which signals Constrained Baseline compatibility. 8-bit 4:2:0 only, no CABAC entropy coding, no B-frames. Level 3.0 supports up to 720x480@30fps at 10 Mbps — common in videoconferencing and WebRTC.',
+                        platforms: {
+                            apple: 'Universal hardware decode on all Apple devices. Safari uses Constrained Baseline as the mandatory WebRTC profile.',
+                            lg: 'Hardware decode on all webOS versions. Baseline is the minimum required H.264 profile for DVB receivers.',
+                            android: 'Required by the Android CDD as the minimum H.264 decode profile. Every certified Android device supports this.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.42E01E"',
+                                m3u8: `Baseline streams typically used for low-bandwidth fallback variants in adaptive bitrate ladders.`,
+                                notes: 'Apple HLS authoring spec recommends Baseline for legacy device compatibility tiers.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.42E01E"',
+                                mpd: `Profile signaled in MPD Representation@codecs attribute. Baseline common in lowest-quality Representations.`,
+                                notes: 'DASH-IF IOP recommends Main or High for primary streams, Baseline only for fallback.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'Standard ISO BMFF mux. AVCDecoderConfigurationRecord in avcC box carries SPS/PPS.',
+                            mkv: 'Matroska stores AVC as CodecID V_MPEG4/ISO/AVC with CodecPrivate containing the AVCDecoderConfigurationRecord.',
+                            mov: 'QuickTime container — identical AVC storage to MP4. Native on Apple platforms.',
+                            fmp4: 'Fragmented MP4 for adaptive streaming. Each segment self-contained with moof+mdat atoms.',
+                            cmaf: 'CMAF AVC track per ISO 23000-19. Baseline allowed but High Profile recommended for interop.',
+                            mpegts: 'MPEG-2 Transport Stream with H.264 elementary stream. PES packet payload. Common in broadcast and HLS legacy segments.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Advanced video coding', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-15 — Carriage of NAL unit structured video in ISO BMFF', url: 'https://www.iso.org/standard/83336.html' },
+                            { title: 'RFC 6184 — RTP Payload Format for H.264 Video', url: 'https://datatracker.ietf.org/doc/html/rfc6184' },
+                            { title: 'Apple HLS Authoring Specification', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        ]
+                    }
+            },
+            // ── avc1.42C01E ──
+
+            {
+                codec: 'avc1.42C01E',
+                name: 'Constrained Baseline 720p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '720p SDR 30fps 8-bit',
+                    width: 1280,
+                    height: 720,
+                    framerate: 30,
+                    bitrate: 2_500_000,
+                    bitDepth: 8,
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '42C01E', meaning: 'Hex triplet: profile_idc=0x42 (66, Baseline Profile), constraint_set_flags=0xC0 (constraint_set0 + constraint_set1 — explicitly signals Constrained Baseline), level_idc=0x1E (30, Level 3.0).' }
+                        ],
+                        overview: 'Constrained Baseline Profile — the intersection of Baseline and Main profiles. No CABAC, no B-frames, no weighted prediction, 8-bit 4:2:0 only. This is the mandatory-to-decode profile for WebRTC (RFC 7742) and the default in most SDP offer/answer exchanges. Level 3.0 caps at 10 Mbps.',
+                        platforms: {
+                            apple: "Hardware decode on all Apple devices. Safari's WebRTC implementation defaults to Constrained Baseline for initial negotiation.",
+                            lg: 'Hardware decode on all webOS versions. Functionally identical to Baseline on LG decoders.',
+                            android: 'Mandatory decode per Android CDD. Chrome on Android uses Constrained Baseline as the WebRTC default before upgrading via SDP negotiation.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.42C01E"',
+                                m3u8: `Rarely used directly in HLS — Constrained Baseline is more common in WebRTC than adaptive streaming.`,
+                                notes: 'Functionally equivalent to 42E01E for playback. The constraint_set2 flag difference does not affect decode.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.42C01E"',
+                                mpd: `Profile signaled in Representation@codecs. Some encoders emit 42C0xx instead of 42E0xx — both decode identically.`,
+                                notes: 'DASH-IF treats Constrained Baseline and Baseline as interchangeable for decode requirements.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'Standard ISO BMFF mux. AVCDecoderConfigurationRecord in avcC box carries SPS/PPS.',
+                            mkv: 'Matroska stores AVC as CodecID V_MPEG4/ISO/AVC with CodecPrivate containing the AVCDecoderConfigurationRecord.',
+                            mov: 'QuickTime container — identical AVC storage to MP4. Native on Apple platforms.',
+                            fmp4: 'Fragmented MP4 for adaptive streaming. Each segment self-contained with moof+mdat atoms.',
+                            cmaf: 'CMAF AVC track per ISO 23000-19. Constrained Baseline allowed but High Profile recommended for interop.',
+                            mpegts: 'MPEG-2 Transport Stream with H.264 elementary stream. PES packet payload. Common in broadcast and HLS legacy segments.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Advanced video coding', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'RFC 7742 — WebRTC Video Processing and Codec Requirements', url: 'https://datatracker.ietf.org/doc/html/rfc7742' },
+                            { title: 'RFC 6184 — RTP Payload Format for H.264 Video', url: 'https://datatracker.ietf.org/doc/html/rfc6184' },
+                            { title: 'ISO/IEC 14496-15 — Carriage of NAL unit structured video in ISO BMFF', url: 'https://www.iso.org/standard/83336.html' }
+                        ]
+                    }
+            },
+            // ── avc1.4d001f ──
+
+            {
+                codec: 'avc1.4d001f',
+                name: 'Main 720p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '720p SDR 30fps 8-bit',
+                    width: 1280,
+                    height: 720,
+                    framerate: 30,
+                    bitrate: 2_500_000,
+                    bitDepth: 8,
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '4d001f', meaning: 'Hex triplet: profile_idc=0x4D (77, Main Profile), constraint_set_flags=0x00 (no constraints set), level_idc=0x1F (31, Level 3.1).' }
+                        ],
+                        overview: 'Main Profile adds CABAC entropy coding, B-frames, and weighted prediction over Baseline — typically 10-15% better compression at the same quality. Level 3.1 supports 1280x720@30fps at 14 Mbps. Largely superseded by High Profile but still encountered in legacy streams.',
+                        platforms: {
+                            apple: 'Hardware decode on all Apple devices. Main Profile was the default for iTunes SD content before High Profile adoption.',
+                            lg: 'Hardware decode on all webOS versions. DVB-T2 broadcasts commonly use Main Profile at Level 3.1.',
+                            android: 'Hardware decode on all certified Android devices. Main Profile decode required by Android CDD since API level 16.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.4d001f"',
+                                m3u8: `Main Profile at Level 3.1 typically used for 720p or lower bitrate variants in HLS ladders.`,
+                                notes: 'Apple HLS spec allows Main Profile. High Profile preferred for better compression at equivalent quality.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.4d001f"',
+                                mpd: `Main Profile signaled in Representation@codecs. DASH-IF AVC interop points include Main Profile.`,
+                                notes: 'Main Profile adequate for SD/720p DASH streams. High Profile recommended for new deployments.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'Standard ISO BMFF mux. AVCDecoderConfigurationRecord in avcC box carries SPS/PPS.',
+                            mkv: 'Matroska stores AVC as CodecID V_MPEG4/ISO/AVC with CodecPrivate containing the AVCDecoderConfigurationRecord.',
+                            mov: 'QuickTime container — identical AVC storage to MP4. Native on Apple platforms.',
+                            fmp4: 'Fragmented MP4 for adaptive streaming. Each segment self-contained with moof+mdat atoms.',
+                            cmaf: 'CMAF AVC track per ISO 23000-19. Main Profile supported but High Profile recommended for CMAF interop.',
+                            mpegts: 'MPEG-2 Transport Stream with H.264 elementary stream. PES packet payload. Common in broadcast and HLS legacy segments.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Advanced video coding', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-10 — Advanced Video Coding', url: 'https://www.iso.org/standard/75400.html' },
+                            { title: 'ISO/IEC 14496-15 — Carriage of NAL unit structured video in ISO BMFF', url: 'https://www.iso.org/standard/83336.html' },
+                            { title: 'DASH-IF Interoperability Points — AVC/H.264', url: 'https://dashif.org/guidelines/iop/' }
+                        ]
+                    }
+            },
+            // ── avc1.4d4028 ──
+
+            {
+                codec: 'avc1.4d4028',
+                name: 'Main 1080p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 24fps 8-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 24,
+                    bitrate: 5_000_000,
+                    bitDepth: 8,
+                },
+                    {
+                        name: '1080p SDR 30fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 30,
+                        bitrate: 5_000_000,
+                        bitDepth: 8,
+                    }
+                ],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '4d4028', meaning: 'Hex triplet: profile_idc=0x4D (77, Main Profile), constraint_set_flags=0x40 (constraint_set1 set — stream also conforms to Main Profile constraints), level_idc=0x28 (40, Level 4.0).' }
+                        ],
+                        overview: 'Main Profile at Level 4.0 — supports 1920x1080@30fps at 20 Mbps. CABAC and B-frames enabled. This was the standard 1080p streaming profile before High Profile became universal. The constraint_set1 flag explicitly confirms Main Profile conformance.',
+                        platforms: {
+                            apple: 'Hardware decode on all Apple devices since iPhone 3GS. Main@L4.0 was the iTunes HD baseline before High Profile adoption.',
+                            lg: 'Hardware decode on all webOS versions. Common in legacy IPTV deployments on LG Smart TVs.',
+                            android: 'Hardware decode on all certified devices. Main@L4.0 widely used in early Android streaming apps for 1080p content.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.4d4028"',
+                                m3u8: `Main@L4.0 serves as a compatibility tier for 1080p in multi-variant playlists targeting older devices.`,
+                                notes: 'Apple HLS authoring spec recommends High Profile for 1080p. Main at Level 4.0 is a safe fallback.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.4d4028"',
+                                mpd: `Signaled in Representation@codecs. Some legacy DASH encoders default to Main Profile for 1080p.`,
+                                notes: 'DASH-IF recommends High Profile for 1080p new content. Main@L4.0 acceptable for backward compatibility.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'Standard ISO BMFF mux. AVCDecoderConfigurationRecord in avcC box carries SPS/PPS.',
+                            mkv: 'Matroska stores AVC as CodecID V_MPEG4/ISO/AVC with CodecPrivate containing the AVCDecoderConfigurationRecord.',
+                            mov: 'QuickTime container — identical AVC storage to MP4. Native on Apple platforms.',
+                            fmp4: 'Fragmented MP4 for adaptive streaming. Each segment self-contained with moof+mdat atoms.',
+                            cmaf: 'CMAF AVC track per ISO 23000-19. Main Profile supported. High Profile preferred for CMAF interoperability.',
+                            mpegts: 'MPEG-2 Transport Stream with H.264 elementary stream. PES packet payload. Common in broadcast and HLS legacy segments.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Advanced video coding', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-15 — Carriage of NAL unit structured video in ISO BMFF', url: 'https://www.iso.org/standard/83336.html' },
+                            { title: 'Apple HLS Authoring Specification', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                            { title: 'DASH-IF Interoperability Points — AVC/H.264', url: 'https://dashif.org/guidelines/iop/' }
+                        ]
+                    }
+            },
+            // ── avc1.640028 ──
+
+            {
+                codec: 'avc1.640028',
+                name: '1080p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 24fps 8-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 24,
+                    bitrate: 5_000_000,
+                    bitDepth: 8,
+                },
+                    {
+                        name: '1080p SDR 30fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 30,
+                        bitrate: 5_000_000,
+                        bitDepth: 8,
+                    },
+                    {
+                        name: '1080p SDR 23.976fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
+                        bitrate: 8_000_000,
+                        bitDepth: 8,
+                    }
+                ],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '640028', meaning: 'Hex triplet: profile_idc=0x64 (100, High), constraint_flags=0x00 (none), level_idc=0x28 (40, Level 4.0). High Profile at Level 4.0 — the standard 1080p streaming level. High adds 8×8 transforms and CABAC over Main. Level 4.0 caps at 1920×1080@30fps, 20 Mbps (25 Mbps with High multiplier).' }
+                        ],
+                        overview: 'High Profile Level 4.0 — the de facto standard for 1080p delivery. Netflix, YouTube, Apple HLS, and Blu-ray all mandate High for HD streams. Every hardware decoder since ~2012 supports this combination. If this codec string fails, the device cannot play H.264.',
+                        platforms: {
+                            apple: 'Universal hardware decode on all Apple devices. Apple HLS Authoring Spec requires High Profile for HD content. avc1 tag required — avc3 rejected by some older iOS versions.',
+                            lg: 'All webOS versions. H.264 High L4.0 is the baseline capability for all LG Smart TVs.',
+                            android: 'Universal hardware decode via MediaCodec on all Android 4.1+ devices. Every certified Android device must support H.264 High L4.0.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'Standard SDR',
+                                m3u8: `#EXTM3U
+#EXT-X-VERSION:7
+#EXT-X-TARGETDURATION:6
+#EXT-X-MAP:URI="init_h264.mp4"
+
+#EXTINF:6.006,
+seg_h264_0.m4s
+#EXTINF:6.006,
+seg_h264_1.m4s
+#EXT-X-ENDLIST`,
+                                notes: 'H.264 HLS fMP4 media playlist. EXT-X-MAP references the init segment containing the avcC box. 6-second segments are the Apple-recommended VOD duration. This is typically the lowest-capability variant in a multi-codec HLS master playlist.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'Standard SDR',
+                                mpd: `<Representation id="h264_1080" mimeType="video/mp4" codecs="avc1.640028" width="1920" height="1080" bandwidth="5000000" />`,
+                                notes: 'Standard DASH representation for 1080p H.264. The codecs attribute matches the codec string exactly. Initialization segment contains the moov box with avcC.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'ISOBMFF — the universal H.264 container. SPS/PPS stored in the avcC box within the sample entry. Best browser and device support.',
+                            mkv: 'Matroska — common for media server libraries (Jellyfin, Plex). H.264 in MKV uses Annex B byte stream format. Browser support varies: Chrome/Edge reject video/x-matroska, Firefox and Safari may accept.',
+                            mov: 'QuickTime container. Same avcC box structure as MP4. Well-supported on Apple platforms, inconsistent elsewhere.',
+                            fmp4: 'Fragmented MP4 — the segment format for HLS and DASH. Same video/mp4 MIME but with movie fragments (moof+mdat). avcC in the init segment.',
+                            cmaf: 'CMAF (ISO 23000-19) — constrained fMP4 for dual HLS+DASH. Same video/mp4 MIME, interchangeable segments.',
+                            mpegts: 'MPEG Transport Stream — broadcast (DVB-T/T2, ATSC) and legacy HLS segment format. H.264 uses Annex B NAL format with start codes. SPS/PPS must repeat at each random access point.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 | ISO/IEC 14496-10', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-15 (NALU structured video)' },
+                            { title: 'Apple HLS Authoring Spec', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                            { title: 'Android Supported Media Formats', url: 'https://developer.android.com/media/platform/supported-formats' }
+                        ]
+                    }
+            },
+            // ── avc1.64002A ──
+
+            {
+                codec: 'avc1.64002A',
+                name: '1080p SDR 60fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 60fps 8-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 60,
+                    bitrate: 10_000_000,
+                    bitDepth: 8,
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '64002A', meaning: 'Hex triplet: profile_idc=0x64 (100, High Profile), constraint_set_flags=0x00 (no constraints set), level_idc=0x2A (42, Level 4.2).' }
+                        ],
+                        overview: "High Profile at Level 4.2 — adds 8x8 transform, quantization scaling matrices, and separate Cb/Cr QP offsets over Main. Level 4.2 supports 1920x1080@60fps at 50 Mbps (62.5 Mbps with High Profile's 1.25x VBV multiplier). The standard choice for high-motion 1080p60 content like sports and gaming.",
+                        platforms: {
+                            apple: 'Hardware decode on all Apple devices since A5 chip (iPad 2, iPhone 4S). High@L4.2 is the recommended profile for 1080p60 in Apple HLS.',
+                            lg: 'Hardware decode on all webOS versions. High@L4.2 common in premium IPTV and OTT streams on LG TVs.',
+                            android: 'Hardware decode on most devices since 2013. High@L4.2 decode not mandated by CDD — some low-end SoCs may cap at Level 4.1.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.64002A"',
+                                m3u8: `High@L4.2 used for 1080p60 variants. Apple requires this level minimum for 60fps H.264 HLS content.`,
+                                notes: 'Level 4.2 is specifically designed for 1080p60. Level 4.1 only supports 1080p@30fps.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.64002A"',
+                                mpd: `Signaled in Representation@codecs. High@L4.2 typical for premium 1080p60 DASH streams.`,
+                                notes: 'DASH-IF IOP specifies High Profile for HD content. Level 4.2 needed for frame rates above 30fps at 1080p.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'Standard ISO BMFF mux. AVCDecoderConfigurationRecord in avcC box carries SPS/PPS.',
+                            mkv: 'Matroska stores AVC as CodecID V_MPEG4/ISO/AVC with CodecPrivate containing the AVCDecoderConfigurationRecord.',
+                            mov: 'QuickTime container — identical AVC storage to MP4. Native on Apple platforms.',
+                            fmp4: 'Fragmented MP4 for adaptive streaming. Each segment self-contained with moof+mdat atoms.',
+                            cmaf: 'CMAF AVC track per ISO 23000-19. High Profile at Level 4.2 is within the CMAF AVC baseline.',
+                            mpegts: 'MPEG-2 Transport Stream with H.264 elementary stream. PES packet payload. Common in broadcast and HLS legacy segments.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Advanced video coding', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-15 — Carriage of NAL unit structured video in ISO BMFF', url: 'https://www.iso.org/standard/83336.html' },
+                            { title: 'Apple HLS Authoring Specification', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' },
+                            { title: 'DASH-IF Interoperability Points — AVC/H.264', url: 'https://dashif.org/guidelines/iop/' }
+                        ]
+                    }
+            },
+            // ── avc1.640033 ──
+
+            {
+                codec: 'avc1.640033',
+                name: '1080p SDR 60fps 8-bit (L5.1)',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 60fps 8-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 60,
+                    bitrate: 8_000_000,
+                    bitDepth: 8,
+                },
+                    {
+                        name: '4K SDR 30fps 8-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 30,
+                        bitrate: 25_000_000,
+                        bitDepth: 8,
+                    }
+                ],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '640033', meaning: 'Hex triplet: profile_idc=0x64 (100, High Profile), constraint_set_flags=0x00 (no constraints set), level_idc=0x33 (51, Level 5.1).' }
+                        ],
+                        overview: "High Profile at Level 5.1 — supports 4096x2160@30fps or 1920x1080@120fps at 240 Mbps (300 Mbps with High Profile's 1.25x VBV multiplier). This is the maximum H.264 level used in Blu-ray Disc specification. Also used for 4K H.264 encoding where HEVC/AV1 are not available.",
+                        platforms: {
+                            apple: 'Hardware decode on A8+ (iPhone 6+) and all Apple Silicon Macs. Level 5.1 is the maximum H.264 level Apple hardware supports.',
+                            lg: 'Hardware decode on webOS 3.0+ (2016+). Older webOS versions may cap at Level 5.0 for H.264.',
+                            android: 'Hardware decode varies by SoC. Qualcomm Snapdragon 8-series and MediaTek Dimensity decode Level 5.1. Some mid-range SoCs cap at Level 4.2.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.640033"',
+                                m3u8: `High@L5.1 used for 4K H.264 HLS streams. Rare in practice — HEVC or AV1 preferred at 4K resolutions.`,
+                                notes: 'Apple HLS spec supports Level 5.1 but recommends HEVC for 4K. H.264 at 4K requires significantly higher bitrates.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.640033"',
+                                mpd: `Signaled in Representation@codecs. Level 5.1 H.264 DASH streams uncommon — HEVC/AV1 dominate 4K DASH.`,
+                                notes: 'DASH-IF IOP includes High@L5.1 but notes codec efficiency limitations at 4K versus next-gen codecs.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'Standard ISO BMFF mux. AVCDecoderConfigurationRecord in avcC box carries SPS/PPS.',
+                            mkv: 'Matroska stores AVC as CodecID V_MPEG4/ISO/AVC with CodecPrivate containing the AVCDecoderConfigurationRecord. Common for 4K H.264 rips.',
+                            mov: 'QuickTime container — identical AVC storage to MP4. Native on Apple platforms.',
+                            fmp4: 'Fragmented MP4 for adaptive streaming. Each segment self-contained with moof+mdat atoms.',
+                            cmaf: 'CMAF AVC track per ISO 23000-19. Level 5.1 supported but CMAF HEVC/AV1 tracks preferred at 4K.',
+                            mpegts: 'MPEG-2 Transport Stream with H.264 elementary stream. PES packet payload. Used in ATSC 1.0 broadcast at up to Level 4.2; Level 5.1 in TS is non-standard.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Advanced video coding', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'Blu-ray Disc Association — BD-ROM Specification', url: 'https://www.blu-raydisc.com/en/Technical/TechnicalWhitePapers.aspx' },
+                            { title: 'ISO/IEC 14496-15 — Carriage of NAL unit structured video in ISO BMFF', url: 'https://www.iso.org/standard/83336.html' },
+                            { title: 'DASH-IF Interoperability Points — AVC/H.264', url: 'https://dashif.org/guidelines/iop/' }
+                        ]
+                    }
+            },
+            // ── avc1.640034 ──
+
+            {
+                codec: 'avc1.640034',
+                name: '4K SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '4K SDR 30fps 8-bit',
+                    width: 3840,
+                    height: 2160,
+                    framerate: 30,
+                    bitrate: 25_000_000,
+                    bitDepth: 8,
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '640034', meaning: 'Hex triplet: profile_idc=0x64 (100, High Profile), constraint_set_flags=0x00 (no constraints set), level_idc=0x34 (52, Level 5.2).' }
+                        ],
+                        overview: "High Profile at Level 5.2 — the highest commonly referenced H.264 level. Supports 4096x2160@60fps at 240 Mbps (300 Mbps with High Profile's 1.25x VBV multiplier). In practice, 4K60 H.264 is rare because HEVC and AV1 achieve equivalent quality at roughly half the bitrate.",
+                        platforms: {
+                            apple: "Hardware decode on A9+ (iPhone 6s+) and Apple Silicon Macs. Apple's VideoToolbox reports Level 5.2 capability on these devices.",
+                            lg: 'Hardware decode on webOS 4.0+ (2018+). Earlier webOS versions may not expose Level 5.2 H.264 decode.',
+                            android: 'Hardware decode on flagship SoCs (Snapdragon 8xx, Exynos 2xxx, Dimensity 9xxx). Many mid-range devices do not support Level 5.2.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.640034"',
+                                m3u8: `Extremely rare in HLS. 4K60 H.264 would require 40-80 Mbps for acceptable quality — impractical for most CDN delivery.`,
+                                notes: 'Apple does not recommend H.264 for 4K60 in HLS. HEVC at Level 5.1 achieves the same resolution at far lower bitrates.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.640034"',
+                                mpd: `Signaled in Representation@codecs. Level 5.2 H.264 DASH streams exist mainly for device capability testing.`,
+                                notes: 'No practical deployment advantage over HEVC/AV1 at 4K60. Bitrate requirements make H.264 uneconomical at this resolution and frame rate.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'Standard ISO BMFF mux. AVCDecoderConfigurationRecord in avcC box carries SPS/PPS.',
+                            mkv: 'Matroska stores AVC as CodecID V_MPEG4/ISO/AVC with CodecPrivate containing the AVCDecoderConfigurationRecord.',
+                            mov: 'QuickTime container — identical AVC storage to MP4. Native on Apple platforms.',
+                            fmp4: 'Fragmented MP4 for adaptive streaming. Each segment self-contained with moof+mdat atoms.',
+                            cmaf: 'CMAF AVC track per ISO 23000-19. Level 5.2 within spec but HEVC/AV1 CMAF tracks strongly preferred at 4K60.',
+                            mpegts: 'MPEG-2 Transport Stream with H.264 elementary stream. Level 5.2 in MPEG-TS is non-standard for broadcast; exists only in file-based workflows.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Advanced video coding', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-10 — Advanced Video Coding', url: 'https://www.iso.org/standard/75400.html' },
+                            { title: 'ISO/IEC 14496-15 — Carriage of NAL unit structured video in ISO BMFF', url: 'https://www.iso.org/standard/83336.html' },
+                            { title: 'Apple HLS Authoring Specification', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        ]
+                    }
+            },
+            // ── avc1.640828 ──
+
+            {
+                codec: 'avc1.640828',
+                name: 'Constrained High 1080p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 30fps 8-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 5_000_000,
+                    bitDepth: 8,
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '640828', meaning: 'Hex triplet: profile_idc=0x64 (100, High), constraint_flags=0x08 (constraint_set4_flag set), level_idc=0x28 (40, Level 4.0). Constrained High — set4 restricts High to exclude interlaced coding tools (MBAFF, PicAFF). Used by Apple FaceTime and WebRTC when High is negotiated. Level 4.0 caps at 1920×1080@30fps, 25 Mbps.' }
+                        ],
+                        overview: 'Constrained High Profile Level 4.0. Restricts High Profile by disabling interlaced coding tools, making it suitable for real-time communication where only progressive frames are used. Apple FaceTime and WebRTC negotiate this profile when High is requested. Level 4.0 supports up to 1080p30 at 25 Mbps VCL bitrate.',
+                        platforms: {
+                            apple: 'Native decode on all Apple silicon and A-series chips. FaceTime uses Constrained High as its top negotiated profile. AVFoundation reports this as High Profile (constraint flags handled internally).',
+                            lg: 'webOS decodes Constrained High identically to High Profile. The constraint flag distinction is transparent to the SoC decoder.',
+                            android: 'Universal hardware decode. MediaCodec treats Constrained High as High Profile — the constraint_set3_flag is informational to the muxer, not the decoder.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF CODECS="avc1.640828"',
+                                m3u8: `Codec string must include the exact hex triplet. HLS authoring tools may normalize to avc1.640028 (unconstrained High) — both decode identically but the constraint flag documents the encoding restriction.`,
+                                notes: 'Apple HLS Authoring Spec recommends Constrained High for live and low-latency HLS where interlaced content is never present.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.640828"',
+                                mpd: `DASH-IF IOP Section 6.2 permits any valid AVC codec string. Constrained High appears in WebRTC-to-DASH bridging workflows.`,
+                                notes: 'Rarely seen in VOD DASH manifests — most encoders emit unconstrained High (avc1.640028) for broader compatibility signaling.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'AVCDecoderConfigurationRecord in avcC box stores SPS with constraint_set3_flag=1. Box type avc1 signals out-of-band parameter sets.',
+                            mkv: 'CodecPrivate carries the AVCDecoderConfigurationRecord. Matroska does not distinguish avc1/avc3 — parameter sets are always in CodecPrivate.',
+                            mov: 'Identical to MP4 — same avcC box structure. QuickTime originated the sample entry format that ISO 14496-15 standardized.',
+                            fmp4: 'CMAF and fMP4 use the same avcC box in the initialization segment. Constraint flags are preserved in the SPS embedded in the sample entry.',
+                            cmaf: 'CMAF Header contains the avcC box with full SPS/PPS. Per CMAF spec, the profile/level signaled in the codec string must match the SPS bitstream values.',
+                            mpegts: 'MPEG-TS carries H.264 as PES with NAL unit start codes. No avc1/avc3 distinction — SPS/PPS are sent in-band before each IDR.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Annex A.2.4.2 Constrained High profile', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-15 — AVC file format (avc1/avc3 sample entries)', url: 'https://www.iso.org/standard/74429.html' },
+                            { title: 'RFC 6184 — RTP Payload Format for H.264 Video', url: 'https://datatracker.ietf.org/doc/html/rfc6184' }
+                        ]
+                    }
+            },
+            // ── avc1.640C28 ──
+
+            {
+                codec: 'avc1.640C28',
+                name: 'Progressive High 1080p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 30fps 8-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 5_000_000,
+                    bitDepth: 8,
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '640C28', meaning: 'Hex triplet: profile_idc=0x64 (100, High), constraint_flags=0x0C (constraint_set4_flag + constraint_set5_flag set), level_idc=0x28 (40, Level 4.0). Progressive High — set4 disables interlaced coding, set5 prohibits field coding. Strictly progressive-only subset of High. Level 4.0 caps at 1920×1080@30fps, 25 Mbps.' }
+                        ],
+                        overview: 'Progressive High Profile Level 4.0. Combines constraint_set4 (no interlace) and constraint_set5 (no field coding) to guarantee progressive-only output. This is the strictest progressive constraint available in High Profile, used by streaming encoders that want to signal progressive-only content unambiguously. Level 4.0 supports up to 1080p30 at 25 Mbps VCL bitrate.',
+                        platforms: {
+                            apple: 'Decoded as High Profile. VideoToolbox ignores the progressive constraint flags — they restrict the encoder, not the decoder. All Apple hardware supports this.',
+                            lg: 'webOS SoC decodes identically to High Profile. The constraint flags are encoder-side restrictions with no decoder behavioral difference.',
+                            android: 'Universal hardware decode. MediaCodec profiles report High Profile. The 0x0C constraint byte is parsed but does not affect decode capability.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF CODECS="avc1.640C28"',
+                                m3u8: `Some HLS authoring tools normalize constraint flags to 0x00. The explicit 0x0C signals to player logic that no deinterlacing is needed.`,
+                                notes: 'Progressive High is preferred for OTT streaming where all source content is progressive. Reduces player complexity by eliminating interlace handling.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.640C28"',
+                                mpd: `DASH-IF IOP does not mandate specific constraint flags. Progressive High appears in manifests from encoders like x264 with --interlaced=0.`,
+                                notes: 'Functionally identical to avc1.640028 for decoder selection. The constraint flags document the encoding, not the decode requirement.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'AVCDecoderConfigurationRecord stores SPS with both constraint_set3_flag=1 and constraint_set4_flag=1. Signals progressive-only content to downstream tools.',
+                            mkv: 'CodecPrivate carries the full AVCDecoderConfigurationRecord. Matroska players do not inspect constraint flags for decode decisions.',
+                            mov: 'Same avcC box as MP4. QuickTime Player and Final Cut Pro handle Progressive High transparently as High Profile.',
+                            fmp4: 'Initialization segment avcC box preserves constraint flags. CMAF players use the codec string for capability matching, not the SPS constraint bits directly.',
+                            cmaf: 'CMAF Header avcC must match the codec string in the manifest. Progressive High (0x0C) must not contain interlaced NAL units.',
+                            mpegts: 'H.264 in MPEG-TS uses in-band SPS. The constraint flags are in the SPS bitstream; no container-level signaling of Progressive High.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Annex A.2.4.2 Constrained/Progressive High profiles', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-15 — AVC file format and codec parameter signaling', url: 'https://www.iso.org/standard/74429.html' },
+                            { title: 'Apple HLS Authoring Specification — Codec string requirements', url: 'https://developer.apple.com/documentation/http-live-streaming/hls-authoring-specification-for-apple-devices' }
+                        ]
+                    }
+            },
+            // ── avc1.6e0033 ──
+
+            {
+                codec: 'avc1.6e0033',
+                name: 'High 10 1080p SDR 30fps 10-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 24fps 10-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 24,
+                    bitrate: 10_000_000,
+                    bitDepth: 10,
+                },
+                    {
+                        name: '1080p SDR 30fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 30,
+                        bitrate: 10_000_000,
+                        bitDepth: 10,
+                    }
+                ],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '6e0033', meaning: 'Hex triplet: profile_idc=0x6E (110, High 10), constraint_flags=0x00 (none), level_idc=0x33 (51, Level 5.1). High 10 Profile — extends High Profile with 10-bit sample depth at 4:2:0 chroma. Level 5.1 supports up to 4K at 30fps with a 3× bitrate multiplier (720 Mbps max VCL).' }
+                        ],
+                        overview: 'High 10 Profile Level 5.1. Adds 10-bit sample depth to High Profile while remaining 4:2:0 chroma. The 10-bit depth provides a 3× bitrate multiplier over 8-bit at the same level, yielding 720 Mbps max VCL at Level 5.1. Rarely used in consumer streaming — HEVC Main 10 is far more efficient for 10-bit content and has broader hardware support.',
+                        platforms: {
+                            apple: 'No hardware decode. VideoToolbox does not expose High 10 Profile — Apple transitioned directly to HEVC Main 10 for 10-bit content. Software decode only via FFmpeg-based players.',
+                            lg: 'No webOS SoC support for H.264 High 10. LG TVs use HEVC Main 10 or AV1 Main 10 for 10-bit HDR content.',
+                            android: 'Extremely limited. Most Android SoCs (Qualcomm, MediaTek, Exynos) do not implement H.264 High 10 in hardware. Software decode via libavcodec is possible but not battery-friendly.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF CODECS="avc1.6e0033"',
+                                m3u8: `Not used in practice. Apple HLS Authoring Spec does not list High 10 as a recommended profile. Players would need software decode fallback.`,
+                                notes: 'No known commercial HLS deployment uses H.264 High 10. HEVC Main 10 (hvc1.2.4.L153.B0) is the standard choice for 10-bit HLS.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.6e0033"',
+                                mpd: `Technically valid but not seen in production DASH manifests. DASH-IF IOP recommends HEVC or AV1 for 10-bit content.`,
+                                notes: 'High 10 exists primarily for professional/archival use. Consumer streaming skipped it entirely in favor of next-gen codecs.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'AVCDecoderConfigurationRecord signals profile_idc=110 in the avcC box. The 10-bit depth is in the SPS bit_depth_luma_minus8=2 field.',
+                            mkv: 'Anime fansub community historically used H.264 High 10 in MKV (10-bit x264 encodes). CodecPrivate carries the High 10 SPS. Software decode required.',
+                            mov: "QuickTime does not natively support High 10 H.264. ProRes or HEVC are Apple's preferred 10-bit container formats.",
+                            fmp4: 'Valid in fMP4 but no player ecosystem supports High 10 AVC in fragmented containers. HEVC/AV1 fMP4 is universal for 10-bit streaming.',
+                            cmaf: 'CMAF does not define a media profile for H.264 High 10. Not interoperable across CMAF-compliant players.',
+                            mpegts: 'H.264 High 10 in MPEG-TS is valid at the transport level. Used in some Japanese IPTV broadcasts (ISDB-T) but not in Western DVB deployments.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Annex A.2.5 High 10 profile', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-10 — H.264/AVC profile definitions', url: 'https://www.iso.org/standard/75400.html' },
+                            { title: 'x264 10-bit encoding documentation', url: 'https://www.videolan.org/developers/x264.html' }
+                        ]
+                    }
+            },
+            // ── avc1.58A01E ──
+
+            {
+                codec: 'avc1.58A01E',
+                name: 'Extended 720p SDR 30fps 8-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '720p SDR 30fps 8-bit',
+                    width: 1280,
+                    height: 720,
+                    framerate: 30,
+                    bitrate: 3_000_000,
+                    bitDepth: 8,
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '58A01E', meaning: 'Hex triplet: profile_idc=0x58 (88, Extended), constraint_flags=0xA0 (constraint_set0_flag + constraint_set2_flag set), level_idc=0x1E (30, Level 3.0). Extended Profile with Baseline compatibility — set0 signals Baseline-decodable, set2 signals Main-compatible constraint. Adds SI/SP switching slices for seamless stream switching.' }
+                        ],
+                        overview: 'Extended Profile Level 3.0. Adds SI (Switching I) and SP (Switching P) slice types that enable seamless bitrate switching without IDR frames. The constraint_set0_flag indicates Baseline-decodable content, meaning decoders without Extended Profile support can still play the stream. Never widely adopted — adaptive streaming protocols solved the switching problem at the container level instead.',
+                        platforms: {
+                            apple: 'VideoToolbox does not advertise Extended Profile. The constraint_set0_flag means Apple hardware decodes this as Baseline. SI/SP slices, if present, would be rejected.',
+                            lg: 'webOS does not list Extended Profile in supported profiles. Streams with set0 flag decode as Baseline. SI/SP slice support is absent from consumer SoCs.',
+                            android: 'MediaCodec does not expose Extended Profile on any known Android SoC. The Baseline compatibility flag (set0) allows fallback decode, but SI/SP slices are not processed.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF CODECS="avc1.58A01E"',
+                                m3u8: `Not used in HLS. Apple HLS Authoring Spec does not mention Extended Profile. HLS variant switching uses segment boundaries and IDR frames instead of SP slices.`,
+                                notes: 'Extended Profile was designed for 3GPP stream switching before HLS and DASH existed. Those protocols made SP slices redundant.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.58A01E"',
+                                mpd: `Not seen in DASH deployments. DASH handles bitrate switching via segment alignment and SAP types, eliminating the need for SP slices.`,
+                                notes: 'Included in codec databases for completeness testing. A browser reporting support would be notable and likely indicates Baseline fallback.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'AVCDecoderConfigurationRecord with profile_idc=88. The avcC box is valid but rarely seen in production MP4 files.',
+                            mkv: 'Extended Profile in MKV is technically valid but no known encoder outputs this combination. Matroska demuxers pass the SPS through without profile-specific handling.',
+                            mov: 'QuickTime does not recognize Extended Profile. Files with set0 constraint flag would be handled as Baseline by Apple software.',
+                            fmp4: 'No fMP4 ecosystem uses Extended Profile. The SI/SP slice types are not defined in CMAF media profiles.',
+                            cmaf: 'CMAF does not include Extended Profile in any defined media profile. Not interoperable.',
+                            mpegts: 'Extended Profile was specified alongside 3GPP transport. MPEG-TS can carry it, but no broadcast standard references Extended Profile for transmission.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Annex A.2.3 Extended profile', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: '3GPP TS 26.234 — Transparent end-to-end streaming (Extended Profile origin)', url: 'https://www.3gpp.org/DynaReport/26234.htm' },
+                            { title: 'ISO/IEC 14496-10 — SI/SP slice definitions', url: 'https://www.iso.org/standard/75400.html' }
+                        ]
+                    }
+            },
+            // ── avc3.640028 ──
+
+            {
+                codec: 'avc3.640028',
+                name: '1080p SDR 30fps (avc3)',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 24fps 8-bit',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 24,
+                    bitrate: 5_000_000,
+                    bitDepth: 8,
+                },
+                    {
+                        name: '1080p SDR 30fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 30,
+                        bitrate: 5_000_000,
+                        bitDepth: 8,
+                    }
+                ],
+                education: {
+                        breakdown: [
+                            { token: 'avc3', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in access units (in-band). Used by DASH and CMAF live streams where SPS/PPS can change mid-stream. avc1 stores them out-of-band in the sample entry.' },
+                            { token: '640028', meaning: 'Hex triplet: profile_idc=0x64 (100, High), constraint_flags=0x00 (none), level_idc=0x28 (40, Level 4.0). High Profile Level 4.0 — identical decode capability to avc1.640028. The avc3 tag signals in-band parameter sets for DASH live and mid-stream resolution changes.' }
+                        ],
+                        overview: 'High Profile Level 4.0 with in-band parameter sets (avc3 sample entry). Functionally identical to avc1.640028 for decoding — the avc3 tag signals that SPS/PPS are carried in each access unit rather than only in the sample entry. This is required for DASH live streams and mid-stream resolution changes where the decoder configuration can change without a new initialization segment.',
+                        platforms: {
+                            apple: "Safari and AVFoundation support avc3. WebKit's MSE implementation handles in-band parameter set updates for live HLS-to-DASH bridging. Hardware decode path is identical to avc1.",
+                            lg: 'webOS MSE supports avc3. The SoC decoder processes in-band SPS/PPS transparently — no behavioral difference from avc1 at the hardware level.',
+                            android: 'ExoPlayer and MediaCodec handle avc3 natively. In-band parameter sets are extracted by the extractor and fed to the decoder. Required for DASH live with resolution switching on Android.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF CODECS="avc3.640028"',
+                                m3u8: `Low-latency HLS with CMAF chunks may use avc3 when parameter sets are carried per chunk. Standard HLS with fMP4 typically uses avc1.`,
+                                notes: "Apple's HLS tools default to avc1. avc3 appears when content is muxed by DASH-origin packagers repurposed for HLS."
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc3.640028"',
+                                mpd: `avc3 is the standard sample entry type for DASH live. Enables mid-period resolution changes without new initialization segments. DASH-IF IOP Section 6.2 recommends avc3 for live services.`,
+                                notes: 'Most DASH live encoders (Shaka Packager, AWS MediaLive) output avc3 by default. VOD workflows typically use avc1.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: "The avc3 sample entry still contains an avcC box, but the SPS/PPS there may be a subset or initial configuration. Authoritative parameter sets are in each sample's NAL units.",
+                            mkv: 'Matroska always stores parameter sets in CodecPrivate (similar to avc1). The avc1/avc3 distinction is an ISO BMFF concept with no MKV equivalent.',
+                            mov: 'QuickTime supports avc3 sample entries. Parameter sets in the access units override those in the sample entry when they differ.',
+                            fmp4: 'avc3 in fMP4 means each fragment carries SPS/PPS in the bitstream. The initialization segment avcC may contain a placeholder or initial configuration only.',
+                            cmaf: 'CMAF explicitly supports avc3 for live profiles. Each CMAF chunk is self-describing when avc3 is used — critical for low-latency CMAF where chunks are consumed independently.',
+                            mpegts: 'MPEG-TS always carries H.264 with in-band parameter sets (start codes before SPS/PPS NALUs). The avc1/avc3 distinction does not apply to transport streams.'
+                        },
+                        references: [
+                            { title: 'ISO/IEC 14496-15:2019 — Section 5.4.2.1.2 (avc3 sample entry)', url: 'https://www.iso.org/standard/74429.html' },
+                            { title: 'DASH-IF IOP v4.3 — Section 6.2 AVC codec signaling', url: 'https://dashif.org/docs/DASH-IF-IOP-v4.3.pdf' },
+                            { title: 'CMAF (ISO/IEC 23000-19) — Live media profile requirements', url: 'https://www.iso.org/standard/79106.html' }
+                        ]
+                    }
+            },
+            // ── avc1.7A0028 ──
+
+            {
+                codec: 'avc1.7A0028',
+                name: 'High 4:2:2 1080p SDR 30fps 10-bit',
+                containers: {
+                    file: ['mp4', 'mkv', 'mov', '3gp'],
+                    stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
+                },
+                drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
+                scenarios: [{
+                    name: '1080p SDR 30fps 10-bit 4:2:2',
+                    width: 1920,
+                    height: 1080,
+                    framerate: 30,
+                    bitrate: 20_000_000,
+                    bitDepth: 10,
+                    chromaSubsampling: '4:2:2',
+                }],
+                education: {
+                        breakdown: [
+                            { token: 'avc1', meaning: 'H.264/AVC in ISO BMFF (MP4). Parameter sets (SPS/PPS) stored in the sample entry (out-of-band). avc3 stores them in-band (per access unit). The difference is muxing — decoders handle both identically.' },
+                            { token: '7A0028', meaning: 'Hex triplet: profile_idc=0x7A (122, High 4:2:2), constraint_flags=0x00 (none), level_idc=0x28 (40, Level 4.0). High 4:2:2 Profile — extends High 10 with 4:2:2 chroma subsampling at up to 10-bit depth. Level 4.0 with a 4× bitrate multiplier yields 80 Mbps max VCL.' }
+                        ],
+                        overview: 'High 4:2:2 Profile Level 4.0. Extends High 10 Profile with 4:2:2 chroma subsampling, preserving full horizontal chroma resolution needed for chroma keying and color grading. The 4× bitrate multiplier at Level 4.0 allows up to 80 Mbps VCL. Used in professional broadcast and live production workflows — ProRes-style ingest, contribution feeds, and studio-to-studio links.',
+                        platforms: {
+                            apple: 'No consumer hardware decode. Professional workflows use ProRes 4:2:2 instead. VideoToolbox does not expose High 4:2:2 as a supported profile on any Apple device.',
+                            lg: 'No webOS support. Consumer TV SoCs target 4:2:0 content exclusively. 4:2:2 decode is limited to broadcast production monitors and professional decoders.',
+                            android: 'No known Android SoC supports H.264 High 4:2:2 in hardware. Professional Android-based decoders (e.g., broadcast monitoring apps) rely on software decode via FFmpeg.'
+                        },
+                        streaming: {
+                            hls: [
+                            {
+                                signal: 'EXT-X-STREAM-INF CODECS="avc1.7A0028"',
+                                m3u8: `Not used in consumer HLS. Professional contribution workflows over HLS (e.g., AWS MediaConnect) may carry 4:2:2 but typically use JPEG 2000 or MPEG-2 4:2:2 instead.`,
+                                notes: 'No consumer device can hardware-decode this. Including 4:2:2 in a consumer HLS manifest would cause playback failure on all mainstream players.'
+                            }
+                            ],
+                            dash: [
+                            {
+                                signal: 'AdaptationSet codecs="avc1.7A0028"',
+                                mpd: `Not present in consumer DASH manifests. Broadcast contribution over DASH (DVB-DASH) may reference 4:2:2 for studio feeds.`,
+                                notes: 'Professional codec — included for completeness testing to verify browsers correctly report lack of support.'
+                            }
+                            ]
+                        },
+                        containerNotes: {
+                            mp4: 'AVCDecoderConfigurationRecord with profile_idc=122. The SPS chroma_format_idc=2 signals 4:2:2. Valid ISO BMFF but consumer players reject at the profile check.',
+                            mkv: 'Used in broadcast archival workflows. MKV containers with High 4:2:2 are playable in VLC and FFmpeg-based players via software decode.',
+                            mov: 'Apple ProRes is the preferred 4:2:2 codec in MOV containers. H.264 High 4:2:2 in MOV is rare — primarily from non-Apple professional encoders.',
+                            fmp4: 'Technically valid but no fMP4 player ecosystem supports High 4:2:2. Professional contribution uses MXF or uncompressed SDI, not fragmented MP4.',
+                            cmaf: 'CMAF does not define a media profile for High 4:2:2. Not interoperable across any CMAF implementation.',
+                            mpegts: 'H.264 High 4:2:2 in MPEG-TS is used in broadcast contribution (DVB, ATSC professional). SMPTE ST 2038 workflows carry 4:2:2 AVC over ASI/IP transport.'
+                        },
+                        references: [
+                            { title: 'ITU-T H.264 (V13) — Annex A.2.6 High 4:2:2 profile', url: 'https://www.itu.int/rec/T-REC-H.264' },
+                            { title: 'ISO/IEC 14496-10 — Chroma format and profile definitions', url: 'https://www.iso.org/standard/75400.html' },
+                            { title: 'SMPTE ST 2022-6 — High bitrate media transport over IP', url: 'https://www.smpte.org/standards' }
+                        ]
+                    }
+            }
+        ]
     },
     video_vvc: {
         category: 'VVC/H.266',

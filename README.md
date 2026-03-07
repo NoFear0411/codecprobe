@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.5.2**: 77 codec records (HEVC, Dolby Vision, AV1, VP9) with the normalized v2 database. Purple error badges distinguish API exceptions from clean rejections. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. AVC, VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database (238 entries). Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.6.0**: 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Purple error badges distinguish API exceptions from clean rejections. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -68,9 +68,9 @@ DRM results show the full `decodingInfo()` config including `keySystemConfigurat
 
 ## Codec Coverage
 
-**77 codec records** across 4 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
+**91 codec records** across 5 codec groups. Each record tests against multiple containers (file + streaming) and all three APIs per container. Streaming scenarios use `type: 'media-source'` for MSE validation.
 
-### Video (77 records — v2 database)
+### Video (91 records — v2 database)
 
 | Codec | Records | Profiles/Variants | Containers |
 |-------|---------|-------------------|------------|
@@ -78,12 +78,13 @@ DRM results show the full `decodingInfo()` config including `keySystemConfigurat
 | Dolby Vision | 29 | Profiles 4, 5, 7, 8.1, 8.2, 8.4, 9 (AVC), 10 (AV1), Levels 01–10, film framerates, supplemental dual-codec strings | MP4, MKV, MOV |
 | AV1 | 12 | Main (P0), High (P1), Professional (P2), Film Grain, High Tier, Levels 3.0–6.0, SDR/HDR10/HLG | MP4, MKV, WebM, MOV |
 | VP9 | 21 | Profiles 0–3, Levels 1.0–6.0, 8/10/12-bit, SDR/HDR10/HLG, full and limited range | MP4, MKV, WebM |
+| AVC/H.264 | 14 | Baseline, Constrained Baseline, Main, High, Constrained High, Progressive High, High 10, High 4:2:2, Extended, avc3, Levels 3.0–5.2 | MP4, MKV, MOV, 3GP |
 
-### Pending Migration (from v1 — 238 entries)
+### Pending Migration (from v1)
 
 The following codec groups are being migrated from the v1 flat database to v2's normalized schema. Each will gain per-container and per-scenario testing:
 
-- **Video**: AVC/H.264, VVC/H.266, VP8, Legacy (MPEG-4 Part 2, H.263, Theora)
+- **Video**: VVC/H.266, VP8, Legacy (MPEG-4 Part 2, H.263, Theora)
 - **Audio**: Dolby (AC-3/E-AC-3/AC-4), DTS, Lossless (FLAC/ALAC/Opus/PCM), Standard (AAC/MP3/Vorbis), MPEG-H 3D Audio
 - **Streaming**: HLS, DASH, CMAF scenarios integrated into each codec record
 
@@ -188,7 +189,7 @@ codecprobe/
 │   ├── styles.scss            # Main stylesheet
 │   └── _themes.scss           # Theme definitions
 ├── js/
-│   ├── codec-database-v2.js   # v2 normalized database — 77 records, 4 groups (active)
+│   ├── codec-database-v2.js   # v2 normalized database — 91 records, 5 groups (active)
 │   ├── codec-database.js      # v1 flat database — 238 entries, 13 groups (reference)
 │   ├── codec-tester.js        # Three-API testing with retry logic
 │   ├── device-detection.js    # UAParser.js v2.x integration
