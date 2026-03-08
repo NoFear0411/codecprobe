@@ -3,7 +3,7 @@
  * Cache-first for static assets, network-first for navigation
  */
 
-const CACHE_VERSION = '4.6.1';
+const CACHE_VERSION = '4.6.2';
 const CACHE_NAME = `codecprobe-v${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
