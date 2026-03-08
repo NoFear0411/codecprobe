@@ -55,16 +55,16 @@ Groups that require a new decoder before migration can proceed:
 - Legacy (Theora, H.263, MPEG-4 Part 2) — needs `theora/`, `h263/`, `mp4v/` modules
 - All audio groups — needs audio decoders
 
-### INSERT a new record
+### CREATE a new record
 
 Provide the codec string, display name, and first scenario:
 
 **Video example:**
 
 ```bash
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
+node scripts/db-tool-v2.mjs create hvc1.2.4.L153.B0 \
   --name "HEVC Main 10 4K HDR10" \
-  --scenario --sname "4K HDR10 24fps" \
+  --sname "4K HDR10 24fps" \
   --width 3840 --height 2160 --fps 24 --bitrate 25000000 \
   --depth 10 --chroma 4:2:0 --transfer pq --gamut rec2020 --hdr hdr10
 ```
@@ -72,34 +72,37 @@ node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
 **Audio example:**
 
 ```bash
-node scripts/db-tool-v2.mjs db opus \
+node scripts/db-tool-v2.mjs create opus \
   --name "Opus" \
-  --scenario --sname "Stereo 48kHz" \
+  --sname "Stereo 48kHz" \
   --channels 2 --samplerate 48000 --bitrate 128000
 ```
 
-### ADD a scenario
+### INSERT a scenario
 
-Add another scenario to an existing record (omit `--name`):
+Add another scenario to an existing record:
 
 ```bash
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
-  --scenario --sname "4K HLG 60fps" \
+node scripts/db-tool-v2.mjs insert hvc1.2.4.L153.B0 scenario \
+  --sname "4K HLG 60fps" \
   --width 3840 --height 2160 --fps 60 --bitrate 40000000 \
   --depth 10 --transfer hlg --gamut rec2020 --hdr hlg
 ```
 
-### UPDATE and REMOVE
+### UPDATE, DELETE, RENAME, DROP
 
 ```bash
 # Update a field
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --set name="New Display Name"
+node scripts/db-tool-v2.mjs update hvc1.2.4.L153.B0 name="New Display Name"
 
-# Remove a scenario by name
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --rm-scenario "4K HLG 60fps"
+# Rename a codec string (PK + comments + breakdown tokens)
+node scripts/db-tool-v2.mjs rename avc1.4d001f avc1.4D001F
+
+# Delete a scenario by name
+node scripts/db-tool-v2.mjs delete hvc1.2.4.L153.B0 scenario "4K HLG 60fps"
 
 # Drop an entire record (requires --confirm)
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --drop --confirm
+node scripts/db-tool-v2.mjs drop hvc1.2.4.L153.B0 --confirm
 ```
 
 All mutations support `--dry-run` for preview. Every write is validated with `node -c` before hitting disk.
@@ -214,44 +217,44 @@ Fill in the `meaning` for each token and write the `overview`. The other fields 
 
 ### Editing via CLI
 
-Use dot-path `--set` to update individual education fields:
+Use dot-path `update` to modify individual education fields:
 
 ```bash
 # Set overview
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
-  --set education.overview="HEVC Main 10 at Level 5.1."
+node scripts/db-tool-v2.mjs update hvc1.2.4.L153.B0 \
+  education.overview="HEVC Main 10 at Level 5.1."
 
 # Set a platform note
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
-  --set education.platforms.apple="Hardware decode on A8+ and all Apple Silicon."
+node scripts/db-tool-v2.mjs update hvc1.2.4.L153.B0 \
+  education.platforms.apple="Hardware decode on A8+ and all Apple Silicon."
 
 # Set a container note
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
-  --set education.containerNotes.mp4="ISOBMFF with hvcC sample entry box."
+node scripts/db-tool-v2.mjs update hvc1.2.4.L153.B0 \
+  education.containerNotes.mp4="ISOBMFF with hvcC sample entry box."
 ```
 
 Manage references:
 
 ```bash
 # Add a reference
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 \
-  --add-ref --title "ITU-T H.265" --url "https://www.itu.int/rec/T-REC-H.265"
+node scripts/db-tool-v2.mjs insert hvc1.2.4.L153.B0 ref \
+  --title "ITU-T H.265" --url "https://www.itu.int/rec/T-REC-H.265"
 
 # Remove a reference by title
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --rm-ref --title "ITU-T H.265"
+node scripts/db-tool-v2.mjs delete hvc1.2.4.L153.B0 ref "ITU-T H.265"
 ```
 
 Add streaming entries (HLS/DASH):
 
 ```bash
 # Add an HLS entry
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --add-hls \
+node scripts/db-tool-v2.mjs insert hvc1.2.4.L153.B0 hls \
   --signal "4K HDR10" \
   --m3u8 "#EXT-X-STREAM-INF:BANDWIDTH=25000000,...,VIDEO-RANGE=PQ\nvariant.m3u8" \
   --notes "Apple HLS requires hvc1 tag."
 
 # Add a DASH entry
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --add-dash \
+node scripts/db-tool-v2.mjs insert hvc1.2.4.L153.B0 dash \
   --signal "4K HDR10" \
   --mpd "<Representation codecs=\"hvc1.2.4.L153.B0\" .../>" \
   --notes "DASH uses ISOBMFF segments."
@@ -260,7 +263,7 @@ node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --add-dash \
 Bulk-import education from a JSON file:
 
 ```bash
-node scripts/db-tool-v2.mjs db hvc1.2.4.L153.B0 --edu-from education.json
+node scripts/db-tool-v2.mjs update hvc1.2.4.L153.B0 --edu-from education.json
 ```
 
 The JSON file should match the education structure above. This replaces the entire education object for the record.
@@ -269,17 +272,17 @@ The JSON file should match the education structure above. This replaces the enti
 
 ```bash
 # Coverage table — shows Recs, Edu, Strm, Cntr, Refs per group
-node scripts/db-tool-v2.mjs stats
+node scripts/db-tool-v2.mjs select --stats
 
 # List records with OSCR flags (Overview, Streaming, ContainerNotes, References)
 # Green = populated, dim = missing
-node scripts/db-tool-v2.mjs list video_hevc
+node scripts/db-tool-v2.mjs select --group video_hevc
 
 # Filter to records missing education overview
-node scripts/db-tool-v2.mjs list --missing
+node scripts/db-tool-v2.mjs select --group video_hevc --missing
 
 # Filter to records with education overview
-node scripts/db-tool-v2.mjs list --edu
+node scripts/db-tool-v2.mjs select --group video_hevc --edu
 
 # Verify structure + education completeness (reports errors, warnings, gaps)
 node scripts/db-tool-v2.mjs verify
@@ -287,39 +290,37 @@ node scripts/db-tool-v2.mjs verify
 
 ## CLI Reference
 
-All commands run via `node scripts/db-tool-v2.mjs <command>`.
+All commands run via `node scripts/db-tool-v2.mjs <verb> [args]`.
 
-### Read-only
+### Read
 
 | Command | Description |
 |---------|-------------|
-| `stats` | Coverage table with Recs, Edu, Strm, Cntr, Refs columns per group |
-| `list [group] [--missing\|--edu]` | List records with OSCR flags (Overview, Streaming, ContainerNotes, References) |
+| `select <codec>` | Show full record details including education content |
+| `select --stats` | Coverage table with Recs, Edu, Strm, Cntr, Refs columns per group |
+| `select --group <key> [--missing\|--edu]` | List records with OSCR flags |
+
+### Write
+
+| Command | Description |
+|---------|-------------|
+| `create <codec> --name <n> [scenario opts]` | Insert new record with first scenario |
+| `insert <codec> scenario [scenario opts]` | Add scenario to existing record |
+| `insert <codec> ref --title <t> [--url <u>]` | Add a reference entry |
+| `insert <codec> hls --signal <s> --m3u8 <m> [--notes <n>]` | Add HLS streaming entry |
+| `insert <codec> dash --signal <s> --mpd <m> [--notes <n>]` | Add DASH streaming entry |
+| `update <codec> key=value` | Update field (supports dot-paths like `education.overview`) |
+| `update <codec> --edu-from <path.json>` | Replace education from JSON file |
+| `rename <codec> <new-codec>` | Rename codec (PK + comments + breakdown tokens) |
+| `delete <codec> scenario <name>` | Remove a scenario by name |
+| `delete <codec> ref <title>` | Remove reference by title |
+| `drop <codec> --confirm` | Drop entire record |
+
+### Validate
+
+| Command | Description |
+|---------|-------------|
 | `verify` | Structure validation + education completeness (errors, warnings, gaps) |
-| `db <codec>` | Show full record details including education content |
-
-### Record mutations
-
-| Command | Description |
-|---------|-------------|
-| `db <codec> --name <n> --scenario [opts]` | Insert new record with first scenario |
-| `db <codec> --scenario --sname <n> [opts]` | Add scenario to existing record |
-| `db <codec> --set key=value` | Update field (supports dot-paths like `education.overview`) |
-| `db <codec> --rm-scenario <name>` | Remove a scenario by name |
-| `db <codec> --drop --confirm` | Drop entire record |
-
-### Education mutations
-
-| Command | Description |
-|---------|-------------|
-| `db <codec> --set education.overview="text"` | Set education overview |
-| `db <codec> --set education.platforms.apple="text"` | Set a platform note |
-| `db <codec> --set education.containerNotes.mp4="text"` | Set a container note |
-| `db <codec> --add-ref --title <t> [--url <u>]` | Add a reference entry |
-| `db <codec> --rm-ref --title <t>` | Remove reference by title |
-| `db <codec> --add-hls --signal <s> --m3u8 <m> --notes <n>` | Add HLS streaming entry |
-| `db <codec> --add-dash --signal <s> --mpd <m> --notes <n>` | Add DASH streaming entry |
-| `db <codec> --edu-from <path.json>` | Replace education from JSON file |
 
 ### Flags
 
@@ -327,7 +328,7 @@ All commands run via `node scripts/db-tool-v2.mjs <command>`.
 
 **Audio scenario**: `--sname` (required), `--channels`, `--samplerate`, `--bitrate` (required), `--depth`, `--spatial` (optional)
 
-**Options**: `--group <key>` (override auto-detection), `--flags <a,b>` (codec flags), `--dry-run` (preview)
+**Options**: `--name <name>` (required for create), `--group <key>` (override auto-detection), `--flags <a,b>` (codec flags), `--dry-run` (preview)
 
 ## Migration Status
 

@@ -4307,15 +4307,6 @@ vp9_p0_1080p60.m3u8`,
                     chromaSubsampling: '4:2:0',
                 },
                     {
-                        name: '720p SDR 30fps 8-bit',
-                        width: 1280,
-                        height: 720,
-                        framerate: 30,
-                        bitrate: 2_000_000,
-                        bitDepth: 8,
-                        chromaSubsampling: '4:2:0',
-                    },
-                    {
                         name: '480p SDR 29.97fps 8-bit',
                         width: 720,
                         height: 480,
@@ -4325,10 +4316,19 @@ vp9_p0_1080p60.m3u8`,
                         chromaSubsampling: '4:2:0',
                     },
                     {
-                        name: '720p SDR 29.97fps 8-bit',
-                        width: 1280,
-                        height: 720,
-                        framerate: 29.97,
+                        name: '480p SDR 24fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 24,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '480p SDR 23.976fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 23.976,
                         bitrate: 2_000_000,
                         bitDepth: 8,
                         chromaSubsampling: '4:2:0',
@@ -4381,36 +4381,46 @@ vp9_p0_1080p60.m3u8`,
 
             {
                 codec: 'avc1.42C01E',
-                name: 'Constrained Baseline 720p SDR 30fps 8-bit',
+                name: 'Constrained Baseline 480p SDR 30fps 8-bit',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '720p SDR 30fps 8-bit',
-                    width: 1280,
-                    height: 720,
-                    framerate: 30,
-                    bitrate: 2_500_000,
-                    bitDepth: 8,
-                    chromaSubsampling: '4:2:0',
-                },
+                scenarios: [
                     {
-                        name: '720p SDR 29.97fps 8-bit',
-                        width: 1280,
-                        height: 720,
-                        framerate: 29.97,
-                        bitrate: 2_500_000,
+                        name: '480p SDR 30fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 30,
+                        bitrate: 2_000_000,
                         bitDepth: 8,
                         chromaSubsampling: '4:2:0',
                     },
                     {
-                        name: '720p SDR 23.976fps 8-bit',
-                        width: 1280,
-                        height: 720,
+                        name: '480p SDR 24fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 24,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '480p SDR 29.97fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 29.97,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '480p SDR 23.976fps 8-bit',
+                        width: 720,
+                        height: 480,
                         framerate: 23.976,
-                        bitrate: 2_500_000,
+                        bitrate: 2_000_000,
                         bitDepth: 8,
                         chromaSubsampling: '4:2:0',
                     }
@@ -4461,7 +4471,7 @@ vp9_p0_1080p60.m3u8`,
             // ── avc1.4d001f ──
 
             {
-                codec: 'avc1.4d001f',
+                codec: 'avc1.4D001F',
                 name: 'Main 720p SDR 30fps 8-bit',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
@@ -4494,6 +4504,15 @@ vp9_p0_1080p60.m3u8`,
                         bitrate: 2_500_000,
                         bitDepth: 8,
                         chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '720p SDR 24fps 8-bit',
+                        width: 1280,
+                        height: 720,
+                        framerate: 24,
+                        bitrate: 2_500_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
                     }
                 ],
                 education: {
@@ -4510,14 +4529,14 @@ vp9_p0_1080p60.m3u8`,
                         streaming: {
                             hls: [
                             {
-                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.4d001f"',
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.4D001F"',
                                 m3u8: `Main Profile at Level 3.1 typically used for 720p or lower bitrate variants in HLS ladders.`,
                                 notes: 'Apple HLS spec allows Main Profile. High Profile preferred for better compression at equivalent quality.'
                             }
                             ],
                             dash: [
                             {
-                                signal: 'AdaptationSet codecs="avc1.4d001f"',
+                                signal: 'AdaptationSet codecs="avc1.4D001F"',
                                 mpd: `Main Profile signaled in Representation@codecs. DASH-IF AVC interop points include Main Profile.`,
                                 notes: 'Main Profile adequate for SD/720p DASH streams. High Profile recommended for new deployments.'
                             }
@@ -4542,7 +4561,7 @@ vp9_p0_1080p60.m3u8`,
             // ── avc1.4d4028 ──
 
             {
-                codec: 'avc1.4d4028',
+                codec: 'avc1.4D4028',
                 name: 'Main 1080p SDR 30fps 8-bit',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
@@ -4600,14 +4619,14 @@ vp9_p0_1080p60.m3u8`,
                         streaming: {
                             hls: [
                             {
-                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.4d4028"',
+                                signal: 'EXT-X-STREAM-INF with CODECS="avc1.4D4028"',
                                 m3u8: `Main@L4.0 serves as a compatibility tier for 1080p in multi-variant playlists targeting older devices.`,
                                 notes: 'Apple HLS authoring spec recommends High Profile for 1080p. Main at Level 4.0 is a safe fallback.'
                             }
                             ],
                             dash: [
                             {
-                                signal: 'AdaptationSet codecs="avc1.4d4028"',
+                                signal: 'AdaptationSet codecs="avc1.4D4028"',
                                 mpd: `Signaled in Representation@codecs. Some legacy DASH encoders default to Main Profile for 1080p.`,
                                 notes: 'DASH-IF recommends High Profile for 1080p new content. Main@L4.0 acceptable for backward compatibility.'
                             }
@@ -4633,7 +4652,7 @@ vp9_p0_1080p60.m3u8`,
 
             {
                 codec: 'avc1.640028',
-                name: '1080p SDR 30fps 8-bit',
+                name: 'High 1080p SDR 30fps 8-bit',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
@@ -4658,19 +4677,19 @@ vp9_p0_1080p60.m3u8`,
                         chromaSubsampling: '4:2:0',
                     },
                     {
-                        name: '1080p SDR 23.976fps 8-bit',
-                        width: 1920,
-                        height: 1080,
-                        framerate: 23.976,
-                        bitrate: 8_000_000,
-                        bitDepth: 8,
-                        chromaSubsampling: '4:2:0',
-                    },
-                    {
                         name: '1080p SDR 29.97fps 8-bit',
                         width: 1920,
                         height: 1080,
                         framerate: 29.97,
+                        bitrate: 5_000_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '1080p SDR 23.976fps 8-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 23.976,
                         bitrate: 5_000_000,
                         bitDepth: 8,
                         chromaSubsampling: '4:2:0',
@@ -4732,7 +4751,7 @@ seg_h264_1.m4s
 
             {
                 codec: 'avc1.64002A',
-                name: '1080p SDR 60fps 8-bit',
+                name: 'High 1080p SDR 60fps 8-bit',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
@@ -4804,7 +4823,7 @@ seg_h264_1.m4s
 
             {
                 codec: 'avc1.640033',
-                name: '1080p SDR 60fps 8-bit (L5.1)',
+                name: 'High 4K SDR 30fps 8-bit (L5.1)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
@@ -4912,7 +4931,7 @@ seg_h264_1.m4s
 
             {
                 codec: 'avc1.640034',
-                name: '4K SDR 30fps 8-bit',
+                name: 'High 4K SDR 60fps 8-bit (L5.2)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
@@ -5197,8 +5216,8 @@ seg_h264_1.m4s
             // ── avc1.6e0033 ──
 
             {
-                codec: 'avc1.6e0033',
-                name: 'High 10 1080p SDR 30fps 10-bit',
+                codec: 'avc1.6E0033',
+                name: 'High 10 4K SDR 30fps 10-bit (L5.1)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
@@ -5257,6 +5276,42 @@ seg_h264_1.m4s
                         bitrate: 50_000_000,
                         bitDepth: 10,
                         chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '4K SDR 23.976fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 23.976,
+                        bitrate: 50_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '4K SDR 29.97fps 10-bit',
+                        width: 3840,
+                        height: 2160,
+                        framerate: 29.97,
+                        bitrate: 50_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '1080p SDR 60fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 60,
+                        bitrate: 10_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '1080p SDR 59.94fps 10-bit',
+                        width: 1920,
+                        height: 1080,
+                        framerate: 59.94,
+                        bitrate: 10_000_000,
+                        bitDepth: 10,
+                        chromaSubsampling: '4:2:0',
                     }
                 ],
                 education: {
@@ -5273,14 +5328,14 @@ seg_h264_1.m4s
                         streaming: {
                             hls: [
                             {
-                                signal: 'EXT-X-STREAM-INF CODECS="avc1.6e0033"',
+                                signal: 'EXT-X-STREAM-INF CODECS="avc1.6E0033"',
                                 m3u8: `Not used in practice. Apple HLS Authoring Spec does not list High 10 as a recommended profile. Players would need software decode fallback.`,
                                 notes: 'No known commercial HLS deployment uses H.264 High 10. HEVC Main 10 (hvc1.2.4.L153.B0) is the standard choice for 10-bit HLS.'
                             }
                             ],
                             dash: [
                             {
-                                signal: 'AdaptationSet codecs="avc1.6e0033"',
+                                signal: 'AdaptationSet codecs="avc1.6E0033"',
                                 mpd: `Technically valid but not seen in production DASH manifests. DASH-IF IOP recommends HEVC or AV1 for 10-bit content.`,
                                 notes: 'High 10 exists primarily for professional/archival use. Consumer streaming skipped it entirely in favor of next-gen codecs.'
                             }
@@ -5305,27 +5360,46 @@ seg_h264_1.m4s
 
             {
                 codec: 'avc1.58A01E',
-                name: 'Extended 720p SDR 30fps 8-bit',
+                name: 'Extended 480p SDR 30fps 8-bit',
                 containers: {
                     file: ['mp4', 'mkv', 'mov', '3gp'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']
                 },
                 drm: ['widevine', 'playready', 'fairplay', 'clearkey'],
-                scenarios: [{
-                    name: '720p SDR 30fps 8-bit',
-                    width: 1280,
-                    height: 720,
-                    framerate: 30,
-                    bitrate: 3_000_000,
-                    bitDepth: 8,
-                    chromaSubsampling: '4:2:0',
-                },
+                scenarios: [
                     {
-                        name: '720p SDR 29.97fps 8-bit',
-                        width: 1280,
-                        height: 720,
+                        name: '480p SDR 30fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 30,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '480p SDR 24fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 24,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '480p SDR 29.97fps 8-bit',
+                        width: 720,
+                        height: 480,
                         framerate: 29.97,
-                        bitrate: 3_000_000,
+                        bitrate: 2_000_000,
+                        bitDepth: 8,
+                        chromaSubsampling: '4:2:0',
+                    },
+                    {
+                        name: '480p SDR 23.976fps 8-bit',
+                        width: 720,
+                        height: 480,
+                        framerate: 23.976,
+                        bitrate: 2_000_000,
                         bitDepth: 8,
                         chromaSubsampling: '4:2:0',
                     }
@@ -5376,7 +5450,7 @@ seg_h264_1.m4s
 
             {
                 codec: 'avc3.640028',
-                name: '1080p SDR 30fps (avc3)',
+                name: 'High 1080p SDR 30fps 8-bit (avc3)',
                 containers: {
                     file: ['mp4', 'mkv', 'mov'],
                     stream: ['fmp4', 'hls', 'dash', 'cmaf', 'mpegts']

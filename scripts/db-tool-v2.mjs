@@ -1,19 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * CodecProbe v2 Database Tool
+ * CodecProbe v2 Database Tool — SQL verb-first dispatch
  *
- * Codec string = primary key. All mutations go through `db`:
- *
- *   db <codec-string>                          Show record
- *   db <codec-string> --scenario [opts]        Insert record (new) or add scenario (existing)
- *   db <codec-string> --set key=value          Update field
- *   db <codec-string> --rm-scenario <name>     Remove scenario
- *   db <codec-string> --drop --confirm         Drop entire record
- *
- * Read-only (no PK needed):
- *   stats                                      Overview table
- *   list [group] [--missing|--edu]             List records
+ * Codec string = primary key. Verbs:
+ *   select <codec> | --stats | --group <key>   Read
+ *   create <codec> --name <n> [scenario opts]  Insert new record
+ *   insert <codec> scenario|ref|hls|dash ...   Add to existing record
+ *   update <codec> key=value                   Update field
+ *   rename <codec> <new-codec>                 Rename PK
+ *   delete <codec> scenario|ref <name>         Remove sub-item
+ *   drop <codec> --confirm                     Delete entire record
  *   verify                                     Validate all records
  */
 
@@ -326,6 +323,56 @@ function insertIntoObject(source, objStart, objEnd, key, formattedValue) {
         source.substring(lastContent + 1);
 }
 
+/**
+ * Find a codec record in both the live DB and source text.
+ * Returns { group, groupKey, mediaType, record, sourceRecord } or { error }.
+ */
+function resolveRecord(source, db, codecString) {
+    let groupKey = null;
+    let dbRecord = null;
+    for (const [key, group] of Object.entries(db)) {
+        const rec = group.codecs.find(r => r.codec === codecString);
+        if (rec) { groupKey = key; dbRecord = rec; break; }
+    }
+    if (!groupKey) return { error: `Record not found: ${codecString}` };
+
+    const groupRange = findGroupRange(source, groupKey);
+    if (!groupRange) return { error: `Group "${groupKey}" not found in source text` };
+
+    const sourceRecord = findRecordByCodec(source, codecString, groupRange.start, groupRange.end);
+    if (!sourceRecord) return { error: `Record not found in source text: ${codecString}` };
+
+    return {
+        groupKey,
+        group: db[groupKey],
+        mediaType: db[groupKey].type,
+        record: dbRecord,
+        sourceRecord,
+        groupRange
+    };
+}
+
+/**
+ * Append a formatted item into an array in source text.
+ * Handles empty arrays, trailing commas, and indentation.
+ */
+function spliceInsertIntoArray(source, arrStart, arrEnd, formattedItem, closingIndent) {
+    const inner = source.substring(arrStart + 1, arrEnd).trim();
+    if (inner === '') {
+        return source.substring(0, arrStart + 1) + '\n' + formattedItem + '\n' +
+            closingIndent + source.substring(arrEnd);
+    }
+
+    let lastContent = arrEnd - 1;
+    while (lastContent > arrStart && /\s/.test(source[lastContent])) lastContent--;
+
+    const needsComma = source[lastContent] !== ',' && source[lastContent] !== '[';
+    const comma = needsComma ? ',' : '';
+
+    return source.substring(0, lastContent + 1) + comma + '\n' + formattedItem +
+        source.substring(lastContent + 1);
+}
+
 
 // ==================== CODEC TAG → GROUP MAPPING ====================
 
@@ -559,8 +606,7 @@ function parseArgs(argv) {
         if (arg.startsWith('--')) {
             const key = arg.substring(2);
             // Boolean flags
-            if (['confirm', 'dry-run', 'missing', 'edu', 'scenario', 'drop', 'spatial',
-                 'add-ref', 'rm-ref', 'add-hls', 'add-dash'].includes(key)) {
+            if (['confirm', 'dry-run', 'missing', 'edu', 'spatial', 'stats'].includes(key)) {
                 result.flags.add(key);
                 i++;
                 continue;
@@ -666,78 +712,198 @@ function pctBar(count, total) {
     return `${color}${pct.toString().padStart(3)}%${C.reset}`;
 }
 
-async function cmdStats() {
-    const db = await loadDatabase();
-    console.log(`\n${C.bold}CodecProbe v2 Database Stats${C.reset}\n`);
+// ==================== HANDLERS ====================
 
-    const header = `${'Group'.padEnd(24)} ${'Type'.padEnd(7)} ${'Recs'.padStart(5)} ${'Edu'.padStart(5)} ${'Strm'.padStart(5)} ${'Cntr'.padStart(5)} ${'Refs'.padStart(5)}`;
-    console.log(`${C.dim}${header}${C.reset}`);
-    console.log(`${C.dim}${'─'.repeat(header.length)}${C.reset}`);
+async function handleSelect(args) {
+    if (args.flags.has('stats')) {
+        const db = await loadDatabase();
+        console.log(`\n${C.bold}CodecProbe v2 Database Stats${C.reset}\n`);
 
-    let tRecs = 0, tEdu = 0, tStrm = 0, tCntr = 0, tRefs = 0;
+        const header = `${'Group'.padEnd(24)} ${'Type'.padEnd(7)} ${'Recs'.padStart(5)} ${'Edu'.padStart(5)} ${'Strm'.padStart(5)} ${'Cntr'.padStart(5)} ${'Refs'.padStart(5)}`;
+        console.log(`${C.dim}${header}${C.reset}`);
+        console.log(`${C.dim}${'─'.repeat(header.length)}${C.reset}`);
 
-    for (const [key, group] of Object.entries(db)) {
-        const recs = group.codecs.length;
-        let edu = 0, strm = 0, cntr = 0, refs = 0;
-        for (const rec of group.codecs) {
-            if (hasOverview(rec.education)) edu++;
-            if (hasStreaming(rec.education)) strm++;
-            if (hasContainerNotes(rec.education)) cntr++;
-            if (hasRefs(rec.education)) refs++;
+        let tRecs = 0, tEdu = 0, tStrm = 0, tCntr = 0, tRefs = 0;
+
+        for (const [key, group] of Object.entries(db)) {
+            const recs = group.codecs.length;
+            let edu = 0, strm = 0, cntr = 0, refs = 0;
+            for (const rec of group.codecs) {
+                if (hasOverview(rec.education)) edu++;
+                if (hasStreaming(rec.education)) strm++;
+                if (hasContainerNotes(rec.education)) cntr++;
+                if (hasRefs(rec.education)) refs++;
+            }
+
+            console.log(
+                `${key.padEnd(24)} ${group.type.padEnd(7)} ${String(recs).padStart(5)} ` +
+                `${String(edu).padStart(5)} ${String(strm).padStart(5)} ${String(cntr).padStart(5)} ${String(refs).padStart(5)}  ` +
+                `${pctBar(edu, recs)}`
+            );
+            tRecs += recs; tEdu += edu; tStrm += strm; tCntr += cntr; tRefs += refs;
         }
 
+        console.log(`${C.dim}${'─'.repeat(header.length)}${C.reset}`);
         console.log(
-            `${key.padEnd(24)} ${group.type.padEnd(7)} ${String(recs).padStart(5)} ` +
-            `${String(edu).padStart(5)} ${String(strm).padStart(5)} ${String(cntr).padStart(5)} ${String(refs).padStart(5)}  ` +
-            `${pctBar(edu, recs)}`
+            `${'TOTAL'.padEnd(24)} ${''.padEnd(7)} ${String(tRecs).padStart(5)} ` +
+            `${String(tEdu).padStart(5)} ${String(tStrm).padStart(5)} ${String(tCntr).padStart(5)} ${String(tRefs).padStart(5)}  ` +
+            `${pctBar(tEdu, tRecs)}`
         );
-        tRecs += recs; tEdu += edu; tStrm += strm; tCntr += cntr; tRefs += refs;
+        console.log();
+        return { ok: true, display: true };
     }
 
-    console.log(`${C.dim}${'─'.repeat(header.length)}${C.reset}`);
-    console.log(
-        `${'TOTAL'.padEnd(24)} ${''.padEnd(7)} ${String(tRecs).padStart(5)} ` +
-        `${String(tEdu).padStart(5)} ${String(tStrm).padStart(5)} ${String(tCntr).padStart(5)} ${String(tRefs).padStart(5)}  ` +
-        `${pctBar(tEdu, tRecs)}`
-    );
-    console.log();
+    if (args.options.group) {
+        const db = await loadDatabase();
+        const groupFilter = args.options.group;
+        const filter = args.flags.has('missing') ? 'missing' : args.flags.has('edu') ? 'edu' : 'all';
+
+        for (const [key, group] of Object.entries(db)) {
+            if (groupFilter && key !== groupFilter) continue;
+            if (group.codecs.length === 0 && !groupFilter) continue;
+
+            console.log(`\n${C.bold}${group.category}${C.reset} ${C.dim}(${key}, ${group.type})${C.reset}`);
+
+            if (group.codecs.length === 0) {
+                console.log(`  ${C.dim}(empty)${C.reset}`);
+                continue;
+            }
+
+            for (const rec of group.codecs) {
+                const edu = rec.education;
+                const hasEdu = hasOverview(edu);
+                if (filter === 'missing' && hasEdu) continue;
+                if (filter === 'edu' && !hasEdu) continue;
+
+                const flagO = hasOverview(edu) ? `${C.green}O${C.reset}` : `${C.dim}O${C.reset}`;
+                const flagS = hasStreaming(edu) ? `${C.green}S${C.reset}` : `${C.dim}S${C.reset}`;
+                const flagC = hasContainerNotes(edu) ? `${C.green}C${C.reset}` : `${C.dim}C${C.reset}`;
+                const flagR = hasRefs(edu) ? `${C.green}R${C.reset}` : `${C.dim}R${C.reset}`;
+                const flags = `${flagO}${flagS}${flagC}${flagR}`;
+
+                const scenarios = rec.scenarios.length > 1 ? `${C.dim}(${rec.scenarios.length} scenarios)${C.reset}` : '';
+                console.log(`  ${flags} ${C.cyan}${rec.codec}${C.reset}  ${rec.name} ${scenarios}`);
+            }
+        }
+        console.log();
+        return { ok: true, display: true };
+    }
+
+    // select <codec> — show single record
+    const codecString = args.positional[0];
+    if (!codecString) return { ok: false, error: 'select requires a codec string, --stats, or --group' };
+
+    const db = await loadDatabase();
+    const source = readSource();
+    const resolved = resolveRecord(source, db, codecString);
+    if (resolved.error) return { ok: false, error: resolved.error };
+
+    showRecord(resolved.record, resolved.groupKey, resolved.mediaType);
+    return { ok: true, display: true };
 }
 
-async function cmdList(groupFilter, filter) {
+async function handleCreate(codecString, args) {
     const db = await loadDatabase();
+    const source = readSource();
 
     for (const [key, group] of Object.entries(db)) {
-        if (groupFilter && key !== groupFilter) continue;
-        if (group.codecs.length === 0 && !groupFilter) continue;
-
-        console.log(`\n${C.bold}${group.category}${C.reset} ${C.dim}(${key}, ${group.type})${C.reset}`);
-
-        if (group.codecs.length === 0) {
-            console.log(`  ${C.dim}(empty)${C.reset}`);
-            continue;
-        }
-
-        for (const rec of group.codecs) {
-            const edu = rec.education;
-            const hasEdu = hasOverview(edu);
-            if (filter === 'missing' && hasEdu) continue;
-            if (filter === 'edu' && !hasEdu) continue;
-
-            // Sub-field flags: O=overview S=streaming C=containerNotes R=references
-            const flagO = hasOverview(edu) ? `${C.green}O${C.reset}` : `${C.dim}O${C.reset}`;
-            const flagS = hasStreaming(edu) ? `${C.green}S${C.reset}` : `${C.dim}S${C.reset}`;
-            const flagC = hasContainerNotes(edu) ? `${C.green}C${C.reset}` : `${C.dim}C${C.reset}`;
-            const flagR = hasRefs(edu) ? `${C.green}R${C.reset}` : `${C.dim}R${C.reset}`;
-            const flags = `${flagO}${flagS}${flagC}${flagR}`;
-
-            const scenarios = rec.scenarios.length > 1 ? `${C.dim}(${rec.scenarios.length} scenarios)${C.reset}` : '';
-            console.log(`  ${flags} ${C.cyan}${rec.codec}${C.reset}  ${rec.name} ${scenarios}`);
+        if (group.codecs.find(r => r.codec === codecString)) {
+            return { ok: false, error: `Record already exists: ${codecString} (in ${key}). Use "insert" to add scenarios.` };
         }
     }
-    console.log();
+
+    return insertRecord(source, db, codecString, args, args.flags.has('dry-run'));
 }
 
-async function cmdVerify() {
+async function handleInsert(codecString, subcommand, args) {
+    const db = await loadDatabase();
+    const source = readSource();
+    const resolved = resolveRecord(source, db, codecString);
+    if (resolved.error) return { ok: false, error: resolved.error };
+
+    switch (subcommand) {
+        case 'scenario':
+            return addScenario(source, resolved, args);
+        case 'ref':
+            return addReference(source, resolved, args);
+        case 'hls':
+            return addStreamingEntry(source, resolved, 'hls', args);
+        case 'dash':
+            return addStreamingEntry(source, resolved, 'dash', args);
+    }
+}
+
+async function handleUpdate(codecString, args) {
+    const db = await loadDatabase();
+    const source = readSource();
+    const resolved = resolveRecord(source, db, codecString);
+    if (resolved.error) return { ok: false, error: resolved.error };
+
+    if (args.options['edu-from']) {
+        return importEducation(source, resolved, args);
+    }
+
+    return updateField(source, resolved, args);
+}
+
+async function handleDelete(codecString, subcommand, targetName, args) {
+    const db = await loadDatabase();
+    const source = readSource();
+    const resolved = resolveRecord(source, db, codecString);
+    if (resolved.error) return { ok: false, error: resolved.error };
+
+    const dryRun = args.flags.has('dry-run');
+    switch (subcommand) {
+        case 'scenario':
+            return removeScenario(source, resolved, targetName, dryRun);
+        case 'ref':
+            return removeReference(source, resolved, targetName, dryRun);
+    }
+}
+
+async function handleDrop(codecString, args) {
+    if (!args.flags.has('confirm'))
+        return { ok: false, error: 'drop requires --confirm' };
+
+    const db = await loadDatabase();
+    const source = readSource();
+    const resolved = resolveRecord(source, db, codecString);
+    if (resolved.error) return { ok: false, error: resolved.error };
+
+    return dropRecord(source, resolved, args.flags.has('dry-run'));
+}
+
+async function handleRename(oldCodec, newCodec, args) {
+    const db = await loadDatabase();
+    const source = readSource();
+    const resolved = resolveRecord(source, db, oldCodec);
+    if (resolved.error) return { ok: false, error: resolved.error };
+
+    const { sourceRecord } = resolved;
+    const dryRun = args.flags.has('dry-run');
+
+    const rangeStart = sourceRecord.commentStart;
+    const rangeEnd = sourceRecord.end;
+    const slice = source.substring(rangeStart, rangeEnd + 1);
+    let updated = slice.replaceAll(oldCodec, newCodec);
+
+    // Update breakdown tokens if codec parts changed
+    const oldTokens = oldCodec.split('.');
+    const newTokens = newCodec.split('.');
+    for (let i = 0; i < oldTokens.length && i < newTokens.length; i++) {
+        if (oldTokens[i] !== newTokens[i]) {
+            updated = updated.replaceAll(
+                `token: ${q(oldTokens[i])}`,
+                `token: ${q(newTokens[i])}`
+            );
+        }
+    }
+
+    const newSource = source.substring(0, rangeStart) + updated + source.substring(rangeEnd + 1);
+    return commitWrite(newSource, dryRun, `RENAME ${oldCodec} → ${newCodec}`);
+}
+
+async function handleVerify() {
     console.log(`\n${C.bold}Verifying codec-database-v2.js${C.reset}\n`);
 
     const source = readSource();
@@ -745,7 +911,7 @@ async function cmdVerify() {
     if (syntaxResult !== true) {
         console.log(`  ${C.red}✗ Syntax error${C.reset}`);
         console.log(`  ${syntaxResult}`);
-        process.exit(1);
+        return { ok: false, error: 'Syntax error' };
     }
     console.log(`  ${C.green}✓${C.reset} Syntax OK`);
 
@@ -804,7 +970,6 @@ async function cmdVerify() {
                 }
             }
 
-            // Education validation
             if (rec.education) {
                 const edu = rec.education;
                 const prefix = `${key}/${rec.codec}`;
@@ -840,103 +1005,14 @@ async function cmdVerify() {
 
     if (issues > 0) {
         console.log(`\n  ${C.red}${issues} issue(s) found${C.reset}\n`);
-        process.exit(1);
+        return { ok: false, error: `${issues} issue(s) found` };
     }
     console.log();
+    return { ok: true, display: true };
 }
 
 
-// ==================== COMMANDS: db (MUTATIONS) ====================
-
-async function cmdDb(codecString, args) {
-    const db = await loadDatabase();
-    const source = readSource();
-
-    // Find record in live DB
-    let foundGroup = null;
-    let foundRecord = null;
-    for (const [key, group] of Object.entries(db)) {
-        const rec = group.codecs.find(r => r.codec === codecString);
-        if (rec) {
-            foundGroup = key;
-            foundRecord = rec;
-            break;
-        }
-    }
-
-    const hasScenarioFlag = args.flags.has('scenario');
-    const hasDropFlag = args.flags.has('drop');
-    const hasSetOpt = args.options.set !== undefined;
-    const hasRmScenario = args.options['rm-scenario'] !== undefined;
-    const hasAddRef = args.flags.has('add-ref');
-    const hasRmRef = args.flags.has('rm-ref');
-    const hasAddHls = args.flags.has('add-hls');
-    const hasAddDash = args.flags.has('add-dash');
-    const hasEduFrom = args.options['edu-from'] !== undefined;
-    const dryRun = args.flags.has('dry-run');
-
-    // ── Record exists ──
-
-    if (foundRecord) {
-        const noMutation = !hasScenarioFlag && !hasDropFlag && !hasSetOpt && !hasRmScenario &&
-            !hasAddRef && !hasRmRef && !hasAddHls && !hasAddDash && !hasEduFrom;
-        if (noMutation) {
-            return showRecord(foundRecord, foundGroup, db[foundGroup].type);
-        }
-
-        if (hasScenarioFlag) {
-            return addScenario(source, codecString, foundGroup, db[foundGroup].type, args, dryRun);
-        }
-
-        if (hasSetOpt) {
-            return updateField(source, codecString, foundGroup, args, dryRun);
-        }
-
-        if (hasRmScenario) {
-            return removeScenario(source, codecString, foundGroup, args.options['rm-scenario'], dryRun);
-        }
-
-        if (hasAddRef) {
-            return addReference(source, codecString, foundGroup, args, dryRun);
-        }
-
-        if (hasRmRef) {
-            return removeReference(source, codecString, foundGroup, args, dryRun);
-        }
-
-        if (hasAddHls) {
-            return addStreamingEntry(source, codecString, foundGroup, 'hls', args, dryRun);
-        }
-
-        if (hasAddDash) {
-            return addStreamingEntry(source, codecString, foundGroup, 'dash', args, dryRun);
-        }
-
-        if (hasEduFrom) {
-            return importEducation(source, codecString, foundGroup, args, dryRun);
-        }
-
-        if (hasDropFlag) {
-            if (!args.flags.has('confirm')) {
-                console.error(`${C.red}Drop requires --confirm${C.reset}`);
-                process.exit(1);
-            }
-            return dropRecord(source, codecString, foundGroup, dryRun);
-        }
-    }
-
-    // ── Record doesn't exist ──
-
-    if (!foundRecord) {
-        if (!hasScenarioFlag) {
-            console.error(`${C.red}Record not found:${C.reset} ${codecString}`);
-            console.error(`Use --scenario to insert a new record.`);
-            process.exit(1);
-        }
-
-        return insertRecord(source, db, codecString, args, dryRun);
-    }
-}
+// ==================== DISPLAY ====================
 
 function showRecord(record, groupKey, mediaType) {
     console.log(`\n${C.bold}${record.codec}${C.reset} ${C.dim}(${groupKey})${C.reset}\n`);
@@ -1036,25 +1112,21 @@ function showRecord(record, groupKey, mediaType) {
 
 function insertRecord(source, db, codecString, args, dryRun) {
     if (!args.options.name) {
-        console.error(`${C.red}--name is required for INSERT${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: '--name is required for CREATE' };
     }
 
     const groupKey = args.options.group || detectGroupFromCodec(codecString);
     if (!groupKey) {
-        console.error(`${C.red}Cannot detect group for "${codecString}". Use --group <key>${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `Cannot detect group for "${codecString}". Use --group <key>` };
     }
     if (!db[groupKey]) {
-        console.error(`${C.red}Group "${groupKey}" not found${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `Group "${groupKey}" not found` };
     }
 
     const mediaType = db[groupKey].type;
     const scenarioResult = buildScenarioFromArgs(args.options, args.flags, mediaType);
     if (scenarioResult.error) {
-        console.error(`${C.red}${scenarioResult.error}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: scenarioResult.error };
     }
 
     const containers = getContainersForCodec(codecString);
@@ -1080,128 +1152,58 @@ function insertRecord(source, db, codecString, args, dryRun) {
 
     const groupRange = findGroupRange(source, groupKey);
     if (!groupRange) {
-        console.error(`${C.red}Group "${groupKey}" not found in source text${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `Group "${groupKey}" not found in source text` };
     }
 
     const codecsArr = findCodecsArray(source, groupRange.start, groupRange.end);
     if (!codecsArr) {
-        console.error(`${C.red}No codecs array in "${groupKey}"${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `No codecs array in "${groupKey}"` };
     }
 
     const formatted = formatRecord(record, mediaType);
+    const newSource = spliceInsertIntoArray(source, codecsArr.start, codecsArr.end, formatted, I8);
 
-    // Find last non-whitespace before closing ]
-    let lastContent = codecsArr.end - 1;
-    while (lastContent > codecsArr.start && /\s/.test(source[lastContent])) lastContent--;
-
-    let newSource;
-    if (source[lastContent] === '[') {
-        // Empty codecs array
-        const before = source.substring(0, lastContent + 1);
-        const after = source.substring(codecsArr.end);
-        newSource = before + formatted + '\n' + I8 + after;
-    } else {
-        const needsComma = source[lastContent] !== ',';
-        const comma = needsComma ? ',' : '';
-        const before = source.substring(0, lastContent + 1);
-        const after = source.substring(codecsArr.end);
-        newSource = before + comma + formatted + '\n' + I8 + after;
-    }
-
-    return writeResult(newSource, dryRun, `INSERT ${codecString} → ${groupKey}`);
+    return commitWrite(newSource, dryRun, `INSERT ${codecString} → ${groupKey}`);
 }
 
-function addScenario(source, codecString, groupKey, mediaType, args, dryRun) {
+function addScenario(source, resolved, args) {
+    const { mediaType, sourceRecord } = resolved;
+    const dryRun = args.flags.has('dry-run');
     const scenarioResult = buildScenarioFromArgs(args.options, args.flags, mediaType);
     if (scenarioResult.error) {
-        console.error(`${C.red}${scenarioResult.error}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: scenarioResult.error };
     }
 
-    const groupRange = findGroupRange(source, groupKey);
-    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
-    if (!record) {
-        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
-        process.exit(1);
-    }
-
-    const scenariosArr = findScenariosArray(source, record.start, record.end);
+    const scenariosArr = findScenariosArray(source, sourceRecord.start, sourceRecord.end);
     if (!scenariosArr) {
-        console.error(`${C.red}No scenarios array found for ${codecString}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `No scenarios array found for ${resolved.record.codec}` };
     }
 
     const formatted = formatScenario(scenarioResult.scenario, mediaType, I20);
+    const newSource = spliceInsertIntoArray(source, scenariosArr.start, scenariosArr.end, formatted, I16);
 
-    // Find last non-whitespace before closing ]
-    let lastContent = scenariosArr.end - 1;
-    while (lastContent > scenariosArr.start && /\s/.test(source[lastContent])) lastContent--;
-
-    const needsComma = source[lastContent] !== ',' && source[lastContent] !== '[';
-    const comma = needsComma ? ',' : '';
-    const before = source.substring(0, lastContent + 1);
-    const after = source.substring(scenariosArr.end);
-    const newSource = before + comma + '\n' + formatted + '\n' + I16 + after;
-
-    return writeResult(newSource, dryRun, `ADD SCENARIO "${scenarioResult.scenario.name}" to ${codecString}`);
+    return commitWrite(newSource, dryRun, `INSERT scenario "${scenarioResult.scenario.name}" → ${resolved.record.codec}`);
 }
 
-function removeScenario(source, codecString, groupKey, scenarioName, dryRun) {
-    const groupRange = findGroupRange(source, groupKey);
-    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
-    if (!record) {
-        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
-        process.exit(1);
-    }
+function removeScenario(source, resolved, scenarioName, dryRun) {
+    const { sourceRecord } = resolved;
 
-    const scenariosArr = findScenariosArray(source, record.start, record.end);
+    const scenariosArr = findScenariosArray(source, sourceRecord.start, sourceRecord.end);
     if (!scenariosArr) {
-        console.error(`${C.red}No scenarios array for ${codecString}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `No scenarios array for ${resolved.record.codec}` };
     }
 
     const scenarioRange = findScenarioByName(source, scenariosArr.start, scenariosArr.end, scenarioName);
     if (!scenarioRange) {
-        console.error(`${C.red}Scenario "${scenarioName}" not found in ${codecString}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `Scenario "${scenarioName}" not found in ${resolved.record.codec}` };
     }
 
-    let removeStart = scenarioRange.start;
-    let removeEnd = scenarioRange.end + 1;
-
-    // Handle trailing comma
-    if (removeEnd < scenariosArr.end && source[removeEnd] === ',') removeEnd++;
-
-    // Consume whitespace after
-    while (removeEnd < scenariosArr.end && /[\s]/.test(source[removeEnd])) {
-        if (source[removeEnd] === '{' || source[removeEnd] === ']') break;
-        removeEnd++;
-    }
-
-    // Handle leading comma if not first element
-    let prevNonWs = removeStart - 1;
-    while (prevNonWs >= scenariosArr.start && /\s/.test(source[prevNonWs])) prevNonWs--;
-    if (source[prevNonWs] === ',') {
-        removeStart = prevNonWs;
-        let prevContent = removeStart - 1;
-        while (prevContent >= scenariosArr.start && /\s/.test(source[prevContent])) prevContent--;
-        if (source[prevContent] === '}') {
-            removeStart = prevContent + 1;
-        }
-    }
-
-    // Consume leading blank lines
-    while (removeStart > scenariosArr.start + 1 && source[removeStart - 1] === '\n') {
-        removeStart--;
-    }
-
-    const newSource = source.substring(0, removeStart) + source.substring(removeEnd);
-    return writeResult(newSource, dryRun, `REMOVE SCENARIO "${scenarioName}" from ${codecString}`);
+    const newSource = spliceRemoveFromArray(source, scenariosArr.start, scenariosArr.end,
+        scenarioRange.start, scenarioRange.end);
+    return commitWrite(newSource, dryRun, `DELETE scenario "${scenarioName}" from ${resolved.record.codec}`);
 }
 
-function formatRawValue(rawValue) {
+function coerceJsLiteral(rawValue) {
     if (rawValue.startsWith('[')) {
         const items = rawValue.slice(1, -1).split(',').map(s => q(s.trim()));
         return `[${items.join(', ')}]`;
@@ -1211,43 +1213,39 @@ function formatRawValue(rawValue) {
     return q(rawValue);
 }
 
-function updateField(source, codecString, groupKey, args, dryRun) {
-    const setArg = args.options.set;
+function updateField(source, resolved, args) {
+    const setArg = args.options.set || args.positional[0];
+    if (!setArg) return { ok: false, error: 'update requires key=value' };
+
     const eqIdx = setArg.indexOf('=');
     if (eqIdx === -1) {
-        console.error(`${C.red}--set requires key=value format${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: 'update requires key=value format' };
     }
 
     const fieldPath = setArg.substring(0, eqIdx);
     const rawValue = setArg.substring(eqIdx + 1);
+    const dryRun = args.flags.has('dry-run');
+    const { sourceRecord } = resolved;
+    const codecString = resolved.record.codec;
 
-    const groupRange = findGroupRange(source, groupKey);
-    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
-    if (!record) {
-        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
-        process.exit(1);
+    if (fieldPath === 'codec') {
+        return { ok: false, error: 'Use "rename <old> <new>" to change codec string' };
     }
 
-    const formattedValue = formatRawValue(rawValue);
+    const formattedValue = coerceJsLiteral(rawValue);
     let newSource;
 
     if (fieldPath.includes('.')) {
-        // Dot-path: education.overview, education.containerNotes.mp4
-        const nested = findNestedField(source, record.start, record.end, fieldPath);
+        const nested = findNestedField(source, sourceRecord.start, sourceRecord.end, fieldPath);
         if (!nested) {
-            console.error(`${C.red}Path "${fieldPath}" not found — non-object in path${C.reset}`);
-            process.exit(1);
+            return { ok: false, error: `Path "${fieldPath}" not found — non-object in path` };
         }
 
         if (nested.missingSegments) {
-            // Intermediate object(s) missing — build nested structure
-            // e.g. containerNotes missing → insert containerNotes: { mp4: 'value' }
             const segments = nested.missingSegments;
             const baseIndent = indentAt(source, nested.parentEnd) + 4;
             let innerValue = formattedValue;
 
-            // Wrap from innermost to outermost
             for (let i = segments.length - 1; i >= 1; i--) {
                 const pad = ' '.repeat(baseIndent + (i * 4));
                 innerValue = `{\n${pad}${segments[i]}: ${innerValue}\n${' '.repeat(baseIndent + ((i - 1) * 4))}}`;
@@ -1255,173 +1253,143 @@ function updateField(source, codecString, groupKey, args, dryRun) {
             newSource = insertIntoObject(source, nested.parentStart, nested.parentEnd,
                 segments[0], innerValue);
         } else if (nested.leaf) {
-            // Leaf exists — replace value
             newSource = source.substring(0, nested.leaf.valueStart) + formattedValue +
                 source.substring(nested.leaf.valueEnd + 1);
         } else {
-            // Leaf missing but parent exists — insert into parent object
             newSource = insertIntoObject(source, nested.parentStart, nested.parentEnd,
                 nested.leafName, formattedValue);
         }
     } else {
-        // Flat field (original behavior)
-        const field = findFieldInEntry(source, record.start, record.end, fieldPath);
+        const field = findFieldInEntry(source, sourceRecord.start, sourceRecord.end, fieldPath);
         if (!field) {
-            console.error(`${C.red}Field "${fieldPath}" not found in record${C.reset}`);
-            process.exit(1);
+            return { ok: false, error: `Field "${fieldPath}" not found in record` };
         }
         newSource = source.substring(0, field.valueStart) + formattedValue +
             source.substring(field.valueEnd + 1);
     }
 
-    return writeResult(newSource, dryRun, `UPDATE ${codecString}.${fieldPath} = ${rawValue}`);
+    return commitWrite(newSource, dryRun, `UPDATE ${codecString}.${fieldPath} = ${rawValue}`);
 }
 
-function locateRefsArray(source, codecString, groupKey) {
-    const groupRange = findGroupRange(source, groupKey);
-    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
-    if (!record) return null;
-
-    const nested = findNestedField(source, record.start, record.end, 'education.references');
-    if (!nested) return null;
-
-    // If references field exists and is an array
-    if (nested.leaf && source[nested.leaf.valueStart] === '[') {
-        return { arrStart: nested.leaf.valueStart, arrEnd: nested.leaf.valueEnd, record };
-    }
-
-    // references missing from education — need to create it
-    if (nested.missingSegments) {
-        return { missing: true, parentStart: nested.parentStart, parentEnd: nested.parentEnd, record };
-    }
-
-    return null;
-}
-
-function addReference(source, codecString, groupKey, args, dryRun) {
+function addReference(source, resolved, args) {
     const title = args.options.title;
     if (!title) {
-        console.error(`${C.red}--title is required for --add-ref${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: '--title is required for INSERT ref' };
     }
 
-    const loc = locateRefsArray(source, codecString, groupKey);
-    if (!loc) {
-        console.error(`${C.red}Cannot locate education.references for ${codecString}${C.reset}`);
-        process.exit(1);
+    const { sourceRecord } = resolved;
+    const dryRun = args.flags.has('dry-run');
+    const nested = findNestedField(source, sourceRecord.start, sourceRecord.end, 'education.references');
+    if (!nested) {
+        return { ok: false, error: `Cannot locate education.references for ${resolved.record.codec}` };
     }
 
     const url = args.options.url;
-    const indent = I24;
     const refObj = url
         ? `{ title: ${q(title)}, url: ${q(url)} }`
         : `{ title: ${q(title)} }`;
 
     let newSource;
-    if (loc.missing) {
-        // Create references array with first entry
-        newSource = insertIntoObject(source, loc.parentStart, loc.parentEnd,
-            'references', `[\n${indent}${refObj}\n${I20}]`);
+    if (nested.missingSegments) {
+        newSource = insertIntoObject(source, nested.parentStart, nested.parentEnd,
+            'references', `[\n${I24}${refObj}\n${I20}]`);
+    } else if (nested.leaf && source[nested.leaf.valueStart] === '[') {
+        newSource = spliceInsertIntoArray(source, nested.leaf.valueStart, nested.leaf.valueEnd,
+            I24 + refObj, I20);
     } else {
-        // Append to existing array
-        const inner = source.substring(loc.arrStart + 1, loc.arrEnd).trim();
-        if (inner === '') {
-            // Empty []
-            newSource = source.substring(0, loc.arrStart + 1) + '\n' + indent + refObj + '\n' +
-                I20 + source.substring(loc.arrEnd);
-        } else {
-            let lastContent = loc.arrEnd - 1;
-            while (lastContent > loc.arrStart && /\s/.test(source[lastContent])) lastContent--;
-            const needsComma = source[lastContent] !== ',';
-            const comma = needsComma ? ',' : '';
-            newSource = source.substring(0, lastContent + 1) + comma + '\n' + indent + refObj +
-                source.substring(lastContent + 1);
+        return { ok: false, error: `Cannot locate education.references for ${resolved.record.codec}` };
+    }
+
+    return commitWrite(newSource, dryRun, `INSERT ref "${title}" → ${resolved.record.codec}`);
+}
+
+/**
+ * Remove an item from an array in source text, cleaning commas and whitespace.
+ * Handles first, middle, and last items correctly.
+ * @param {number} itemEnd - index of item closing } (inclusive — points AT the })
+ */
+function spliceRemoveFromArray(source, arrStart, arrEnd, itemStart, itemEnd) {
+    let removeStart = itemStart;
+    let removeEnd = itemEnd + 1; // past the closing }
+
+    // Check for trailing comma
+    let consumedTrailingComma = false;
+    if (removeEnd < arrEnd && source[removeEnd] === ',') {
+        removeEnd++;
+        consumedTrailingComma = true;
+    }
+
+    // Consume whitespace/newlines after removal point (stop at next { or ])
+    while (removeEnd < arrEnd && /\s/.test(source[removeEnd])) {
+        if (source[removeEnd] === '{' || source[removeEnd] === ']') break;
+        removeEnd++;
+    }
+
+    // If no trailing comma consumed, this is the last item — consume leading comma
+    if (!consumedTrailingComma) {
+        let prevNonWs = removeStart - 1;
+        while (prevNonWs >= arrStart && /\s/.test(source[prevNonWs])) prevNonWs--;
+        if (source[prevNonWs] === ',') {
+            removeStart = prevNonWs;
+            let prevContent = removeStart - 1;
+            while (prevContent >= arrStart && /\s/.test(source[prevContent])) prevContent--;
+            if (source[prevContent] === '}') {
+                removeStart = prevContent + 1;
+            }
         }
     }
 
-    return writeResult(newSource, dryRun, `ADD REF "${title}" to ${codecString}`);
-}
-
-function removeFromArray(source, arrStart, arrEnd, matchStart, matchEnd) {
-    let removeStart = matchStart;
-    let removeEnd = matchEnd;
-
-    // Look ahead: is there a comma after the entry?
-    let ahead = removeEnd;
-    while (ahead < arrEnd && source[ahead] === ' ') ahead++;
-    const hasTrailingComma = source[ahead] === ',';
-
-    if (hasTrailingComma) {
-        // Not the last entry — remove entry + trailing comma, keep next entry's indentation
-        removeEnd = ahead + 1;
-        // Consume leading whitespace + newline for this entry's line
-        while (removeStart > arrStart + 1 && source[removeStart - 1] === ' ') removeStart--;
-        if (removeStart > arrStart + 1 && source[removeStart - 1] === '\n') removeStart--;
-    } else {
-        // Last entry — consume leading comma + whitespace before this entry
-        let before = removeStart - 1;
-        while (before > arrStart && /\s/.test(source[before])) before--;
-        if (source[before] === ',') removeStart = before;
-        // Consume whitespace/newline back to previous line end
-        while (removeStart > arrStart + 1 && source[removeStart - 1] === ' ') removeStart--;
-        if (removeStart > arrStart + 1 && source[removeStart - 1] === '\n') removeStart--;
+    // Consume leading blank lines
+    while (removeStart > arrStart + 1 && source[removeStart - 1] === '\n') {
+        removeStart--;
     }
 
     return source.substring(0, removeStart) + source.substring(removeEnd);
 }
 
-function removeReference(source, codecString, groupKey, args, dryRun) {
-    const title = args.options.title;
+function removeReference(source, resolved, title, dryRun) {
     if (!title) {
-        console.error(`${C.red}--title is required for --rm-ref${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: '--title is required for DELETE ref' };
     }
 
-    const loc = locateRefsArray(source, codecString, groupKey);
-    if (!loc || loc.missing) {
-        console.error(`${C.red}No references array found for ${codecString}${C.reset}`);
-        process.exit(1);
+    const { sourceRecord } = resolved;
+    const nested = findNestedField(source, sourceRecord.start, sourceRecord.end, 'education.references');
+    if (!nested || !nested.leaf || source[nested.leaf.valueStart] !== '[') {
+        return { ok: false, error: `No references array found for ${resolved.record.codec}` };
     }
 
-    // Find the reference object by title string match
-    const area = source.substring(loc.arrStart, loc.arrEnd + 1);
+    const arrStart = nested.leaf.valueStart;
+    const arrEnd = nested.leaf.valueEnd;
+    const area = source.substring(arrStart, arrEnd + 1);
     const titleEscaped = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const refPattern = new RegExp(`\\{[^}]*title:\\s*'${titleEscaped}'[^}]*\\}`);
     const refMatch = refPattern.exec(area);
     if (!refMatch) {
-        console.error(`${C.red}Reference "${title}" not found in ${codecString}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `Reference "${title}" not found in ${resolved.record.codec}` };
     }
 
-    const matchStart = loc.arrStart + refMatch.index;
-    const matchEnd = matchStart + refMatch[0].length;
-    const newSource = removeFromArray(source, loc.arrStart, loc.arrEnd, matchStart, matchEnd);
-    return writeResult(newSource, dryRun, `REMOVE REF "${title}" from ${codecString}`);
+    const matchStart = arrStart + refMatch.index;
+    const matchEnd = matchStart + refMatch[0].length - 1;
+    const newSource = spliceRemoveFromArray(source, arrStart, arrEnd, matchStart, matchEnd);
+    return commitWrite(newSource, dryRun, `DELETE ref "${title}" from ${resolved.record.codec}`);
 }
 
-function addStreamingEntry(source, codecString, groupKey, protocol, args, dryRun) {
+function addStreamingEntry(source, resolved, protocol, args) {
     const signal = args.options.signal;
     const manifestKey = protocol === 'hls' ? 'm3u8' : 'mpd';
     const manifest = args.options[manifestKey];
     const notes = args.options.notes || '';
+    const dryRun = args.flags.has('dry-run');
+    const { sourceRecord } = resolved;
+    const codecString = resolved.record.codec;
 
     if (!signal) {
-        console.error(`${C.red}--signal is required for --add-${protocol}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `--signal is required for INSERT ${protocol}` };
     }
     if (!manifest) {
-        console.error(`${C.red}--${manifestKey} is required for --add-${protocol}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `--${manifestKey} is required for INSERT ${protocol}` };
     }
 
-    const groupRange = findGroupRange(source, groupKey);
-    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
-    if (!record) {
-        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
-        process.exit(1);
-    }
-
-    // Build the entry object text
     const entryLines = [
         `{`,
         `${I28}signal: ${q(signal)},`,
@@ -1431,53 +1399,33 @@ function addStreamingEntry(source, codecString, groupKey, protocol, args, dryRun
     ];
     const entryText = entryLines.join('\n');
 
-    // Locate education.streaming in source
-    const nested = findNestedField(source, record.start, record.end, `education.streaming`);
+    const nested = findNestedField(source, sourceRecord.start, sourceRecord.end, `education.streaming`);
     if (!nested) {
-        console.error(`${C.red}Cannot locate education.streaming for ${codecString}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `Cannot locate education.streaming for ${codecString}` };
     }
 
     let newSource;
     const streamingMissing = nested.missingSegments || (!nested.leaf);
     if (streamingMissing) {
-        // streaming doesn't exist — create streaming: { hls/dash: [{...}] }
-        const parent = nested.missingSegments
-            ? { start: nested.parentStart, end: nested.parentEnd }
-            : { start: nested.parentStart, end: nested.parentEnd };
+        const parent = { start: nested.parentStart, end: nested.parentEnd };
         const inner = `{\n${I24}${protocol}: [\n${I24}${entryText}\n${I20}]\n${I20}}`;
         newSource = insertIntoObject(source, parent.start, parent.end, 'streaming', inner);
     } else if (nested.leaf && source[nested.leaf.valueStart] === '{') {
-        // streaming exists — find or create the protocol array
         const protoField = findFieldInEntry(source, nested.leaf.valueStart, nested.leaf.valueEnd, protocol);
 
         if (protoField && source[protoField.valueStart] === '[') {
-            // Protocol array exists — append entry
-            const inner = source.substring(protoField.valueStart + 1, protoField.valueEnd).trim();
-            if (inner === '') {
-                newSource = source.substring(0, protoField.valueStart + 1) +
-                    '\n' + I24 + entryText + '\n' + I20 +
-                    source.substring(protoField.valueEnd);
-            } else {
-                let lastContent = protoField.valueEnd - 1;
-                while (lastContent > protoField.valueStart && /\s/.test(source[lastContent])) lastContent--;
-                const needsComma = source[lastContent] !== ',';
-                const comma = needsComma ? ',' : '';
-                newSource = source.substring(0, lastContent + 1) + comma + '\n' + I24 + entryText +
-                    source.substring(lastContent + 1);
-            }
+            newSource = spliceInsertIntoArray(source, protoField.valueStart, protoField.valueEnd,
+                I24 + entryText, I20);
         } else {
-            // Protocol array doesn't exist — insert into streaming object
             newSource = insertIntoObject(source, nested.leaf.valueStart, nested.leaf.valueEnd,
                 protocol, `[\n${I24}${entryText}\n${I20}]`);
         }
     } else {
-        console.error(`${C.red}education.streaming is not an object for ${codecString}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `education.streaming is not an object for ${codecString}` };
     }
 
     const label = protocol.toUpperCase();
-    return writeResult(newSource, dryRun, `ADD ${label} "${signal}" to ${codecString}`);
+    return commitWrite(newSource, dryRun, `INSERT ${label} "${signal}" → ${codecString}`);
 }
 
 function formatEducationFromJson(edu, baseIndent) {
@@ -1564,11 +1512,10 @@ function formatEducationFromJson(edu, baseIndent) {
     return lines.join('\n');
 }
 
-function importEducation(source, codecString, groupKey, args, dryRun) {
+function importEducation(source, resolved, args) {
     const filePath = args.options['edu-from'];
     if (!filePath) {
-        console.error(`${C.red}--edu-from <path> is required${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: '--edu-from <path> is required' };
     }
 
     let eduJson;
@@ -1576,38 +1523,26 @@ function importEducation(source, codecString, groupKey, args, dryRun) {
         const raw = readFileSync(resolve(filePath), 'utf-8');
         eduJson = JSON.parse(raw);
     } catch (err) {
-        console.error(`${C.red}Cannot read/parse ${filePath}: ${err.message}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `Cannot read/parse ${filePath}: ${err.message}` };
     }
 
-    const groupRange = findGroupRange(source, groupKey);
-    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
-    if (!record) {
-        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
-        process.exit(1);
-    }
-
-    const eduField = findFieldInEntry(source, record.start, record.end, 'education');
+    const { sourceRecord } = resolved;
+    const dryRun = args.flags.has('dry-run');
+    const eduField = findFieldInEntry(source, sourceRecord.start, sourceRecord.end, 'education');
     if (!eduField) {
-        console.error(`${C.red}No education field found for ${codecString}${C.reset}`);
-        process.exit(1);
+        return { ok: false, error: `No education field found for ${resolved.record.codec}` };
     }
 
     const formatted = formatEducationFromJson(eduJson, 20);
     const newSource = source.substring(0, eduField.valueStart) + formatted + source.substring(eduField.valueEnd + 1);
-    return writeResult(newSource, dryRun, `IMPORT education from ${filePath} → ${codecString}`);
+    return commitWrite(newSource, dryRun, `IMPORT education from ${filePath} → ${resolved.record.codec}`);
 }
 
-function dropRecord(source, codecString, groupKey, dryRun) {
-    const groupRange = findGroupRange(source, groupKey);
-    const record = findRecordByCodec(source, codecString, groupRange?.start || 0, groupRange?.end || source.length);
-    if (!record) {
-        console.error(`${C.red}Record not found in source: ${codecString}${C.reset}`);
-        process.exit(1);
-    }
+function dropRecord(source, resolved, dryRun) {
+    const { sourceRecord } = resolved;
 
-    let removeStart = record.commentStart;
-    let removeEnd = record.end + 1;
+    let removeStart = sourceRecord.commentStart;
+    let removeEnd = sourceRecord.end + 1;
 
     // Trailing comma
     if (removeEnd < source.length && source[removeEnd] === ',') removeEnd++;
@@ -1619,30 +1554,30 @@ function dropRecord(source, codecString, groupKey, dryRun) {
     }
 
     const newSource = source.substring(0, removeStart) + source.substring(removeEnd);
-    return writeResult(newSource, dryRun, `DROP ${codecString}`);
+    return commitWrite(newSource, dryRun, `DROP ${resolved.record.codec}`);
 }
 
 
 // ==================== WRITE RESULT ====================
 
-function writeResult(newSource, dryRun, label) {
+/**
+ * Verify syntax and write source to disk (or dry-run).
+ * Returns { ok, message } — NEVER calls process.exit().
+ */
+function commitWrite(newSource, dryRun, label) {
     const syntaxResult = verifySyntax(newSource);
     if (syntaxResult !== true) {
-        console.error(`  ${C.red}✗ Syntax error — NOT WRITTEN${C.reset}`);
-        console.error(`  ${syntaxResult}`);
-        process.exit(1);
+        return { ok: false, error: `Syntax error after ${label}: ${syntaxResult}` };
     }
 
     if (dryRun) {
-        console.log(`  ${C.green}✓${C.reset} ${label}`);
-        console.log(`  ${C.yellow}(dry run — no changes written)${C.reset}`);
-        return;
+        return { ok: true, message: label, dryRun: true };
     }
 
     writeSourceFile(newSource);
-    console.log(`  ${C.green}✓${C.reset} ${label}`);
-    console.log(`  ${C.green}✓ Written to disk${C.reset}`);
+    return { ok: true, message: label };
 }
+
 
 
 // ==================== CLI DISPATCH ====================
@@ -1653,81 +1588,145 @@ ${C.bold}CodecProbe v2 Database Tool${C.reset}
 
 ${C.cyan}Usage:${C.reset}  node scripts/db-tool-v2.mjs <command> [args]
 
-${C.cyan}Record mutations (codec string = primary key):${C.reset}
-  db <codec>                                    Show record details
-  db <codec> --name <n> --scenario [opts]       Insert new record + first scenario
-  db <codec> --scenario --sname <n> [opts]      Add scenario to existing record
-  db <codec> --set key=value                    Update field (supports dot-paths)
-  db <codec> --rm-scenario <name>               Remove scenario by name
-  db <codec> --drop --confirm                   Drop entire record
+${C.cyan}Read:${C.reset}
+  select <codec>                              Show record details
+  select --stats                              Coverage table
+  select --group <key> [--missing|--edu]      List records in group
 
-${C.cyan}Education mutations:${C.reset}
-  db <codec> --set education.overview="text"            Set overview
-  db <codec> --set education.platforms.safari="text"    Set platform note
-  db <codec> --set education.containerNotes.mp4="text"  Set container note
-  db <codec> --add-ref --title <t> [--url <u>]          Add reference
-  db <codec> --rm-ref --title <t>                       Remove reference by title
-  db <codec> --add-hls --signal <s> --m3u8 <m> --notes <n>   Add HLS streaming entry
-  db <codec> --add-dash --signal <s> --mpd <m> --notes <n>   Add DASH streaming entry
-  db <codec> --edu-from <path.json>                     Replace education from JSON file
+${C.cyan}Write:${C.reset}
+  create <codec> --name <n> [scenario opts]   Insert new record
+  insert <codec> scenario [scenario opts]     Add scenario to existing record
+  insert <codec> ref --title <t> [--url <u>]  Add reference
+  insert <codec> hls --signal <s> --m3u8 <m> [--notes <n>]   Add HLS entry
+  insert <codec> dash --signal <s> --mpd <m> [--notes <n>]    Add DASH entry
+  update <codec> key=value                    Update field (supports dot-paths)
+  update <codec> --edu-from <path.json>       Replace education from JSON file
+  rename <codec> <new-codec>                  Rename codec (PK + comments + tokens)
+  delete <codec> scenario <name>              Remove scenario
+  delete <codec> ref <title>                  Remove reference
+  drop <codec> --confirm                      Delete entire record
 
-${C.cyan}Read-only:${C.reset}
-  stats                                         Coverage table (edu/streaming/notes/refs)
-  list [group] [--missing|--edu]                List records with OSCR indicators
-  verify                                        Validate structure + education completeness
+${C.cyan}Validate:${C.reset}
+  verify                                      Structure + education check
 
-${C.cyan}Video scenario flags:${C.reset}
+${C.cyan}Video scenario opts:${C.reset}
   --sname <name>     Scenario name (required)
   --width <n>        Width in pixels (required)
   --height <n>       Height in pixels (required)
   --fps <n>          Framerate (required)
   --bitrate <n>      Bitrate in bps (required)
   --depth <n>        Bit depth (optional)
-  --chroma <str>     Chroma subsampling: 420/4:2:0 (optional)
+  --chroma <str>     Chroma subsampling: 420 or 4:2:0 (optional)
   --transfer <str>   Transfer function: pq, hlg (optional)
   --gamut <str>      Color gamut: rec2020, p3 (optional)
   --hdr <str>        HDR format: hdr10, hlg, hdr10plus (optional)
   --tier <str>       Tier: main, high (optional)
 
-${C.cyan}Audio scenario flags:${C.reset}
+${C.cyan}Audio scenario opts:${C.reset}
   --sname <name>     Scenario name (required)
   --channels <n>     Channel count (required)
   --samplerate <n>   Sample rate in Hz (required)
   --bitrate <n>      Bitrate in bps (required)
   --depth <n>        Bit depth (optional)
-  --spatial           Spatial audio (optional flag)
+  --spatial           Spatial audio flag (optional)
 
 ${C.cyan}Options:${C.reset}
-  --name <name>      Record display name (required for INSERT)
+  --name <name>      Record display name (required for create)
   --group <key>      Override group detection
   --flags <a,b>      Codec flags (comma-separated)
   --dry-run          Preview without writing
 
 ${C.cyan}Examples:${C.reset}
-  ${C.dim}# Read-only${C.reset}
-  node scripts/db-tool-v2.mjs stats
-  node scripts/db-tool-v2.mjs list video_hevc
-  node scripts/db-tool-v2.mjs db hvc1.1.6.L93.B0
+  ${C.dim}# Read${C.reset}
+  node scripts/db-tool-v2.mjs select --stats
+  node scripts/db-tool-v2.mjs select --group video_hevc
+  node scripts/db-tool-v2.mjs select hvc1.1.6.L93.B0
 
-  ${C.dim}# Record mutations${C.reset}
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --name "4K HDR10 HFR" \\
-    --scenario --sname "4K HDR10 120fps" --width 3840 --height 2160 \\
-    --fps 120 --bitrate 40000000 --depth 10 --transfer pq --gamut rec2020 --hdr hdr10
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --set name="Updated Name"
-
-  ${C.dim}# Education mutations${C.reset}
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 \\
-    --set education.overview="HEVC Main 10 at Level 5.1"
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 \\
-    --set education.containerNotes.mp4="ISOBMFF with hvcC box"
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 \\
-    --add-ref --title "ITU-T H.265" --url "https://www.itu.int/rec/T-REC-H.265"
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --add-hls \\
-    --signal "4K HDR10" --m3u8 "#EXT-X-STREAM-INF:...\\nvariant.m3u8" \\
-    --notes "Apple HLS requires hvc1 tag"
-  node scripts/db-tool-v2.mjs db hvc1.2.4.L150.B0 --edu-from education.json
+  ${C.dim}# Write${C.reset}
+  node scripts/db-tool-v2.mjs create hvc1.2.4.L150.B0 --name "Main 10 4K" \\
+    --sname "4K HDR10 24fps" --width 3840 --height 2160 --fps 24 \\
+    --bitrate 25000000 --depth 10 --transfer pq --gamut rec2020
+  node scripts/db-tool-v2.mjs insert hvc1.2.4.L150.B0 scenario \\
+    --sname "4K 60fps" --width 3840 --height 2160 --fps 60 --bitrate 40000000
+  node scripts/db-tool-v2.mjs update hvc1.2.4.L150.B0 name="Updated Name"
+  node scripts/db-tool-v2.mjs rename avc1.4d001f avc1.4D001F
+  node scripts/db-tool-v2.mjs delete hvc1.2.4.L150.B0 scenario "4K 60fps"
+  node scripts/db-tool-v2.mjs drop hvc1.2.4.L150.B0 --confirm
   node scripts/db-tool-v2.mjs verify
 `);
+}
+
+async function dispatch(verb, rawArgs) {
+    const args = parseArgs(rawArgs);
+
+    switch (verb) {
+        case 'select':
+            return handleSelect(args);
+
+        case 'create': {
+            const codecString = rawArgs[0];
+            if (!codecString || codecString.startsWith('--'))
+                return { ok: false, error: 'create requires a codec string' };
+            args.positional.shift();
+            return handleCreate(codecString, args);
+        }
+
+        case 'insert': {
+            const codecString = rawArgs[0];
+            if (!codecString || codecString.startsWith('--'))
+                return { ok: false, error: 'insert requires a codec string' };
+            const subcommand = rawArgs[1];
+            if (!['scenario', 'ref', 'hls', 'dash'].includes(subcommand))
+                return { ok: false, error: 'insert requires subcommand: scenario, ref, hls, dash' };
+            const subArgs = parseArgs(rawArgs.slice(2));
+            return handleInsert(codecString, subcommand, subArgs);
+        }
+
+        case 'update': {
+            const codecString = rawArgs[0];
+            if (!codecString || codecString.startsWith('--'))
+                return { ok: false, error: 'update requires a codec string' };
+            const subArgs = parseArgs(rawArgs.slice(1));
+            return handleUpdate(codecString, subArgs);
+        }
+
+        case 'delete': {
+            const codecString = rawArgs[0];
+            if (!codecString || codecString.startsWith('--'))
+                return { ok: false, error: 'delete requires a codec string' };
+            const subcommand = rawArgs[1];
+            if (!['scenario', 'ref'].includes(subcommand))
+                return { ok: false, error: 'delete requires subcommand: scenario, ref' };
+            const targetName = rawArgs[2];
+            if (!targetName)
+                return { ok: false, error: `delete ${subcommand} requires a name` };
+            const subArgs = parseArgs(rawArgs.slice(3));
+            return handleDelete(codecString, subcommand, targetName, subArgs);
+        }
+
+        case 'drop': {
+            const codecString = rawArgs[0];
+            if (!codecString || codecString.startsWith('--'))
+                return { ok: false, error: 'drop requires a codec string' };
+            const subArgs = parseArgs(rawArgs.slice(1));
+            return handleDrop(codecString, subArgs);
+        }
+
+        case 'rename': {
+            const oldCodec = rawArgs[0];
+            const newCodec = rawArgs[1];
+            if (!oldCodec || !newCodec)
+                return { ok: false, error: 'rename requires <old-codec> <new-codec>' };
+            const subArgs = parseArgs(rawArgs.slice(2));
+            return handleRename(oldCodec, newCodec, subArgs);
+        }
+
+        case 'verify':
+            return handleVerify();
+
+        default:
+            return { ok: false, error: `Unknown command: ${verb}` };
+    }
 }
 
 const rawArgs = process.argv.slice(2);
@@ -1736,41 +1735,22 @@ if (rawArgs.length === 0) {
     process.exit(0);
 }
 
-const command = rawArgs[0];
+const verb = rawArgs[0];
 
 try {
-    switch (command) {
-        case 'stats':
-            await cmdStats();
-            break;
-
-        case 'list': {
-            const listArgs = parseArgs(rawArgs.slice(1));
-            const filter = listArgs.flags.has('missing') ? 'missing' : listArgs.flags.has('edu') ? 'edu' : 'all';
-            await cmdList(listArgs.positional[0] || null, filter);
-            break;
+    const result = await dispatch(verb, rawArgs.slice(1));
+    if (!result) process.exit(0);
+    if (!result.ok) {
+        console.error(`  ${C.red}✗ ${result.error}${C.reset}`);
+        process.exit(1);
+    }
+    if (!result.display) {
+        console.log(`  ${C.green}✓${C.reset} ${result.message}`);
+        if (result.dryRun) {
+            console.log(`  ${C.yellow}(dry run — no changes written)${C.reset}`);
+        } else {
+            console.log(`  ${C.green}✓ Written to disk${C.reset}`);
         }
-
-        case 'verify':
-            await cmdVerify();
-            break;
-
-        case 'db': {
-            const codecString = rawArgs[1];
-            if (!codecString || codecString.startsWith('--')) {
-                console.error(`${C.red}db requires a codec string${C.reset}`);
-                usage();
-                process.exit(1);
-            }
-            const dbArgs = parseArgs(rawArgs.slice(2));
-            await cmdDb(codecString, dbArgs);
-            break;
-        }
-
-        default:
-            console.error(`${C.red}Unknown command: ${command}${C.reset}`);
-            usage();
-            process.exit(1);
     }
 } catch (err) {
     console.error(`${C.red}Error:${C.reset} ${err.message}`);

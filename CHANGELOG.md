@@ -2,6 +2,24 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.7.0] - 2026-03-08
+
+### Changed
+
+- **db-tool-v2: SQL verb-first CLI** — Replaced flag-soup `db <codec> --scenario --set --rm-scenario --drop` dispatch with SQL-style verbs: `select`, `create`, `insert`, `update`, `rename`, `delete`, `drop`, `verify`. Three-layer architecture (CLI → Handlers → Primitives) with all `process.exit()` confined to CLI layer.
+
+### Fixed
+
+- **AVC scenario accuracy** — Corrected scenario resolutions to match H.264 level capabilities. Baseline/Constrained Baseline (Level 3.0) now test at 480p, not 720p. Added NTSC fractional framerates (23.976, 29.97) across all profiles. High profile names now prefixed for disambiguation. High 10 promoted to 4K (Level 5.1). High 4:2:2 promoted to 4K 60fps (Level 5.2).
+
+### Added
+
+- **`rename` command** — Renames codec PK, comment headers, and breakdown tokens in one operation
+- **`spliceInsertIntoArray` / `spliceRemoveFromArray`** — Shared primitives replacing 5 duplicated inline array splice blocks
+- **`resolveRecord()`** — Single lookup bridging live DB and source text, replacing 7 duplicated patterns
+
+---
+
 ## [4.6.0] - 2026-03-07
 
 ### Added
