@@ -73,7 +73,7 @@ if (fs.existsSync(buildJsDir)) {
         let fileChanged = false;
 
         Object.entries(manifest.hashes).forEach(([targetFile, hash]) => {
-            // Match: from './codec-database.js' or from"./codec-database.js"
+            // Match: from './codec-database-v2.js' or from"./codec-database-v2.js"
             const importPattern = new RegExp(
                 `(from\\s*['"]\\.\\/)(${escapeRegex(targetFile)})(['"])`,
                 'g'

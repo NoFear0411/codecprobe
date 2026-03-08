@@ -13,11 +13,11 @@ CodecProbe is a browser-based codec testing tool for media server users. It test
 ```
 js/
 ├── main.js              - Entry point, imports all modules, PWA install prompt
-├── codec-database.js    - 238 codec test definitions (115 with education)
+├── codec-database-v2.js - Normalized codec database (91 records, 13 groups)
 ├── device-detection.js  - UAParser.js v2.x integration (← drm-detection)
 ├── drm-detection.js     - DRM/EME system testing (leaf)
-├── codec-tester.js      - Multi-API testing logic (← codec-database)
-├── ui-renderer.js       - Rendering, filtering, badges (← codec-database, url-state, device-detection)
+├── codec-tester.js      - Multi-API testing logic (← codec-database-v2)
+├── ui-renderer.js       - Rendering, filtering, badges (← codec-database-v2, url-state, device-detection)
 ├── theme-manager.js     - Theme switching (leaf)
 ├── url-state.js         - URL state management (leaf)
 └── vendor/
@@ -163,36 +163,30 @@ AV1 example: `video/mp4; codecs="av01.0.08M.10"`
 
 ### Adding a New Codec
 
-Edit `js/codec-database.js`:
+All database mutations go through the CLI tool — never edit `codec-database-v2.js` directly.
 
-```javascript
-video_newcodec: {
-    category: "Codec Name",
-    tests: [
-        {
-            name: "Variant Name",
-            codec: 'video/mp4; codecs="codec-string"',
-            container: "MP4",
-            info: "Brief description",
-            mediaConfig: {
-                type: 'file',  // or 'media-source' for streaming
-                video: {
-                    contentType: 'video/mp4; codecs="codec-string"',
-                    width: 3840,
-                    height: 2160,
-                    bitrate: 25000000,
-                    framerate: 24,
-                    transferFunction: 'pq',  // optional: pq, hlg
-                    colorGamut: 'rec2020'     // optional: rec2020, p3
-                }
-            }
-        }
-    ]
-}
+```bash
+# Validate the codec string first
+python -m codec_resolve --decode "hvc1.2.4.L153.B0"
+
+# Create a new record with its first scenario
+node scripts/db-tool-v2.mjs create hvc1.2.4.L153.B0 \
+  --name "HEVC Main 10 4K HDR10" \
+  --sname "4K HDR10 24fps" \
+  --width 3840 --height 2160 --fps 24 --bitrate 25000000 \
+  --depth 10 --chroma 4:2:0 --transfer pq --gamut rec2020 --hdr hdr10
+
+# Add more scenarios to an existing record
+node scripts/db-tool-v2.mjs insert hvc1.2.4.L153.B0 scenario \
+  --sname "4K HLG 60fps" \
+  --width 3840 --height 2160 --fps 60 --bitrate 40000000 \
+  --depth 10 --transfer hlg --gamut rec2020 --hdr hlg
+
+# Verify after changes
+node scripts/db-tool-v2.mjs verify
 ```
 
-**For streaming formats**, use `type: 'media-source'` instead of `'file'`.
-**For audio codecs**, `spatialRendering` is tested automatically in codec-tester.js.
+See `CONTRIBUTING.md` for full CLI reference.
 
 ### Modifying UI Layout
 

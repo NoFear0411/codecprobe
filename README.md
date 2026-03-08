@@ -189,8 +189,7 @@ codecprobe/
 │   ├── styles.scss            # Main stylesheet
 │   └── _themes.scss           # Theme definitions
 ├── js/
-│   ├── codec-database-v2.js   # v2 normalized database — 91 records, 5 groups (active)
-│   ├── codec-database.js      # v1 flat database — 238 entries, 13 groups (reference)
+│   ├── codec-database-v2.js   # Normalized codec database — 91 records, 13 groups
 │   ├── codec-tester.js        # Three-API testing with retry logic
 │   ├── device-detection.js    # UAParser.js v2.x integration
 │   ├── drm-detection.js       # DRM/EME system testing
@@ -205,13 +204,8 @@ codecprobe/
 ├── scripts/
 │   ├── build.js               # Terser minification + UAParser bundling
 │   ├── inject-versions.js     # Cache-busting version hashes for deploy
-│   ├── db-tool.mjs            # v1 database CLI — add, inspect, inject, patch, verify
-│   ├── db-tool-v2.mjs         # v2 database CLI — record + education mutations
-│   ├── migrate-scenarios.mjs  # v1→v2 migration helper
-│   ├── v2-audit.mjs           # v2 database audit and validation
-│   └── lib/
-│       ├── reader.mjs         # v1 database import and query functions
-│       └── writer.mjs         # v1 source formatter, inject/replace/add operations
+│   ├── db-tool-v2.mjs         # Database CLI — SQL verb-first dispatch (create, insert, update, etc.)
+│   └── v2-audit.mjs           # Database audit, validation, and coverage analysis
 ├── docs/
 │   ├── BUILD.md               # Build system documentation
 │   └── SETUP.md               # Deployment guide
