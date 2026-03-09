@@ -2,6 +2,23 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.7.2] - 2026-03-09
+
+### Fixed
+
+- **`$purple` theme breakage**: 7 SCSS variable refs compiled to hardcoded `#9c27b0`, bypassing per-theme `--purple` values. Error badges now adapt correctly (magenta in Retro Terminal, deep purple in Light).
+- **Incomplete token system**: Added 15 design tokens to `:root` — animation timing (`--duration-fast`/`--duration-normal`/`--ease-standard`), grid breakpoints (`--grid-min-card`/`--grid-min-section`/`--grid-min-education`), micro-sizing (`--size-indicator`/`--size-badge`/`--size-icon-sm`), and `--font-mono`.
+- **Hardcoded values**: Tokenized all transitions, grid minmax values, indicator dots, API badges, and icon sizes. Removed inline fallback colors from `var()` calls.
+- **Source map 404**: Deploy pipeline now includes SCSS source maps for devtools debugging.
+
+### Changed
+
+- **Footer restyled**: Replaced `bg-tertiary` box design with `@include card` + left border accent matching header card language.
+- **Dead code removal**: Consolidated duplicate PENDING rules, removed orphaned `prefers-contrast` SCSS vars, merged duplicate webOS media query blocks.
+- **`$font-mono` → `var(--font-mono)`**: 9 SCSS refs converted to CSS custom property for runtime consistency.
+
+---
+
 ## [4.7.1] - 2026-03-09
 
 ### Changed

@@ -87,12 +87,12 @@ async function initialize() {
             errorTitle.textContent = 'Codec testing failed';
 
             const errorMsg = document.createElement('p');
-            errorMsg.style.fontSize = '0.9rem';
+            errorMsg.style.fontSize = 'var(--text-sm)';
             errorMsg.textContent = error.message;
 
             const retryBtn = document.createElement('button');
             retryBtn.textContent = 'Retry';
-            retryBtn.style.cssText = 'margin-top: 10px; padding: 8px 16px; background: var(--accent); color: var(--bg); border: none; border-radius: 4px; cursor: pointer;';
+            retryBtn.style.cssText = 'margin-top: var(--space-3); padding: var(--space-2) var(--space-4); background: var(--accent); color: var(--bg); border: none; border-radius: var(--radius-sm); cursor: pointer;';
             retryBtn.onclick = () => location.reload();
 
             errorDiv.appendChild(errorTitle);
