@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.6.0**: 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Purple error badges distinguish API exceptions from clean rejections. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. VVC, VP8, Legacy video, and all audio codecs are being migrated from the v1 database. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.7.1**: 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Header redesigned into grouped Device + Display & Decoding cards. New `--interactive` CSS token for theme-consistent control accents. Purple error badges distinguish API exceptions from clean rejections. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -80,19 +80,18 @@ DRM results show the full `decodingInfo()` config including `keySystemConfigurat
 | VP9 | 21 | Profiles 0–3, Levels 1.0–6.0, 8/10/12-bit, SDR/HDR10/HLG, full and limited range | MP4, MKV, WebM |
 | AVC/H.264 | 14 | Baseline, Constrained Baseline, Main, High, Constrained High, Progressive High, High 10, High 4:2:2, Extended, avc3, Levels 3.0–5.2 | MP4, MKV, MOV, 3GP |
 
-### Pending Migration (from v1)
+### Planned
 
-The following codec groups are being migrated from the v1 flat database to v2's normalized schema. Each will gain per-container and per-scenario testing:
+The following codec groups have empty v2 shells and are blocked on [codec-resolve](https://github.com/nofear0411/codec-resolve) decoder support:
 
 - **Video**: VVC/H.266, VP8, Legacy (MPEG-4 Part 2, H.263, Theora)
 - **Audio**: Dolby (AC-3/E-AC-3/AC-4), DTS, Lossless (FLAC/ALAC/Opus/PCM), Standard (AAC/MP3/Vorbis), MPEG-H 3D Audio
-- **Streaming**: HLS, DASH, CMAF scenarios integrated into each codec record
 
 ## Features
 
 - **Progressive testing** — cards appear immediately with PENDING status, results fill in as each test completes
 - **Batched execution** — 10 codecs tested in parallel per batch, 2 retries with 1s timeout per test
-- **Search and filter** — filter by support level (all/supported/video/audio), search by codec name or description
+- **Search and filter** — filter by support level (all/supported/unsupported/video), search by codec name or description
 - **JSON export** — full results with device fingerprint, DRM info, and all three API responses per codec
 - **Three themes** — Dark OLED (default), Light, Retro Terminal — persisted in localStorage
 - **Keyboard shortcuts** — `/` to focus search, `Esc` to clear, standard navigation

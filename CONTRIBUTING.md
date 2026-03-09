@@ -140,7 +140,7 @@ Use the relevant spec (ITU, ISO/IEC, ETSI) for correct strings. Check existing e
 
 ## Adding Education Content
 
-Each codec record has an `education` object. The INSERT command auto-creates a skeleton — you fill in the content using CLI education commands or by editing `js/codec-database-v2.js` directly.
+Each codec record has an `education` object. The INSERT command auto-creates a skeleton — you fill in the content using CLI education commands. All mutations go through the CLI tool.
 
 ### v2 education structure
 
@@ -330,19 +330,19 @@ All commands run via `node scripts/db-tool-v2.mjs <verb> [args]`.
 
 **Options**: `--name <name>` (required for create), `--group <key>` (override auto-detection), `--flags <a,b>` (codec flags), `--dry-run` (preview)
 
-## Migration Status
+## Database Coverage
 
-The v2 database is being populated group by group. Each group requires codec-resolve decoder support before migration.
+91 records across 5 populated groups. Each group requires codec-resolve decoder support before records can be added.
 
-| Group | v2 Records | Status |
-|-------|-----------|--------|
+| Group | Records | Status |
+|-------|---------|--------|
 | video_hevc | 15 | Complete (15 edu, 15 strm, 15 cntr, 15 refs) |
 | video_dolby_vision | 29 | Complete (29 edu, 29 strm, 29 cntr, 29 refs) |
 | video_av1 | 12 | Complete (12 edu, 12 strm, 12 cntr, 12 refs) |
 | video_vp9 | 21 | Complete (21 edu, 21 strm, 21 cntr, 21 refs) |
 | video_avc | 14 | Complete (14 edu, 14 strm, 14 cntr, 14 refs) |
 | video_vvc | 0 | Blocked — needs codec-resolve `vvc/` decoder |
-| video_vp8 | 0 | Blocked — needs v2 migration |
+| video_vp8 | 0 | Blocked — needs codec-resolve `vp8/` decoder |
 | video_legacy | 0 | Blocked — needs codec-resolve `theora/`, `h263/`, `mp4v/` decoders |
 | audio_dolby | 0 | Blocked — needs codec-resolve audio decoders |
 | audio_dts | 0 | Blocked — needs codec-resolve audio decoders |
@@ -350,7 +350,7 @@ The v2 database is being populated group by group. Each group requires codec-res
 | audio_standard | 0 | Blocked — needs codec-resolve audio decoders |
 | audio_mpegh | 0 | Blocked — needs codec-resolve audio decoders |
 
-Contributing a new codec-resolve decoder directly unblocks a group for migration.
+Contributing a new codec-resolve decoder directly unblocks a group.
 
 ## Platform Quirks
 
