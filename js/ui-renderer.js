@@ -45,102 +45,66 @@ export function announceToScreenReader(message) {
 }
 
 /**
- * Render device information header and grid.
+ * Render device information in two grouped columns.
  * All content from internal device detection APIs, not user input.
  */
 export function renderDeviceInfo(info) {
-    const header = document.getElementById('device-info-summary');
-    const grid = document.getElementById('device-info-grid');
+    const deviceRows = document.getElementById('device-group-rows');
+    const displayRows = document.getElementById('display-group-rows');
 
-    if (!header || !grid) return;
+    if (!deviceRows || !displayRows) return;
 
-    let headerText = `${info.browser} ${info.browserVersion} • ${info.engine} • ${info.os} ${info.osVersion}`;
-    if (info.deviceModel && info.deviceModel !== 'Unknown') {
-        headerText += ` • ${info.deviceModel}`;
-    }
-    headerText += ` • ${info.screenWidth}×${info.screenHeight}`;
-    if (info.screenHDR) {
-        headerText += ` • <span>HDR Display</span>`;
-    }
-    // Content from internal device detection, not user input
-    header.innerHTML = headerText;
+    // Internal device detection data only — safe for innerHTML
+    const row = (label, value) =>
+        `<div class="info-row"><span class="info-row-label">${label}</span><span class="info-row-value">${value}</span></div>`;
 
-    const apiBox = document.getElementById('api-availability');
-    if (apiBox) {
-        // Content from internal API detection, not user input
-        apiBox.innerHTML = `
-            <div class="api-status-item ${info.apiSupport.canPlayType ? 'supported' : 'unavailable'}">
-                <span class="api-status-indicator"></span>
-                <span class="api-status-label">canPlayType()</span>
-            </div>
-            <div class="api-status-item ${info.apiSupport.isTypeSupported ? 'supported' : 'unavailable'}">
-                <span class="api-status-indicator"></span>
-                <span class="api-status-label">isTypeSupported()</span>
-            </div>
-            <div class="api-status-item ${info.apiSupport.mediaCapabilities ? 'supported' : 'unavailable'}">
-                <span class="api-status-indicator"></span>
-                <span class="api-status-label">mediaCapabilities()</span>
-            </div>
-        `;
-    }
+    // --- Group 1: Device ---
+    const deviceType = info.deviceType.charAt(0).toUpperCase() + info.deviceType.slice(1);
+    const deviceValue = info.deviceModel && info.deviceModel !== 'Unknown'
+        ? `${deviceType} — ${info.deviceModel}` : deviceType;
 
-    // All values from internal device detection
-    let gridHTML = `
-        <div class="device-info-item">
-            <div class="device-info-label">Browser</div>
-            <div class="device-info-value">${info.browser} ${info.browserVersion}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">OS</div>
-            <div class="device-info-value">${info.os} ${info.osVersion}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">Rendering Engine</div>
-            <div class="device-info-value">${info.engine} ${info.engineVersion}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">Device Type</div>
-            <div class="device-info-value">${info.deviceType}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">CPU Architecture</div>
-            <div class="device-info-value">${info.cpuArchitecture}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">Screen</div>
-            <div class="device-info-value">${info.screenWidth}×${info.screenHeight} @ ${info.pixelRatio}x DPR</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">HDR Display</div>
-            <div class="device-info-value">${info.screenHDR ? 'YES' : 'NO'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">Color Gamut</div>
-            <div class="device-info-value">${info.rec2020 ? 'Rec.2020' : info.wideGamut ? 'P3' : 'sRGB'}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">CPU Cores</div>
-            <div class="device-info-value">${info.hardwareConcurrency}</div>
-        </div>
-        <div class="device-info-item">
-            <div class="device-info-label">RAM</div>
-            <div class="device-info-value">${info.deviceMemory}</div>
-        </div>
-    `;
+    let deviceHTML = row('Browser', `${info.browser} ${info.browserVersion}`);
+    deviceHTML += row('Engine', `${info.engine} ${info.engineVersion}`);
+    const vendorKnown = info.deviceVendor && info.deviceVendor !== 'Unknown';
+    deviceHTML += row('Vendor', vendorKnown
+        ? info.deviceVendor
+        : '<span class="dimmed">Unknown</span>');
+    deviceHTML += row('OS', `${info.os}${info.osVersion && info.osVersion !== 'Unknown' ? ' ' + info.osVersion : ''}`);
+    deviceHTML += row('Device', deviceValue);
+    const archKnown = info.cpuArchitecture && info.cpuArchitecture !== 'Unknown';
+    deviceHTML += row('Arch', archKnown
+        ? info.cpuArchitecture
+        : '<span class="dimmed">Unknown</span>');
+    deviceRows.innerHTML = deviceHTML;
 
-    if (info.webOS) {
-        gridHTML += `<div class="device-info-item highlight"><div class="device-info-label">Platform</div><div class="device-info-value">webOS ${info.osVersion || ''}</div></div>`;
-    } else if (info.tvOS) {
-        gridHTML += `<div class="device-info-item highlight"><div class="device-info-label">Platform</div><div class="device-info-value">tvOS</div></div>`;
-    } else if (info.iOS) {
-        gridHTML += `<div class="device-info-item highlight"><div class="device-info-label">Platform</div><div class="device-info-value">iOS ${info.osVersion || ''}</div></div>`;
-    } else if (info.android) {
-        gridHTML += `<div class="device-info-item highlight"><div class="device-info-label">Platform</div><div class="device-info-value">Android ${info.osVersion || ''}</div></div>`;
+    // --- Group 2: Display & Decoding ---
+    const gamut = info.rec2020 ? 'Rec.2020' : info.wideGamut ? 'P3' : 'sRGB';
+    let displayHTML = row('Screen', `${info.screenWidth}×${info.screenHeight} @${info.pixelRatio}x`);
+    displayHTML += row('HDR', info.screenHDR ? 'Yes' : 'No');
+    displayHTML += row('Gamut', gamut);
+    displayHTML += row('Depth', `${info.colorDepth}-bit`);
+
+    // Divider before APIs
+    displayHTML += '<div class="info-group-divider"></div>';
+
+    // API availability — official name as label, method call + status badge as value
+    const apis = [
+        ['HTMLMediaElement', 'canPlayType()', info.apiSupport.canPlayType],
+        ['Media Source', 'isTypeSupported()', info.apiSupport.isTypeSupported],
+        ['Media Capabilities', 'decodingInfo()', info.apiSupport.mediaCapabilities]
+    ];
+    for (const [name, method, supported] of apis) {
+        const statusClass = supported ? 'supported' : 'unavailable';
+        displayHTML += row(name, `<span class="api-status-indicator ${statusClass}"></span><code>${method}</code>`);
     }
 
+    // Divider before DRM
+    displayHTML += '<div class="info-group-divider"></div>';
+
+    // DRM row
     if (info.drm) {
         if (info.drm.timedOut) {
-            gridHTML += `<div class="device-info-item"><div class="device-info-label">DRM/EME Support</div><div class="device-info-value" style="color: var(--orange);">Testing...</div></div>`;
+            displayHTML += row('DRM', '<span style="color: var(--orange)">Testing...</span>');
         } else if (info.drm.emeAvailable) {
             const supportedDRM = Object.values(info.drm.systems)
                 .filter(s => s.supported)
@@ -149,16 +113,18 @@ export function renderDeviceInfo(info) {
                     return `${s.name}${level ? ` (${level})` : ''}`;
                 });
             if (supportedDRM.length > 0) {
-                gridHTML += `<div class="device-info-item highlight"><div class="device-info-label">DRM Key Systems</div><div class="device-info-value">${supportedDRM.join(', ')}</div></div>`;
+                displayHTML += row('DRM', supportedDRM.join(', '));
             } else {
-                gridHTML += `<div class="device-info-item"><div class="device-info-label">DRM Key Systems</div><div class="device-info-value" style="color: var(--text-secondary);">EME available, no key systems</div></div>`;
+                displayHTML += row('DRM', '<span class="dimmed">EME available, no key systems</span>');
             }
         } else {
-            gridHTML += `<div class="device-info-item"><div class="device-info-label">DRM/EME</div><div class="device-info-value" style="color: var(--text-dimmed);">Not available</div></div>`;
+            displayHTML += row('DRM', '<span class="dimmed">Not available</span>');
         }
+    } else {
+        displayHTML += row('DRM', '<span class="dimmed">Detecting...</span>');
     }
 
-    grid.innerHTML = gridHTML;
+    displayRows.innerHTML = displayHTML;
 }
 
 
@@ -1047,6 +1013,7 @@ export function renderResults(results) {
     for (const [groupKey, group] of Object.entries(results.tests)) {
         const filteredCodecs = group.codecs.filter(codec => {
             if (state.currentFilter === 'supported' && codec.support !== 'supported' && codec.support !== 'probably') return false;
+            if (state.currentFilter === 'unsupported' && codec.support !== 'unsupported') return false;
             if (state.currentFilter === 'video' && codec.type !== 'video') return false;
             if (state.currentFilter === 'audio' && codec.type !== 'audio') return false;
 
@@ -1112,17 +1079,17 @@ function toggleAllCards(expand) {
     });
 
     if (toggleBtn) {
-        const icon = toggleBtn.querySelector('.btn-icon');
+        const svg = toggleBtn.querySelector('svg');
         const text = toggleBtn.querySelector('.btn-text');
         if (expand) {
             toggleBtn.setAttribute('aria-label', 'Collapse all codec cards');
             toggleBtn.setAttribute('data-expanded', 'true');
-            if (icon) icon.textContent = '⊖';
+            if (svg) svg.style.transform = 'rotate(180deg)';
             if (text) text.textContent = 'Collapse All';
         } else {
             toggleBtn.setAttribute('aria-label', 'Expand all codec cards');
             toggleBtn.setAttribute('data-expanded', 'false');
-            if (icon) icon.textContent = '⊕';
+            if (svg) svg.style.transform = '';
             if (text) text.textContent = 'Expand All';
         }
     }

@@ -98,9 +98,14 @@
                 <div class="subtitle">Multi-API codec testing for media server enthusiasts</div>
             </div>
 
-            <div class="device-info-summary" id="device-info-summary">Loading device info...</div>
-            <div class="api-availability" id="api-availability"></div>
-            <div class="device-info-grid" id="device-info-grid"></div>
+            <div class="device-info-groups" id="device-info-groups">
+                <div class="info-group-label">Device</div>
+                <div class="info-group-rows" id="device-group-rows">
+                    <div class="info-row"><span class="info-row-label">Browser</span><span class="info-row-value">Detecting...</span></div>
+                </div>
+                <div class="info-group-label">Display &amp; Decoding</div>
+                <div class="info-group-rows" id="display-group-rows"></div>
+            </div>
         </header>
 
         <!-- Section 2: Controls & Filters -->
@@ -114,16 +119,18 @@
             <div class="filter-group" role="group" aria-label="Codec filters">
                 <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
                 <button class="filter-btn" data-filter="supported" aria-pressed="false">Supported</button>
+                <button class="filter-btn" data-filter="unsupported" aria-pressed="false">Unsupported</button>
                 <button class="filter-btn" data-filter="video" aria-pressed="false">Video</button>
-                <button class="filter-btn" data-filter="audio" aria-pressed="false">Audio</button>
             </div>
 
             <div class="action-group" role="group" aria-label="Actions">
                 <button class="action-btn" id="expand-toggle-btn" aria-label="Expand all codec cards" data-expanded="false">
-                    <span class="btn-icon">⊕</span> <span class="btn-text">Expand All</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                    <span class="btn-text">Expand All</span>
                 </button>
                 <button class="action-btn export-btn" id="export-btn" aria-label="Export results as JSON">
-                    <span class="btn-icon">↓</span> Export JSON
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Export JSON
                 </button>
             </div>
         </div>
