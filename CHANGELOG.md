@@ -2,6 +2,17 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.7.1] - 2026-03-09
+
+### Changed
+
+- **Header redesign**: Device info restructured into two logical groups (Device, Display & Decoding) using CSS Grid `auto-fit` cards instead of flat grid. Surfaces UAParser v2.x data (deviceVendor, cpuArchitecture, colorDepth). API cards show official names (HTMLMediaElement, Media Source, Media Capabilities) with status dot + method call.
+- **`--interactive` CSS token**: New per-theme token for control hover/active border accents. Replaces `var(--text)` which produced green borders in Retro Terminal, clashing with the semantic "supported" green. Values: Dark OLED `#888`, Light `#555`, Retro `#00bb00`.
+- **Filter buttons**: Replaced Audio with Unsupported filter. Button icons swapped from Unicode (⊕/↓) to inline SVGs for consistent sizing.
+- **px-to-rem audit**: 23 hardcoded pixel values converted to design tokens across buttons, icons, breakpoints, and indicators.
+
+---
+
 ## [4.7.0] - 2026-03-08
 
 ### Changed
