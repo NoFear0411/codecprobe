@@ -2,6 +2,19 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.7.3] - 2026-07-10
+
+### Changed
+
+- **UAParser.js 2.0.9 → 2.0.10**: Bumped and re-bundled into `js/vendor/` (the only dependency that ships to the browser). Device detection bundle is now 36.0 KB.
+- **Build toolchain**: `sass` 1.97.3 → 1.101.0, `terser` 5.46.0 → 5.49.0. Build-time only, no runtime impact.
+
+### Removed
+
+- **Stray Playwright packages**: `playwright`/`playwright-core` were installed out-of-band and unreferenced by any build script. Pruned during the dependency refresh.
+
+---
+
 ## [4.7.2] - 2026-03-09
 
 ### Fixed

@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.7.2**: 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Complete design token system — every visual property flows through `:root` custom properties for full theme adaptability. Purple error badges now correctly adapt per-theme. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.7.3**: Dependency refresh — UAParser.js 2.0.10 (re-bundled), sass/terser toolchain bumps. 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Complete design token system — every visual property flows through `:root` custom properties for full theme adaptability. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
