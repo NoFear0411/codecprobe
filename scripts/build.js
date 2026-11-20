@@ -190,10 +190,29 @@ function injectSWVersion() {
     console.log(`\n🔧 Injected SW cache version: codecprobe-v${appVersion}`);
 }
 
+/**
+ * Sync the version into the source index.html (footer + Schema.org softwareVersion),
+ * so the committed file and the dev server match package.json. Same patterns as
+ * inject-versions.js, which does this for the deploy copy in CI.
+ */
+function injectHtmlVersion() {
+    const htmlPath = path.join(ROOT, 'index.html');
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const updated = html
+        .replace(/(<span id="app-version">)v[^<]+(<\/span>)/, `$1v${appVersion}$2`)
+        .replace(/"softwareVersion":\s*"[^"]+"/, `"softwareVersion": "${appVersion}"`);
+
+    if (updated !== html) {
+        fs.writeFileSync(htmlPath, updated, 'utf8');
+        console.log(`🔧 Synced index.html version: v${appVersion}`);
+    }
+}
+
 buildFiles()
     .then(() => {
         const manifest = generateVersionManifest();
         injectSWVersion();
+        injectHtmlVersion();
     })
     .catch(error => {
         console.error('Build failed:', error);

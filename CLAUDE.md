@@ -21,7 +21,7 @@ js/
 ├── theme-manager.js     - Theme switching (leaf)
 ├── url-state.js         - URL state management (leaf)
 └── vendor/
-    └── ua-parser.min.js - Bundled UAParser.js v2.0.9 (35.3 KB, non-module global)
+    └── ua-parser.min.js - Bundled UAParser.js v2.0.10 (36.0 KB, non-module global)
 ```
 
 All JS files use ES module syntax (`import`/`export`). `index.html` loads ua-parser.min.js as a regular `defer` script (global), then `main.js` as `type="module"`. Eight `<link rel="modulepreload">` hints flatten the import chain so all modules download in parallel.
@@ -39,20 +39,26 @@ const state = {
 };
 ```
 
-Test results structure:
+Test results structure (typedefs in `codec-tester.js`):
 ```javascript
 {
-    supported: number,
-    maybe: number,
+    supported: number,      // 'supported' + 'probably'
     unsupported: number,
+    failed: number,
+    testDuration: number,   // ms
     tests: {
         [groupKey]: {
             category: string,
-            codecs: Array<CodecResult>
+            type: 'video' | 'audio',
+            codecs: Array<CodecTestResult>  // codec, name, containers, playback, drm, support, ...
         }
     }
 }
 ```
+
+`containers` holds raw API answers per container, each tagged `mode: 'file' | 'media-source'`. `playback` is derived from it by `summarizePlayback()`: one verdict per path (`file`, `mse`) with every tested container in exactly one list (`containers`, `partial`, `unsupported`, `untested`). File containers count `canPlayType` + `decodingInfo(file)`; media-source containers count `isTypeSupported` + `decodingInfo(media-source)`. `supported` requires a `decodingInfo` answer. The badge verdict `support` (`determineOverallSupport()`) uses different, older rules and is not derived from `playback`.
+
+The JSON export (`exportResults()` in `ui-renderer.js`) wraps these results with `schemaVersion` (currently `2`), `timestamp`, `device` and `summary`. The format is documented for integrators in README → JSON Export Format; keep the two in sync.
 
 ### PWA Install
 
@@ -115,11 +121,11 @@ Per-codec DRM uses fMP4 container with `type: 'media-source'` and full scenario 
 ### Codec String Format
 
 HEVC example: `video/mp4; codecs="hvc1.2.4.L153.B0"`
-- hvc1 = HEVC in MP4
-- 2 = Main 10 profile
-- 4 = Main 10 tier
-- L153 = Level 5.1 (4K)
-- B0 = constraint flags
+- hvc1 = HEVC in MP4, parameter sets out-of-band (`hev1` = in-band)
+- 2 = general_profile_idc (Main 10)
+- 4 = profile compatibility flags (hex, bit-reversed)
+- L153 = Main tier (`L`; `H` = High tier), level_idc 153 = Level 5.1 (153 / 30)
+- B0 = constraint indicator flags
 
 AV1 example: `video/mp4; codecs="av01.0.08M.10"`
 - av01 = AV1
@@ -190,18 +196,13 @@ See `CONTRIBUTING.md` for full CLI reference.
 
 ### Modifying UI Layout
 
-CSS lives in `scss/styles.scss` (compiled to `css/styles.css`). Uses CSS custom properties for theming:
+CSS lives in `scss/styles.scss` (compiled to `css/styles.css`). Every visual value is a CSS custom property:
 
-```css
---bg: #0a0a0a       /* Background */
---card: #141414     /* Card background */
---accent: #00ff88   /* Primary accent (green) */
---blue: #00d4ff     /* Blue accent */
---yellow: #ffd700   /* Yellow (partial support) */
---red: #ff4444      /* Red (unsupported) */
-```
+- Design tokens (typography, spacing, radius, animation, grid minimums) in the `:root` block of `scss/styles.scss`
+- Theme colors (`--bg`, `--card`, `--accent`, `--blue`, `--yellow`, `--red`, `--purple`, `--interactive`, ...) per theme in `scss/_themes.scss`
+- Use `var(--token)` in rules, never SCSS color variables — they compile to hardcoded hex and bypass theme switching
 
-Grid layout is auto-fit with min 500px columns. No media query breakpoints — only capability queries remain.
+Grids use `auto-fit` with the `--grid-min-*` tokens. No layout breakpoints except one TV-resolution block; the other media queries are capability queries (`hover`, `prefers-contrast`, `prefers-reduced-motion`).
 
 ### Testing Changes
 
@@ -225,19 +226,24 @@ python -m http.server 8000
 - `npm run build` - Both
 - `npm run build:deploy` - Build + inject version hashes (`scripts/inject-versions.js`)
 
-**Build scripts** live in `scripts/`:
+**Scripts** live in `scripts/`:
 - `scripts/build.js` - Terser minification, UAParser bundling, version manifest, SW cache version injection
-- `scripts/inject-versions.js` - Appends `?v=hash` to asset references in HTML and ES module import paths in built JS
+- `scripts/inject-versions.js` - Appends `?v=hash` to asset references in HTML and ES module import paths in built JS, injects app version and the JSON-LD CSP hash, writes `deploy/index.html`
+- `scripts/db-tool-v2.mjs` - Database CLI, the only way to mutate `codec-database-v2.js`
+- `scripts/v2-audit.mjs` - Read-only database audit (listing, validation, coverage)
+- `scripts/capture-screenshots.mjs` - Regenerates `screenshots/` (3 theme PWA screenshots + OG image) with the system Chrome over the DevTools protocol; no npm dependencies. `--out <dir>` writes elsewhere
+
+**Release** runs from `.github/workflows/release.yml` on `v*` tags: build, inject versions, deploy to GitHub Pages, create the GitHub Release from the matching CHANGELOG section, prune old deployments.
 
 ## Dependencies
 
 **Runtime**: Zero external dependencies
-- UAParser.js v2.x is bundled in `/js/vendor/` (AGPL-3.0 license, ~35.3 KB minified)
+- UAParser.js v2.x is bundled in `/js/vendor/` (AGPL-3.0 license, ~36.0 KB minified)
 - Installed via npm as devDependency, bundled at build time to both `build/js/vendor/` and `js/vendor/`
 - Uses advanced features: `withFeatureCheck()` (iPad detection) + `withClientHints()` (Chrome accuracy)
 - No external network requests required
 
-**Development**: sass, terser, ua-parser-js, npm-run-all (build tools only)
+**Development**: sass, terser, typescript (`tsc --noEmit` typecheck of JSDoc types), ua-parser-js, npm-run-all (build tools only). Node 24 locally and in CI.
 
 ## License
 
@@ -249,7 +255,7 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 - `default-src 'none'; script-src 'self' 'sha256-...'; style-src 'self' 'unsafe-inline'; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'`
 - `sha256` hash for the JSON-LD `<script>` is auto-injected by `scripts/inject-versions.js` at build time
 - `frame-ancestors` not supported in meta CSP — `X-Frame-Options: DENY` in Cloudflare covers it
-- `style-src 'unsafe-inline'` required — 14 inline style locations (1 HTML, 4 templates, 9 element.style in JS)
+- `style-src 'unsafe-inline'` required — inline `style=""` in `ui-renderer.js` templates and `element.style` assignments in `main.js` / `ui-renderer.js`
 
 **Other headers** (Cloudflare Transform Rules):
 - Permissions-Policy: camera, microphone, geolocation, payment, usb, accelerometer, gyroscope disabled. `encrypted-media` left at default (DRM detection needs it).
@@ -268,7 +274,8 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 
 ## Performance
 
-- 238 codecs tested in ~3-6 seconds
+- 91 records tested in ~2 seconds on desktop Chromium
+- Batches of 6 records (`BATCH_CONFIG`), up to 2 attempts per record, timeout 1.5 s + 150 ms per container × scenario
 - mediaCapabilities tests are async (rate-limited by browser)
 - Progressive rendering: PENDING cards appear instantly, update as tests complete
 - UAParser.js detection is async (uses Client Hints API on Chromium)
@@ -287,7 +294,7 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 ## Version Management
 
 `package.json` version is the single source of truth. Build pipeline propagates it:
-1. `scripts/build.js` reads `pkg.version` → injects into `sw.js` CACHE_VERSION + `build/version-manifest.json`
+1. `scripts/build.js` reads `pkg.version` → injects into `sw.js` CACHE_VERSION, `build/version-manifest.json`, and the source `index.html` (footer `app-version` + Schema.org `softwareVersion`)
 2. `scripts/inject-versions.js` reads manifest → replaces `<span id="app-version">` + Schema.org `softwareVersion` in deploy HTML
 3. File content hashes (`?v=abc123`) for cache-busting are separate and unchanged
 
@@ -310,8 +317,6 @@ CodecProbe is licensed under AGPL-3.0-or-later, matching UAParser.js v2.x (also 
 1. **Dark OLED** (default): Pure blacks for OLED, battery-friendly
 2. **Light**: High contrast light mode for daylight viewing
 3. **Retro Terminal**: CRT aesthetics with scanlines and phosphor glow
-
-**Brutalist theme removed** in v2.0.0 (hard to maintain, poor contrast).
 
 Theme switching handled by `theme-manager.js` with localStorage persistence.
 
@@ -344,10 +349,10 @@ Avoid over-engineering. Only add features if they solve real user problems:
 
 Keep docs focused and practical. No generic "best practices" sections.
 
-## Tested Codecs Summary
+## Database Coverage
 
-**Video (149 tests)**: HEVC (25), Dolby Vision (33, P4/5/7/8.1/8.2/8.4/9/10 + supplemental), AV1 (26), VP9 (21), H.264/AVC (22), VVC/H.266 (8), VP8 (5), Legacy (9, MPEG-4 Part 2/H.263/Theora)
-**Audio (89 tests)**: Dolby (18, AC-3/E-AC-3/TrueHD/AC-4/Atmos), DTS (15, Core/Express/HD/MA/Lossless/X), Lossless (27, FLAC/ALAC/Opus/PCM), Standard (25, AAC-LC/HE/xHE/ELD/LD/MP3/Vorbis), MPEG-H 3D Audio (4)
-**Containers (17 MIME types)**: MP4, MKV, WebM, MOV, MPEG-TS, 3GP, OGG, fMP4, CMAF, FLAC, WAV, AIFF, AAC, MP3
+91 records in 5 populated groups: HEVC (15), Dolby Vision (29), AV1 (12), VP9 (21), H.264/AVC (14). All have full education content.
 
-**Total**: 238 codec/container combinations across 13 groups and 17 MIME types, validated against ISO/IEC/ITU/Apple/MPEG/DASH-IF specs.
+Empty groups: VVC, VP8, Legacy (video) and all 5 audio groups. A group can only be filled once codec-resolve can validate its codec strings — VP8 has a decoder (codec-resolve v1.4.0); VVC, Theora, H.263, MPEG-4 Part 2 and all audio families do not yet.
+
+Live counts: `node scripts/db-tool-v2.mjs select --stats`.

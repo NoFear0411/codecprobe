@@ -1,24 +1,19 @@
 # Setup
 
-## Deploy to GitHub Pages
+## Deploy Your Own Copy
 
-### Fork & Deploy
+Deployment runs through GitHub Actions (`.github/workflows/release.yml`), triggered by version tags.
 
 1. Fork this repository
-2. Settings > Pages > Source: `main` branch > Save
-3. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
-
-### From Scratch
-
-1. Create a new repo on GitHub
-2. Clone and re-point the remote:
+2. Settings > Pages > Source: **GitHub Actions**
+3. Replace or delete `CNAME` (it points at codecprobe.dev)
+4. Add a `## [X.Y.Z] - YYYY-MM-DD` section to `CHANGELOG.md`, commit, then tag and push:
    ```bash
-   git clone https://github.com/nofear0411/codecprobe.git
-   cd codecprobe
-   git remote set-url origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
-   git push -u origin main
+   git tag -a vX.Y.Z -m "vX.Y.Z: Short description"
+   git push origin vX.Y.Z
    ```
-3. Enable Pages in Settings
+   Or run the **Release & Deploy** workflow manually with an existing tag.
+5. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
 
 ## Development
 
@@ -28,7 +23,7 @@
 npm install
 ```
 
-Installs: sass, terser, ua-parser-js, npm-run-all.
+Installs the build tools: sass, terser, typescript, ua-parser-js, npm-run-all. Use Node 24 (CI runs the latest Node 24).
 
 ### Dev Mode
 
@@ -36,7 +31,7 @@ Installs: sass, terser, ua-parser-js, npm-run-all.
 npm run dev
 ```
 
-Starts a local server on `http://localhost:8000` with SCSS auto-compilation.
+Serves the repo on `http://localhost:8000` (Python `http.server`) and recompiles SCSS on change.
 
 ### Build
 
@@ -44,7 +39,7 @@ Starts a local server on `http://localhost:8000` with SCSS auto-compilation.
 npm run build
 ```
 
-Compiles SCSS, minifies JS, bundles UAParser.js to `js/vendor/`, generates version manifest.
+Typechecks the JSDoc types, compiles SCSS, minifies JS to `build/js/`, bundles UAParser.js to `js/vendor/`, writes `build/version-manifest.json`, and injects the `package.json` version into `sw.js` and `index.html`.
 
 ### Build CSS Only
 
@@ -58,42 +53,37 @@ npm run build:css
 python -m http.server 8000
 ```
 
-Works for JS-only changes. SCSS changes need `npm run build:css`.
+Serves the unminified source modules directly. Works for JS changes; SCSS changes need `npm run build:css`.
 
 ## CI/CD
 
-GitHub Actions (`.github/workflows/deploy.yml`) runs on push to main:
+`.github/workflows/release.yml` runs when a `v*` tag is pushed, or manually with a tag input:
 
-1. `npm install`
-2. Compile SCSS
-3. Minify JS + bundle UAParser.js
-4. Generate version manifest
-5. Inject version parameters into HTML
+1. `npm install` (no lockfile is committed, so versions resolve from the `package.json` ranges)
+2. `npm run build`
+3. `node scripts/inject-versions.js` — versioned asset URLs, app version, JSON-LD CSP hash, `deploy/index.html`
+4. Assemble `deploy/` and upload it as the Pages artifact
+5. Create or update the GitHub Release: notes from the matching `CHANGELOG.md` section, deploy zip attached
 6. Deploy to GitHub Pages
+7. Prune old deployments (keeps the last 3)
 
-Compiled CSS and bundled vendor files are committed to git so GitHub Pages works without a build step.
+The tagged commit must already contain its `CHANGELOG.md` section, or the release page shows "No CHANGELOG entry found".
 
-## File Structure
-
-Required for GitHub Pages:
-- `index.html` in root
-- All paths relative to root
-- `css/styles.css` committed (compiled)
-- `js/vendor/ua-parser.min.js` committed (bundled)
+Committed build outputs: `css/styles.css`, `js/vendor/ua-parser.min.js`, and the `CACHE_VERSION` in `sw.js`. `build/`, `deploy/` and `css/*.map` are not committed.
 
 ## Custom Domain
 
-1. Add `CNAME` file to root with your domain
+1. Put your domain in the `CNAME` file at the repo root (the workflow copies it into the deploy)
 2. DNS: CNAME record pointing to `YOUR_USERNAME.github.io`
 3. Enable "Enforce HTTPS" in Pages settings
 
 ## Troubleshooting
 
-**Page not loading**: Verify Pages is enabled, branch is `main`, files are pushed. Wait a few minutes after first enable.
+**Workflow didn't run**: The tag must match `v*` and be pushed explicitly (`git push origin vX.Y.Z`).
 
-**404**: Check branch name (`main` not `master`), verify files are committed.
+**Deploy job fails**: Pages source must be set to GitHub Actions, not a branch.
 
-**Console errors**: Open F12, check all `.js` files loaded. Try a different browser.
+**Console errors**: Open DevTools and check that every `.js` file loaded. `Failed to parse video contentType` warnings in Chromium are expected — see README → Known Limitations.
 
 ## Pulling Updates
 

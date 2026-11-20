@@ -90,7 +90,7 @@ The following codec groups have empty v2 shells and are blocked on [codec-resolv
 ## Features
 
 - **Progressive testing** — cards appear immediately with PENDING status, results fill in as each test completes
-- **Batched execution** — 10 codecs tested in parallel per batch, 2 retries with 1s timeout per test
+- **Batched execution** — 6 codec records tested in parallel per batch, up to 2 attempts each, with a timeout that scales with the record's container × scenario count
 - **Search and filter** — filter by support level (all/supported/unsupported/video), search by codec name or description
 - **JSON export** — full results with device fingerprint, DRM info, and all three API responses per codec. Each codec also carries a `playback` summary: one verdict for direct play (`file`) and one for MSE (`mse`), with the containers behind each — built for media servers choosing between direct play and HLS/DASH. See [JSON Export Format](#json-export-format)
 - **Three themes** — Dark OLED (default), Light, Retro Terminal — persisted in localStorage
@@ -205,9 +205,10 @@ npm run dev        # Dev server + SCSS file watcher
 ### GitHub Pages Deployment
 
 1. Fork the repository
-2. Enable GitHub Pages → select `main` branch
-3. GitHub Actions builds and deploys automatically
-4. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
+2. Settings → Pages → Source: **GitHub Actions**
+3. Replace or delete `CNAME` (it points at codecprobe.dev)
+4. Push a version tag (`git tag -a v1.0.0 -m "..." && git push origin v1.0.0`) or run the **Release & Deploy** workflow manually — it builds, deploys and creates a GitHub Release
+5. Access at `https://YOUR_USERNAME.github.io/codecprobe/`
 
 ## Project Structure
 
@@ -230,18 +231,23 @@ codecprobe/
 │   ├── url-state.js           # URL state management
 │   ├── main.js                # Initialization orchestrator + PWA install
 │   └── vendor/
-│       └── ua-parser.min.js   # Bundled UAParser.js v2.0.9
+│       └── ua-parser.min.js   # Bundled UAParser.js v2.0.10
 ├── icons/                     # Favicons + PWA icons (any + maskable)
 ├── screenshots/               # OG image + PWA install screenshots
 ├── scripts/
 │   ├── build.js               # Terser minification + UAParser bundling
 │   ├── inject-versions.js     # Cache-busting version hashes for deploy
 │   ├── db-tool-v2.mjs         # Database CLI — SQL verb-first dispatch (create, insert, update, etc.)
-│   └── v2-audit.mjs           # Database audit, validation, and coverage analysis
+│   ├── v2-audit.mjs           # Database audit, validation, and coverage analysis
+│   └── capture-screenshots.mjs # Regenerates screenshots/ via system Chrome (no deps)
 ├── docs/
 │   ├── BUILD.md               # Build system documentation
 │   └── SETUP.md               # Deployment guide
+├── .github/workflows/
+│   └── release.yml            # Tag-triggered build, deploy, GitHub Release
 ├── CLAUDE.md                  # AI assistant context
+├── CONTRIBUTING.md            # Contributor guide + database CLI reference
+├── CHANGELOG.md               # Release notes (source for GitHub Releases)
 └── README.md
 ```
 
@@ -286,7 +292,7 @@ codec-resolve currently supports:
 
 ## Dependencies
 
-**Runtime:** None. UAParser.js v2.x is bundled in `js/vendor/` (35.3 KB minified).
+**Runtime:** None. UAParser.js v2.x is bundled in `js/vendor/` (36.0 KB minified).
 
 **Build tools:** `sass`, `terser`, `ua-parser-js`
 

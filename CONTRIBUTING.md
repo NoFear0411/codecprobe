@@ -69,7 +69,7 @@ node scripts/db-tool-v2.mjs create hvc1.2.4.L153.B0 \
   --depth 10 --chroma 4:2:0 --transfer pq --gamut rec2020 --hdr hdr10
 ```
 
-**Audio example:**
+**Audio example** (syntax only — audio records stay blocked until codec-resolve can validate audio codec strings):
 
 ```bash
 node scripts/db-tool-v2.mjs create opus \
@@ -342,7 +342,7 @@ All commands run via `node scripts/db-tool-v2.mjs <verb> [args]`.
 | video_vp9 | 21 | Complete (21 edu, 21 strm, 21 cntr, 21 refs) |
 | video_avc | 14 | Complete (14 edu, 14 strm, 14 cntr, 14 refs) |
 | video_vvc | 0 | Blocked — needs codec-resolve `vvc/` decoder |
-| video_vp8 | 0 | Blocked — needs codec-resolve `vp8/` decoder |
+| video_vp8 | 0 | Ready — codec-resolve has a `vp8/` decoder (v1.4.0); no records yet |
 | video_legacy | 0 | Blocked — needs codec-resolve `theora/`, `h263/`, `mp4v/` decoders |
 | audio_dolby | 0 | Blocked — needs codec-resolve audio decoders |
 | audio_dts | 0 | Blocked — needs codec-resolve audio decoders |
