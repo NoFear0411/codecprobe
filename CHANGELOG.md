@@ -2,6 +2,19 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.8.1] - 2026-11-20
+
+### Fixed
+
+- **`playback` never trusts the MIME check alone**: when `decodingInfo()` errors on every scenario (Firefox throws on dual-codec strings), a `canPlayType()` / `isTypeSupported()` yes is capped at `partial` instead of `supported`.
+
+### Added
+
+- **`unsupported` and `untested` lists** in each `playback` path. Every tested container now lands in exactly one list, so "not listed" no longer hides whether a container was rejected, errored or never tested. Additive: `schemaVersion` stays `2`.
+- **README: JSON Export Format** section documenting the export structure, the `playback` lists, which API counts for which path, and how to combine tracks for a direct-play decision.
+
+---
+
 ## [4.8.0] - 2026-11-20
 
 ### Added

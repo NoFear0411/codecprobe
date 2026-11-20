@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.8.0**: Playback path summary in the JSON export — per-codec `file` and `mse` verdicts for media servers choosing between direct play and HLS/DASH. MKV container notes corrected (Chromium and Firefox play MKV directly; MSE rejects it). Safari DRM false positives fixed. 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Complete design token system — every visual property flows through `:root` custom properties for full theme adaptability. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.8.1**: Playback path summary in the JSON export — per-codec `file` and `mse` verdicts for media servers choosing between direct play and HLS/DASH, now listing every tested container and never trusting `canPlayType()` alone. Export format documented. MKV container notes corrected (Chromium and Firefox play MKV directly; MSE rejects it). Safari DRM false positives fixed. 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Complete design token system — every visual property flows through `:root` custom properties for full theme adaptability. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -92,7 +92,7 @@ The following codec groups have empty v2 shells and are blocked on [codec-resolv
 - **Progressive testing** — cards appear immediately with PENDING status, results fill in as each test completes
 - **Batched execution** — 10 codecs tested in parallel per batch, 2 retries with 1s timeout per test
 - **Search and filter** — filter by support level (all/supported/unsupported/video), search by codec name or description
-- **JSON export** — full results with device fingerprint, DRM info, and all three API responses per codec. Each codec also carries a `playback` summary: one verdict for direct play (`file`) and one for MSE (`mse`), with the containers behind each — built for media servers choosing between direct play and HLS/DASH
+- **JSON export** — full results with device fingerprint, DRM info, and all three API responses per codec. Each codec also carries a `playback` summary: one verdict for direct play (`file`) and one for MSE (`mse`), with the containers behind each — built for media servers choosing between direct play and HLS/DASH. See [JSON Export Format](#json-export-format)
 - **Three themes** — Dark OLED (default), Light, Retro Terminal — persisted in localStorage
 - **Keyboard shortcuts** — `/` to focus search, `Esc` to clear, standard navigation
 - **Accessibility** — ARIA labels, skip links, screen reader announcements, `prefers-reduced-motion` support
@@ -122,6 +122,39 @@ Common patterns:
 - **1** red, **3** green — `canPlayType()` doesn't recognize the codec string, but hardware decode is available
 - **1** green, **2** red — native `<video>` playback works, but the codec can't be used in MSE/adaptive streaming
 - **1** yellow — `"maybe"` response, which means the browser parsed the codec string but makes no guarantee about playback
+
+## JSON Export Format
+
+The **Export** button downloads every result as JSON. Current `schemaVersion` is `2`. Fields may be added within a version; the version changes when an existing field changes shape or meaning.
+
+**Top level:** `schemaVersion`, `timestamp`, `device` (UAParser + display + DRM info), `summary` (counts and test duration), `codecs` (results keyed by group, e.g. `video_hevc`).
+
+**Per codec:** `codec`, `name`, `type`, `flags`, `scenarios`, `education`, `containers` (raw API answers per container, each with its `mode`: `file` or `media-source`), `playback`, `drm`, `support` (the badge verdict).
+
+### `playback`: direct play vs MSE
+
+One verdict per playback path, for deciding between serving a file as-is and HLS/DASH:
+
+```json
+"playback": {
+    "file": { "support": "supported", "containers": ["mp4", "mkv", "3gp"], "partial": [], "unsupported": ["mov"], "untested": [] },
+    "mse":  { "support": "supported", "containers": ["fmp4", "hls", "dash", "cmaf"], "partial": ["mpegts"], "unsupported": [], "untested": [] }
+}
+```
+
+- `file` is direct play through `<video src>`; `mse` is MediaSource (HLS/DASH players)
+- Each path counts only the APIs that describe it: `file` uses `canPlayType()` + `decodingInfo({ type: 'file' })`, `mse` uses `isTypeSupported()` + `decodingInfo({ type: 'media-source' })`
+- Every container tested on a path lands in exactly one list:
+
+| List | Meaning |
+|------|---------|
+| `containers` | Every counted API said yes, `decodingInfo()` included, for every scenario |
+| `partial` | Answers disagreed (between APIs, or between scenarios), or only the MIME check said yes because `decodingInfo()` errored. Check the raw `containers` data |
+| `unsupported` | Every counted API said no |
+| `untested` | Every API errored or timed out |
+
+- `support` is the best list that isn't empty: `supported` > `partial` > `unsupported` > `untested`
+- The summary is per codec. A file with several tracks direct-plays only when every track's codec lists the file's container under `file.containers` — an MKV whose AC-3 track isn't decodable plays silently, with no error
 
 ## Platform-Specific Behavior
 

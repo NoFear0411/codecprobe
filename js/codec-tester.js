@@ -60,8 +60,10 @@
 /**
  * @typedef {Object} PlaybackPathSummary
  * @property {PlaybackSupport} support - Best container verdict on this path
- * @property {string[]} containers - Containers where every counted API answer was yes
- * @property {string[]} partial - Containers where answers disagreed (APIs or scenarios)
+ * @property {string[]} containers - Every counted API said yes, decodingInfo included
+ * @property {string[]} partial - Answers disagreed (APIs or scenarios), or only the MIME API said yes
+ * @property {string[]} unsupported - Every counted API said no
+ * @property {string[]} untested - Every API errored or timed out
  */
 
 /**
@@ -485,6 +487,10 @@ const SUPPORT_RANK = { untested: 0, unsupported: 1, partial: 2, supported: 3 };
  * decodingInfo is yes only when every scenario passes. Mixed scenarios push both
  * a yes and a no, which lands the container on 'partial'.
  *
+ * 'supported' needs a decodingInfo answer. When it errored on every scenario
+ * (Firefox throws on dual-codec strings), a MIME-only yes is capped at 'partial'
+ * so canPlayType alone never decides support. A MIME-only no stays 'unsupported'.
+ *
  * @param {ContainerTestResult} cr
  * @returns {PlaybackSupport}
  */
@@ -510,21 +516,25 @@ function containerVerdict(cr) {
     }
 
     if (answers.length === 0) return 'untested';
-    if (answers.every(Boolean)) return 'supported';
+    if (answers.every(Boolean)) return tested.length > 0 ? 'supported' : 'partial';
     if (answers.some(Boolean)) return 'partial';
     return 'unsupported';
 }
 
+/** @type {Record<PlaybackSupport, 'containers' | 'partial' | 'unsupported' | 'untested'>} */
+const VERDICT_LIST = { supported: 'containers', partial: 'partial', unsupported: 'unsupported', untested: 'untested' };
+
 /**
  * Collapse per-container results into one verdict per playback path.
- * Best container wins; container lists keep database order.
+ * Best container wins. Every tested container lands in exactly one list,
+ * in database order.
  *
  * @param {Record<string, ContainerTestResult>} containers
  * @returns {PlaybackSummary}
  */
 function summarizePlayback(containers) {
     /** @returns {PlaybackPathSummary} */
-    const emptyPath = () => ({ support: 'untested', containers: [], partial: [] });
+    const emptyPath = () => ({ support: 'untested', containers: [], partial: [], unsupported: [], untested: [] });
     /** @type {PlaybackSummary} */
     const summary = { file: emptyPath(), mse: emptyPath() };
 
@@ -533,8 +543,7 @@ function summarizePlayback(containers) {
         const path = cr.mode === 'file' ? summary.file : summary.mse;
 
         if (SUPPORT_RANK[verdict] > SUPPORT_RANK[path.support]) path.support = verdict;
-        if (verdict === 'supported') path.containers.push(container);
-        else if (verdict === 'partial') path.partial.push(container);
+        path[VERDICT_LIST[verdict]].push(container);
     }
 
     return summary;
