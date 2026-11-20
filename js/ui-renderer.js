@@ -1174,6 +1174,8 @@ async function exportResults() {
 
     const deviceInfo = await detectDeviceInfo();
     const exportData = {
+        // 2: per-codec `playback` summary added. Version 1 had no field.
+        schemaVersion: 2,
         timestamp: new Date().toISOString(),
         device: deviceInfo,
         summary: {

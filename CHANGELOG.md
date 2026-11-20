@@ -2,6 +2,26 @@
 
 All notable changes to CodecProbe will be documented in this file.
 
+## [4.8.0] - 2026-11-20
+
+### Added
+
+- **Playback path summary in JSON export**: each codec carries `playback: { file, mse }`, one verdict for direct play and one for MSE, with the containers behind each (`supported` / `partial` / `unsupported` / `untested`). File containers count `canPlayType` + `decodingInfo({ type: 'file' })`; MSE containers count `isTypeSupported` + `decodingInfo({ type: 'media-source' })`. Disagreement between APIs or scenarios yields `partial`. Requested in [#1](https://github.com/NoFear0411/codecprobe/issues/1).
+- **`schemaVersion: 2`** at the top of the export, so consumers can detect the new shape.
+
+### Fixed
+
+- **Outdated MKV container notes**: 8 records said desktop browsers reject `video/x-matroska`. Chromium and Firefox play MKV directly; MSE rejects it in both. Verified with real-file playback on Chrome 157, Chromium 156 and Firefox 160. The `avc1.640028` note also wrongly said H.264 in MKV uses Annex B.
+- **Safari DRM false positives**: Safari ignores `keySystemConfiguration`, so `decodingInfo()` answered the plain decode question and reported DRM support that was never tested. A supported result without `keySystemAccess` now shows as an error (purple) instead of green.
+
+### Changed
+
+- **README**: Known Limitations covers MKV being direct-play only and the Chromium `Failed to parse video contentType` console warnings.
+- **Build toolchain**: `sass` 1.101.0 → 1.108.2, `terser` 5.49.0 → 5.51.3; transitive advisories in `shell-quote`, `source-map-js`, `brace-expansion`, `minimatch` and `picomatch` resolved. Build-time only, no runtime impact.
+- **CI**: GitHub Actions moved to their Node 24 majors (`checkout` v7, `setup-node` v7, `upload-pages-artifact` v5, `configure-pages` v6, `deploy-pages` v5, `github-script` v9), clearing the Node 20 deprecation warnings. Build runs on the latest Node 24 LTS.
+
+---
+
 ## [4.7.3] - 2026-07-10
 
 ### Changed

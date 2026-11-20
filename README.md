@@ -6,7 +6,7 @@ CodecProbe queries three browser APIs against each codec record across multiple 
 
 Each tested codec includes education content explaining the codec string format, spec references, and platform-specific behavior — so the results are not just data, they're documentation.
 
-> **v4.7.3**: Dependency refresh — UAParser.js 2.0.10 (re-bundled), sass/terser toolchain bumps. 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Complete design token system — every visual property flows through `:root` custom properties for full theme adaptability. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
+> **v4.8.0**: Playback path summary in the JSON export — per-codec `file` and `mse` verdicts for media servers choosing between direct play and HLS/DASH. MKV container notes corrected (Chromium and Firefox play MKV directly; MSE rejects it). Safari DRM false positives fixed. 91 codec records (HEVC, Dolby Vision, AV1, VP9, AVC/H.264) with the normalized v2 database. Complete design token system — every visual property flows through `:root` custom properties for full theme adaptability. DRM testing uses `decodingInfo()` + `keySystemConfiguration` with full scenario configs. Every codec string is validated against [codec-resolve](https://github.com/nofear0411/codec-resolve) before entering the test matrix.
 
 **[Live Demo](https://codecprobe.dev)**
 
@@ -92,7 +92,7 @@ The following codec groups have empty v2 shells and are blocked on [codec-resolv
 - **Progressive testing** — cards appear immediately with PENDING status, results fill in as each test completes
 - **Batched execution** — 10 codecs tested in parallel per batch, 2 retries with 1s timeout per test
 - **Search and filter** — filter by support level (all/supported/unsupported/video), search by codec name or description
-- **JSON export** — full results with device fingerprint, DRM info, and all three API responses per codec
+- **JSON export** — full results with device fingerprint, DRM info, and all three API responses per codec. Each codec also carries a `playback` summary: one verdict for direct play (`file`) and one for MSE (`mse`), with the containers behind each — built for media servers choosing between direct play and HLS/DASH
 - **Three themes** — Dark OLED (default), Light, Retro Terminal — persisted in localStorage
 - **Keyboard shortcuts** — `/` to focus search, `Esc` to clear, standard navigation
 - **Accessibility** — ARIA labels, skip links, screen reader announcements, `prefers-reduced-motion` support
@@ -239,6 +239,8 @@ codec-resolve currently supports:
 - Safari's `canPlayType()` returns `""` for Dolby Vision codec strings, even on devices with DV hardware. `mediaCapabilities` reveals the actual support
 - Firefox does not expose Dolby or DTS codecs — these require proprietary licenses not included in the browser's media stack
 - Chrome's `MediaSource.isTypeSupported()` results can differ from `<video>` element support because MSE has stricter codec requirements
+- Matroska (`video/x-matroska`) is direct-play only: Chromium and Firefox play MKV files through `<video src>`, but MSE rejects the container in both
+- Chromium logs `Failed to parse video contentType` warnings during a test run for container/codec pairs it doesn't recognize: MOV, MPEG-TS, Dolby Vision tags, and dual-codec DV strings. These come from the browser, can't be suppressed by page code, and are expected — `decodingInfo()` still resolves with `supported: false` and the results are correct. The codec strings are well-formed despite the wording
 
 **Platform-specific behavior:**
 - iOS: Hardware capabilities exceed what APIs report. 500-nit iPad panels return `supported: false` for `transferFunction: 'pq'` even with DV Profile 5 hardware

@@ -54,6 +54,23 @@
  */
 
 /**
+ * @typedef {'supported' | 'partial' | 'unsupported' | 'untested'} PlaybackSupport
+ */
+
+/**
+ * @typedef {Object} PlaybackPathSummary
+ * @property {PlaybackSupport} support - Best container verdict on this path
+ * @property {string[]} containers - Containers where every counted API answer was yes
+ * @property {string[]} partial - Containers where answers disagreed (APIs or scenarios)
+ */
+
+/**
+ * @typedef {Object} PlaybackSummary
+ * @property {PlaybackPathSummary} file - Direct play via <video src>
+ * @property {PlaybackPathSummary} mse - MediaSource playback (HLS/DASH players)
+ */
+
+/**
  * @typedef {Object} CodecTestResult
  * @property {string} codec - Bare codec string
  * @property {string} name
@@ -62,6 +79,7 @@
  * @property {(VideoScenario | AudioScenario)[]} scenarios
  * @property {import('./codec-database-v2.js').Education | null} education
  * @property {Record<string, ContainerTestResult>} containers
+ * @property {PlaybackSummary} playback
  * @property {Record<string, DRMTestResult> | null} drm
  * @property {'supported' | 'probably' | 'unsupported' | 'failed'} support
  * @property {string} [error]
@@ -251,6 +269,22 @@ async function testDRMCapabilities(scenario, mime, type, keySystem) {
                 setTimeout(() => reject(new Error('DRM capability timeout')), 3000))
         ]);
 
+        // Safari/iOS have no keySystemConfiguration support. WebIDL drops unknown
+        // dictionary members silently, so decodingInfo answers the plain-decode
+        // question instead and omits keySystemAccess. A spec-compliant UA that
+        // honored the config and reported supported must return keySystemAccess,
+        // so supported-without-access means no DRM was ever tested.
+        // supported:false + no access is a genuine rejection and stays a clean fail.
+        if (result.supported && !result.keySystemAccess) {
+            return {
+                supported: false,
+                keySystem,
+                reason: 'keySystemConfiguration ignored by this browser',
+                error: true,
+                config
+            };
+        }
+
         /** @type {DRMTestResult} */
         const drmResult = {
             supported: result.supported,
@@ -307,6 +341,7 @@ async function testCodecRecord(record, groupType, deviceDRM) {
         scenarios: record.scenarios,
         education: record.education || null,
         containers: {},
+        playback: summarizePlayback({}),
         drm: null,
         support: 'unsupported'
     };
@@ -368,6 +403,7 @@ async function testCodecRecord(record, groupType, deviceDRM) {
     }
 
     // ── Overall support ──
+    result.playback = summarizePlayback(result.containers);
     result.support = determineOverallSupport(result);
 
     return result;
@@ -434,6 +470,77 @@ function determineOverallSupport(result) {
 }
 
 
+// ==================== PLAYBACK PATH SUMMARY ====================
+
+const SUPPORT_RANK = { untested: 0, unsupported: 1, partial: 2, supported: 3 };
+
+/**
+ * Verdict for one container, from the APIs that describe its playback path.
+ *
+ * File containers count canPlayType + decodingInfo(file). Media-source containers
+ * count isTypeSupported + decodingInfo(media-source). isTypeSupported on a file
+ * container answers an MSE question, so it is ignored: Chromium and Firefox play
+ * MKV as a file while rejecting it in MSE.
+ *
+ * decodingInfo is yes only when every scenario passes. Mixed scenarios push both
+ * a yes and a no, which lands the container on 'partial'.
+ *
+ * @param {ContainerTestResult} cr
+ * @returns {PlaybackSupport}
+ */
+function containerVerdict(cr) {
+    /** @type {boolean[]} */
+    const answers = [];
+
+    if (cr.mode === 'file') {
+        if (cr.canPlayType && cr.canPlayType !== 'error') {
+            answers.push(cr.canPlayType === 'probably' || cr.canPlayType === 'maybe');
+        }
+    } else if (cr.isTypeSupported && cr.isTypeSupported !== 'error') {
+        answers.push(cr.isTypeSupported === 'probably');
+    }
+
+    const tested = Object.values(cr.scenarios || {})
+        .map(sr => sr.mediaCapabilities)
+        .filter(mc => mc && !mc.error);
+    if (tested.length > 0) {
+        const passed = tested.filter(mc => mc.supported).length;
+        if (passed > 0) answers.push(true);
+        if (passed < tested.length) answers.push(false);
+    }
+
+    if (answers.length === 0) return 'untested';
+    if (answers.every(Boolean)) return 'supported';
+    if (answers.some(Boolean)) return 'partial';
+    return 'unsupported';
+}
+
+/**
+ * Collapse per-container results into one verdict per playback path.
+ * Best container wins; container lists keep database order.
+ *
+ * @param {Record<string, ContainerTestResult>} containers
+ * @returns {PlaybackSummary}
+ */
+function summarizePlayback(containers) {
+    /** @returns {PlaybackPathSummary} */
+    const emptyPath = () => ({ support: 'untested', containers: [], partial: [] });
+    /** @type {PlaybackSummary} */
+    const summary = { file: emptyPath(), mse: emptyPath() };
+
+    for (const [container, cr] of Object.entries(containers)) {
+        const verdict = containerVerdict(cr);
+        const path = cr.mode === 'file' ? summary.file : summary.mse;
+
+        if (SUPPORT_RANK[verdict] > SUPPORT_RANK[path.support]) path.support = verdict;
+        if (verdict === 'supported') path.containers.push(container);
+        else if (verdict === 'partial') path.partial.push(container);
+    }
+
+    return summary;
+}
+
+
 // ==================== RETRY WRAPPER ====================
 
 /**
@@ -478,6 +585,7 @@ export async function testCodecWithRetry(record, groupType, deviceDRM, maxRetrie
         scenarios: record.scenarios,
         education: record.education || null,
         containers: {},
+        playback: summarizePlayback({}),
         drm: null,
         support: 'failed',
         error: failMsg
